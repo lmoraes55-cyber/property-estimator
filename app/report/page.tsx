@@ -145,7 +145,7 @@ function ReportContent() {
 
         {/* Hero verdict */}
         <div className="rounded-2xl p-8 relative overflow-hidden"
-          style={{ background: ltrRecommended ? `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)` : `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: `1px solid ${colors.border}` }}>
+          style={{ background: ltrRecommended ? `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)` : `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: `1px solid ${colors.primary}` }}>
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-5"
             style={{ background: ltrRecommended ? colors.mutedGreen : colors.primary, filter: "blur(80px)", transform: "translate(30%, -30%)" }} />
           <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -222,7 +222,7 @@ function ReportContent() {
         </div>
 
         {/* STR vs LTR chart */}
-        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
           <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Net Income: STR vs LTR</h2>
           <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Short-term rental net income compared to equivalent monthly long-term rent</p>
           <ResponsiveContainer width="100%" height={280}>
@@ -251,7 +251,7 @@ function ReportContent() {
 
         {/* Revenue & Occupancy */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Gross Revenue</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -266,7 +266,7 @@ function ReportContent() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Occupancy Rate</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Dubai peak season: Nov–Mar; low season: Jun–Aug</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -284,7 +284,7 @@ function ReportContent() {
         </div>
 
         {/* Monthly breakdown table */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid " + colors.border }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid " + colors.primary }}>
           <div className="px-6 py-4" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
             <h2 className="text-base font-semibold" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
