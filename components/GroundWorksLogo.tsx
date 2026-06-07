@@ -7,41 +7,50 @@ export default function GroundWorksLogo({ size = 64 }: { size?: number }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* House icon - Layered chevrons */}
-      <g>
-        {/* Top chevron */}
-        <path
-          d="M 50 85 L 75 60 L 100 85"
-          stroke="#2F4F3E"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-        {/* Middle-top chevron */}
-        <path
-          d="M 45 105 L 100 50 L 155 105"
-          stroke="#2F4F3E"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-        {/* Middle chevron */}
-        <path
-          d="M 40 125 L 100 65 L 160 125"
-          stroke="#2F4F3E"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-        {/* Bottom base - rust color */}
-        <rect x="40" y="135" width="120" height="20" fill="#8B5E3C" rx="2" />
-      </g>
+      {/* Top chevron/arrow pointing up - Deep Green */}
+      <path
+        d="M 40 90 L 100 40 L 160 90 L 160 105 L 100 60 L 40 105 Z"
+        fill="#2F4F3E"
+      />
 
-      {/* Vertical divider line */}
-      <line x1="85" y1="55" x2="85" y2="155" stroke="#2F4F3E" strokeWidth="2" />
+      {/* Window frame with cross - Deep Green */}
+      <rect
+        x="70"
+        y="95"
+        width="60"
+        height="40"
+        fill="none"
+        stroke="#2F4F3E"
+        strokeWidth="5"
+      />
+      {/* Vertical line in window */}
+      <line x1="100" y1="95" x2="100" y2="135" stroke="#2F4F3E" strokeWidth="5" />
+      {/* Horizontal line in window */}
+      <line x1="70" y1="115" x2="130" y2="115" stroke="#2F4F3E" strokeWidth="5" />
+
+      {/* First horizontal layer - Deep Green */}
+      <rect
+        x="35"
+        y="140"
+        width="130"
+        height="12"
+        fill="#2F4F3E"
+      />
+
+      {/* Second horizontal layer - Muted Green (lighter) */}
+      <rect
+        x="35"
+        y="158"
+        width="130"
+        height="12"
+        fill="#3F6B54"
+      />
+
+      {/* Base layer - Rust/Brown */}
+      <path
+        d="M 35 176 Q 35 185 45 190 L 155 190 Q 165 185 165 176 Z"
+        fill="#8B5E3C"
+      />
     </svg>
   );
 }
