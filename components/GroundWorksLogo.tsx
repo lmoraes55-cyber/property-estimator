@@ -13,6 +13,7 @@ export default function GroundWorksLogo({ size = 64 }: { size?: number }) {
         width: size,
         height: "auto",
         objectFit: "contain",
+        mixBlendMode: "multiply",
       }}
     />
   );
