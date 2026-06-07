@@ -29,15 +29,15 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
 
   return (
     <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: `1px solid ${isBest ? "#5A9E5A55" : colors.border}` }}>
+      style={{ background: colors.bgSection, border: `1px solid ${isBest ? "#5A9E5A55" : colors.primary}` }}>
 
       {/* Header */}
-      <div className="p-6" style={{ borderBottom: "1px solid " + colors.border }}>
+      <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>
         <div className="flex items-start justify-between mb-3">
           <div>
             {isBest && (
               <span className="inline-block text-xs px-2.5 py-1 rounded-full font-semibold mb-2"
-                style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.border }}>
+                style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.primary }}>
                 {rank === 0 ? "Top Match for Your Area" : "Strong Match for Your Area"}
               </span>
             )}
@@ -56,7 +56,7 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
           <div className="flex flex-wrap gap-2 mt-3">
             {agent.matchReasons.map(r => (
               <span key={r} className="text-xs px-2.5 py-1 rounded-lg"
-                style={{ background: colors.bgMain, border: "1px solid " + colors.border, color: colors.primary }}>
+                style={{ background: colors.bgMain, border: "1px solid " + colors.primary, color: colors.primary }}>
                 {r}
               </span>
             ))}
@@ -75,7 +75,7 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
             { label: "Rent Achieved", value: agent.avgAchievedRent },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-3 text-center"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <p className="text-xs mb-1" style={{ color: colors.textMuted }}>{s.label}</p>
               <p className="text-sm font-bold" style={{ color: colors.textMain }}>{s.value}</p>
             </div>
@@ -87,18 +87,18 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
           <p className="text-xs font-semibold tracking-wider uppercase mb-3" style={{ color: colors.textLight }}>Platform Ratings</p>
           <div className="flex flex-wrap gap-2">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <span style={{ color: SOURCE_COLORS["Google"] }}>Google</span>
               <span className="font-bold" style={{ color: colors.textMain }}>{agent.googleRating}</span>
               <span style={{ color: colors.textLight }}>({agent.googleReviewCount.toLocaleString()})</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <span style={{ color: SOURCE_COLORS["Property Finder"] }}>Property Finder</span>
               <span className="font-bold" style={{ color: colors.textMain }}>{agent.propertyFinderRating}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <span style={{ color: colors.textLight }}>Languages</span>
               <span style={{ color: colors.textMain }}>{agent.languages.join(" · ")}</span>
             </div>
@@ -135,7 +135,7 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
           <p className="text-xs font-semibold tracking-wider uppercase mb-3" style={{ color: colors.textLight }}>Recent Landlord Reviews</p>
           <div className="space-y-3">
             {agent.recentReviews.map((r, i) => (
-              <div key={i} className="rounded-xl p-3" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              <div key={i} className="rounded-xl p-3" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold" style={{ color: colors.textMain }}>{r.author}</span>
@@ -206,7 +206,7 @@ function AgentsContent() {
 
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
-        style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.border, backdropFilter: "blur(12px)" }}>
+        style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.primary, backdropFilter: "blur(12px)" }}>
         <div className="flex items-center gap-4">
           <button onClick={handleBack}
             className="text-xs px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium"
@@ -230,7 +230,7 @@ function AgentsContent() {
           </div>
         </div>
         <span className="text-xs px-3 py-1 rounded-full font-medium"
-          style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.border }}>
+          style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.primary }}>
           Long-Term Rental
         </span>
       </div>
@@ -238,7 +238,7 @@ function AgentsContent() {
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
 
         {/* Hero */}
-        <div className="rounded-2xl p-8" style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.border }}>
+        <div className="rounded-2xl p-8" style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.primary }}>
           <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.mutedGreen }}>Part 2 of 2 · Agent Match</p>
           <h1 className="text-3xl font-bold mb-2" style={{ color: colors.textMain }}>Your Top 5 Leasing Agents</h1>
           <p className="text-sm mb-6" style={{ color: colors.textLight }}>

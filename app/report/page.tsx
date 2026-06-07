@@ -15,7 +15,7 @@ import GroundWorksLogo from "@/components/GroundWorksLogo";
 
 function StatCard({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
-    <div className="rounded-xl p-5" style={{ background: colors.bgSection, border: `1px solid ${highlight ? "#C9A84C55" : colors.border}` }}>
+    <div className="rounded-xl p-5" style={{ background: colors.bgSection, border: `1px solid ${highlight ? "#C9A84C55" : colors.primary}` }}>
       <p className="text-xs font-medium mb-1 tracking-wider" style={{ color: colors.textMuted }}>{label}</p>
       <p className="text-2xl font-bold" style={{ color: highlight ? colors.primary : colors.textMain }}>{value}</p>
       {sub && <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{sub}</p>}
@@ -27,7 +27,7 @@ function StatCard({ label, value, sub, highlight }: { label: string; value: stri
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl px-4 py-3 shadow-xl" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+    <div className="rounded-xl px-4 py-3 shadow-xl" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
       <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>{label}</p>
       {payload.map((p: { name: string; value: number; color: string }) => (
         <p key={p.name} className="text-xs" style={{ color: p.color }}>
@@ -73,7 +73,7 @@ function ReportContent() {
     <div className="min-h-screen" style={{ background: colors.bgMain }}>
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
-        style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.border, backdropFilter: "blur(12px)" }}>
+        style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.primary, backdropFilter: "blur(12px)" }}>
         <div className="flex items-center gap-4">
           <button onClick={() => router.back()}
             className="text-xs px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium"
@@ -115,7 +115,7 @@ function ReportContent() {
         {/* Unfurnished notice */}
         {result.furnished === "Unfurnished" && (
           <div className="rounded-2xl p-5"
-            style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+            style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
             <p className="text-sm font-semibold mb-1" style={{ color: colors.primary }}>
               Furnishing package required
             </p>
@@ -237,7 +237,7 @@ function ReportContent() {
                   <stop offset="95%" stopColor={colors.textLight} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.primary} />
               <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false}
                 tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
@@ -256,7 +256,7 @@ function ReportContent() {
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
+                <CartesianGrid strokeDasharray="3 3" stroke={colors.primary} />
                 <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false}
                   tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
@@ -271,7 +271,7 @@ function ReportContent() {
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Dubai peak season: Nov–Mar; low season: Jun–Aug</p>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
+                <CartesianGrid strokeDasharray="3 3" stroke={colors.primary} />
                 <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false}
                   tickFormatter={v => `${v}%`} domain={[0, 100]} />
@@ -285,14 +285,14 @@ function ReportContent() {
 
         {/* Monthly breakdown table */}
         <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid " + colors.primary }}>
-          <div className="px-6 py-4" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
+          <div className="px-6 py-4" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.primary }}>
             <h2 className="text-base font-semibold" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
+                <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.primary }}>
                   {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Net to Landlord"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-medium" style={{ color: colors.textMuted }}>{h}</th>
                   ))}
@@ -300,7 +300,7 @@ function ReportContent() {
               </thead>
               <tbody>
                 {result.months.map((m, i) => (
-                  <tr key={m.month} style={{ borderBottom: "1px solid " + colors.border, background: i % 2 === 0 ? colors.bgMain : colors.bgSection }}>
+                  <tr key={m.month} style={{ borderBottom: "1px solid " + colors.primary, background: i % 2 === 0 ? colors.bgMain : colors.bgSection }}>
                     <td className="px-4 py-3 font-medium" style={{ color: colors.textMain }}>{m.month}</td>
                     <td className="px-4 py-3" style={{ color: colors.primary }}>AED {fmt(m.revenue)}</td>
                     <td className="px-4 py-3" style={{ color: colors.textMain }}>{(m.occupancy * 100).toFixed(0)}%</td>
@@ -311,7 +311,7 @@ function ReportContent() {
                     <td className="px-4 py-3 font-semibold" style={{ color: colors.textMain }}>AED {fmt(m.netToLandlord)}</td>
                   </tr>
                 ))}
-                <tr style={{ background: colors.bgSection, borderTop: "1px solid " + colors.border }}>
+                <tr style={{ background: colors.bgSection, borderTop: "1px solid " + colors.primary }}>
                   <td className="px-4 py-3 font-bold" style={{ color: colors.primary }}>TOTAL</td>
                   <td className="px-4 py-3 font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualRevenue)}</td>
                   <td className="px-4 py-3 font-bold" style={{ color: colors.textMain }}>{(result.avgOccupancy * 100).toFixed(0)}% avg</td>

@@ -24,10 +24,10 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 
   return (
     <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: `1px solid ${isBest ? "#C9A84C55" : colors.border}` }}>
+      style={{ background: colors.bgSection, border: `1px solid ${isBest ? "#C9A84C55" : colors.primary}` }}>
 
       {/* Header */}
-      <div className="p-6" style={{ borderBottom: "1px solid " + colors.border }}>
+      <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>
         <div className="flex items-start justify-between mb-3">
           <div>
             {isBest && (
@@ -51,7 +51,7 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
           <div className="flex flex-wrap gap-2 mt-3">
             {op.matchReasons.map(r => (
               <span key={r} className="text-xs px-2.5 py-1 rounded-lg"
-                style={{ background: colors.bgMain, border: "1px solid " + colors.border, color: colors.primary }}>
+                style={{ background: colors.bgMain, border: "1px solid " + colors.primary, color: colors.primary }}>
                 {r}
               </span>
             ))}
@@ -69,7 +69,7 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
             { label: "Portfolio", value: `${op.portfolio}+ units` },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-3 text-center"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <p className="text-xs mb-1" style={{ color: colors.textMuted }}>{s.label}</p>
               <p className="text-sm font-bold" style={{ color: colors.textMain }}>{s.value}</p>
             </div>
@@ -85,7 +85,7 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
                 style={{
                   background: o.listed ? colors.bgSection : colors.bgSection,
-                  border: `1px solid ${o.listed ? colors.border : colors.bgSection}`,
+                  border: `1px solid ${o.listed ? colors.primary : colors.bgSection}`,
                   color: o.listed ? colors.success : colors.textLight,
                 }}>
                 <span>{o.platform}</span>
@@ -127,7 +127,7 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
           <p className="text-xs font-semibold tracking-wider uppercase mb-3" style={{ color: colors.textLight }}>Recent Reviews</p>
           <div className="space-y-3">
             {op.recentReviews.map((r, i) => (
-              <div key={i} className="rounded-xl p-3" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              <div key={i} className="rounded-xl p-3" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold" style={{ color: colors.textMain }}>{r.author}</span>
@@ -158,14 +158,14 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 function UpcomingOperatorCard({ op }: { op: UpcomingOperator }) {
   return (
     <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+      style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
 
       {/* Header */}
-      <div className="p-6" style={{ borderBottom: "1px solid " + colors.border }}>
+      <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>
         <div className="flex items-start justify-between mb-3">
           <div>
             <span className="inline-block text-xs px-2.5 py-1 rounded-full font-semibold mb-2"
-              style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.primary }}>
               New & Emerging
             </span>
             <h3 className="text-lg font-bold" style={{ color: colors.textMain }}>{op.name}</h3>
@@ -196,7 +196,7 @@ function UpcomingOperatorCard({ op }: { op: UpcomingOperator }) {
             { label: "Coverage", value: op.communities.length + " areas" },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-3 text-center"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <p className="text-xs mb-1" style={{ color: colors.textMuted }}>{s.label}</p>
               <p className="text-sm font-bold" style={{ color: colors.textMain }}>{s.value}</p>
             </div>
@@ -217,7 +217,7 @@ function UpcomingOperatorCard({ op }: { op: UpcomingOperator }) {
 
         {/* CTA */}
         <button className="w-full py-3 rounded-xl text-sm font-bold transition-all"
-          style={{ background: colors.bgSection, color: colors.primary, border: "1px solid " + colors.border }}>
+          style={{ background: colors.bgSection, color: colors.primary, border: "1px solid " + colors.primary }}>
           Learn More About {op.name} →
         </button>
       </div>
@@ -278,7 +278,7 @@ function OperatorsContent() {
 
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
-        style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.border, backdropFilter: "blur(12px)" }}>
+        style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.primary, backdropFilter: "blur(12px)" }}>
         <div className="flex items-center gap-4">
           <button onClick={handleBack}
             className="text-xs px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium"
@@ -310,7 +310,7 @@ function OperatorsContent() {
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
 
         {/* Hero */}
-        <div className="rounded-2xl p-8" style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.border }}>
+        <div className="rounded-2xl p-8" style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.primary }}>
           <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Part 2 of 3 · Operator Match</p>
           <h1 className="text-3xl font-bold mb-2" style={{ color: colors.textMain }}>Your Top 5 Operator Matches</h1>
           <p className="text-sm mb-6" style={{ color: colors.textMuted }}>
@@ -338,7 +338,7 @@ function OperatorsContent() {
         ))}
 
         {/* New & Upcoming Operators Section */}
-        <div className="rounded-2xl p-8 mt-12" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+        <div className="rounded-2xl p-8 mt-12" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
           <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Alternative Options</p>
           <h2 className="text-2xl font-bold mb-2" style={{ color: colors.secondary }}>New & Upcoming Operators</h2>
           <p className="text-sm mb-6" style={{ color: colors.textMuted }}>
@@ -354,7 +354,7 @@ function OperatorsContent() {
 
         {/* Next Step: Furnishing (if unfurnished) */}
         {input.furnished === "Unfurnished" && (
-          <div className="rounded-2xl p-8" style={{ background: "linear-gradient(135deg, " + colors.bgSection + ", " + colors.bgMain + ")", border: "1px solid " + colors.border }}>
+          <div className="rounded-2xl p-8" style={{ background: "linear-gradient(135deg, " + colors.bgSection + ", " + colors.bgMain + ")", border: "1px solid " + colors.primary }}>
             <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Next Step</p>
             <h3 className="text-2xl font-bold mb-2" style={{ color: colors.secondary }}>Furnishing Packages</h3>
             <p className="text-sm mb-6" style={{ color: colors.textMuted }}>

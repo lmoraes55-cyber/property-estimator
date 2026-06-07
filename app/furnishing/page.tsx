@@ -23,7 +23,7 @@ function FurnishingContent() {
         className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
         style={{
           background: colors.bgMain + "ee",
-          borderBottom: "1px solid " + colors.border,
+          borderBottom: "1px solid " + colors.primary,
           backdropFilter: "blur(12px)",
         }}
       >
@@ -68,7 +68,7 @@ function FurnishingContent() {
 
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
         {/* Hero */}
-        <div className="rounded-2xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+        <div className="rounded-2xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
           <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>
             Part 3 of 3 · Furnishing Options
           </p>
@@ -81,7 +81,7 @@ function FurnishingContent() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 border-b" style={{ borderColor: colors.border }}>
+        <div className="flex gap-2 border-b" style={{ borderColor: colors.primary }}>
           {[
             { id: "self", label: "Self Furnish (DIY)" },
             { id: "3rdparty", label: "Interior Design Firms" },
@@ -104,7 +104,7 @@ function FurnishingContent() {
         {/* Self Furnish Section */}
         {activeTab === "self" && (
           <div className="space-y-6">
-            <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
+            <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
               <h2 className="text-2xl font-bold mb-3" style={{ color: colors.secondary }}>
                 DIY Furnishing — DET Compliance Checklist
               </h2>
@@ -117,7 +117,7 @@ function FurnishingContent() {
                   <div
                     key={section.category}
                     className="rounded-xl p-4"
-                    style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
+                    style={{ background: colors.bgMain, border: "1px solid " + colors.primary }}
                   >
                     <h3 className="font-semibold mb-3" style={{ color: colors.secondary }}>
                       {section.category}
@@ -136,7 +136,7 @@ function FurnishingContent() {
 
               <div
                 className="rounded-xl p-4 mt-6"
-                style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
+                style={{ background: colors.bgMain, border: "1px solid " + colors.primary }}
               >
                 <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>
                   DET Compliance Tip
@@ -162,14 +162,14 @@ function FurnishingContent() {
                 className="rounded-2xl overflow-hidden"
                 style={{
                   background: colors.bgSection,
-                  border: `1px solid ${idx === 0 ? colors.primary + "55" : colors.border}`,
+                  border: `1px solid ${idx === 0 ? colors.primary + "55" : colors.primary}`,
                 }}
               >
                 <div className="p-6">
                   {idx === 0 && (
                     <span
                       className="inline-block text-xs px-2.5 py-1 rounded-full font-semibold mb-3"
-                      style={{ background: colors.bgMain, color: colors.secondary, border: "1px solid " + colors.border }}
+                      style={{ background: colors.bgMain, color: colors.secondary, border: "1px solid " + colors.primary }}
                     >
                       Top Rated
                     </span>
@@ -203,7 +203,7 @@ function FurnishingContent() {
                       <div
                         key={stat.label}
                         className="rounded-lg p-2 text-center"
-                        style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
+                        style={{ background: colors.bgMain, border: "1px solid " + colors.primary }}
                       >
                         <p className="text-xs mb-1" style={{ color: colors.textMuted }}>
                           {stat.label}
@@ -224,7 +224,7 @@ function FurnishingContent() {
                         <span
                           key={spec}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.border }}
+                          style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.primary }}
                         >
                           {spec}
                         </span>
@@ -250,7 +250,7 @@ function FurnishingContent() {
                     style={{
                       background: idx === 0 ? "linear-gradient(135deg, " + colors.secondary + ", #B8844A)" : colors.bgMain,
                       color: idx === 0 ? "#FFF" : colors.secondary,
-                      border: idx === 0 ? "none" : "1px solid " + colors.border,
+                      border: idx === 0 ? "none" : "1px solid " + colors.primary,
                     }}
                   >
                     {idx === 0 ? `Contact ${company.name} for Quote` : `Learn More about ${company.name}`}
@@ -268,7 +268,7 @@ function FurnishingContent() {
               className="rounded-2xl p-8"
               style={{
                 background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`,
-                border: "1px solid " + colors.border,
+                border: "1px solid " + colors.primary,
               }}
             >
               <h2 className="text-2xl font-bold mb-4" style={{ color: colors.secondary }}>
@@ -281,7 +281,7 @@ function FurnishingContent() {
               <div className="space-y-4">
                 <div
                   className="rounded-xl p-4"
-                  style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
+                  style={{ background: colors.bgMain, border: "1px solid " + colors.primary }}
                 >
                   <p className="text-sm font-semibold mb-2" style={{ color: colors.secondary }}>
                     How It Works
@@ -309,7 +309,7 @@ function FurnishingContent() {
 
                 <div
                   className="rounded-xl p-4"
-                  style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
+                  style={{ background: colors.bgMain, border: "1px solid " + colors.primary }}
                 >
                   <p className="text-xs font-semibold mb-3" style={{ color: colors.secondary }}>
                     Operator Advantages
@@ -346,7 +346,7 @@ function FurnishingContent() {
                     style={{
                       background: colors.bgMain,
                       color: colors.primary,
-                      border: "1px solid " + colors.border,
+                      border: "1px solid " + colors.primary,
                     }}
                   >
                     ← Back to Operators

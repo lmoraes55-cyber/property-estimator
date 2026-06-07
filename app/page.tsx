@@ -147,7 +147,7 @@ export default function Home() {
 {/* Step pills + Progress indicator */}
       <div className="flex flex-col items-center gap-3 mb-10">
         <div className="flex items-center gap-1 p-1 rounded-full"
-          style={{ background: colors.bgSection, border: "1px solid #1E1E1E" }}>
+          style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
           {STEPS.map((s, i) => (
             <button key={s.label}
               onClick={() => i < step && setStep(i)}
@@ -175,7 +175,7 @@ export default function Home() {
 
       {/* Card */}
       <div className="w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl"
-        style={{ background: colors.bgSection, border: "1px solid #1E1E1E" }}>
+        style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
 
         {/* Progress bar */}
         <div className="h-0.5" style={{ background: colors.border }}>
@@ -212,7 +212,7 @@ export default function Home() {
                 {form.buildingName && (
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-xs px-2 py-1 rounded-lg font-medium"
-                      style={{ background: "#C9A84C22", color: colors.primary, border: "1px solid #C9A84C33" }}>
+                      style={{ background: "#C9A84C22", color: colors.primary, border: "1px solid colors.primary" }}>
                       {form.buildingName}
                     </span>
                     {buildingInfo && (
@@ -402,7 +402,7 @@ export default function Home() {
               </div>
 
               {/* Market data notice */}
-              <div className="rounded-xl p-4" style={{ background: colors.bgSection, border: "1px solid #1A3A1A" }}>
+              <div className="rounded-xl p-4" style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
                 <p className="text-xs font-semibold mb-1" style={{ color: colors.mutedGreen }}>Long-term rent sourced from market data</p>
                 <p className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>
                   We benchmark your property against current listings on Property Finder, Bayut, and DXB Interact to determine the long-term rental value — no manual input needed.
@@ -431,7 +431,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid #1E1E1E" }}>
+              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid colors.primary" }}>
                 <div className="flex items-start justify-between mb-2">
                   <label className="text-xs font-medium tracking-wider" style={{ color: colors.textMuted }}>
                     MANAGEMENT FEE
@@ -447,7 +447,7 @@ export default function Home() {
               </div>
 
               {/* Premium preview card */}
-              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid #1E1E1E" }}>
+              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid colors.primary" }}>
                 <p className="text-xs font-medium mb-3 tracking-wider" style={{ color: colors.textMuted }}>STR PREMIUM BREAKDOWN</p>
                 <div className="space-y-2">
                   {[
@@ -538,7 +538,7 @@ export default function Home() {
               </div>
 
               {/* Reason */}
-              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid #1E1E1E" }}>
+              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid colors.primary" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "#999" }}>
                   {ltrWarning.reason}
                 </p>
@@ -552,7 +552,7 @@ export default function Home() {
               <div className="space-y-3">
                 <p className="text-xs font-semibold tracking-wider uppercase" style={{ color: colors.textMuted }}>The Trade-off</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl p-4" style={{ background: colors.bgSection, border: "1px solid #1A3A1A" }}>
+                  <div className="rounded-xl p-4" style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
                     <p className="text-xs font-bold mb-2" style={{ color: colors.mutedGreen }}>Long-Term Rental</p>
                     <ul className="space-y-1.5">
                       {["Guaranteed monthly income", "No vacancy risk", "Zero management hassle", "Lower operating costs"].map(p => (
@@ -562,7 +562,7 @@ export default function Home() {
                       ))}
                     </ul>
                   </div>
-                  <div className="rounded-xl p-4" style={{ background: "colors.bgSection", border: "1px solid #C9A84C33" }}>
+                  <div className="rounded-xl p-4" style={{ background: "colors.bgSection", border: "1px solid colors.primary" }}>
                     <p className="text-xs font-bold mb-2" style={{ color: colors.primary }}>Short-Term Rental</p>
                     <ul className="space-y-1.5">
                       {["Full flexibility — use it anytime", "Similar net income in this area", "Option to switch operators", "No fixed tenant commitment"].map(p => (
@@ -576,7 +576,7 @@ export default function Home() {
               </div>
 
               {/* Question */}
-              <div className="rounded-xl p-4 text-center" style={{ background: "#111", border: "1px solid #1E1E1E" }}>
+              <div className="rounded-xl p-4 text-center" style={{ background: "#111", border: "1px solid colors.primary" }}>
                 <p className="text-sm font-medium mb-1" style={{ color: colors.secondary }}>
                   Would you still like to see the short-term projection?
                 </p>
