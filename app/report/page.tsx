@@ -7,7 +7,7 @@ import {
   Tooltip, ResponsiveContainer, Legend, ReferenceLine,
 } from "recharts";
 import {
-  runEstimator, DUBAI_BENCHMARKS,
+  runEstimator,
   fmt, UnitSize, UnitType, OCCStrategy, ViewType, FurnishedStatus, EstimatorOutput,
 } from "@/lib/estimator";
 import { colors } from "@/lib/colors";
@@ -58,7 +58,6 @@ function ReportContent() {
   };
 
   const result: EstimatorOutput = runEstimator(input);
-  const benchmarks = DUBAI_BENCHMARKS[input.unitSize] ?? [];
 
   const chartData = result.months.map(m => ({
     month: m.month,
@@ -104,8 +103,8 @@ function ReportContent() {
           </span>
           <button
             onClick={() => window.print()}
-            className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
-            style={{ background: colors.primary, color: "#000" }}>
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold transition"
+            style={{ background: colors.primary, color: "#FFF" }}>
             Export PDF
           </button>
         </div>
@@ -223,7 +222,7 @@ function ReportContent() {
         </div>
 
         {/* STR vs LTR chart */}
-        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid #1E1E1E" }}>
+        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
           <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Net Income: STR vs LTR</h2>
           <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Short-term rental net income compared to equivalent monthly long-term rent</p>
           <ResponsiveContainer width="100%" height={280}>
@@ -252,7 +251,7 @@ function ReportContent() {
 
         {/* Revenue & Occupancy */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid #1E1E1E" }}>
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Gross Revenue</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -267,7 +266,7 @@ function ReportContent() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid #1E1E1E" }}>
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Occupancy Rate</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Dubai peak season: Nov–Mar; low season: Jun–Aug</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -326,35 +325,6 @@ function ReportContent() {
             </table>
           </div>
         </div>
-
-        {/* Area benchmarks */}
-        {benchmarks.length > 0 && (
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid #1E1E1E" }}>
-            <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Dubai Community Benchmarks</h2>
-            <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Average {input.unitSize} performance across key Dubai communities</p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #1E1E1E" }}>
-                    {["Community","Avg Occupancy","Avg Daily Rate","Avg Annual Net"].map(h => (
-                      <th key={h} className="pb-3 text-left text-xs font-medium" style={{ color: colors.textMuted }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y" style={{ borderColor: colors.bgSection }}>
-                  {benchmarks.map(b => (
-                    <tr key={b.community}>
-                      <td className="py-3 font-medium" style={{ color: colors.secondary }}>{b.community}</td>
-                      <td className="py-3" style={{ color: colors.textLight }}>{(b.avgOccupancy * 100).toFixed(0)}%</td>
-                      <td className="py-3" style={{ color: colors.textLight }}>AED {fmt(b.avgADR)}</td>
-                      <td className="py-3 font-semibold" style={{ color: colors.primary }}>AED {fmt(b.avgAnnualNet)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
 
 
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
