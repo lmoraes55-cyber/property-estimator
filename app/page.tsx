@@ -497,7 +497,7 @@ export default function Home() {
               <button onClick={() => setStep(s => s + 1)}
                 disabled={!canNext()}
                 className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-25"
-                style={{ background: colors.primary, color: "#000" }}>
+                style={{ background: colors.primary, color: "#FFF" }}>
                 Continue →
               </button>
             ) : (
