@@ -129,7 +129,7 @@ function ReportContent() {
         {/* LTR recommendation banner */}
         {ltrRecommended && (
           <div className="rounded-2xl p-5"
-            style={{ background: colors.bgSection, border: "1px solid #1A4A1A" }}>
+            style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
             <div>
               <p className="text-sm font-semibold mb-1" style={{ color: colors.mutedGreen }}>
                 Long-term rental recommended for this area

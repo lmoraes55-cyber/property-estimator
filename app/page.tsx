@@ -147,7 +147,7 @@ export default function Home() {
 {/* Step pills + Progress indicator */}
       <div className="flex flex-col items-center gap-3 mb-10">
         <div className="flex items-center gap-1 p-1 rounded-full"
-          style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
+          style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
           {STEPS.map((s, i) => (
             <button key={s.label}
               onClick={() => i < step && setStep(i)}
@@ -175,7 +175,7 @@ export default function Home() {
 
       {/* Card */}
       <div className="w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl"
-        style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
+        style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
 
         {/* Progress bar */}
         <div className="h-0.5" style={{ background: colors.border }}>
@@ -212,7 +212,7 @@ export default function Home() {
                 {form.buildingName && (
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-xs px-2 py-1 rounded-lg font-medium"
-                      style={{ background: "#C9A84C22", color: colors.primary, border: "1px solid colors.primary" }}>
+                      style={{ background: "#C9A84C22", color: colors.primary, border: "1px solid " + colors.primary }}>
                       {form.buildingName}
                     </span>
                     {buildingInfo && (
