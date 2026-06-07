@@ -29,7 +29,7 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
 
   return (
     <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: `1px solid ${isBest ? "#5A9E5A55" : colors.primary}` }}>
+      style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
 
       {/* Header */}
       <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>

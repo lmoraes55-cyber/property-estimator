@@ -24,7 +24,7 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 
   return (
     <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: `1px solid ${isBest ? "#C9A84C55" : colors.primary}` }}>
+      style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
 
       {/* Header */}
       <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>
