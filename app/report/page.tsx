@@ -202,7 +202,7 @@ function ReportContent() {
         </div>
 
         {/* Key metrics */}
-        <div>
+        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
           <h2 className="text-sm font-semibold tracking-wider uppercase mb-4" style={{ color: colors.textMuted }}>Key Metrics</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} highlight />
@@ -330,7 +330,7 @@ function ReportContent() {
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
         {ltrRecommended ? (
           <div className="rounded-2xl p-8 text-center"
-            style={{ background: "linear-gradient(135deg, #0A1400 0%, #081000 100%)", border: "1px solid #1A4A1A44" }}>
+            style={{ background: "linear-gradient(135deg, #0A1400 0%, #081000 100%)", border: "1px solid " + colors.primary }}>
             <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.mutedGreen }}>Part 2 of 2</p>
             <h2 className="text-2xl font-bold mb-2" style={{ color: colors.secondary }}>Find your leasing agent</h2>
             <p className="text-sm mb-6" style={{ color: colors.textLight }}>
@@ -348,7 +348,7 @@ function ReportContent() {
           </div>
         ) : (
           <div className="rounded-2xl p-8 text-center"
-            style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.border }}>
+            style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.primary }}>
             <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Part 2 of 2</p>
             <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>Now find your best operator</h2>
             <p className="text-sm mb-6" style={{ color: colors.textMuted }}>
