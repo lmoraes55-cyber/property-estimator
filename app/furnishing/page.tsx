@@ -83,9 +83,9 @@ function FurnishingContent() {
         {/* Tab Navigation */}
         <div className="flex gap-2 border-b" style={{ borderColor: colors.border }}>
           {[
-            { id: "self", label: "🛋 Self Furnish (DIY)" },
-            { id: "3rdparty", label: "🎨 Interior Design Firms" },
-            { id: "operator", label: "🏢 Operator Furnished" },
+            { id: "self", label: "Self Furnish (DIY)" },
+            { id: "3rdparty", label: "Interior Design Firms" },
+            { id: "operator", label: "Operator Furnished" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -125,7 +125,7 @@ function FurnishingContent() {
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {section.items.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-sm" style={{ color: colors.textMuted }}>
-                          <span style={{ color: colors.primary }}>✓</span>
+                          <span style={{ color: colors.primary, fontWeight: "bold" }}>•</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -139,7 +139,7 @@ function FurnishingContent() {
                 style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
               >
                 <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>
-                  💡 DET Compliance Tip
+                  DET Compliance Tip
                 </p>
                 <p className="text-sm" style={{ color: colors.textMuted }}>
                   Keep all receipts and product specs for DET audits. Focus on quality basics: DET requires mid-range furnishing (AED 15k–40k per 2BR). Budget for: furniture (~40%), appliances (~30%), soft goods (~20%), decor (~10%).
@@ -196,7 +196,7 @@ function FurnishingContent() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     {[
                       { label: "Avg Timeline", value: `${company.avgProjectDays} days` },
-                      { label: "DET Compliant", value: "Yes ✓" },
+                      { label: "DET Compliant", value: "Yes" },
                       { label: "2BR Cost", value: "AED 18k–80k" },
                       { label: "Coverage", value: company.communities.length + " areas" },
                     ].map((stat) => (
@@ -253,7 +253,7 @@ function FurnishingContent() {
                       border: idx === 0 ? "none" : "1px solid " + colors.border,
                     }}
                   >
-                    {idx === 0 ? `Contact ${company.name} for Quote →` : `Learn More about ${company.name}`}
+                    {idx === 0 ? `Contact ${company.name} for Quote` : `Learn More about ${company.name}`}
                   </button>
                 </div>
               </div>
@@ -312,7 +312,7 @@ function FurnishingContent() {
                   style={{ background: colors.bgMain, border: "1px solid " + colors.border }}
                 >
                   <p className="text-xs font-semibold mb-3" style={{ color: colors.secondary }}>
-                    ✓ Operator Advantages
+                    Operator Advantages
                   </p>
                   <ul className="space-y-2">
                     {[
@@ -324,7 +324,7 @@ function FurnishingContent() {
                       "Can be bundled into your partnership agreement or commission structure",
                     ].map((adv) => (
                       <li key={adv} className="flex items-start gap-2 text-xs" style={{ color: colors.textMuted }}>
-                        <span style={{ color: colors.primary }}>→</span> {adv}
+                        <span style={{ color: colors.primary, fontWeight: "bold" }}>•</span> {adv}
                       </li>
                     ))}
                   </ul>
