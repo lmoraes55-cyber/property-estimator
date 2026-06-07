@@ -70,7 +70,7 @@ function ReportContent() {
   const strBetter = result.strVsLtrDelta > 0;
 
   return (
-    <div className="min-h-screen" style={{ background: colors.bgMain }}>
+    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
         style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.primary, backdropFilter: "blur(12px)" }}>
