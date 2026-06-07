@@ -155,7 +155,7 @@ export default function Home() {
               className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all"
               style={{
                 background: i === step ? colors.primary : "transparent",
-                color: i === step ? "#000" : i < step ? colors.primary : colors.textLight,
+                color: i === step ? "#FFF" : i < step ? colors.primary : colors.textLight,
                 cursor: i < step ? "pointer" : i === step ? "default" : "not-allowed",
                 opacity: i <= step ? 1 : 0.5,
               }}>
