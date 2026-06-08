@@ -385,37 +385,187 @@ function ReportContent() {
           </ResponsiveContainer>
         </div>
 
-        {/* Revenue & Occupancy */}
+        {/* Revenue & Occupancy - Premium Investor Intelligence Charts */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-3xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
-            <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Gross Revenue</h2>
-            <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={colors.primary} />
-                <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false}
-                  tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="Revenue" fill={colors.primary} radius={[4, 4, 0, 0]} opacity={0.85} />
-              </BarChart>
+          {/* Premium Revenue Chart */}
+          <div className="rounded-3xl p-10" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
+            <div className="mb-8">
+              <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Gross Revenue</h2>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 20 }}>
+                <defs>
+                  {/* Premium revenue gradient */}
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="rgba(27,94,74,0.35)" />
+                    <stop offset="95%" stopColor="rgba(27,94,74,0.03)" />
+                  </linearGradient>
+                  {/* Seasonal context backgrounds */}
+                  <linearGradient id="highSeasonGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(27,94,74,0.04)" />
+                    <stop offset="100%" stopColor="rgba(27,94,74,0.02)" />
+                  </linearGradient>
+                </defs>
+                {/* Subtle gridlines */}
+                <CartesianGrid strokeDasharray="0" stroke="rgba(27,94,74,0.08)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false}
+                  tickFormatter={v => `${(v / 1000).toFixed(0)}k`} width={40} />
+                {/* Custom tooltip */}
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload?.length) {
+                      const data = payload[0].payload;
+                      const revenuePercent = ((data.Revenue / result.annualRevenue) * 100).toFixed(1);
+                      return (
+                        <div className="rounded-xl p-4 backdrop-blur-lg" style={{
+                          background: "rgba(26, 26, 26, 0.95)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.2)"
+                        }}>
+                          <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>{data.month}</p>
+                          <p className="text-sm font-bold" style={{ color: "#FFF" }}>AED {fmt(data.Revenue)}</p>
+                          <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{revenuePercent}% of annual</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                {/* Premium area + line */}
+                <Area
+                  type="natural"
+                  dataKey="Revenue"
+                  stroke={colors.primary}
+                  strokeWidth={3}
+                  fill="url(#revenueGradient)"
+                  dot={({ cx, cy, payload }) => {
+                    const isHighest = payload.Revenue === Math.max(...chartData.map(d => d.Revenue));
+                    const isLowest = payload.Revenue === Math.min(...chartData.map(d => d.Revenue));
+                    const isSpecial = isHighest || isLowest;
+                    return (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={isSpecial ? 6 : 4}
+                        fill={colors.primary}
+                        stroke="#FFF"
+                        strokeWidth={2}
+                        style={{
+                          filter: isSpecial ? `drop-shadow(0 0 6px ${colors.primary})` : "none",
+                          transition: "all 300ms"
+                        }}
+                      />
+                    );
+                  }}
+                  activeDot={{ r: 7, fill: colors.primary, stroke: "#FFF", strokeWidth: 2 }}
+                />
+              </AreaChart>
             </ResponsiveContainer>
+            {/* Peak/Low season labels */}
+            <div className="flex justify-between mt-4 text-xs">
+              <div style={{ color: colors.textLight }}>
+                <span style={{ color: colors.primary, fontWeight: "600" }}>Peak:</span> Nov–Apr
+              </div>
+              <div style={{ color: colors.textLight }}>
+                <span style={{ color: colors.primary, fontWeight: "600" }}>Low:</span> Jun–Aug
+              </div>
+            </div>
           </div>
 
-          <div className="rounded-3xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
-            <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Occupancy Rate</h2>
-            <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Dubai peak season: Nov–Mar; low season: Jun–Aug</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={colors.primary} />
-                <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: colors.textMuted, fontSize: 10 }} axisLine={false} tickLine={false}
-                  tickFormatter={v => `${v}%`} domain={[0, 100]} />
-                <Tooltip formatter={(v) => [`${v}%`, "Occupancy"]} />
-                <ReferenceLine y={60} stroke={colors.primary + "44"} strokeDasharray="4 4" />
-                <Bar dataKey="Occupancy" fill={colors.secondary} radius={[4, 4, 0, 0]} opacity={0.8} />
-              </BarChart>
+          {/* Premium Occupancy Chart */}
+          <div className="rounded-3xl p-10" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
+            <div className="mb-8">
+              <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Occupancy Rate</h2>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Track monthly occupancy against 75% benchmark</p>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 20 }}>
+                <defs>
+                  {/* Subtle gold gradient for occupancy */}
+                  <linearGradient id="occupancyGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="rgba(184,138,68,0.2)" />
+                    <stop offset="95%" stopColor="rgba(184,138,68,0.02)" />
+                  </linearGradient>
+                </defs>
+                {/* Subtle gridlines */}
+                <CartesianGrid strokeDasharray="0" stroke="rgba(184,138,68,0.08)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fill: colors.textMuted, fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={v => `${v}%`}
+                  domain={[0, 100]}
+                  width={40}
+                />
+                {/* 75% Occupancy Benchmark */}
+                <ReferenceLine
+                  y={75}
+                  stroke={colors.secondary}
+                  strokeDasharray="6 4"
+                  label={{
+                    value: "75% Benchmark",
+                    position: "right",
+                    fill: colors.secondary,
+                    fontSize: 11,
+                    offset: 10
+                  }}
+                />
+                {/* Custom tooltip */}
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload?.length) {
+                      const data = payload[0].payload;
+                      const revenuePercent = ((data.Revenue / result.annualRevenue) * 100).toFixed(1);
+                      return (
+                        <div className="rounded-xl p-4 backdrop-blur-lg" style={{
+                          background: "rgba(26, 26, 26, 0.95)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.2)"
+                        }}>
+                          <p className="text-xs font-semibold mb-2" style={{ color: colors.secondary }}>{data.month}</p>
+                          <p className="text-sm font-bold" style={{ color: "#FFF" }}>{data.Occupancy}% Occupancy</p>
+                          <p className="text-xs mt-1" style={{ color: colors.textMuted }}>AED {fmt(data.Revenue)}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                {/* Premium area + line */}
+                <Area
+                  type="natural"
+                  dataKey="Occupancy"
+                  stroke={colors.secondary}
+                  strokeWidth={3}
+                  fill="url(#occupancyGradient)"
+                  dot={({ cx, cy, payload }) => {
+                    const aboveBenchmark = payload.Occupancy >= 75;
+                    return (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={aboveBenchmark ? 5 : 4}
+                        fill={colors.secondary}
+                        stroke="#FFF"
+                        strokeWidth={2}
+                        style={{
+                          filter: aboveBenchmark ? `drop-shadow(0 0 4px ${colors.secondary})` : "none",
+                          transition: "all 300ms"
+                        }}
+                      />
+                    );
+                  }}
+                  activeDot={{ r: 7, fill: colors.secondary, stroke: "#FFF", strokeWidth: 2 }}
+                />
+              </AreaChart>
             </ResponsiveContainer>
+            {/* Benchmark info */}
+            <div className="mt-4 text-xs" style={{ color: colors.textMuted }}>
+              <span style={{ color: colors.secondary, fontWeight: "600" }}>Strong Performance:</span> Occupancy above 75% threshold
+            </div>
           </div>
         </div>
 
@@ -580,11 +730,12 @@ function ReportContent() {
                 const p = new URLSearchParams(window.location.search);
                 window.location.href = `/agents?${p.toString()}`;
               }}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-103"
               style={{
-                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+                background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
                 color: "#FFF",
-                boxShadow: `0 8px 20px ${colors.primary}30`
+                boxShadow: `0 8px 20px rgba(27, 94, 74, 0.3)`,
+                transitionDuration: "250ms"
               }}>
               Find a Leasing Agent →
             </button>
@@ -608,11 +759,12 @@ function ReportContent() {
                 const p = new URLSearchParams(window.location.search);
                 window.location.href = `/operators?${p.toString()}`;
               }}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-103"
               style={{
-                background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.secondaryLight} 100%)`,
-                color: colors.textMain,
-                boxShadow: `0 8px 20px ${colors.secondary}30`
+                background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
+                color: "#FFF",
+                boxShadow: `0 8px 20px rgba(184, 138, 68, 0.3)`,
+                transitionDuration: "250ms"
               }}>
               Find My Best Operator →
             </button>
@@ -637,11 +789,12 @@ function ReportContent() {
               const p = new URLSearchParams(window.location.search);
               window.location.href = `/self-manage?${p.toString()}`;
             }}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-103"
             style={{
-              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+              background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
               color: "#FFF",
-              boxShadow: `0 8px 20px ${colors.primary}30`
+              boxShadow: `0 8px 20px rgba(27, 94, 74, 0.3)`,
+              transitionDuration: "250ms"
             }}>
             Find Out How to Self Manage →
           </button>
