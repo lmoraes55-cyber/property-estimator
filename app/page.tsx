@@ -116,66 +116,88 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16"
-      style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16 animate-fade-in"
+      style={{
+        background: `radial-gradient(ellipse 900px 700px at 50% 35%, ${colors.secondary}12 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 30%, ${colors.bgSection} 100%)`
+      }}>
 
       {/* Header */}
-      <div className="text-center mb-12">
-        <div className="flex flex-col items-center gap-3 mb-6">
+      <div className="text-center mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+        <div className="flex flex-col items-center gap-4 mb-8">
           <GroundWorksLogo size={120} />
           <div>
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <span className="text-2xl font-bold tracking-tight" style={{ color: colors.textMain }}>Ground</span>
-              <span className="text-2xl font-bold tracking-tight" style={{ color: colors.primary }}>Works</span>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-3xl font-bold tracking-tight" style={{ color: colors.textMain }}>Ground</span>
+              <span className="text-3xl font-bold tracking-tight" style={{ color: colors.primary }}>Works</span>
             </div>
-            <p className="text-xs tracking-widest uppercase" style={{ color: colors.textMuted, letterSpacing: "0.18em" }}>We work, You Decide</p>
+            <p className="text-xs tracking-widest font-medium" style={{ color: colors.textMuted, letterSpacing: "0.2em" }}>We work, You Decide</p>
           </div>
         </div>
-        <div className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border text-xs font-medium tracking-widest uppercase"
-          style={{ borderColor: colors.primary + "44", color: colors.primary, background: colors.primary + "0D" }}>
+        <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border text-xs font-semibold tracking-widest uppercase"
+          style={{ borderColor: colors.primary + "30", color: colors.primary, background: colors.primary + "08", backdropFilter: "blur(10px)" }}>
           Dubai Short-Term Rental Estimator
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3 leading-tight" style={{ color: colors.textMain }}>
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4 leading-tight" style={{ color: colors.textMain }}>
           How much can your<br />
-          <span style={{ color: colors.primary }}>Dubai property earn?</span>
+          <span style={{
+            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>Dubai property earn?</span>
         </h1>
-        <p className="text-sm" style={{ color: colors.textMuted }}>
-          Answer 3 questions. Get a data-driven 12-month rental forecast.
+        <p className="text-base max-w-md mx-auto" style={{ color: colors.textMuted, lineHeight: "1.7" }}>
+          Answer 3 questions. Get a data-driven 12-month rental forecast from our property intelligence platform.
         </p>
       </div>
 
 {/* Step pills + Progress indicator */}
-      <div className="flex flex-col items-center gap-3 mb-10">
-        <div className="flex items-center gap-1 p-1 rounded-full"
-          style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+      <div className="flex flex-col items-center gap-4 mb-12 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+        <div className="flex items-center gap-1 p-1.5 rounded-full"
+          style={{
+            background: colors.bgSection,
+            border: "1px solid " + colors.border,
+            boxShadow: `0 4px 12px rgba(0,0,0,0.04)`,
+            backdropFilter: "blur(10px)"
+          }}>
           {STEPS.map((s, i) => (
             <button key={s.label}
               onClick={() => i < step && setStep(i)}
               disabled={i >= step}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all hover:bg-white/5"
               style={{
-                background: i === step ? colors.primary : "transparent",
+                background: i === step ? `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)` : "transparent",
                 color: i === step ? "#FFF" : i < step ? colors.primary : colors.textLight,
                 cursor: i < step ? "pointer" : i === step ? "default" : "not-allowed",
                 opacity: i <= step ? 1 : 0.5,
+                letterSpacing: "0.05em"
               }}>
               <span className="hidden sm:block">{i + 1}. {s.label}</span>
-              <span className="sm:hidden">{i + 1}</span>
+              <span className="sm:hidden font-bold">{i + 1}</span>
             </button>
           ))}
         </div>
         {step > 0 && (
           <button onClick={() => setStep(s => s - 1)}
-            className="text-xs px-3 py-1 rounded-lg transition hover:bg-white/5"
-            style={{ color: colors.primary, background: "transparent", border: "1px solid #C9A84C44" }}>
+            className="text-xs px-4 py-2 rounded-lg transition-all hover:-translate-y-0.5 font-medium"
+            style={{
+              color: colors.primary,
+              background: colors.primary + "08",
+              border: "1px solid " + colors.primary + "20"
+            }}>
             ← Back to {STEPS[step - 1].label}
           </button>
         )}
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl"
-        style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+      <div className="w-full max-w-xl rounded-3xl overflow-hidden animate-slide-up" style={{
+        background: colors.bgSection,
+        border: "1px solid " + colors.border,
+        boxShadow: `0 1px 2px rgba(0,0,0,.04), 0 12px 32px rgba(0,0,0,.06), 0 24px 48px rgba(0,0,0,.04)`,
+        backdropFilter: "blur(20px)",
+        animationDelay: "0.3s"
+      }}>
 
         {/* Progress bar */}
         <div className="h-0.5" style={{ background: colors.border }}>
@@ -198,8 +220,13 @@ export default function Home() {
               <div ref={buildingRef} className="relative">
                 <label className="block text-xs font-medium mb-2 tracking-wider" style={{ color: colors.textMuted }}>BUILDING NAME</label>
                 <input
-                  className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition"
-                  style={{ background: colors.bgMain, border: `1px solid ${form.buildingName ? "#C9A84C55" : colors.border}`, color: colors.textMain }}
+                  className="w-full rounded-2xl px-5 py-4 text-sm outline-none transition-all focus:ring-2"
+                  style={{
+                    background: colors.bgMain,
+                    border: `1px solid ${form.buildingName ? colors.secondary : colors.border}`,
+                    color: colors.textMain,
+                    boxShadow: form.buildingName ? `0 0 0 3px ${colors.secondary}15` : "none"
+                  }}
                   placeholder="e.g. Marina Gate, Burj Khalifa, Forte..."
                   value={buildingSearch || form.buildingName}
                   onChange={e => {
@@ -464,8 +491,13 @@ export default function Home() {
             {step < 2 ? (
               <button onClick={() => setStep(s => s + 1)}
                 disabled={!canNext()}
-                className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-25"
-                style={{ background: colors.primary, color: "#FFF" }}>
+                className="flex-1 py-4 rounded-2xl text-sm font-bold transition-all disabled:opacity-25 hover:-translate-y-0.5 active:translate-y-0"
+                style={{
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+                  color: "#FFF",
+                  boxShadow: !canNext() ? "none" : `0 8px 20px ${colors.primary}30`,
+                  letterSpacing: "0.05em"
+                }}>
                 Continue →
               </button>
             ) : (
