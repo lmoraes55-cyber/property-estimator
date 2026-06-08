@@ -65,14 +65,14 @@ function SelfManageContent() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
+    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 900px 700px at 50% 35%, ${colors.secondary}12 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 30%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
       <div
         className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
         style={{
-          background: colors.bgMain + "ee",
-          borderBottom: "1px solid " + colors.primary,
-          backdropFilter: "blur(12px)",
+          background: colors.bgMain + "f0",
+          borderBottom: "1px solid " + colors.border,
+          backdropFilter: "blur(20px)",
         }}
       >
         <div className="flex items-center gap-4">

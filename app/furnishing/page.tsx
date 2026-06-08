@@ -17,21 +17,21 @@ function FurnishingContent() {
   const handleBack = () => router.back();
 
   return (
-    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
+    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 900px 700px at 50% 35%, ${colors.secondary}12 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 30%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
       <div
         className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
         style={{
-          background: colors.bgMain + "ee",
-          borderBottom: "1px solid " + colors.primary,
-          backdropFilter: "blur(12px)",
+          background: colors.bgMain + "f0",
+          borderBottom: "1px solid " + colors.border,
+          backdropFilter: "blur(20px)",
         }}
       >
         <div className="flex items-center gap-4">
           <button
             onClick={handleBack}
-            className="text-xs px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium"
-            style={{ background: colors.bgSection, border: "1px solid #333", color: colors.primary }}
+            className="text-xs px-4 py-2 rounded-lg transition-all hover:bg-white/10 font-medium hover:-translate-y-0.5"
+            style={{ background: colors.bgSection, border: "1px solid " + colors.border, color: colors.primary }}
           >
             ← Back
           </button>
@@ -68,11 +68,16 @@ function FurnishingContent() {
 
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
         {/* Hero */}
-        <div className="rounded-2xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
-          <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>
+        <div className="rounded-3xl p-10" style={{
+          background: colors.bgSection,
+          border: "1px solid " + colors.border,
+          boxShadow: `0 1px 2px rgba(0,0,0,.04), 0 12px 32px rgba(0,0,0,.06), 0 24px 48px rgba(0,0,0,.04)`,
+          backdropFilter: "blur(20px)"
+        }}>
+          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>
             Part 3 of 3 · Furnishing Options
           </p>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: colors.secondary }}>
+          <h1 className="text-4xl font-bold mb-2" style={{ color: colors.secondary }}>
             Furnishing Your {unitSize}
           </h1>
           <p className="text-sm" style={{ color: colors.textMuted }}>
