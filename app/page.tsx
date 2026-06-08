@@ -491,20 +491,26 @@ export default function Home() {
             {step < 2 ? (
               <button onClick={() => setStep(s => s + 1)}
                 disabled={!canNext()}
-                className="flex-1 py-4 rounded-2xl text-sm font-bold transition-all disabled:opacity-25 hover:-translate-y-0.5 active:translate-y-0"
+                className="flex-1 py-4 rounded-2xl text-sm font-bold transition-all disabled:opacity-25 hover:-translate-y-0.5 hover:brightness-103 active:translate-y-0"
                 style={{
-                  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+                  background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
                   color: "#FFF",
-                  boxShadow: !canNext() ? "none" : `0 8px 20px ${colors.primary}30`,
-                  letterSpacing: "0.05em"
+                  boxShadow: !canNext() ? "none" : `0 8px 20px rgba(27, 94, 74, 0.3)`,
+                  letterSpacing: "0.05em",
+                  transitionDuration: "250ms"
                 }}>
                 Continue →
               </button>
             ) : (
               <button onClick={handleGenerate}
                 disabled={!canNext()}
-                className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-25"
-                style={{ background: "linear-gradient(135deg, #C9A84C, #E8D5A3)", color: "#000" }}>
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-25 hover:-translate-y-0.5 hover:brightness-103"
+                style={{
+                  background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
+                  color: "#FFF",
+                  transitionDuration: "250ms",
+                  boxShadow: `0 8px 20px rgba(184, 138, 68, 0.3)`
+                }}>
                 Generate My Report
               </button>
             )}
@@ -588,8 +594,13 @@ export default function Home() {
               {/* Actions */}
               <div className="flex flex-col gap-3">
                 <button onClick={proceedWithSTR}
-                  className="w-full py-3.5 rounded-xl text-sm font-bold transition-all"
-                  style={{ background: "linear-gradient(135deg, #C9A84C, #E8D5A3)", color: "#000" }}>
+                  className="w-full py-3.5 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
+                  style={{
+                    background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
+                    color: "#FFF",
+                    transitionDuration: "250ms",
+                    boxShadow: `0 8px 20px rgba(184, 138, 68, 0.3)`
+                  }}>
                   Yes — show me the STR projection anyway ✦
                 </button>
                 <button
@@ -597,12 +608,17 @@ export default function Home() {
                     setLtrWarning(null);
                     router.push(`/agents?${buildParams().toString()}&ltrRecommended=true`);
                   }}
-                  className="w-full py-3.5 rounded-xl text-sm font-semibold transition"
-                  style={{ background: colors.bgMain, border: "1px solid #2A2A2A", color: colors.textLight }}>
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5 hover:brightness-103"
+                  style={{
+                    background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
+                    color: "#FFF",
+                    transitionDuration: "250ms",
+                    boxShadow: `0 8px 20px rgba(27, 94, 74, 0.3)`
+                  }}>
                   Find me a long-term leasing agent
                 </button>
                 <button onClick={() => setLtrWarning(null)}
-                  className="text-xs transition" style={{ color: colors.textLight }}>
+                  className="text-xs transition-all hover:opacity-70" style={{ color: colors.textLight, transitionDuration: "250ms" }}>
                   ← Go back and change my property
                 </button>
               </div>
