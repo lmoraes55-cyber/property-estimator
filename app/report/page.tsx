@@ -15,13 +15,27 @@ import GroundWorksLogo from "@/components/GroundWorksLogo";
 
 function StatCard({ label, value, sub, highlight, icon }: { label: string; value: string; sub?: string; highlight?: boolean; icon?: string }) {
   return (
-    <div className="rounded-xl p-5" style={{ background: colors.bgSection, border: `1px solid ${colors.primary}`, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs font-medium tracking-wider" style={{ color: colors.textMuted }}>{label}</p>
-        {icon && <span style={{ fontSize: "20px" }}>{icon}</span>}
+    <div className="group rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+      style={{
+        background: colors.bgSection,
+        border: `1px solid ${colors.border}`,
+        boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+        backdropFilter: "blur(10px)"
+      }}>
+      <div className="flex items-start justify-between mb-4">
+        <p className="text-xs font-semibold tracking-widest" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>{label}</p>
+        {icon && (
+          <div className="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+            style={{
+              fontSize: "24px",
+              filter: `drop-shadow(0 4px 12px ${colors.secondary}40)`,
+            }}>
+            {icon}
+          </div>
+        )}
       </div>
-      <p className="text-2xl font-bold" style={{ color: colors.primary }}>{value}</p>
-      {sub && <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{sub}</p>}
+      <p className="text-3xl font-bold mb-2" style={{ color: colors.primary }}>{value}</p>
+      {sub && <p className="text-xs" style={{ color: colors.textMuted }}>{sub}</p>}
     </div>
   );
 }
@@ -146,23 +160,33 @@ function ReportContent() {
           </div>
         )}
 
-        {/* Hero verdict with image */}
-        <div className="rounded-2xl p-8 relative overflow-hidden"
-          style={{ background: colors.bgSection, border: `1px solid ${colors.primary}` }}>
-          <div className="flex gap-8">
+        {/* Hero verdict with image - Premium Report Cover */}
+        <div className="rounded-3xl p-10 relative overflow-hidden"
+          style={{
+            background: colors.bgSection,
+            border: `1px solid ${colors.border}`,
+            boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+            backdropFilter: "blur(20px)"
+          }}>
+          {/* Subtle gradient background */}
+          <div className="absolute inset-0 opacity-40"
+            style={{ background: `radial-gradient(circle at 100% 100%, ${colors.secondary}08 0%, transparent 50%)` }} />
+
+          <div className="relative flex gap-12">
             {/* Left side content */}
             <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="text-xs font-medium tracking-widest uppercase" style={{ color: colors.primary }}>
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: colors.primary, letterSpacing: "0.15em" }}>
                   12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
                 </span>
                 {result.buildingInfo && (
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#C9A84C22", color: "#C9A84C88" }}>
+                  <span className="text-xs px-3 py-1 rounded-full" style={{ background: `${colors.secondary}15`, color: colors.secondary, border: `1px solid ${colors.secondary}30` }}>
                     {result.buildingInfo.community} · {result.buildingInfo.tier}
                   </span>
                 )}
               </div>
-              <div className="flex flex-wrap gap-2 mb-4">
+
+              <div className="flex flex-wrap gap-2 mb-8">
                 {[
                   `Floor ${result.floor}`,
                   result.furnished,
@@ -170,51 +194,87 @@ function ReportContent() {
                   result.floorPremiumPct > 0 ? `+${Math.round(result.floorPremiumPct * 100)}% floor` : null,
                   result.viewPremium > 0 ? `+${Math.round(result.viewPremium * 100)}% view` : null,
                 ].filter(Boolean).map(tag => (
-                  <span key={tag!} className="text-xs px-2.5 py-1 rounded-full font-medium"
-                    style={{ background: "#FFFFFF0A", color: colors.textLight, border: "1px solid #2A2A2A" }}>
+                  <span key={tag!} className="text-xs px-3 py-1.5 rounded-lg font-medium"
+                    style={{ background: `${colors.primary}08`, color: colors.primary, border: `1px solid ${colors.primary}20` }}>
                     {tag}
                   </span>
                 ))}
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: colors.secondary }}>
+
+              {/* Premium Headline */}
+              <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight"
+                style={{
+                  color: colors.textMain,
+                  background: `linear-gradient(135deg, ${colors.textMain} 0%, ${colors.primary} 100%)`,
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontFamily: "system-ui, -apple-system, sans-serif"
+                }}>
                 {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
               </h1>
-              <p className="text-base mb-6" style={{ color: colors.textMuted }}>
-                {strBetter
-                  ? `Your property could earn AED ${fmt(result.strVsLtrDelta)} more per year on short-term vs long-term rental.`
-                  : `Long-term rental offers more stability. STR net is AED ${fmt(Math.abs(result.strVsLtrDelta))} less than LTR this year.`}
-              </p>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>STR Net/Year</p>
-                  <p className="text-2xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
+
+              {/* Premium value difference highlight */}
+              <div className="mb-10 pb-8 border-b" style={{ borderColor: colors.border }}>
+                <p className="text-sm mb-3" style={{ color: colors.textMuted }}>Revenue advantage</p>
+                <p className="text-3xl font-bold" style={{ color: colors.secondary }}>
+                  AED {fmt(Math.abs(result.strVsLtrDelta))} {strBetter ? "more per year" : "difference"}
+                </p>
+              </div>
+
+              {/* Premium Metric Strip */}
+              <div className="grid grid-cols-2 gap-8">
+                <div className="group">
+                  <p className="text-xs font-semibold tracking-widest mb-2" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>STR NET/YEAR</p>
+                  <p className="text-4xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
                 </div>
-                <div>
-                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>LTR/Year</p>
-                  <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
-                  <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
+                <div className="group">
+                  <p className="text-xs font-semibold tracking-widest mb-2" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>LTR/YEAR</p>
+                  <p className="text-4xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
+                  <p className="text-xs mt-2" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
                 </div>
-                <div>
-                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>Avg Occupancy</p>
-                  <p className="text-2xl font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                <div className="group">
+                  <p className="text-xs font-semibold tracking-widest mb-2" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>AVG OCCUPANCY</p>
+                  <p className="text-4xl font-bold" style={{ color: colors.primary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
                 </div>
-                <div>
-                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>Avg Daily Rate</p>
-                  <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
+                <div className="group">
+                  <p className="text-xs font-semibold tracking-widest mb-2" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>AVG DAILY RATE</p>
+                  <p className="text-4xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
                 </div>
               </div>
             </div>
-            {/* Right side image */}
-            <div className="hidden lg:block flex-shrink-0 w-80">
-              <div className="w-full h-80 rounded-2xl overflow-hidden"
-                style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=500&h=400&fit=crop')`, backgroundSize: "cover", backgroundPosition: "center", boxShadow: "0 8px 20px rgba(0,0,0,0.12)" }} />
+
+            {/* Right side premium image panel */}
+            <div className="hidden lg:block flex-shrink-0 w-96">
+              <div className="relative w-full h-96 rounded-3xl overflow-hidden group"
+                style={{
+                  boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+                }}>
+                {/* Image */}
+                <div className="absolute inset-0 w-full h-full"
+                  style={{
+                    backgroundImage: `url('https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=500&h=400&fit=crop')`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    transition: "transform 0.6s ease"
+                  }} />
+
+                {/* Luxury overlay gradient */}
+                <div className="absolute inset-0"
+                  style={{ background: `linear-gradient(180deg, rgba(27,94,74,0) 0%, rgba(27,94,74,0.4) 100%)` }} />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Key metrics */}
-        <div className="rounded-2xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-          <h2 className="text-sm font-semibold tracking-wider uppercase mb-6" style={{ color: colors.primary }}>Key Metrics</h2>
+        <div className="rounded-3xl p-10" style={{
+          background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgWhite} 100%)`,
+          border: "1px solid " + colors.border,
+          boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+          backdropFilter: "blur(20px)"
+        }}>
+          <h2 className="text-sm font-bold tracking-widest uppercase mb-8" style={{ color: colors.primary, letterSpacing: "0.15em" }}>📊 Key Metrics</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} icon="💼" />
             <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" icon="👤" />
