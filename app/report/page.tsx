@@ -293,7 +293,7 @@ function ReportContent() {
         </div>
 
         {/* STR vs LTR chart */}
-        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+        <div className="rounded-3xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
           <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Net Income: STR vs LTR</h2>
           <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Short-term rental net income compared to equivalent monthly long-term rent</p>
           <ResponsiveContainer width="100%" height={280}>
@@ -322,7 +322,7 @@ function ReportContent() {
 
         {/* Revenue & Occupancy */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <div className="rounded-3xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Gross Revenue</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -337,7 +337,7 @@ function ReportContent() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <div className="rounded-3xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Occupancy Rate</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Dubai peak season: Nov–Mar; low season: Jun–Aug</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -355,7 +355,7 @@ function ReportContent() {
         </div>
 
         {/* Monthly breakdown table */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+        <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
           <div className="px-6 py-4" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.primary }}>
             <h2 className="text-base font-semibold" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
@@ -400,29 +400,43 @@ function ReportContent() {
 
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
         {ltrRecommended ? (
-          <div className="rounded-2xl p-8 text-center"
-            style={{ background: "linear-gradient(135deg, #0A1400 0%, #081000 100%)", border: "1px solid " + colors.primary }}>
-            <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.mutedGreen }}>Part 2 of 2</p>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: colors.secondary }}>Find your leasing agent</h2>
-            <p className="text-sm mb-6" style={{ color: colors.textLight }}>
-              Get your top 5 leasing agent matches for <span style={{ color: colors.secondary }}>{result.buildingInfo?.community ?? result.buildingName}</span> — ranked by area expertise, days to let, and landlord review scores.
+          <div className="rounded-3xl p-10 text-center"
+            style={{
+              background: `linear-gradient(135deg, ${colors.primary}15 0%, ${colors.primary}08 100%)`,
+              border: `1px solid ${colors.border}`,
+              boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+              backdropFilter: "blur(20px)"
+            }}>
+            <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Part 2 of 2</p>
+            <h2 className="text-3xl font-bold mb-3" style={{ color: colors.textMain }}>Find your leasing agent</h2>
+            <p className="text-sm mb-8 max-w-lg mx-auto" style={{ color: colors.textMuted }}>
+              Get your top 5 leasing agent matches for <span style={{ color: colors.primary, fontWeight: "600" }}>{result.buildingInfo?.community ?? result.buildingName}</span> — ranked by area expertise, days to let, and landlord review scores.
             </p>
             <button
               onClick={() => {
                 const p = new URLSearchParams(window.location.search);
                 window.location.href = `/agents?${p.toString()}`;
               }}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all"
-              style={{ background: "linear-gradient(135deg, #4A8A4A, #7ABF7A)", color: "#000" }}>
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+              style={{
+                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+                color: "#FFF",
+                boxShadow: `0 8px 20px ${colors.primary}30`
+              }}>
               Find a Leasing Agent →
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl p-8 text-center"
-            style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.primary }}>
-            <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Part 2 of 2</p>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>Now find your best operator</h2>
-            <p className="text-sm mb-6" style={{ color: colors.textMuted }}>
+          <div className="rounded-3xl p-10 text-center"
+            style={{
+              background: `linear-gradient(135deg, ${colors.secondary}15 0%, ${colors.secondary}08 100%)`,
+              border: `1px solid ${colors.border}`,
+              boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+              backdropFilter: "blur(20px)"
+            }}>
+            <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Part 2 of 2</p>
+            <h2 className="text-3xl font-bold mb-3" style={{ color: colors.textMain }}>Now find your best operator</h2>
+            <p className="text-sm mb-8 max-w-lg mx-auto" style={{ color: colors.textMuted }}>
               Get your top 5 operator matches — ranked by fit for your property, with full pros & cons,
               OTA platform ratings, and recent guest reviews.
             </p>
@@ -431,18 +445,28 @@ function ReportContent() {
                 const p = new URLSearchParams(window.location.search);
                 window.location.href = `/operators?${p.toString()}`;
               }}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all"
-              style={{ background: "linear-gradient(135deg, #C9A84C, #E8D5A3)", color: "#000" }}>
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+              style={{
+                background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.secondaryLight} 100%)`,
+                color: colors.textMain,
+                boxShadow: `0 8px 20px ${colors.secondary}30`
+              }}>
               Find My Best Operator →
             </button>
           </div>
         )}
 
         {/* Self Manage Alternative CTA */}
-        <div className="rounded-2xl p-8 text-center" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
-          <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Alternative Path</p>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>Want to keep 100% of your income?</h2>
-          <p className="text-sm mb-6" style={{ color: colors.textMuted }}>
+        <div className="rounded-3xl p-10 text-center"
+          style={{
+            background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgWhite} 100%)`,
+            border: `1px solid ${colors.border}`,
+            boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+            backdropFilter: "blur(20px)"
+          }}>
+          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Alternative Path</p>
+          <h2 className="text-3xl font-bold mb-3" style={{ color: colors.textMain }}>Want to keep 100% of your income?</h2>
+          <p className="text-sm mb-8 max-w-lg mx-auto" style={{ color: colors.textMuted }}>
             Learn how to manage your property yourself and handle all operations independently in Dubai.
           </p>
           <button
@@ -450,8 +474,12 @@ function ReportContent() {
               const p = new URLSearchParams(window.location.search);
               window.location.href = `/self-manage?${p.toString()}`;
             }}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all"
-            style={{ background: colors.primary, color: "#FFF" }}>
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+            style={{
+              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+              color: "#FFF",
+              boxShadow: `0 8px 20px ${colors.primary}30`
+            }}>
             Find Out How to Self Manage →
           </button>
         </div>
