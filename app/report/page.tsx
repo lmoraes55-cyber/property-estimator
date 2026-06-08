@@ -14,6 +14,64 @@ import { colors } from "@/lib/colors";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
 
 function StatCard({ label, value, sub, highlight, icon }: { label: string; value: string; sub?: string; highlight?: boolean; icon?: string }) {
+  // Icon mapping with SVG line icons (minimal, professional)
+  const iconSVGs: { [key: string]: JSX.Element } = {
+    revenue: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 12h18M3 6h18M3 18h18M6 9v6M10 9v6M14 9v6M18 9v6"/>
+      </svg>
+    ),
+    user: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+      </svg>
+    ),
+    pie: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M12 2v10M12 12h10a10 10 0 0 0-10-10z"/>
+      </svg>
+    ),
+    tools: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.4 14.4L9.6 9.6M18.9 4.9a2.828 2.828 0 1 0 4 4l-12 12a4 4 0 0 1-2 1l-3 .5.5-3a4 4 0 0 1 1-2l12-12z"/>
+      </svg>
+    ),
+    coins: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="1"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24M19.78 19.78l-4.24-4.24m-2.12-2.12l-4.24-4.24"/>
+      </svg>
+    ),
+    percent: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M18 6l-12 12"/>
+      </svg>
+    ),
+    trending: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+      </svg>
+    ),
+    calendar: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+      </svg>
+    ),
+  };
+
+  const getIcon = () => {
+    const iconMap: { [key: string]: string } = {
+      "ANNUAL REVENUE (GROSS)": "revenue",
+      "NET TO LANDLORD": "user",
+      "MANAGEMENT FEES": "pie",
+      "UTILITIES + MAINTENANCE": "tools",
+      "GROSS YIELD": "coins",
+      "NET YIELD": "percent",
+      "STR vs LTR DELTA": "trending",
+      "AVERAGE DAILY RATE": "calendar",
+    };
+    return iconMap[label] || "revenue";
+  };
+
   return (
     <div className="group rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
       style={{
@@ -24,15 +82,21 @@ function StatCard({ label, value, sub, highlight, icon }: { label: string; value
       }}>
       <div className="flex items-start justify-between mb-4">
         <p className="text-xs font-semibold tracking-widest" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>{label}</p>
-        {icon && (
-          <div className="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-            style={{
-              fontSize: "24px",
-              filter: `drop-shadow(0 4px 12px ${colors.secondary}40)`,
-            }}>
-            {icon}
-          </div>
-        )}
+        {/* Professional Icon Circle */}
+        <div className="transition-transform duration-300 group-hover:scale-110"
+          style={{
+            width: "52px",
+            height: "52px",
+            borderRadius: "50%",
+            background: "#E8F3EE",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#1B5E4A",
+            flexShrink: 0
+          }}>
+          {iconSVGs[getIcon()]}
+        </div>
       </div>
       <p className="text-3xl font-bold mb-2" style={{ color: colors.primary }}>{value}</p>
       {sub && <p className="text-xs" style={{ color: colors.textMuted }}>{sub}</p>}
@@ -274,7 +338,7 @@ function ReportContent() {
           boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
           backdropFilter: "blur(20px)"
         }}>
-          <h2 className="text-sm font-bold tracking-widest uppercase mb-8" style={{ color: colors.primary, letterSpacing: "0.15em" }}>📊 Key Metrics</h2>
+          <h2 className="text-sm font-bold tracking-widest uppercase mb-8" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Key Metrics</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} icon="💼" />
             <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" icon="👤" />
@@ -354,43 +418,141 @@ function ReportContent() {
           </div>
         </div>
 
-        {/* Monthly breakdown table */}
+        {/* Monthly breakdown table - Premium investor-grade */}
         <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
-          <div className="px-6 py-4" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.primary }}>
-            <h2 className="text-base font-semibold" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
+          <div className="px-8 py-6" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
+            <h2 className="text-lg font-bold mb-1" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.primary }}>
+            <table className="w-full">
+              <thead style={{ position: "sticky", top: 0, zIndex: 10 }}>
+                <tr style={{ background: colors.bgSection, borderBottom: "2px solid " + colors.primary }}>
                   {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Net to Landlord"].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-medium" style={{ color: colors.textMuted }}>{h}</th>
+                    <th key={h} className="px-6 py-4 text-left text-xs font-semibold" style={{ color: colors.textMuted, letterSpacing: "0.05em", background: colors.bgSection }}>
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {result.months.map((m, i) => (
-                  <tr key={m.month} style={{ borderBottom: "1px solid " + colors.primary, background: i % 2 === 0 ? colors.bgMain : colors.bgSection }}>
-                    <td className="px-4 py-3 font-medium" style={{ color: colors.textMain }}>{m.month}</td>
-                    <td className="px-4 py-3" style={{ color: colors.primary }}>AED {fmt(m.revenue)}</td>
-                    <td className="px-4 py-3" style={{ color: colors.textMain }}>{(m.occupancy * 100).toFixed(0)}%</td>
-                    <td className="px-4 py-3" style={{ color: colors.textMain }}>AED {fmt(m.adr)}</td>
-                    <td className="px-4 py-3" style={{ color: colors.textLight }}>AED {fmt(m.managementFee)}</td>
-                    <td className="px-4 py-3" style={{ color: colors.textLight }}>AED {fmt(m.utilities)}</td>
-                    <td className="px-4 py-3" style={{ color: colors.textLight }}>AED {fmt(m.maintenance)}</td>
-                    <td className="px-4 py-3 font-semibold" style={{ color: colors.textMain }}>AED {fmt(m.netToLandlord)}</td>
-                  </tr>
-                ))}
-                <tr style={{ background: colors.bgSection, borderTop: "1px solid " + colors.primary }}>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.primary }}>TOTAL</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualRevenue)}</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.textMain }}>{(result.avgOccupancy * 100).toFixed(0)}% avg</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.textMain }}>AED {fmt(result.avgADR)} avg</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualManagementFee)}</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualUtilities)}</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualMaintenance)}</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</td>
+                {result.months.map((m, i) => {
+                  const revenuePercent = (m.revenue / result.annualRevenue * 100).toFixed(1);
+                  const occupancyRate = m.occupancy * 100;
+                  let occupancyColor = colors.textLight;
+                  if (occupancyRate >= 75) occupancyColor = colors.primary;
+                  else if (occupancyRate >= 67) occupancyColor = colors.secondary;
+                  else occupancyColor = "#A0826D";
+
+                  return (
+                    <tr key={m.month} style={{
+                      borderBottom: "1px solid " + colors.border,
+                      background: i % 2 === 0 ? "#FFFFFF" : "#FCFAF7",
+                      transition: "background-color 0.2s"
+                    }}>
+                      <td className="px-6 py-5 font-semibold" style={{ color: colors.textMain }}>{m.month}</td>
+
+                      {/* Revenue Column with Percentage and Progress Bar */}
+                      <td className="px-6 py-5">
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: colors.primary }}>AED {fmt(m.revenue)}</p>
+                            <p className="text-xs" style={{ color: colors.textMuted }}>{revenuePercent}% of annual</p>
+                          </div>
+                          <div style={{ width: "100%", height: "4px", background: colors.border, borderRadius: "2px", overflow: "hidden" }}>
+                            <div style={{
+                              width: `${revenuePercent}%`,
+                              height: "100%",
+                              background: colors.primary,
+                              borderRadius: "2px",
+                              transition: "width 0.3s"
+                            }} />
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Occupancy Column with Progress Bar */}
+                      <td className="px-6 py-5">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium" style={{ color: occupancyColor }}>{occupancyRate.toFixed(0)}%</p>
+                          <div style={{ width: "100%", height: "4px", background: colors.border, borderRadius: "2px", overflow: "hidden" }}>
+                            <div style={{
+                              width: `${Math.min(occupancyRate, 100)}%`,
+                              height: "100%",
+                              background: occupancyColor,
+                              borderRadius: "2px",
+                              transition: "background-color 0.3s, width 0.3s"
+                            }} />
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5" style={{ color: colors.textMain }}>
+                        <p className="text-sm">AED {fmt(m.adr)}</p>
+                      </td>
+
+                      {/* Secondary Columns - Softer Emphasis */}
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.managementFee)}</p>
+                      </td>
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.utilities)}</p>
+                      </td>
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.maintenance)}</p>
+                      </td>
+
+                      {/* Net To Landlord - Visually Dominant */}
+                      <td className="px-6 py-5" style={{ background: `${colors.primary}08`, borderLeft: `3px solid ${colors.primary}` }}>
+                        <p className="text-sm font-bold" style={{ color: colors.primary, fontSize: "16px" }}>
+                          AED {fmt(m.netToLandlord)}
+                        </p>
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {/* Total Row - Enhanced */}
+                <tr style={{
+                  background: "#F5F2ED",
+                  borderTop: "2px solid " + colors.primary,
+                  borderBottom: "none"
+                }}>
+                  <td className="px-6 py-6 font-bold" style={{ color: colors.textMain, fontSize: "15px" }}>TOTAL</td>
+
+                  {/* Total Revenue */}
+                  <td className="px-6 py-6">
+                    <p className="text-base font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualRevenue)}</p>
+                  </td>
+
+                  {/* Total Occupancy Average */}
+                  <td className="px-6 py-6">
+                    <p className="text-base font-bold" style={{ color: colors.primary }}>
+                      {(result.avgOccupancy * 100).toFixed(0)}% avg
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-6">
+                    <p className="text-base font-bold" style={{ color: colors.textMain }}>AED {fmt(result.avgADR)} avg</p>
+                  </td>
+
+                  {/* Total Secondary Columns */}
+                  <td className="px-6 py-6">
+                    <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualManagementFee)}</p>
+                  </td>
+                  <td className="px-6 py-6">
+                    <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualUtilities)}</p>
+                  </td>
+                  <td className="px-6 py-6">
+                    <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualMaintenance)}</p>
+                  </td>
+
+                  {/* Total Net To Landlord - Most Prominent */}
+                  <td className="px-6 py-6" style={{ background: colors.primary, borderLeft: `3px solid ${colors.primary}` }}>
+                    <p className="text-lg font-bold" style={{ color: "#FFF" }}>
+                      AED {fmt(result.annualNetToLandlord)}
+                    </p>
+                  </td>
                 </tr>
               </tbody>
             </table>
