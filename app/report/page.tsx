@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import {
@@ -15,7 +16,7 @@ import GroundWorksLogo from "@/components/GroundWorksLogo";
 
 function StatCard({ label, value, sub, highlight, icon }: { label: string; value: string; sub?: string; highlight?: boolean; icon?: string }) {
   // Icon mapping with SVG line icons (minimal, professional)
-  const iconSVGs: { [key: string]: JSX.Element } = {
+  const iconSVGs: { [key: string]: React.ReactNode } = {
     revenue: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 12h18M3 6h18M3 18h18M6 9v6M10 9v6M14 9v6M18 9v6"/>
