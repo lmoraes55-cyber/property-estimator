@@ -143,60 +143,68 @@ function ReportContent() {
           </div>
         )}
 
-        {/* Hero verdict */}
+        {/* Hero verdict with image */}
         <div className="rounded-2xl p-8 relative overflow-hidden"
-          style={{ background: ltrRecommended ? `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)` : `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: `1px solid ${colors.primary}` }}>
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-5"
-            style={{ background: ltrRecommended ? colors.mutedGreen : colors.primary, filter: "blur(80px)", transform: "translate(30%, -30%)" }} />
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="text-xs font-medium tracking-widest uppercase" style={{ color: colors.primary }}>
-              12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
-            </span>
-            {result.buildingInfo && (
-              <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#C9A84C22", color: "#C9A84C88" }}>
-                {result.buildingInfo.community} · {result.buildingInfo.tier}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {[
-              `Floor ${result.floor}`,
-              result.furnished,
-              result.view,
-              result.floorPremiumPct > 0 ? `+${Math.round(result.floorPremiumPct * 100)}% floor` : null,
-              result.viewPremium > 0 ? `+${Math.round(result.viewPremium * 100)}% view` : null,
-            ].filter(Boolean).map(tag => (
-              <span key={tag!} className="text-xs px-2.5 py-1 rounded-full font-medium"
-                style={{ background: "#FFFFFF0A", color: colors.textLight, border: "1px solid #2A2A2A" }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: colors.secondary }}>
-            {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
-          </h1>
-          <p className="text-base mb-6" style={{ color: colors.textLight }}>
-            {strBetter
-              ? `Your property could earn AED ${fmt(result.strVsLtrDelta)} more per year on short-term vs long-term rental.`
-              : `Long-term rental offers more stability. STR net is AED ${fmt(Math.abs(result.strVsLtrDelta))} less than LTR this year.`}
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-xs mb-1" style={{ color: colors.textMuted }}>STR Net/Year</p>
-              <p className="text-xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
+          style={{ background: colors.bgSection, border: `1px solid ${colors.primary}` }}>
+          <div className="flex gap-8">
+            {/* Left side content */}
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="text-xs font-medium tracking-widest uppercase" style={{ color: colors.primary }}>
+                  12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
+                </span>
+                {result.buildingInfo && (
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#C9A84C22", color: "#C9A84C88" }}>
+                    {result.buildingInfo.community} · {result.buildingInfo.tier}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {[
+                  `Floor ${result.floor}`,
+                  result.furnished,
+                  result.view,
+                  result.floorPremiumPct > 0 ? `+${Math.round(result.floorPremiumPct * 100)}% floor` : null,
+                  result.viewPremium > 0 ? `+${Math.round(result.viewPremium * 100)}% view` : null,
+                ].filter(Boolean).map(tag => (
+                  <span key={tag!} className="text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{ background: "#FFFFFF0A", color: colors.textLight, border: "1px solid #2A2A2A" }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: colors.secondary }}>
+                {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
+              </h1>
+              <p className="text-base mb-6" style={{ color: colors.textMuted }}>
+                {strBetter
+                  ? `Your property could earn AED ${fmt(result.strVsLtrDelta)} more per year on short-term vs long-term rental.`
+                  : `Long-term rental offers more stability. STR net is AED ${fmt(Math.abs(result.strVsLtrDelta))} less than LTR this year.`}
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>STR Net/Year</p>
+                  <p className="text-2xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
+                </div>
+                <div>
+                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>LTR/Year</p>
+                  <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
+                  <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
+                </div>
+                <div>
+                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>Avg Occupancy</p>
+                  <p className="text-2xl font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                </div>
+                <div>
+                  <p className="text-xs mb-1" style={{ color: colors.textMuted }}>Avg Daily Rate</p>
+                  <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-xs mb-1" style={{ color: colors.textMuted }}>LTR/Year</p>
-              <p className="text-xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
-              <p className="text-xs mt-0.5" style={{ color: colors.textLight }}>Source: {result.ltrSource}</p>
-            </div>
-            <div>
-              <p className="text-xs mb-1" style={{ color: colors.textMuted }}>Avg Occupancy</p>
-              <p className="text-xl font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
-            </div>
-            <div>
-              <p className="text-xs mb-1" style={{ color: colors.textMuted }}>Avg Daily Rate</p>
-              <p className="text-xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
+            {/* Right side image */}
+            <div className="hidden lg:block flex-shrink-0 w-80">
+              <div className="w-full h-80 rounded-xl overflow-hidden"
+                style={{ backgroundImage: `url('https://images.unsplash.com/photo-1512453334693-5a20c2f01063?w=400&h=400&fit=crop')`, backgroundSize: "cover", backgroundPosition: "center" }} />
             </div>
           </div>
         </div>
@@ -280,6 +288,49 @@ function ReportContent() {
                 <Bar dataKey="Occupancy" fill={colors.secondary} radius={[4, 4, 0, 0]} opacity={0.8} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Key Insight and Recommendation */}
+        <div className="grid md:grid-cols-3 gap-6 py-4">
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: colors.mutedGreen }}>
+              <span style={{ fontSize: "28px" }}>💡</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-bold mb-2" style={{ color: colors.textMain }}>Key Insight</h3>
+              <p className="text-sm" style={{ color: colors.textMuted }}>
+                {strBetter
+                  ? `Short-term rentals in ${result.buildingInfo?.community ?? result.buildingName} show strong performance, driven by high occupancy and premium daily rates.`
+                  : `Long-term rental is the more stable option for this property, offering consistent income with lower operational complexity.`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: colors.mutedGreen }}>
+              <span style={{ fontSize: "28px" }}>🎯</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-bold mb-2" style={{ color: colors.textMain }}>Our Recommendation</h3>
+              <p className="text-sm" style={{ color: colors.textMuted }}>
+                {strBetter
+                  ? `We recommend short-term rental for maximum returns based on current market trends.`
+                  : `We recommend long-term rental for stable, guaranteed income with minimal management.`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: colors.mutedGreen }}>
+              <span style={{ fontSize: "28px" }}>👤</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-bold mb-2" style={{ color: colors.textMain }}>Talk to an Expert</h3>
+              <button className="text-sm font-semibold px-4 py-2 rounded-lg transition" style={{ background: colors.primary, color: "#FFF" }}>
+                Schedule Call
+              </button>
+            </div>
           </div>
         </div>
 
