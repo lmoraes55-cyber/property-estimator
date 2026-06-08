@@ -23,35 +23,86 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
   const isBest = rank <= 1;
 
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+    <div className="rounded-3xl overflow-hidden"
+      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}` }}>
 
-      {/* Header */}
-      <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            {isBest && (
-              <span className="inline-block text-xs px-2.5 py-1 rounded-full font-semibold mb-2"
-                style={{ background: "#C9A84C22", color: colors.primary, border: "1px solid #C9A84C44" }}>
-                {rank === 0 ? "Top Match for Your Property" : "Strong Match for Your Property"}
-              </span>
-            )}
-            <h3 className="text-lg font-bold" style={{ color: colors.textMain }}>{op.name}</h3>
-            <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>{op.tagline}</p>
-          </div>
-          <div className="text-right flex-shrink-0 ml-4">
-            <div className="text-2xl font-bold" style={{ color: colors.primary }}>{op.googleRating}</div>
-            <Stars rating={op.googleRating} />
-            <p className="text-xs mt-0.5" style={{ color: colors.textLight }}>{op.googleReviewCount} Google reviews</p>
+      {/* Premium Company Logo Section */}
+      <div className="p-8" style={{
+        background: `linear-gradient(135deg, ${colors.bgMain} 0%, ${colors.bgSection} 100%)`,
+        borderBottom: "1px solid " + colors.border,
+        textAlign: "center"
+      }}>
+        {/* Logo Container */}
+        <div className="flex items-center justify-center mb-6">
+          <div style={{
+            width: "120px",
+            height: "120px",
+            background: "#FFFFFF",
+            borderRadius: "16px",
+            border: "1px solid " + colors.border,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
+          }}>
+            {/* Company Logo Placeholder - Using brand color initials */}
+            <div style={{
+              fontSize: "48px",
+              fontWeight: "bold",
+              color: colors.primary,
+              textAlign: "center"
+            }}>
+              {op.name.split(" ").map(w => w[0]).join("").substring(0, 2)}
+            </div>
           </div>
         </div>
 
-        {/* Match reasons */}
+        {/* Company Name & Tagline */}
+        <h3 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>{op.name}</h3>
+        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>{op.tagline}</p>
+
+        {/* Website Link */}
+        {op.website && (
+          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-medium transition-all hover:opacity-80"
+            style={{ color: colors.primary }}>
+            🌐 {op.website}
+          </a>
+        )}
+
+        {/* Trust Indicators */}
+        <div className="flex flex-wrap gap-2 justify-center mt-4">
+          {op.founded && (
+            <span className="text-xs px-3 py-1 rounded-full font-medium"
+              style={{ background: colors.primary + "15", color: colors.primary }}>
+              Established {op.founded}
+            </span>
+          )}
+          <span className="text-xs px-3 py-1 rounded-full font-medium"
+            style={{ background: colors.primary + "15", color: colors.primary }}>
+            Licensed Operator
+          </span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium"
+            style={{ background: colors.primary + "15", color: colors.primary }}>
+            Dubai-Based
+          </span>
+        </div>
+
+        {/* Ratings */}
+        <div className="flex items-center justify-center gap-3 mt-6 pt-6" style={{ borderTop: "1px solid " + colors.border }}>
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: colors.primary }}>{op.googleRating}</div>
+            <Stars rating={op.googleRating} />
+            <p className="text-xs mt-1" style={{ color: colors.textLight }}>{op.googleReviewCount} Google reviews</p>
+          </div>
+        </div>
+
+        {/* Match Reasons */}
         {op.matchReasons.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 mt-6 justify-center">
             {op.matchReasons.map(r => (
-              <span key={r} className="text-xs px-2.5 py-1 rounded-lg"
-                style={{ background: colors.bgMain, border: "1px solid " + colors.primary, color: colors.primary }}>
+              <span key={r} className="text-xs px-3 py-1.5 rounded-lg font-medium"
+                style={{ background: isBest ? "#C9A84C22" : colors.bgSection, border: "1px solid " + colors.border, color: isBest ? colors.secondary : colors.primary }}>
                 {r}
               </span>
             ))}
@@ -59,7 +110,38 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
         )}
       </div>
 
-      <div className="p-6 space-y-5">
+      <div className="p-8 space-y-8">
+
+        {/* Contact Information */}
+        <div className="rounded-2xl p-6" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
+          <p className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: colors.primary, letterSpacing: "0.1em" }}>Contact Information</p>
+          <div className="space-y-3">
+            {op.phone && (
+              <div className="flex items-center gap-3">
+                <span style={{ color: colors.primary, fontSize: "16px" }}>📱</span>
+                <a href={`tel:${op.phone}`} className="text-sm transition hover:opacity-80" style={{ color: colors.textMain }}>
+                  {op.phone}
+                </a>
+              </div>
+            )}
+            {op.email && (
+              <div className="flex items-center gap-3">
+                <span style={{ color: colors.primary, fontSize: "16px" }}>✉️</span>
+                <a href={`mailto:${op.email}`} className="text-sm transition hover:opacity-80" style={{ color: colors.textMain }}>
+                  {op.email}
+                </a>
+              </div>
+            )}
+            {op.website && (
+              <div className="flex items-center gap-3">
+                <span style={{ color: colors.primary, fontSize: "16px" }}>🌐</span>
+                <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" className="text-sm transition hover:opacity-80" style={{ color: colors.textMain }}>
+                  {op.website}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Key stats */}
         <div className="grid grid-cols-3 gap-3">
@@ -68,8 +150,8 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
             { label: "Onboarding", value: `${op.onboardingWeeks} week${op.onboardingWeeks > 1 ? "s" : ""}` },
             { label: "Portfolio", value: `${op.portfolio}+ units` },
           ].map(s => (
-            <div key={s.label} className="rounded-xl p-3 text-center"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+            <div key={s.label} className="rounded-xl p-4 text-center"
+              style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
               <p className="text-xs mb-1" style={{ color: colors.textMuted }}>{s.label}</p>
               <p className="text-sm font-bold" style={{ color: colors.textMain }}>{s.value}</p>
             </div>
@@ -78,21 +160,21 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 
         {/* OTA presence */}
         <div>
-          <p className="text-xs font-semibold tracking-wider uppercase mb-3" style={{ color: colors.textLight }}>OTA Platform Coverage</p>
+          <p className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: colors.primary, letterSpacing: "0.1em" }}>OTA Platform Coverage</p>
           <div className="flex flex-wrap gap-2">
             {op.ota.map(o => (
               <div key={o.platform}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all"
                 style={{
-                  background: o.listed ? colors.bgSection : colors.bgSection,
-                  border: `1px solid ${o.listed ? colors.primary : colors.bgSection}`,
-                  color: o.listed ? colors.success : colors.textLight,
+                  background: o.listed ? colors.primary + "15" : colors.bgMain,
+                  border: `1px solid ${o.listed ? colors.primary : colors.border}`,
+                  color: o.listed ? colors.primary : colors.textLight,
                 }}>
                 <span>{o.platform}</span>
                 {o.listed && o.rating && (
-                  <span style={{ color: STAR_COLOR, fontWeight: 600 }}>{o.rating}</span>
+                  <span style={{ color: STAR_COLOR, fontWeight: 600 }}>★{o.rating}</span>
                 )}
-                {!o.listed && <span style={{ color: colors.textLight }}>Not listed</span>}
+                {!o.listed && <span style={{ fontSize: "11px" }}>Not listed</span>}
               </div>
             ))}
           </div>
@@ -145,11 +227,31 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
           </div>
         </div>
 
-        {/* CTA */}
-        <button className="w-full py-3 rounded-xl text-sm font-bold transition-all"
-          style={{ background: isBest ? "linear-gradient(135deg, #C9A84C, #E8D5A3)" : colors.bgSection, color: isBest ? "#000" : colors.textLight, border: isBest ? "none" : "1px solid #252525" }}>
-          {isBest ? `${rank === 0 ? "Contact" : "Get Quote"} ${op.name} →` : "Learn More About " + op.name}
-        </button>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-4 pt-4" style={{ borderTop: "1px solid " + colors.border }}>
+          {op.website && (
+            <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
+              className="py-3 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 text-center"
+              style={{
+                background: "transparent",
+                color: colors.primary,
+                border: "1px solid " + colors.primary,
+                transitionDuration: "250ms"
+              }}>
+              Visit Website →
+            </a>
+          )}
+          <button className={`py-3 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103 ${!op.website ? 'col-span-2' : ''}`}
+            style={{
+              background: isBest ? "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)" : "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
+              color: "#FFF",
+              border: "none",
+              transitionDuration: "250ms",
+              boxShadow: isBest ? `0 8px 20px rgba(184, 138, 68, 0.3)` : `0 8px 20px rgba(27, 94, 74, 0.3)`
+            }}>
+            {isBest ? `${rank === 0 ? "Contact" : "Get Quote"} →` : "Learn More →"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -216,8 +318,13 @@ function UpcomingOperatorCard({ op }: { op: UpcomingOperator }) {
         </div>
 
         {/* CTA */}
-        <button className="w-full py-3 rounded-xl text-sm font-bold transition-all"
-          style={{ background: colors.bgSection, color: colors.primary, border: "1px solid " + colors.primary }}>
+        <button className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
+          style={{
+            background: "transparent",
+            color: colors.primary,
+            border: "1px solid " + colors.primary,
+            transitionDuration: "250ms"
+          }}>
           Learn More About {op.name} →
         </button>
       </div>
@@ -362,10 +469,12 @@ function OperatorsContent() {
             </p>
             <button
               onClick={handleGoToFurnishing}
-              className="w-full py-3 rounded-xl text-sm font-bold transition-all"
+              className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
               style={{
-                background: "linear-gradient(135deg, " + colors.secondary + ", #B8844A)",
+                background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
                 color: "#FFF",
+                transitionDuration: "250ms",
+                boxShadow: `0 8px 20px rgba(184, 138, 68, 0.3)`
               }}
             >
               Explore Furnishing Options →

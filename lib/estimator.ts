@@ -534,6 +534,11 @@ export interface Operator {
   pros: string[];
   cons: string[];
   recentReviews: Review[];
+  // Premium profile fields
+  logo?: string;                // Company logo URL
+  website?: string;             // Company website URL
+  phone?: string;               // Company phone number
+  email?: string;               // Company email
 }
 
 export const OPERATORS: Operator[] = [
@@ -548,6 +553,9 @@ export const OPERATORS: Operator[] = [
     portfolio: 1200,
     googleRating: 4.8,
     googleReviewCount: 312,
+    website: "www.frankporter.ae",
+    phone: "+971 4 XXX XXXX",
+    email: "partners@frankporter.ae",
     ota: [
       { platform: "Airbnb", listed: true, rating: 4.8 },
       { platform: "Booking.com", listed: true, rating: 8.9 },
@@ -589,6 +597,9 @@ export const OPERATORS: Operator[] = [
     portfolio: 800,
     googleRating: 4.7,
     googleReviewCount: 248,
+    website: "www.deluxehomes.ae",
+    phone: "+971 4 XXX XXXX",
+    email: "info@deluxehomes.ae",
     ota: [
       { platform: "Airbnb", listed: true, rating: 4.7 },
       { platform: "Booking.com", listed: true, rating: 9.1 },
