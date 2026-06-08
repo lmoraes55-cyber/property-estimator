@@ -910,10 +910,142 @@ className="transition-transform duration-300 group-hover:scale-110"
 
 ---
 
-## 27. VERSION HISTORY
+## 27. PREMIUM OPERATOR PROFILES
+
+### Operator Card Structure
+```
+1. Company Logo Section (Gradient Header Background)
+   - Logo container: 120px x 120px
+   - White background, subtle border, rounded corners (16px)
+   - Logo placeholder or company initials
+   - Padding: 32px
+   - Gradient background: linear-gradient(bgMain → bgSection)
+
+2. Company Information
+   - Company Name: 2xl font, bold
+   - Tagline: sm font, muted color
+   - Website Link: Clickable with globe icon 🌐
+   - Opens in new tab
+
+3. Trust Indicators (Badges)
+   - Established [Year]
+   - Licensed Operator
+   - Dubai-Based
+   - Style: primary + "15" background, primary text
+   - Rounded full (pill shape)
+
+4. Google Ratings
+   - Rating number: 2xl font, bold
+   - Stars display (★★★★★)
+   - Review count with source
+
+5. Match Badges (if applicable)
+   - Smaller version of trust badges
+   - Color: isBest ? secondary : primary
+```
+
+### Contact Information Section
+```jsx
+// Premium contact card container
+style={{
+  background: colors.bgMain,
+  border: "1px solid " + colors.border,
+  borderRadius: "12px",
+  padding: "24px"
+}}
+
+// Each contact line
+- 📱 Phone (clickable tel: link)
+- ✉️ Email (clickable mailto: link)
+- 🌐 Website (clickable, opens new tab)
+
+Font: 14px, professional
+Icons: Simple emoji (📱✉️🌐)
+Hover: opacity 0.8, smooth transition
+```
+
+### Key Metrics Grid
+```
+3-column grid:
+- Commission: X–Y%
+- Onboarding: N week(s)
+- Portfolio: N+ units
+
+Card styling:
+- Background: bgMain
+- Border: subtle
+- Text center-aligned
+- Padding: 16px (p-4)
+```
+
+### OTA Platform Coverage
+```
+Display each platform as badge:
+- Listed platforms: primary + "15" background, primary border
+- Unlisted: bgMain background, muted text
+- Show rating if available (★4.8)
+
+Grid: flex wrap, gap-2
+Padding: px-4 py-2
+Font: 12px, medium weight
+Rounded: lg (12px)
+```
+
+### Action Buttons
+```
+Two-button layout (if website available):
+
+Button 1 - Visit Website:
+- Style: Outline (transparent bg, primary border, primary text)
+- Hover: translate-y-0.5, opacity transition
+- Opens website in new tab
+
+Button 2 - Contact / Learn More:
+- Top Operator: Gold gradient (premium, prominent)
+- Regular: Green gradient
+- Hover: translate-y-0.5, brightness(1.03)
+- Gradient CTA patterns
+
+If no website: Button 2 spans full width
+```
+
+### Card Container
+```
+Rounded corners: 24px
+Padding: 32px (p-8)
+Spacing between sections: space-y-8
+Background: bgSection
+Border: subtle
+Shadows: shadowSm + shadowMd
+Feel: LinkedIn company profile
+```
+
+### Design Principles
+✅ Professional company profile aesthetic
+✅ Trust signals prominent (established, licensed, Dubai-based)
+✅ Contact information easily accessible
+✅ Logo/branding area premium and centered
+✅ Visual hierarchy clear and intentional
+✅ Brand colors for CTAs and highlights
+✅ Website links and contact info clickable
+✅ Opens links in new tabs for better UX
+✅ Premium spacing and typography
+✅ Similar to Property Finder, Bayut, LinkedIn
+
+---
+
+## 28. VERSION HISTORY
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4 | 2026-06-08 | Premium operator profiles for credibility |
+| - | - | Operator card structure: logo, info, trust signals |
+| - | - | Company branding area with logo container |
+| - | - | Contact information section (phone, email, website) |
+| - | - | Trust indicators (established, licensed, Dubai-based) |
+| - | - | Professional action buttons (Visit Website + Contact) |
+| - | - | Enhanced OTA platform coverage display |
+| - | - | Similar to LinkedIn, Property Finder, Bayut |
 | 1.3 | 2026-06-08 | Premium chart system for investor intelligence |
 | - | - | Revenue chart: area + line, premium gradients |
 | - | - | Occupancy chart: area + line with 75% benchmark |
@@ -1166,7 +1298,7 @@ Wealth Management Dashboards:
 
 ---
 
-## 28. QUESTIONS & UPDATES
+## 29. QUESTIONS & UPDATES
 
 To maintain consistency:
 1. **Before creating new components**: Check this document
@@ -1180,6 +1312,7 @@ To maintain consistency:
 9. **When designing CTA cards**: Reference Section 24 (CTA Card Patterns)
 10. **When creating charts**: Reference Section 25 (Premium Chart System)
 11. **When designing dashboards**: Follow Section 26 (Brand Gradient Usage Guide)
+12. **When building operator profiles**: Reference Section 27 (Premium Operator Profiles)
 
 **This is the source of truth. All UI changes must align with these standards.**
 
