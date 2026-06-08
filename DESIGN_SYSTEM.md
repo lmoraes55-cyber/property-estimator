@@ -910,10 +910,18 @@ className="transition-transform duration-300 group-hover:scale-110"
 
 ---
 
-## 22. VERSION HISTORY
+## 27. VERSION HISTORY
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3 | 2026-06-08 | Premium chart system for investor intelligence |
+| - | - | Revenue chart: area + line, premium gradients |
+| - | - | Occupancy chart: area + line with 75% benchmark |
+| - | - | Custom premium tooltips (dark theme, soft shadows) |
+| - | - | Seasonal context labels (peak/low season) |
+| - | - | Data point markers with glow effects |
+| - | - | Subtle gridlines (rgba, minimal visual weight) |
+| - | - | Inspired by Stripe, Bloomberg, TradingView |
 | 1.2 | 2026-06-08 | Brand gradient system for CTA buttons added |
 | - | - | Green primary gradient (#1B5E4A → #2F7D63) specifications |
 | - | - | Gold premium gradient (#B88A44 → #D4AF6A) specifications |
@@ -977,7 +985,148 @@ Never use random colors — follow button color scheme
 
 ---
 
-## 25. BRAND GRADIENT USAGE GUIDE
+## 25. PREMIUM CHART SYSTEM
+
+### Revenue Chart (Area + Line)
+```jsx
+// Premium revenue visualization
+type: "natural"                    // Smooth curved lines
+stroke: #1B5E4A                   // Brand green
+strokeWidth: 3px                  // Premium thickness
+fill: "url(#revenueGradient)"     // Soft gradient fill
+
+Gradient Definition:
+- Start: rgba(27,94,74,0.35)     // 35% opacity green
+- End:   rgba(27,94,74,0.03)     // 3% opacity fade
+
+Data Point Markers:
+- Default: 4px circle, white stroke
+- Highest Revenue: 6px, glow effect
+- Lowest Revenue: 6px, glow effect
+- Hover: 7px, enhanced visibility
+
+Custom Tooltip:
+- Background: rgba(26,26,26,0.95)
+- Border: 1px solid rgba(255,255,255,0.1)
+- Shadow: 0 8px 32px rgba(0,0,0,0.2)
+- Content: Month, Revenue, % of annual
+```
+
+### Occupancy Chart (Area + Line)
+```jsx
+// Premium occupancy visualization
+type: "natural"                    // Smooth curved lines
+stroke: #B88A44                   // Brand gold
+strokeWidth: 3px                  // Premium thickness
+fill: "url(#occupancyGradient)"   // Subtle gradient fill
+
+Gradient Definition:
+- Start: rgba(184,138,68,0.2)    // 20% opacity gold
+- End:   rgba(184,138,68,0.02)   // 2% opacity fade
+
+Data Point Markers:
+- Default: 4px circle, white stroke
+- Above 75%: 5px, glow effect (premium performance)
+- Hover: 7px, enhanced visibility
+
+Benchmark Line:
+- Reference: 75% occupancy threshold
+- Style: Dashed (6px dash, 4px gap)
+- Color: #B88A44 (brand gold)
+- Label: "75% Benchmark"
+- Helps owners understand performance target
+
+Custom Tooltip:
+- Background: rgba(26,26,26,0.95)
+- Border: 1px solid rgba(255,255,255,0.1)
+- Shadow: 0 8px 32px rgba(0,0,0,0.2)
+- Content: Month, Occupancy %, Revenue
+```
+
+### Chart Gridlines
+```
+Style: Minimal, subtle
+Color: rgba(27,94,74,0.08)        // Revenue charts
+        rgba(184,138,68,0.08)     // Occupancy charts
+Direction: Horizontal only (vertical={false})
+Dash: None (solid but very subtle)
+Purpose: Provide reference without dominating chart
+```
+
+### Chart Margins & Layout
+```jsx
+Margins: {
+  top: 20,      // Space for legend/labels
+  right: 20,    // Space on right
+  left: -20,    // Negative for compact view
+  bottom: 20    // Space for x-axis labels
+}
+
+Height: 280px              // Generous chart area
+Padding: p-10              // 40px card padding
+Border Radius: 24px        // Premium corners
+Shadows: Full stack        // Premium depth
+Container Backdrop: blur(20px)
+```
+
+### Seasonal Context Labels
+```
+Revenue Chart:
+- Peak Season: Nov–Apr
+- Low Season: Jun–Aug
+- Label position: Below chart
+- Font size: 12px
+- Color: Muted, with emphasis on season label
+
+Occupancy Chart:
+- Benchmark context: "75% Strong Performance"
+- Helps owners understand target
+- Font size: 12px
+```
+
+### Chart Interactions
+```
+Hover Effects:
+- Data point enlarges (4px → 7px)
+- Tooltip appears with smooth fade
+- Active dot glow effect
+- Smooth transition (300ms)
+
+Tooltip Appearance:
+- Dark semi-transparent background
+- Soft white border
+- Premium shadow
+- Padding: 16px
+- Border-radius: 12px
+- Font: 11-12px, professional
+```
+
+### Design Inspiration
+```
+Stripe Analytics:
+- Clean, minimal data visualization
+- Focus on data, not decoration
+- Premium typography and spacing
+
+Bloomberg (Simplified):
+- Professional, institutional feel
+- Clear hierarchy and legibility
+- Data-focused design
+
+TradingView:
+- Smooth curves, premium lines
+- Interactive tooltips
+- Benchmark lines for context
+
+Wealth Management Dashboards:
+- Premium appearance, high trust
+- Clear performance indicators
+- Institutional color schemes
+```
+
+---
+
+## 26. BRAND GRADIENT USAGE GUIDE
 
 ### When to Use Each Gradient
 
@@ -1017,7 +1166,7 @@ Never use random colors — follow button color scheme
 
 ---
 
-## 26. QUESTIONS & UPDATES
+## 28. QUESTIONS & UPDATES
 
 To maintain consistency:
 1. **Before creating new components**: Check this document
@@ -1029,6 +1178,8 @@ To maintain consistency:
 7. **When creating icons**: Use Section 19 (Icon System) patterns
 8. **When applying gradients**: Reference Section 12 (Gradients & Brand System)
 9. **When designing CTA cards**: Reference Section 24 (CTA Card Patterns)
+10. **When creating charts**: Reference Section 25 (Premium Chart System)
+11. **When designing dashboards**: Follow Section 26 (Brand Gradient Usage Guide)
 
 **This is the source of truth. All UI changes must align with these standards.**
 
