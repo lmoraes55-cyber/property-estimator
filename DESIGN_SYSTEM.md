@@ -512,11 +512,15 @@ Glow:         drop-shadow(0 4px 12px color@40%)
 - ✅ Use glass morphism (blur: 20px) on overlays/cards
 - ✅ Apply animations to entrance only (fade in, slide up)
 - ✅ Use gradient backgrounds for primary CTAs
-- ✅ Include emoji indicators in section headers (📊, 🎯, etc.)
+- ✅ Use professional line icons instead of emojis
 - ✅ Maintain 1.6 line-height for body text
 - ✅ Use backdrop filters for layered depth
 - ✅ Apply hover state animations (300ms duration)
 - ✅ Maintain color consistency (primary green, gold accent)
+- ✅ Use sticky headers in data tables
+- ✅ Add progress bars for percentage-based metrics
+- ✅ Color-code occupancy thresholds (75%+, 67-74%, <67%)
+- ✅ Emphasize key columns (Net To Landlord) with borders and backgrounds
 
 ### DON'T ❌
 - ❌ Use border-radius smaller than 24px on cards
@@ -529,6 +533,10 @@ Glow:         drop-shadow(0 4px 12px color@40%)
 - ❌ Apply multiple hover effects at once (choose one main effect)
 - ❌ Add decorative patterns or textures
 - ❌ Change core colors without updating DESIGN_SYSTEM.md
+- ❌ Use colorful or decorative emojis (professional icons only)
+- ❌ Remove columns or change table structure
+- ❌ Remove or hide data values
+- ❌ Use bright colors for occupancy indicators (<67% should be soft amber)
 
 ---
 
@@ -597,7 +605,232 @@ When building any new UI component, verify:
 
 ---
 
-## 18. GLOBAL CSS CLASSES
+## 18. PREMIUM TABLE COMPONENT
+
+### Container & Header
+```jsx
+// Table container
+className="rounded-3xl overflow-hidden"
+style={{
+  border: "1px solid " + colors.border,
+  boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+  backdropFilter: "blur(20px)"
+}}
+
+// Header section
+style={{
+  background: colors.bgSection,
+  borderBottom: "1px solid " + colors.border,
+  padding: "24px 32px"
+}}
+```
+
+### Table Head (Sticky)
+```jsx
+<thead style={{ position: "sticky", top: 0, zIndex: 10 }}>
+  <tr style={{
+    background: colors.bgSection,
+    borderBottom: "2px solid " + colors.primary
+  }}>
+    <th className="px-6 py-4 text-left text-xs font-semibold"
+      style={{
+        color: colors.textMuted,
+        letterSpacing: "0.05em",
+        background: colors.bgSection
+      }}>
+      Header Text
+    </th>
+  </tr>
+</thead>
+```
+
+### Data Row (Alternating)
+```jsx
+// White rows (i % 2 === 0)
+style={{
+  background: "#FFFFFF",
+  borderBottom: "1px solid " + colors.border,
+  transition: "background-color 0.2s"
+}}
+
+// Cream rows (i % 2 === 1)
+style={{
+  background: "#FCFAF7",
+  borderBottom: "1px solid " + colors.border
+}}
+
+// Cell padding
+className="px-6 py-5"
+```
+
+### Revenue Column with Progress Bar
+```jsx
+<td className="px-6 py-5">
+  <div className="space-y-2">
+    <div>
+      <p className="text-sm font-medium" style={{ color: colors.primary }}>
+        AED {value}
+      </p>
+      <p className="text-xs" style={{ color: colors.textMuted }}>
+        {percentage}% of annual
+      </p>
+    </div>
+    {/* Progress bar */}
+    <div style={{
+      width: "100%",
+      height: "4px",
+      background: colors.border,
+      borderRadius: "2px",
+      overflow: "hidden"
+    }}>
+      <div style={{
+        width: `${percentage}%`,
+        height: "100%",
+        background: colors.primary,
+        borderRadius: "2px",
+        transition: "width 0.3s"
+      }} />
+    </div>
+  </div>
+</td>
+```
+
+### Occupancy Column with Color-Coded Progress
+```jsx
+<td className="px-6 py-5">
+  <div className="space-y-2">
+    <p className="text-sm font-medium" style={{ color: occupancyColor }}>
+      {occupancyRate.toFixed(0)}%
+    </p>
+    {/* Color rules:
+        75%+ = #1B5E4A (primary green)
+        67-74% = #B88A44 (gold)
+        <67% = #A0826D (soft amber)
+    */}
+    <div style={{
+      width: "100%",
+      height: "4px",
+      background: colors.border,
+      borderRadius: "2px",
+      overflow: "hidden"
+    }}>
+      <div style={{
+        width: `${Math.min(rate, 100)}%`,
+        height: "100%",
+        background: occupancyColor,
+        borderRadius: "2px",
+        transition: "background-color 0.3s, width 0.3s"
+      }} />
+    </div>
+  </div>
+</td>
+```
+
+### Net To Landlord Column (Dominant)
+```jsx
+<td className="px-6 py-5"
+  style={{
+    background: `${colors.primary}08`,
+    borderLeft: `3px solid ${colors.primary}`
+  }}>
+  <p className="text-sm font-bold" style={{
+    color: colors.primary,
+    fontSize: "16px"
+  }}>
+    AED {value}
+  </p>
+</td>
+```
+
+### Secondary Columns (Softer)
+```jsx
+<td className="px-6 py-5" style={{ color: colors.textLight }}>
+  <p className="text-sm">AED {value}</p>
+</td>
+```
+
+### Total Row (Conclusion)
+```jsx
+<tr style={{
+  background: "#F5F2ED",
+  borderTop: "2px solid " + colors.primary,
+  borderBottom: "none"
+}}>
+  <td className="px-6 py-6 font-bold"
+    style={{
+      color: colors.textMain,
+      fontSize: "15px"
+    }}>
+    TOTAL
+  </td>
+  {/* All numeric cells use font-bold, larger font (text-base) */}
+  <td className="px-6 py-6">
+    <p className="text-base font-bold" style={{ color: colors.primary }}>
+      AED {totalValue}
+    </p>
+  </td>
+  {/* Net To Landlord total gets strongest emphasis */}
+  <td className="px-6 py-6" style={{
+    background: colors.primary,
+    borderLeft: `3px solid ${colors.primary}`
+  }}>
+    <p className="text-lg font-bold" style={{ color: "#FFF" }}>
+      AED {totalNetValue}
+    </p>
+  </td>
+</tr>
+```
+
+---
+
+## 19. ICON SYSTEM (Professional Line Icons)
+
+### Icon Circle Background
+```jsx
+style={{
+  width: "52px",
+  height: "52px",
+  borderRadius: "50%",
+  background: "#E8F3EE",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "#1B5E4A",
+  flexShrink: 0
+}}
+```
+
+### Icon SVG Properties
+```jsx
+<svg width="24" height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth="1.5"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+/>
+```
+
+### Icon Mapping
+- Annual Revenue (Gross) → Chart Line / Bar Icon
+- Net To Landlord → User / Owner Icon
+- Management Fees → Pie Chart Icon
+- Utilities + Maintenance → Wrench / Tools Icon
+- Gross Yield → Stacked Coins Icon
+- Net Yield → Percentage Icon
+- STR vs LTR Delta → Trending Up Icon
+- Average Daily Rate → Calendar Icon
+
+### Hover State
+```jsx
+className="transition-transform duration-300 group-hover:scale-110"
+// Icons scale up slightly on card hover
+```
+
+---
+
+## 20. GLOBAL CSS CLASSES
 
 ```css
 .animate-fade-in { animation: fadeIn 0.6s ease-out; }
@@ -610,17 +843,22 @@ When building any new UI component, verify:
 
 ---
 
-## 19. VERSION HISTORY
+## 22. VERSION HISTORY
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2026-06-08 | Premium table component patterns added |
+| - | - | Icon system specifications (professional SVG line icons) |
+| - | - | Revenue progress bars, occupancy color coding |
+| - | - | Net To Landlord visual dominance patterns |
+| - | - | Alternating row backgrounds, sticky headers |
 | 1.0 | 2026-06-08 | Initial premium design system |
 | - | - | Stripe + Apple + Property Finder Premium aesthetic |
 | - | - | Comprehensive typography, color, shadow, and animation specs |
 
 ---
 
-## 20. QUESTIONS & UPDATES
+## 23. QUESTIONS & UPDATES
 
 To maintain consistency:
 1. **Before creating new components**: Check this document
@@ -628,6 +866,8 @@ To maintain consistency:
 3. **When styling buttons**: Use Section 6 (Buttons) patterns
 4. **When adding animations**: Follow Section 8 (Animation) guidelines
 5. **When uncertain about spacing**: Use Section 4 (Spacing Scale)
+6. **When building tables**: Reference Section 18 (Premium Table Component)
+7. **When creating icons**: Use Section 19 (Icon System) patterns
 
 **This is the source of truth. All UI changes must align with these standards.**
 
