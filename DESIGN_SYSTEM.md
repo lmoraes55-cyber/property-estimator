@@ -196,35 +196,54 @@ border: "1px solid " + colors.border
 
 ---
 
-## 6. BUTTONS
+## 6. BUTTONS & CTA SYSTEM
 
-### Primary Button
+### Primary Green CTA Button
 ```jsx
+// For main actions: Continue, Primary CTAs, "Get in Touch", etc.
+className="transition-all duration-300 hover:-translate-y-0.5 hover:brightness-103"
 style={{
-  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
+  background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
   color: "#FFF",
-  boxShadow: `0 8px 20px ${colors.primary}30`,
-  borderRadius: "24px",
+  boxShadow: "0 8px 20px rgba(27, 94, 74, 0.3)",
+  borderRadius: "rounded-2xl",
   padding: "1rem 2rem",
-  fontWeight: "700"
+  fontWeight: "700",
+  transitionDuration: "250ms"
 }}
-className="transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
 ```
 
-### Secondary Button
+### Premium Gold CTA Button
 ```jsx
+// For premium actions: "Generate Report", "Find Operator", "Contact for Quote", etc.
+className="transition-all duration-300 hover:-translate-y-0.5 hover:brightness-103"
 style={{
-  background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.secondaryLight} 100%)`,
-  color: colors.textMain,
-  boxShadow: `0 8px 20px ${colors.secondary}30`,
-  borderRadius: "24px",
+  background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
+  color: "#FFF",
+  boxShadow: "0 8px 20px rgba(184, 138, 68, 0.3)",
+  borderRadius: "rounded-2xl",
   padding: "1rem 2rem",
-  fontWeight: "700"
+  fontWeight: "700",
+  transitionDuration: "250ms"
 }}
-className="transition-all duration-300 hover:-translate-y-0.5"
 ```
 
-### Ghost Button
+### Secondary Outline Button
+```jsx
+// For secondary actions: "Learn More", "Back", optional CTAs, etc.
+className="transition-all duration-300 hover:-translate-y-0.5"
+style={{
+  background: "transparent",
+  color: colors.primary,
+  border: "1px solid " + colors.primary,
+  borderRadius: "rounded-xl",
+  padding: "1rem 2rem",
+  fontWeight: "600",
+  transitionDuration: "250ms"
+}}
+```
+
+### Ghost Button (Legacy)
 ```jsx
 style={{
   background: colors.primary + "08",
@@ -235,6 +254,16 @@ style={{
   fontWeight: "600"
 }}
 className="transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5"
+```
+
+### Button Hover Effects
+```
+Transform:    translateY(-2px)      (lift effect)
+Brightness:   brightness(1.03)      (subtle glow)
+Duration:     250ms                 (smooth transition)
+Easing:       ease (default)        (natural feel)
+Shadow:       Increase via brightness effect
+No bouncing, no elastic effects (Apple aesthetic)
 ```
 
 ### Button States
@@ -440,14 +469,52 @@ border: "1px solid rgba(255, 255, 255, 0.2)"
 
 ---
 
-## 12. GRADIENTS
+## 12. GRADIENTS & BRAND SYSTEM
 
-### Button Gradient
+### Primary Green CTA Gradient
 ```
+Purpose:      Main action buttons, primary CTAs
 Direction:    135deg
-Start:        Primary color (0%)
-End:          Primary Light (100%)
-Example:      `linear-gradient(135deg, #1B5E4A 0%, #2A7A62 100%)`
+Start:        #1B5E4A (Brand Green)
+End:          #2F7D63 (Lighter Green)
+Example:      linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)
+Text Color:   #FFFFFF
+Shadow:       0 8px 20px rgba(27, 94, 74, 0.3)
+Hover:        translateY(-2px), brightness(1.03), 250ms transition
+Usage:        "Find a Leasing Agent", "Continue", "Get in Touch"
+```
+
+### Gold/Brown Premium CTA Gradient
+```
+Purpose:      Premium actions, opportunity cards, recommendations
+Direction:    135deg
+Start:        #B88A44 (Brand Gold)
+End:          #D4AF6A (Lighter Gold)
+Example:      linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)
+Text Color:   #FFFFFF
+Shadow:       0 8px 20px rgba(184, 138, 68, 0.3)
+Hover:        translateY(-2px), brightness(1.03), 250ms transition
+Usage:        "Generate My Report", "Find My Best Operator", "Contact for Quote"
+```
+
+### Mixed Brand Gradient (Signature)
+```
+Purpose:      Hero cards, featured sections, premium banners (use sparingly)
+Direction:    90deg (horizontal)
+Stops:        #1B5E4A (0%), #4D7A4E (40%), #8A8442 (70%), #B88A44 (100%)
+Example:      linear-gradient(90deg, #1B5E4A 0%, #4D7A4E 40%, #8A8442 70%, #B88A44 100%)
+Matches:      GroundWorks headline gradient (green to gold transition)
+Effect:       Premium, elegant, wealth-focused
+```
+
+### Light Brand Gradient (Subtle Backgrounds)
+```
+Purpose:      Recommendation sections, summary cards, insight panels
+Direction:    135deg
+Start:        rgba(27, 94, 74, 0.08)   (Brand green, 8% opacity)
+End:          rgba(184, 138, 68, 0.08) (Brand gold, 8% opacity)
+Example:      linear-gradient(135deg, rgba(27,94,74,0.08) 0%, rgba(184,138,68,0.08) 100%)
+Usage:        Card backgrounds, information panels, insight cards
 ```
 
 ### Headline Gradient
@@ -847,6 +914,14 @@ className="transition-transform duration-300 group-hover:scale-110"
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2 | 2026-06-08 | Brand gradient system for CTA buttons added |
+| - | - | Green primary gradient (#1B5E4A → #2F7D63) specifications |
+| - | - | Gold premium gradient (#B88A44 → #D4AF6A) specifications |
+| - | - | Mixed brand gradient (green-to-gold horizontal) |
+| - | - | Light brand gradient for subtle backgrounds (8% opacity) |
+| - | - | Button hover effects (translateY, brightness, 250ms) |
+| - | - | CTA card patterns and design language |
+| - | - | Icon treatment rules for different button types |
 | 1.1 | 2026-06-08 | Premium table component patterns added |
 | - | - | Icon system specifications (professional SVG line icons) |
 | - | - | Revenue progress bars, occupancy color coding |
@@ -858,16 +933,102 @@ className="transition-transform duration-300 group-hover:scale-110"
 
 ---
 
-## 23. QUESTIONS & UPDATES
+## 24. CTA CARD PATTERNS & DESIGN LANGUAGE
+
+### Green CTA Card Container
+```jsx
+// For agent/operator recommendations, primary call-to-actions
+style={{
+  background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgWhite} 100%)`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+  backdropFilter: "blur(20px)",
+  borderRadius: "24px",
+  padding: "40px"
+}}
+```
+
+### Gold Premium CTA Card Container
+```jsx
+// For premium insights, opportunity highlights, recommendations
+style={{
+  background: `linear-gradient(135deg, ${colors.secondary}15 0%, ${colors.secondary}08 100%)`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
+  backdropFilter: "blur(20px)"
+}}
+```
+
+### CTA Card Content Hierarchy
+```
+1. Overline/Label (12px, font-bold, text-muted, uppercase, 0.15em spacing)
+2. Headline (32px, font-bold, text-main or secondary)
+3. Description (14px, text-muted, line-height 1.6)
+4. CTA Button (inline-flex, gap-2, rounded-2xl, full-width or auto)
+```
+
+### Icon Treatment in Buttons
+```
+Green buttons:         White icons (#FFF)
+Gold buttons:          White icons (#FFF)
+Outline buttons:       Brand green icons (#1B5E4A)
+Never use random colors — follow button color scheme
+```
+
+---
+
+## 25. BRAND GRADIENT USAGE GUIDE
+
+### When to Use Each Gradient
+
+**Green Primary Gradient (#1B5E4A → #2F7D63)**
+- Main action buttons: "Continue", "Get Started"
+- Agent/Leasing CTAs: "Find a Leasing Agent", "Get in Touch"
+- Primary navigation and flows
+- Recommended actions
+
+**Gold Premium Gradient (#B88A44 → #D4AF6A)**
+- Report generation: "Generate My Report"
+- Operator selection: "Find My Best Operator"
+- Premium services: "Contact for Quote"
+- Opportunity highlights
+- Recommendations
+
+**Mixed Brand Gradient (Green → Gold horizontal)**
+- Hero banners (use sparingly)
+- Featured sections
+- Premium recommendations
+- Featured cards (max 1-2 per page)
+
+**Light Brand Gradient (subtle, 8% opacity)**
+- Card backgrounds
+- Information panels
+- Recommendation sections
+- Supporting content areas
+
+### Design Principles
+✅ Premium, elegant aesthetic
+✅ Wealth-focused, luxury real estate vibe
+✅ Subtle, not aggressive
+✅ Consistent with GroundWorks headline gradient
+✅ High trust and institutional feel
+✅ Not a colorful SaaS startup
+✅ Not neon or bright
+
+---
+
+## 26. QUESTIONS & UPDATES
 
 To maintain consistency:
 1. **Before creating new components**: Check this document
 2. **When unsure about colors**: Reference Section 1 (Color Palette)
-3. **When styling buttons**: Use Section 6 (Buttons) patterns
+3. **When styling buttons**: Use Section 6 (Buttons & CTA System) patterns
 4. **When adding animations**: Follow Section 8 (Animation) guidelines
 5. **When uncertain about spacing**: Use Section 4 (Spacing Scale)
 6. **When building tables**: Reference Section 18 (Premium Table Component)
 7. **When creating icons**: Use Section 19 (Icon System) patterns
+8. **When applying gradients**: Reference Section 12 (Gradients & Brand System)
+9. **When designing CTA cards**: Reference Section 24 (CTA Card Patterns)
 
 **This is the source of truth. All UI changes must align with these standards.**
 
