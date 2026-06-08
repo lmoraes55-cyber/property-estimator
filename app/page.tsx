@@ -117,7 +117,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16"
-      style={{ background: `linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 40%, ${colors.bgSection} 100%)` }}>
+      style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
 
       {/* Header */}
       <div className="text-center mb-12">
@@ -311,56 +311,24 @@ export default function Home() {
                     onChange={e => set("floor", e.target.value)}
                   />
                 </div>
-                {/* Floor visual scale */}
-                <div className="mt-3 grid grid-cols-5 gap-1.5">
-                  {[
-                    { range: "1–4", label: "Low", premium: "+0%" },
-                    { range: "5–9", label: "Mid-Low", premium: "+2%" },
-                    { range: "10–19", label: "Mid", premium: "+4%" },
-                    { range: "20–29", label: "High", premium: "+8%" },
-                    { range: "30+", label: "Sky", premium: "+12–18%" },
-                  ].map(t => {
-                    const fl = Number(form.floor);
-                    const active =
-                      (t.range === "1–4" && fl >= 1 && fl <= 4) ||
-                      (t.range === "5–9" && fl >= 5 && fl <= 9) ||
-                      (t.range === "10–19" && fl >= 10 && fl <= 19) ||
-                      (t.range === "20–29" && fl >= 20 && fl <= 29) ||
-                      (t.range === "30+" && fl >= 30);
-                    return (
-                      <div key={t.range} className="text-center p-2 rounded-lg"
-                        style={{ background: active ? "colors.bgSection" : colors.bgMain, border: `1px solid ${active ? "#C9A84C44" : colors.bgSection}` }}>
-                        <p className="text-xs font-semibold" style={{ color: active ? colors.primary : colors.textLight }}>{t.premium}</p>
-                        <p className="text-xs mt-0.5" style={{ color: active ? colors.textLight : colors.textLight }}>{t.label}</p>
-                      </div>
-                    );
-                  })}
-                </div>
               </div>
 
               {/* View type */}
               <div>
                 <label className="block text-xs font-medium mb-3 tracking-wider" style={{ color: colors.textMuted }}>PROPERTY VIEW</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {VIEWS.map(v => {
-                    const pct = Math.round(VIEW_PREMIUMS[v] * 100);
-                    return (
-                      <button key={v}
-                        onClick={() => set("view", v)}
-                        className="flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left"
-                        style={{
-                          background: form.view === v ? "colors.bgSection" : colors.bgMain,
-                          border: `1px solid ${form.view === v ? colors.primary : colors.border}`,
-                        }}>
-                        <span className="text-xs font-medium" style={{ color: form.view === v ? colors.primaryHover : colors.textLight }}>{v}</span>
-                        {pct > 0 && (
-                          <span className="text-xs font-semibold" style={{ color: form.view === v ? colors.primary : colors.textLight }}>
-                            +{pct}%
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {VIEWS.map(v => (
+                    <button key={v}
+                      onClick={() => set("view", v)}
+                      className="px-4 py-3 rounded-xl transition-all text-left text-sm font-medium"
+                      style={{
+                        background: form.view === v ? colors.secondary : colors.bgMain,
+                        border: `1px solid ${form.view === v ? colors.secondary : colors.border}`,
+                        color: form.view === v ? "#FFF" : colors.textMain,
+                      }}>
+                      {v}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -373,11 +341,11 @@ export default function Home() {
                       onClick={() => set("furnished", f)}
                       className="py-4 rounded-xl transition-all text-left px-4"
                       style={{
-                        background: form.furnished === f ? "colors.bgSection" : colors.bgMain,
-                        border: `1px solid ${form.furnished === f ? colors.primary : colors.border}`,
+                        background: form.furnished === f ? colors.secondary : colors.bgMain,
+                        border: `1px solid ${form.furnished === f ? colors.secondary : colors.border}`,
                       }}>
-                      <p className="text-sm font-semibold" style={{ color: form.furnished === f ? colors.primaryHover : colors.textLight }}>{f}</p>
-                      <p className="text-xs mt-0.5" style={{ color: form.furnished === f ? "#C9A84C99" : colors.textLight }}>
+                      <p className="text-sm font-semibold" style={{ color: form.furnished === f ? "#FFF" : colors.textLight }}>{f}</p>
+                      <p className="text-xs mt-0.5" style={{ color: form.furnished === f ? "#FFFFFF99" : colors.textLight }}>
                         {f === "Furnished" ? "Ready for short-term rental" : "Furnishing package required"}
                       </p>
                     </button>

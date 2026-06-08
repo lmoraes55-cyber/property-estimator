@@ -17,7 +17,7 @@ function FurnishingContent() {
   const handleBack = () => router.back();
 
   return (
-    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
+    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
       <div
         className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"

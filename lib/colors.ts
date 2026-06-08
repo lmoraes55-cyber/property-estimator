@@ -3,8 +3,8 @@
 
 export const colors = {
   // Primary Brand
-  primary: "#2F4F3E",        // Deep Ground Green
-  primaryHover: "#3F6B54",
+  primary: "#26593E",        // Rich Forest Green
+  primaryHover: "#315848",
 
   // Backgrounds
   bgMain: "#E6D8C3",         // Warm Sand (main background)
@@ -12,8 +12,8 @@ export const colors = {
   bgWhite: "#FFFFFF",
 
   // Secondary / Accent
-  secondary: "#8B5E3C",      // Clay / Rust (accent, highlights)
-  secondaryLight: "#A47148",
+  secondary: "#c9a77d",      // Warm Mocha (accent, highlights)
+  secondaryLight: "#D9B8A0",
 
   // Text
   textMain: "#2B2B2B",       // Charcoal
@@ -22,11 +22,11 @@ export const colors = {
 
   // UI Elements
   border: "#E0E0E0",
-  mutedGreen: "#6E8F7A",
+  mutedGreen: "#5A8F7A",
 
   // Functional (derived)
-  success: "#6E8F7A",        // For positive/LTR
-  warning: "#8B5E3C",        // For secondary actions
-  error: "#7A4A3A",          // For errors if needed
+  success: "#5A8F7A",        // For positive/LTR
+  warning: "#c9a77d",        // For secondary actions
+  error: "#A87060",          // For errors if needed
   overlay: "rgba(0, 0, 0, 0.5)",
 };

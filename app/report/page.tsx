@@ -70,7 +70,7 @@ function ReportContent() {
   const strBetter = result.strVsLtrDelta > 0;
 
   return (
-    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
+    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
         style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.primary, backdropFilter: "blur(12px)" }}>
@@ -366,6 +366,24 @@ function ReportContent() {
             </button>
           </div>
         )}
+
+        {/* Self Manage Alternative CTA */}
+        <div className="rounded-2xl p-8 text-center" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+          <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Alternative Path</p>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>Want to keep 100% of your income?</h2>
+          <p className="text-sm mb-6" style={{ color: colors.textMuted }}>
+            Learn how to manage your property yourself and handle all operations independently in Dubai.
+          </p>
+          <button
+            onClick={() => {
+              const p = new URLSearchParams(window.location.search);
+              window.location.href = `/self-manage?${p.toString()}`;
+            }}
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all"
+            style={{ background: colors.primary, color: "#FFF" }}>
+            Find Out How to Self Manage →
+          </button>
+        </div>
 
         {/* Disclaimer */}
         <div className="text-center pb-10 space-y-2">
