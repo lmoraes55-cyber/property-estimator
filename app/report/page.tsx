@@ -13,11 +13,14 @@ import {
 import { colors } from "@/lib/colors";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
 
-function StatCard({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
+function StatCard({ label, value, sub, highlight, icon }: { label: string; value: string; sub?: string; highlight?: boolean; icon?: string }) {
   return (
-    <div className="rounded-xl p-5" style={{ background: colors.bgSection, border: `1px solid ${highlight ? "#C9A84C55" : colors.primary}` }}>
-      <p className="text-xs font-medium mb-1 tracking-wider" style={{ color: colors.textMuted }}>{label}</p>
-      <p className="text-2xl font-bold" style={{ color: highlight ? colors.primary : colors.textMain }}>{value}</p>
+    <div className="rounded-xl p-5" style={{ background: colors.bgSection, border: `1px solid ${colors.primary}`, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+      <div className="flex items-start justify-between mb-3">
+        <p className="text-xs font-medium tracking-wider" style={{ color: colors.textMuted }}>{label}</p>
+        {icon && <span style={{ fontSize: "20px" }}>{icon}</span>}
+      </div>
+      <p className="text-2xl font-bold" style={{ color: colors.primary }}>{value}</p>
       {sub && <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{sub}</p>}
     </div>
   );
@@ -203,34 +206,34 @@ function ReportContent() {
             </div>
             {/* Right side image */}
             <div className="hidden lg:block flex-shrink-0 w-80">
-              <div className="w-full h-80 rounded-xl overflow-hidden"
-                style={{ backgroundImage: `url('https://images.unsplash.com/photo-1512453334693-5a20c2f01063?w=400&h=400&fit=crop')`, backgroundSize: "cover", backgroundPosition: "center" }} />
+              <div className="w-full h-80 rounded-2xl overflow-hidden"
+                style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=500&h=400&fit=crop')`, backgroundSize: "cover", backgroundPosition: "center", boxShadow: "0 8px 20px rgba(0,0,0,0.12)" }} />
             </div>
           </div>
         </div>
 
         {/* Key metrics */}
-        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
-          <h2 className="text-sm font-semibold tracking-wider uppercase mb-4" style={{ color: colors.textMuted }}>Key Metrics</h2>
+        <div className="rounded-2xl p-8" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <h2 className="text-sm font-semibold tracking-wider uppercase mb-6" style={{ color: colors.primary }}>Key Metrics</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} highlight />
-            <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" />
-            <StatCard label="MANAGEMENT FEES" value={`AED ${fmt(result.annualManagementFee)}`} sub={`${(input.managementFee * 100).toFixed(0)}% of revenue`} />
-            <StatCard label="UTILITIES + MAINTENANCE" value={`AED ${fmt(result.annualUtilities + result.annualMaintenance)}`} sub="DEWA, AC, DU, upkeep" />
+            <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} icon="💼" />
+            <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" icon="👤" />
+            <StatCard label="MANAGEMENT FEES" value={`AED ${fmt(result.annualManagementFee)}`} sub={`${(input.managementFee * 100).toFixed(0)}% of revenue`} icon="⏰" />
+            <StatCard label="UTILITIES + MAINTENANCE" value={`AED ${fmt(result.annualUtilities + result.annualMaintenance)}`} sub="DEWA, AC, DU, upkeep" icon="🔧" />
             {result.grossYield !== undefined && (
-              <StatCard label="GROSS YIELD" value={`${result.grossYield.toFixed(2)}%`} highlight sub="Based on property value" />
+              <StatCard label="GROSS YIELD" value={`${result.grossYield.toFixed(2)}%`} sub="Based on property value" icon="💰" />
             )}
             {result.netYield !== undefined && (
-              <StatCard label="NET YIELD" value={`${result.netYield.toFixed(2)}%`} sub="After all deductions" />
+              <StatCard label="NET YIELD" value={`${result.netYield.toFixed(2)}%`} sub="After all deductions" icon="📊" />
             )}
             <StatCard label="STR vs LTR DELTA" value={`${strBetter ? "+" : ""}AED ${fmt(result.strVsLtrDelta)}`}
-              sub={strBetter ? "STR earns more" : "LTR earns more"} />
-            <StatCard label="AVERAGE DAILY RATE" value={`AED ${fmt(result.avgADR)}`} sub="Blended across 12 months" />
+              sub={strBetter ? "STR earns more" : "LTR earns more"} icon="📈" />
+            <StatCard label="AVERAGE DAILY RATE" value={`AED ${fmt(result.avgADR)}`} sub="Blended across 12 months" icon="📅" />
           </div>
         </div>
 
         {/* STR vs LTR chart */}
-        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+        <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Net Income: STR vs LTR</h2>
           <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Short-term rental net income compared to equivalent monthly long-term rent</p>
           <ResponsiveContainer width="100%" height={280}>
@@ -259,7 +262,7 @@ function ReportContent() {
 
         {/* Revenue & Occupancy */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Gross Revenue</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Seasonal demand patterns drive revenue distribution</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -274,7 +277,7 @@ function ReportContent() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <h2 className="text-base font-semibold mb-1" style={{ color: colors.secondary }}>Monthly Occupancy Rate</h2>
             <p className="text-xs mb-6" style={{ color: colors.textMuted }}>Dubai peak season: Nov–Mar; low season: Jun–Aug</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -291,51 +294,8 @@ function ReportContent() {
           </div>
         </div>
 
-        {/* Key Insight and Recommendation */}
-        <div className="grid md:grid-cols-3 gap-6 py-4">
-          <div className="flex gap-4">
-            <div className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: colors.mutedGreen }}>
-              <span style={{ fontSize: "28px" }}>💡</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-base font-bold mb-2" style={{ color: colors.textMain }}>Key Insight</h3>
-              <p className="text-sm" style={{ color: colors.textMuted }}>
-                {strBetter
-                  ? `Short-term rentals in ${result.buildingInfo?.community ?? result.buildingName} show strong performance, driven by high occupancy and premium daily rates.`
-                  : `Long-term rental is the more stable option for this property, offering consistent income with lower operational complexity.`}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: colors.mutedGreen }}>
-              <span style={{ fontSize: "28px" }}>🎯</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-base font-bold mb-2" style={{ color: colors.textMain }}>Our Recommendation</h3>
-              <p className="text-sm" style={{ color: colors.textMuted }}>
-                {strBetter
-                  ? `We recommend short-term rental for maximum returns based on current market trends.`
-                  : `We recommend long-term rental for stable, guaranteed income with minimal management.`}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: colors.mutedGreen }}>
-              <span style={{ fontSize: "28px" }}>👤</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-base font-bold mb-2" style={{ color: colors.textMain }}>Talk to an Expert</h3>
-              <button className="text-sm font-semibold px-4 py-2 rounded-lg transition" style={{ background: colors.primary, color: "#FFF" }}>
-                Schedule Call
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Monthly breakdown table */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid " + colors.primary }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid " + colors.primary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <div className="px-6 py-4" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.primary }}>
             <h2 className="text-base font-semibold" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
