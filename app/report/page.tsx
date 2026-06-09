@@ -421,7 +421,6 @@ function ReportContent() {
                   <stop offset="95%" stopColor={colors.textLight} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={colors.primary} />
               <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false}
                 tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
@@ -455,8 +454,6 @@ function ReportContent() {
                     <stop offset="100%" stopColor="rgba(27,94,74,0.02)" />
                   </linearGradient>
                 </defs>
-                {/* Subtle gridlines */}
-                <CartesianGrid strokeDasharray="0" stroke="rgba(27,94,74,0.08)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false}
                   tickFormatter={v => `${(v / 1000).toFixed(0)}k`} width={40} />
@@ -537,8 +534,6 @@ function ReportContent() {
                     <stop offset="95%" stopColor="rgba(184,138,68,0.02)" />
                   </linearGradient>
                 </defs>
-                {/* Subtle gridlines */}
-                <CartesianGrid strokeDasharray="0" stroke="rgba(184,138,68,0.08)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis
                   tick={{ fill: colors.textMuted, fontSize: 11 }}
