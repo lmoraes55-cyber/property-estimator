@@ -288,9 +288,9 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         boxShadow: colors.shadowSm,
         transition: "all 0.3s ease",
         cursor: "pointer",
-        height: "720px", // FIXED HEIGHT - DESKTOP
+        height: "620px", // FIXED HEIGHT - DESKTOP
         display: "grid",
-        gridTemplateRows: "120px 80px 100px 1fr 170px 60px", // FIXED VERTICAL ZONES
+        gridTemplateRows: "120px 80px 1fr 170px 60px", // FIXED VERTICAL ZONES - METRICS REMOVED
         gridTemplateColumns: "1fr"
       }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
@@ -350,24 +350,10 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </p>
       </div>
 
-      {/* METRICS ROW - GRID ROW 3 (100px) */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, backgroundColor: colors.bgMain }}>
-        <div className="grid grid-cols-2 gap-2 h-full">
-          <div className="text-center flex flex-col justify-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Rating</p>
-            <p className="text-sm font-bold" style={{ color: colors.primary }}>{op.googleRating}★</p>
-          </div>
-          <div className="text-center flex flex-col justify-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Years</p>
-            <p className="text-sm font-bold" style={{ color: colors.primary }}>{op.yearsInBusiness || "5"}+</p>
-          </div>
-        </div>
-      </div>
-
-      {/* FLEXIBLE SPACER - GRID ROW 4 (1fr - fills remaining space) */}
+      {/* FLEXIBLE SPACER - GRID ROW 3 (1fr - fills remaining space) */}
       <div style={{ borderBottom: "1px solid " + colors.border }}></div>
 
-      {/* PROS & CONS SECTION - GRID ROW 5 (170px) */}
+      {/* PROS & CONS SECTION - GRID ROW 4 (170px) */}
       <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
         <div className="grid grid-cols-2 gap-3 h-full">
           {/* PROS */}
@@ -1054,11 +1040,11 @@ function OperatorsContent() {
 
     if (Math.abs(diff) > 50) { // Minimum 50px drag
       if (diff > 0) {
-        // Dragged left, move to next card
-        setRecommendedIndex(Math.min(4, recommendedIndex + 1));
+        // Dragged left, move to next card (infinite loop)
+        setRecommendedIndex((recommendedIndex + 1) % 5);
       } else {
-        // Dragged right, move to previous card
-        setRecommendedIndex(Math.max(0, recommendedIndex - 1));
+        // Dragged right, move to previous card (infinite loop)
+        setRecommendedIndex((recommendedIndex - 1 + 5) % 5);
       }
     }
   };
@@ -1189,7 +1175,7 @@ function OperatorsContent() {
           {/* Premium Card Stack Layout - UNIFORM SIZES - INFINITE LOOP */}
           <div
             className="relative flex items-center justify-center mb-24 px-24"
-            style={{ perspective: "1200px", height: "500px", cursor: "grab" }}
+            style={{ perspective: "1200px", height: "620px", cursor: "grab" }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
           >
@@ -1203,15 +1189,15 @@ function OperatorsContent() {
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
-              height: "500px",
-              maxHeight: "500px",
-              minHeight: "500px",
+              height: "620px",
+              maxHeight: "620px",
+              minHeight: "620px",
               overflow: "hidden",
               display: "flex",
               alignItems: "stretch"
             }}>
               {ranked[(recommendedIndex + 3) % 5] && (
-                <div style={{ width: "100%", height: "500px", maxHeight: "500px", minHeight: "500px", opacity: 0.15, overflow: "hidden" }}>
+                <div style={{ width: "100%", height: "620px", maxHeight: "620px", minHeight: "620px", opacity: 0.15, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 3) % 5]} rank={(recommendedIndex + 3) % 5 + 1} />
                 </div>
               )}
@@ -1225,16 +1211,16 @@ function OperatorsContent() {
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
-              height: "500px",
-              maxHeight: "500px",
-              minHeight: "500px",
+              height: "620px",
+              maxHeight: "620px",
+              minHeight: "620px",
               marginLeft: "-170px",
               overflow: "hidden",
               display: "flex",
               alignItems: "stretch"
             }}>
               {ranked[(recommendedIndex + 4) % 5] && (
-                <div style={{ width: "100%", height: "500px", maxHeight: "500px", minHeight: "500px", opacity: 0.20, overflow: "hidden" }}>
+                <div style={{ width: "100%", height: "620px", maxHeight: "620px", minHeight: "620px", opacity: 0.20, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 4) % 5]} rank={(recommendedIndex + 4) % 5 + 1} />
                 </div>
               )}
@@ -1248,21 +1234,21 @@ function OperatorsContent() {
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
-              height: "500px",
-              maxHeight: "500px",
-              minHeight: "500px",
+              height: "620px",
+              maxHeight: "620px",
+              minHeight: "620px",
               overflow: "hidden",
               display: "flex",
               alignItems: "stretch"
             }}>
               {ranked[(recommendedIndex + 2) % 5] && (
-                <div style={{ width: "100%", height: "500px", maxHeight: "500px", minHeight: "500px", opacity: 0.15, overflow: "hidden" }}>
+                <div style={{ width: "100%", height: "620px", maxHeight: "620px", minHeight: "620px", opacity: 0.15, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 2) % 5]} rank={(recommendedIndex + 2) % 5 + 1} />
                 </div>
               )}
             </div>
 
-            {/* FRONT LAYER - 2 prominent elevated cards - EXACT SAME 340px x 500px SIZE */}
+            {/* FRONT LAYER - 2 prominent elevated cards - EXACT SAME 340px x 620px SIZE */}
 
             {/* Front Left Position */}
             <div className="absolute" style={{
@@ -1273,15 +1259,15 @@ function OperatorsContent() {
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
               pointerEvents: "none",
               width: "340px",
-              height: "500px",
-              maxHeight: "500px",
-              minHeight: "500px",
+              height: "620px",
+              maxHeight: "620px",
+              minHeight: "620px",
               overflow: "hidden",
               display: "flex",
               alignItems: "stretch"
             }}>
               {ranked[recommendedIndex] && (
-                <div style={{ width: "100%", height: "500px", maxHeight: "500px", minHeight: "500px", opacity: 1.0, overflow: "hidden" }}>
+                <div style={{ width: "100%", height: "620px", maxHeight: "620px", minHeight: "620px", opacity: 1.0, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[recommendedIndex]} rank={recommendedIndex + 1} />
                 </div>
               )}
@@ -1296,15 +1282,15 @@ function OperatorsContent() {
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
               pointerEvents: "none",
               width: "340px",
-              height: "500px",
-              maxHeight: "500px",
-              minHeight: "500px",
+              height: "620px",
+              maxHeight: "620px",
+              minHeight: "620px",
               overflow: "hidden",
               display: "flex",
               alignItems: "stretch"
             }}>
               {ranked[(recommendedIndex + 1) % 5] && (
-                <div style={{ width: "100%", height: "500px", maxHeight: "500px", minHeight: "500px", opacity: 1.0, overflow: "hidden" }}>
+                <div style={{ width: "100%", height: "620px", maxHeight: "620px", minHeight: "620px", opacity: 1.0, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 1) % 5]} rank={(recommendedIndex + 1) % 5 + 1} />
                 </div>
               )}
