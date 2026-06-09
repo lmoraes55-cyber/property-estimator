@@ -151,6 +151,49 @@ function ReportContent() {
 
   const strBetter = result.strVsLtrDelta > 0;
 
+  // Get location-specific Dubai skyline image
+  const getLocationImage = (buildingName: string, area: string): string => {
+    const normalizedArea = area.toLowerCase();
+    const normalizedBuilding = buildingName.toLowerCase();
+
+    // Premium location-specific images from Unsplash
+    const imageMap: { [key: string]: string } = {
+      // Dubai Marina - Marina skyline at sunset/night
+      "dubai marina": "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop",
+
+      // Downtown Dubai - Burj Khalifa / Downtown skyline
+      "downtown dubai": "https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=600&h=500&fit=crop",
+
+      // Palm Jumeirah - Palm aerial view
+      "palm jumeirah": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=500&fit=crop",
+
+      // Business Bay - Canal and skyline
+      "business bay": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
+
+      // JVC / JVT - Dubai panoramic
+      "jumeirah village circle": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
+      "jvc": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
+
+      // Emaar Beachfront - Beachfront luxury
+      "emaar beachfront": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=500&fit=crop",
+
+      // Creek Harbour - Creek and modern
+      "dubai creek harbour": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=500&fit=crop",
+    };
+
+    // Check for exact area match
+    for (const [key, image] of Object.entries(imageMap)) {
+      if (normalizedArea.includes(key) || normalizedBuilding.includes(key)) {
+        return image;
+      }
+    }
+
+    // Default premium Dubai skyline
+    return "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop";
+  };
+
+  const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area || "");
+
   return (
     <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
@@ -315,18 +358,34 @@ function ReportContent() {
                 style={{
                   boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
                 }}>
-                {/* Image */}
+                {/* Location-Specific Dubai Skyline Image */}
                 <div className="absolute inset-0 w-full h-full"
                   style={{
-                    backgroundImage: `url('https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=500&h=400&fit=crop')`,
+                    backgroundImage: `url('${heroImage}')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    transition: "transform 0.6s ease"
+                    transition: "transform 0.6s ease",
+                    filter: "brightness(1.05) contrast(1.1)"
                   }} />
 
-                {/* Luxury overlay gradient */}
+                {/* Premium Brand Overlay - Green to Gold Gradient */}
                 <div className="absolute inset-0"
-                  style={{ background: `linear-gradient(180deg, rgba(27,94,74,0) 0%, rgba(27,94,74,0.4) 100%)` }} />
+                  style={{
+                    background: `linear-gradient(180deg, rgba(27,94,74,0.08) 0%, rgba(184,138,68,0.08) 100%)`,
+                    pointerEvents: "none"
+                  }} />
+
+                {/* Subtle Trend Line Accent */}
+                <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.15, mixBlendMode: "screen" }}>
+                  <polyline
+                    points="10,300 50,280 100,260 150,240 200,220 250,200 300,190 350,180 390,170"
+                    fill="none"
+                    stroke={colors.secondary}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
             </div>
           </div>
