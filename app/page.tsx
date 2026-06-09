@@ -17,72 +17,72 @@ const colors = {
   shadowLg: "0 20px 25px rgba(0, 0, 0, 0.15)",
 };
 
-// SVG Icons Component
+// Premium SVG Icons
 const IconHouse = ({ color = colors.primary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M8 20L20 8L32 20V32H8V20Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M14 32V22H26V32" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 16L16 4L28 16V28H4V16Z" stroke={color} strokeWidth="1.2" />
+    <path d="M10 28V18H22V28" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
 const IconArrows = ({ color = colors.secondary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M10 12L18 20L10 28" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M30 28L22 20L30 12" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 12L14 18L8 24" stroke={color} strokeWidth="1.2" />
+    <path d="M24 24L18 18L24 12" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
-const IconChart = ({ color = colors.primary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M8 28H32" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M12 28V14" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M20 28V10" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M28 28V18" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+const IconAnalytics = ({ color = colors.primary }) => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 24H26" stroke={color} strokeWidth="1.2" />
+    <path d="M10 24V14" stroke={color} strokeWidth="1.2" />
+    <path d="M16 24V8" stroke={color} strokeWidth="1.2" />
+    <path d="M22 24V16" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
 const IconUsers = ({ color = colors.secondary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M14 16C16.209 16 18 14.209 18 12C18 9.791 16.209 8 14 8C11.791 8 10 9.791 10 12C10 14.209 11.791 16 14 16Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M26 16C28.209 16 30 14.209 30 12C30 9.791 28.209 8 26 8C23.791 8 22 9.791 22 12C22 14.209 23.791 16 26 16Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M8 32C8 27.582 11.134 24 14 24C16.866 24 20 27.582 20 32" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M20 32C20 27.582 23.134 24 26 24C28.866 24 32 27.582 32 32" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 13C12.657 13 14 11.657 14 10C14 8.343 12.657 7 11 7C9.343 7 8 8.343 8 10C8 11.657 9.343 13 11 13Z" stroke={color} strokeWidth="1.2" />
+    <path d="M21 13C22.657 13 24 11.657 24 10C24 8.343 22.657 7 21 7C19.343 7 18 8.343 18 10C18 11.657 19.343 13 21 13Z" stroke={color} strokeWidth="1.2" />
+    <path d="M6 26C6 22.582 8.686 20 11 20C13.314 20 16 22.582 16 26" stroke={color} strokeWidth="1.2" />
+    <path d="M16 26C16 22.582 18.686 20 21 20C23.314 20 26 22.582 26 26" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
 const IconCalculator = ({ color = colors.primary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <rect x="8" y="8" width="24" height="28" rx="2" stroke={color} strokeWidth="1.5" />
-    <path d="M8 20H32" stroke={color} strokeWidth="1.5" />
-    <path d="M16 28H24" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M12 14H12.01" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M20 14H20.01" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M28 14H28.01" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="6" y="6" width="20" height="24" rx="1.5" stroke={color} strokeWidth="1.2" />
+    <path d="M6 16H26" stroke={color} strokeWidth="1.2" />
+    <path d="M12 26H20" stroke={color} strokeWidth="1.2" />
+    <circle cx="10" cy="10" r="1.2" stroke={color} strokeWidth="1.2" />
+    <circle cx="18" cy="10" r="1.2" stroke={color} strokeWidth="1.2" />
+    <circle cx="26" cy="10" r="1.2" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
 const IconDocument = ({ color = colors.secondary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M10 8H24L30 14V32C30 33.105 29.105 34 28 34H10C8.895 34 8 33.105 8 32V10C8 8.895 8.895 8 10 8Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M24 8V14H30" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M14 22H26" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M14 27H26" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 6H20L26 12V28C26 28.796 25.469 29.5 24.75 29.5H8C7.281 29.5 6.75 28.796 6.75 28V8C6.75 7.204 7.281 6.5 8 6.5Z" stroke={color} strokeWidth="1.2" />
+    <path d="M20 6V12H26" stroke={color} strokeWidth="1.2" />
+    <path d="M11 18H21" stroke={color} strokeWidth="1.2" />
+    <path d="M11 23H21" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
-const IconBarChart = ({ color = colors.primary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M10 30H30" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <rect x="8" y="20" width="6" height="10" rx="1" stroke={color} strokeWidth="1.5" />
-    <rect x="17" y="12" width="6" height="18" rx="1" stroke={color} strokeWidth="1.5" />
-    <rect x="26" y="16" width="6" height="14" rx="1" stroke={color} strokeWidth="1.5" />
+const IconChart = ({ color = colors.primary }) => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 26H26" stroke={color} strokeWidth="1.2" />
+    <rect x="8" y="16" width="4" height="10" rx="0.8" stroke={color} strokeWidth="1.2" />
+    <rect x="14" y="10" width="4" height="16" rx="0.8" stroke={color} strokeWidth="1.2" />
+    <rect x="20" y="12" width="4" height="14" rx="0.8" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
 const IconLocation = ({ color = colors.secondary }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-    <path d="M20 8C15.582 8 12 11.582 12 16C12 22.5 20 32 20 32C20 32 28 22.5 28 16C28 11.582 24.418 8 20 8Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M20 19C18.343 19 17 17.657 17 16C17 14.343 18.343 13 20 13C21.657 13 23 14.343 23 16C23 17.657 21.657 19 20 19Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 6C12.134 6 9 9.134 9 13C9 18.5 16 27 16 27C16 27 23 18.5 23 13C23 9.134 19.866 6 16 6Z" stroke={color} strokeWidth="1.2" />
+    <circle cx="16" cy="13" r="2" stroke={color} strokeWidth="1.2" />
   </svg>
 );
 
@@ -131,7 +131,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Navigation - no right button */}
+          {/* Navigation */}
           <nav style={{ display: "flex", gap: "40px", flex: 1 }}>
             <a href="#home" style={{ textDecoration: "none", color: colors.textMain, fontSize: "15px", fontWeight: "500" }}>
               Home
@@ -160,42 +160,42 @@ export default function HomePage() {
         style={{
           position: "relative",
           overflow: "hidden",
-          minHeight: "700px",
+          minHeight: "680px",
           display: "flex",
           alignItems: "center",
           background: colors.bgMain,
         }}
       >
-        {/* Marina background image - RIGHT 50% with fade */}
+        {/* Marina skyline image - RIGHT 40-45% ONLY */}
         <div
           style={{
             position: "absolute",
             top: 0,
             right: 0,
-            width: "52%",
+            width: "45%",
             height: "100%",
             backgroundImage: "url('/locations/Marina.png')",
             backgroundSize: "cover",
-            backgroundPosition: "left center",
+            backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             zIndex: 1,
           }}
         />
 
-        {/* Fade overlay from image to background - smooth gradient */}
+        {/* Subtle left-edge fade only - starts near center-right */}
         <div
           style={{
             position: "absolute",
             top: 0,
-            left: "40%",
             right: 0,
+            width: "50%",
             height: "100%",
-            background: `linear-gradient(to left, rgba(250,250,248,0) 0%, rgba(250,250,248,0.3) 30%, ${colors.bgMain} 100%)`,
+            background: `linear-gradient(to left, transparent 0%, transparent 30%, ${colors.bgMain} 100%)`,
             zIndex: 2,
           }}
         />
 
-        {/* Content container - LEFT SIDE */}
+        {/* Content container - LEFT SIDE ONLY */}
         <div
           style={{
             maxWidth: "1400px",
@@ -208,7 +208,7 @@ export default function HomePage() {
             zIndex: 3,
           }}
         >
-          <div style={{ maxWidth: "580px", width: "100%" }}>
+          <div style={{ maxWidth: "520px", width: "100%" }}>
             {/* Main headline with gradient */}
             <h1
               style={{
@@ -292,74 +292,74 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Floating Rental Forecast Card - positioned on top of image */}
+        {/* Floating Rental Forecast Card - positioned on skyline */}
         <div
           style={{
             position: "absolute",
-            right: "60px",
-            top: "100px",
-            width: "360px",
+            right: "40px",
+            top: "80px",
+            width: "400px",
             background: colors.bgSection,
             borderRadius: "16px",
-            padding: "32px",
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
+            padding: "36px",
+            boxShadow: "0 16px 32px rgba(0, 0, 0, 0.1)",
             zIndex: 4,
           }}
         >
-          <div style={{ marginBottom: "28px" }}>
+          <div style={{ marginBottom: "32px" }}>
             <div style={{ fontSize: "14px", fontWeight: "600", color: colors.textMain }}>
               Rental Forecast
             </div>
           </div>
 
           {/* STR & LTR Forecasts */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "32px" }}>
             <div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, marginBottom: "8px", fontWeight: "600" }}>
-                STR Forecast
+              <div style={{ fontSize: "11px", color: colors.textMuted, marginBottom: "8px", fontWeight: "700", letterSpacing: "0.05em" }}>
+                STR FORECAST
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "700", color: colors.primary }}>AED 54,000</div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, marginTop: "4px" }}>annual revenue</div>
+              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.primary }}>AED 54,000</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted, marginTop: "6px" }}>annual revenue</div>
             </div>
             <div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, marginBottom: "8px", fontWeight: "600" }}>
-                LTR Forecast
+              <div style={{ fontSize: "11px", color: colors.textMuted, marginBottom: "8px", fontWeight: "700", letterSpacing: "0.05em" }}>
+                LTR FORECAST
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "700", color: colors.secondary }}>AED 42,000</div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, marginTop: "4px" }}>annual rental</div>
+              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.secondary }}>AED 42,000</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted, marginTop: "6px" }}>annual rental</div>
             </div>
           </div>
 
           {/* Divider */}
-          <div style={{ height: "1px", background: colors.border, marginBottom: "28px" }} />
+          <div style={{ height: "1px", background: colors.border, marginBottom: "32px" }} />
 
           {/* Recommendation & Yield */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "32px" }}>
             <div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, marginBottom: "8px", fontWeight: "600" }}>
-                Recommendation
+              <div style={{ fontSize: "11px", color: colors.textMuted, marginBottom: "8px", fontWeight: "700", letterSpacing: "0.05em" }}>
+                RECOMMENDATION
               </div>
               <div style={{ fontSize: "16px", fontWeight: "600", color: colors.textMain }}>Short-Term Rental</div>
             </div>
             <div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, marginBottom: "8px", fontWeight: "600" }}>
-                Expected Yield
+              <div style={{ fontSize: "11px", color: colors.textMuted, marginBottom: "8px", fontWeight: "700", letterSpacing: "0.05em" }}>
+                EXPECTED YIELD
               </div>
               <div style={{ fontSize: "16px", fontWeight: "600", color: colors.secondary }}>10.8%</div>
             </div>
           </div>
 
           {/* Mini chart bars */}
-          <div style={{ display: "flex", alignItems: "flex-end", gap: "4px", height: "60px" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: "3px", height: "56px" }}>
             {[0.6, 0.8, 0.5, 0.9, 0.7, 0.4, 0.85, 0.75].map((height, i) => (
               <div
                 key={i}
                 style={{
                   flex: 1,
-                  height: `${height * 60}px`,
+                  height: `${height * 56}px`,
                   background: i % 2 === 0 ? colors.primary : colors.secondary,
-                  borderRadius: "3px",
-                  opacity: 0.8,
+                  borderRadius: "2px",
+                  opacity: 0.85,
                 }}
               />
             ))}
@@ -370,13 +370,13 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* TRUST BAR */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section style={{ padding: "40px" }}>
+      <section style={{ padding: "48px 40px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           <div
             style={{
               background: colors.bgSection,
               borderRadius: "16px",
-              padding: "40px",
+              padding: "36px 40px",
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
               gap: "40px",
@@ -386,66 +386,66 @@ export default function HomePage() {
           >
             {/* Trust Item 1 */}
             <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
-                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
+                <div style={{ marginTop: "2px", flexShrink: 0 }}>
                   <IconHouse color={colors.primary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>Properties Analyzed</div>
+                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>Properties Analyzed</div>
                 </div>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 500+
               </div>
-              <div style={{ fontSize: "13px", color: colors.textMuted }}>Data-backed insights</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted }}>Data-backed insights</div>
             </div>
 
             {/* Trust Item 2 */}
             <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
-                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
+                <div style={{ marginTop: "2px", flexShrink: 0 }}>
                   <IconArrows color={colors.secondary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>STR vs LTR Comparison</div>
+                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>STR vs LTR Comparison</div>
                 </div>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 1000+
               </div>
-              <div style={{ fontSize: "13px", color: colors.textMuted }}>Strategies evaluated</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted }}>Strategies evaluated</div>
             </div>
 
             {/* Trust Item 3 */}
             <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
-                <div style={{ marginRight: "12px", marginTop: "2px" }}>
-                  <IconChart color={colors.primary} />
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
+                <div style={{ marginTop: "2px", flexShrink: 0 }}>
+                  <IconAnalytics color={colors.primary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>Dubai Market Insights</div>
+                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>Dubai Market Insights</div>
                 </div>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 Real-Time
               </div>
-              <div style={{ fontSize: "13px", color: colors.textMuted }}>DLD, Bayut & more</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted }}>DLD, Bayut & more</div>
             </div>
 
             {/* Trust Item 4 */}
             <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
-                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
+                <div style={{ marginTop: "2px", flexShrink: 0 }}>
                   <IconUsers color={colors.secondary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>Operator Recommendations</div>
+                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>Operator Recommendations</div>
                 </div>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 Curated
               </div>
-              <div style={{ fontSize: "13px", color: colors.textMuted }}>Top-performing partners</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted }}>Top-performing partners</div>
             </div>
           </div>
         </div>
@@ -458,7 +458,7 @@ export default function HomePage() {
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           {/* Section header */}
           <div style={{ marginBottom: "64px" }}>
-            <div style={{ fontSize: "13px", color: colors.secondary, fontWeight: "700", letterSpacing: "0.1em", marginBottom: "12px" }}>
+            <div style={{ fontSize: "12px", color: colors.secondary, fontWeight: "700", letterSpacing: "0.1em", marginBottom: "12px" }}>
               OUR SERVICES
             </div>
             <h2
@@ -590,7 +590,7 @@ export default function HomePage() {
               }}
             >
               <div style={{ marginBottom: "20px" }}>
-                <IconBarChart color={colors.primary} />
+                <IconChart color={colors.primary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
                 Market Comparables
