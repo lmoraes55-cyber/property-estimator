@@ -6,6 +6,7 @@ import {
   UnitSize, UnitType, ViewType, FurnishedStatus,
   VIEW_PREMIUMS, BUILDING_DIRECTORY, getLTRWarning, LTRAreaWarning,
 } from "@/lib/estimator";
+import { BUILDINGS_DATABASE, getAllAreas } from "@/lib/buildings-data";
 import { colors } from "@/lib/colors";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
 
@@ -36,7 +37,13 @@ const VIEWS: ViewType[] = [
 ];
 
 
-const ALL_BUILDINGS = Object.keys(BUILDING_DIRECTORY).sort();
+// Use new comprehensive buildings database, falling back to old directory for compatibility
+const ALL_BUILDINGS = Array.from(
+  new Set([
+    ...Object.keys(BUILDINGS_DATABASE),
+    ...Object.keys(BUILDING_DIRECTORY)
+  ])
+).sort();
 
 export default function Home() {
   const router = useRouter();
@@ -75,7 +82,11 @@ export default function Home() {
     b.toLowerCase().includes(buildingSearch.toLowerCase())
   ).slice(0, 8);
 
-  const buildingInfo = BUILDING_DIRECTORY[form.buildingName];
+  // Try new building database first, then fall back to old directory
+  const buildingInfo = BUILDING_DIRECTORY[form.buildingName] ||
+    (BUILDINGS_DATABASE[form.buildingName] ?
+      { community: BUILDINGS_DATABASE[form.buildingName].area, area: BUILDINGS_DATABASE[form.buildingName].area, tier: "mid" as const }
+      : undefined);
 
   const canNext = () => {
     if (step === 0) return form.buildingName && form.unitSize && form.unitType;
@@ -262,9 +273,9 @@ export default function Home() {
                           setShowSuggestions(false);
                         }}>
                         <span>{b}</span>
-                        {BUILDING_DIRECTORY[b] && (
+                        {(BUILDING_DIRECTORY[b] || BUILDINGS_DATABASE[b]) && (
                           <span className="text-xs" style={{ color: colors.textMuted }}>
-                            {BUILDING_DIRECTORY[b].community}
+                            {BUILDING_DIRECTORY[b]?.community || BUILDINGS_DATABASE[b]?.area}
                           </span>
                         )}
                       </button>
