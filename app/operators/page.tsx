@@ -1225,27 +1225,6 @@ function OperatorsContent() {
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
-        {/* Hero Section */}
-        <div>
-          <h1 className="text-4xl font-bold mb-2" style={{ color: colors.textMain }}>Recommended Operators</h1>
-          <p className="text-sm" style={{ color: colors.textMuted }}>Top performing holiday home operators analyzed for your property</p>
-        </div>
-
-        {/* Filter & Sort Bar */}
-        <div className="flex items-center justify-between">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition hover:brightness-95"
-            style={{ background: colors.bgSection, border: "1px solid " + colors.border, color: colors.textMain }}>
-            🔍 Filter Operators
-          </button>
-          <select className="px-4 py-2 rounded-lg font-medium text-sm transition"
-            style={{ background: colors.bgSection, border: "1px solid " + colors.border, color: colors.textMain }}>
-            <option>Sort by Recommended</option>
-            <option>Highest Revenue</option>
-            <option>Best Reviews</option>
-            <option>Most Experience</option>
-          </select>
-        </div>
-
         {/* TOP 5 RECOMMENDED - LAYERED CARD STACK */}
         <div>
           {/* Premium Gradient Heading */}
