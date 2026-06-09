@@ -160,13 +160,13 @@ export default function HomePage() {
         style={{
           position: "relative",
           overflow: "hidden",
-          minHeight: "680px",
+          minHeight: "800px",
           display: "flex",
           alignItems: "center",
           background: colors.bgMain,
         }}
       >
-        {/* Marina skyline image - RIGHT 40-45% ONLY */}
+        {/* Marina skyline image - RIGHT 45% with left-edge mask for premium panel effect */}
         <div
           style={{
             position: "absolute",
@@ -179,19 +179,9 @@ export default function HomePage() {
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             zIndex: 1,
-          }}
-        />
-
-        {/* Subtle left-edge fade only - starts near center-right */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "50%",
-            height: "100%",
-            background: `linear-gradient(to left, transparent 0%, transparent 30%, ${colors.bgMain} 100%)`,
-            zIndex: 2,
+            // Mask only the left edge - right side remains fully crisp and visible
+            maskImage: "linear-gradient(to right, transparent 0%, transparent 10%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 100%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 10%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 100%)",
           }}
         />
 
@@ -200,7 +190,7 @@ export default function HomePage() {
           style={{
             maxWidth: "1400px",
             margin: "0 auto",
-            padding: "80px 40px",
+            padding: "100px 40px",
             width: "100%",
             display: "flex",
             alignItems: "center",
@@ -296,13 +286,13 @@ export default function HomePage() {
         <div
           style={{
             position: "absolute",
-            right: "40px",
-            top: "80px",
-            width: "400px",
+            right: "50px",
+            top: "100px",
+            width: "420px",
             background: colors.bgSection,
             borderRadius: "16px",
-            padding: "36px",
-            boxShadow: "0 16px 32px rgba(0, 0, 0, 0.1)",
+            padding: "40px",
+            boxShadow: "0 12px 28px rgba(0, 0, 0, 0.08)",
             zIndex: 4,
           }}
         >
