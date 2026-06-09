@@ -155,29 +155,29 @@ function ReportContent() {
   const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
     const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
 
-    // Location-specific images using reliable Unsplash source API
+    // Premium gradient backgrounds as fallback (solid reliable colors)
     const locationImages: { [key: string]: string } = {
-      marina: "https://source.unsplash.com/600x500/?dubai+marina,skyline",
-      downtown: "https://source.unsplash.com/600x500/?dubai+downtown,burj+khalifa",
-      burj: "https://source.unsplash.com/600x500/?dubai+downtown,burj+khalifa",
-      palm: "https://source.unsplash.com/600x500/?dubai+palm+jumeirah",
-      business: "https://source.unsplash.com/600x500/?dubai+business+bay",
-      creek: "https://source.unsplash.com/600x500/?dubai+creek",
-      jvc: "https://source.unsplash.com/600x500/?dubai+skyline,cityscape",
-      jumeirah: "https://source.unsplash.com/600x500/?dubai+skyline,cityscape",
-      emaar: "https://source.unsplash.com/600x500/?dubai+beachfront,luxury",
-      beachfront: "https://source.unsplash.com/600x500/?dubai+beach,cityscape",
+      marina: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      downtown: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      burj: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      palm: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+      business: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+      creek: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+      jvc: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+      jumeirah: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+      emaar: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+      beachfront: "linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)",
     };
 
     // Check each location keyword
-    for (const [location, imageUrl] of Object.entries(locationImages)) {
+    for (const [location, gradient] of Object.entries(locationImages)) {
       if (searchText.includes(location)) {
-        return imageUrl;
+        return gradient;
       }
     }
 
-    // Fallback: Default Dubai skyline
-    return "https://source.unsplash.com/600x500/?dubai,skyline,night";
+    // Fallback: Default premium gradient
+    return "linear-gradient(135deg, #1B5E4A 0%, #B88A44 100%)";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
@@ -346,16 +346,13 @@ function ReportContent() {
                 style={{
                   boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
                 }}>
-                {/* Location-Specific Dubai Skyline Image */}
+                {/* Location-Specific Premium Gradient Background */}
                 <div className="absolute inset-0 w-full h-full"
                   style={{
-                    backgroundImage: `url("${heroImage}")`,
+                    background: heroImage,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    backgroundColor: colors.primary,
-                    transition: "transform 0.6s ease",
-                    filter: "brightness(1.05) contrast(1.1)"
+                    transition: "all 0.6s ease"
                   }} />
 
                 {/* Premium Brand Overlay - Green to Gold Gradient */}
