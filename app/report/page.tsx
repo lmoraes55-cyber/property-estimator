@@ -157,16 +157,16 @@ function ReportContent() {
 
     // Premium location-specific images from public/locations folder
     const locationImages: { [key: string]: string } = {
-      marina: "/locations/marina.jpg",
-      downtown: "/locations/downtown.jpg",
-      burj: "/locations/downtown.jpg",
-      palm: "/locations/palm.jpg",
-      jumeirah: "/locations/jbr.jpg",
-      jbr: "/locations/jbr.jpg",
-      business: "/locations/downtown.jpg",
-      creek: "/locations/downtown.jpg",
-      emaar: "/locations/marina.jpg",
-      beachfront: "/locations/marina.jpg",
+      marina: "/locations/Marina.png",
+      downtown: "/locations/Downtown.png",
+      burj: "/locations/Downtown.png",
+      palm: "/locations/Palm.png",
+      jumeirah: "/locations/JBR.png",
+      jbr: "/locations/JBR.png",
+      business: "/locations/Downtown.png",
+      creek: "/locations/Downtown.png",
+      emaar: "/locations/Marina.png",
+      beachfront: "/locations/Marina.png",
     };
 
     // Check each location keyword
@@ -177,7 +177,7 @@ function ReportContent() {
     }
 
     // Fallback: Marina image as default
-    return "/locations/marina.jpg";
+    return "/locations/Marina.png";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
