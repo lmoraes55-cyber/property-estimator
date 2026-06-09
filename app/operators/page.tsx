@@ -849,49 +849,51 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
         border: "1px solid " + colors.border,
         boxShadow: colors.shadowSm,
         transition: "all 0.3s ease",
-        height: "620px", // FIXED HEIGHT
-        display: "grid",
-        gridTemplateRows: "110px 80px 80px 1fr 100px 70px", // FIXED VERTICAL ZONES
-        gridTemplateColumns: "1fr"
+        height: "620px", // FIXED HEIGHT - MATCHES RECOMMENDED CARDS
+        display: "flex",
+        flexDirection: "column"
       }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
-      {/* Ranking Badge (for carousel) */}
-      {rank && (
-        <div className="absolute top-4 right-4 z-10">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm"
-            style={{ background: colors.secondary, color: "#FFFFFF" }}>
-            {rank}
-          </div>
-        </div>
-      )}
-
-      {/* HEADER - GRID ROW 1 (110px) */}
-      <div style={{ padding: "16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
-        <h3 className="text-lg font-bold mb-1 truncate" style={{ color: colors.textMain }}>{op.name}</h3>
-        <p className="text-xs mb-2 truncate" style={{ color: colors.textMuted }}>{op.specialization}</p>
-        <div className="flex items-center gap-1">
-          <span className="text-xs font-medium" style={{ color: colors.textMuted }}>
-            {op.googleRating} ★ ({op.googleReviewCount} reviews)
-          </span>
+      {/* NEW & EMERGING BADGE - Top Right */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="px-3 py-1 rounded-lg flex items-center justify-center font-bold text-xs"
+          style={{ background: "linear-gradient(135deg, #B88A44, #D4AF6A)", color: "#FFFFFF", letterSpacing: "0.05em" }}>
+          NEW
         </div>
       </div>
 
-      {/* DESCRIPTION - GRID ROW 2 (80px) */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
-        <p className="text-xs leading-relaxed" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+      {/* HEADER SECTION (120px) */}
+      <div style={{ padding: "16px", borderBottom: "1px solid " + colors.border, display: "flex", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden", flexShrink: 0 }}>
+        {/* Logo */}
+        <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center"
+          style={{ background: "#FFFFFF", border: "1px solid " + colors.border, fontSize: "18px", fontWeight: "bold", color: colors.primary }}>
+          {op.name.split(" ").map(w => w[0]).join("").substring(0, 2)}
+        </div>
+
+        {/* Name with inline Rating */}
+        <div className="flex items-center gap-1 mb-1">
+          <h3 className="text-sm font-bold truncate" style={{ color: colors.textMain }}>{op.name}</h3>
+          <span className="text-xs font-bold" style={{ color: colors.primary }}>{op.googleRating}★</span>
+        </div>
+
+        {/* Review Count */}
+        <p className="text-xs" style={{ color: colors.textMuted }}>
+          {op.googleReviewCount} reviews
+        </p>
+      </div>
+
+      {/* OPERATOR SUMMARY (80px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden", flexShrink: 0 }}>
+        <p className="text-xs leading-relaxed" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {op.description}
         </p>
       </div>
 
-      {/* METRICS - GRID ROW 3 (80px) */}
-      <div style={{ padding: "12px 16px", background: colors.bgMain, borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+      {/* METRICS ROW (100px) - Portfolio, Areas, Founded */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, background: "#FAF7F2", flexShrink: 0 }}>
         <div className="grid grid-cols-3 gap-3 h-full">
-          <div className="text-center flex flex-col justify-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Founded</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.founded}</p>
-          </div>
           <div className="text-center flex flex-col justify-center">
             <p className="text-xs" style={{ color: colors.textMuted }}>Portfolio</p>
             <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.portfolio}+</p>
@@ -900,69 +902,88 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
             <p className="text-xs" style={{ color: colors.textMuted }}>Areas</p>
             <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.communities.length}</p>
           </div>
+          <div className="text-center flex flex-col justify-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Founded</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.founded}</p>
+          </div>
         </div>
       </div>
 
-      {/* KEY STRENGTHS - GRID ROW 4 (1fr - flexible) */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
-        <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>KEY STRENGTHS</p>
-        <div className="space-y-1">
-          {op.pros?.slice(0, 3).map(p => (
-            <div key={p} className="flex items-start gap-2">
-              <span style={{ color: colors.primary, fontSize: "11px", fontWeight: "bold", flexShrink: 0, marginTop: "1px" }}>✓</span>
-              <p className="text-xs" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                {p}
-              </p>
+      {/* PROS & CONS SECTION (140px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden", flexShrink: 0 }}>
+        <div className="grid grid-cols-2 gap-3">
+          {/* PROS */}
+          <div>
+            <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>Pros</p>
+            <div className="space-y-1">
+              {op.pros?.slice(0, 2).map((pro, idx) => (
+                <div key={idx} className="flex items-start gap-1">
+                  <span style={{ color: colors.primary, fontSize: "10px", flexShrink: 0, marginTop: "1px" }}>✓</span>
+                  <p className="text-xs" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {pro}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* CONS */}
+          <div>
+            <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>Cons</p>
+            <div className="space-y-1">
+              {op.pros?.slice(0, 2).map((con, idx) => (
+                <div key={idx} className="flex items-start gap-1">
+                  <span style={{ color: "#8B4444", fontSize: "10px", flexShrink: 0, marginTop: "1px" }}>•</span>
+                  <p className="text-xs" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {con}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* FOOTER - CONTACT INFO - GRID ROW 5 (100px) */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
-        <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>CONTACT</p>
-        <div className="space-y-1 text-xs">
-          {op.website && (
-            <div className="flex items-center gap-1">
-              <span style={{ fontSize: "10px" }}>🌐</span>
-              <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" className="truncate transition hover:opacity-70" style={{ color: colors.textMain }}>
-                {op.website}
-              </a>
-            </div>
-          )}
-          {op.email && (
-            <div className="flex items-center gap-1">
-              <span style={{ fontSize: "10px" }}>✉️</span>
-              <a href={`mailto:${op.email}`} className="truncate transition hover:opacity-70" style={{ color: colors.textMain }}>
-                {op.email}
-              </a>
-            </div>
-          )}
-          {op.phone && (
-            <div className="flex items-center gap-1">
-              <span style={{ fontSize: "10px" }}>📱</span>
-              <a href={`tel:${op.phone}`} className="truncate transition hover:opacity-70" style={{ color: colors.textMain }}>
-                {op.phone}
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ACTION BUTTONS - GRID ROW 6 (70px) */}
-      <div style={{ padding: "12px 16px", display: "flex", gap: "8px", alignItems: "center" }}>
-        {op.website && (
+      {/* FOOTER SECTION - CONTACT BUTTON + TAGS (pushed to bottom with margin-top: auto) */}
+      <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", marginTop: "auto" }}>
+        {/* Contact Button - Always visible */}
+        {op.website ? (
           <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
-            className="flex-1 py-2 rounded-lg font-bold text-xs transition text-center hover:brightness-105"
-            style={{ background: "transparent", color: colors.primary, border: "1px solid " + colors.primary }}>
-            Visit Website
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+            style={{ background: colors.secondary, color: "#FFFFFF" }}>
+            Contact Operator →
           </a>
+        ) : op.email ? (
+          <a href={`mailto:${op.email}`}
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+            style={{ background: colors.secondary, color: "#FFFFFF" }}>
+            Contact Operator →
+          </a>
+        ) : op.phone ? (
+          <a href={`tel:${op.phone}`}
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+            style={{ background: colors.secondary, color: "#FFFFFF" }}>
+            Contact Operator →
+          </a>
+        ) : (
+          <button
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center mb-2 cursor-not-allowed opacity-70"
+            style={{ background: colors.border, color: colors.textMuted }}>
+            Contact Info Unavailable
+          </button>
         )}
-        <button
-          className={`font-bold text-xs transition hover:brightness-105 py-2 rounded-lg text-center ${!op.website ? 'w-full' : 'flex-1'}`}
-          style={{ background: colors.secondary, color: "#FFFFFF" }}>
-          Contact Operator
-        </button>
+
+        {/* Target Owner Tags - Below Button */}
+        {op.communities && op.communities.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {op.communities.slice(0, 2).map((area, idx) => (
+              <span key={idx} className="text-xs px-2 py-1 rounded-full"
+                style={{ background: colors.primary + "15", color: colors.primary, border: `1px solid ${colors.primary}30` }}>
+                {area}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1421,11 +1442,11 @@ function OperatorsContent() {
               <p className="text-sm" style={{ color: colors.textMuted }}>Growing market presence with innovative approaches and specialized expertise</p>
             </div>
 
-            {/* Premium 3-Column Grid - Centered, Equal Importance - UNIFORM 340px x 500px SIZE */}
+            {/* Premium 3-Column Grid - Centered, Equal Importance - UNIFORM 340px x 620px SIZE (MATCHES RECOMMENDED) */}
             <div className="flex justify-center">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {UPCOMING_OPERATORS.slice(0, 3).map((op, i) => (
-                  <div key={op.id} style={{ perspective: "1000px", width: "340px", height: "500px", maxHeight: "500px", minHeight: "500px", overflow: "hidden", display: "flex", alignItems: "stretch" }}>
+                  <div key={op.id} style={{ perspective: "1000px", width: "340px", height: "620px", maxHeight: "620px", minHeight: "620px", overflow: "hidden", display: "flex", alignItems: "stretch" }}>
                     <UpcomingOperatorCard op={op} />
                   </div>
                 ))}
