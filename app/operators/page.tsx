@@ -1360,10 +1360,6 @@ function OperatorsContent() {
             ))}
           </div>
 
-          {/* Swipe Hint */}
-          <p className="text-xs text-center mt-6" style={{ color: colors.textMuted }}>
-            Drag left/right or click arrows to explore all 5 operators (loops continuously)
-          </p>
         </div>
 
         {/* NEW & EMERGING OPERATORS - PREMIUM 3-COLUMN GRID */}
