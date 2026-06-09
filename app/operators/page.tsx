@@ -1189,50 +1189,106 @@ function OperatorsContent() {
           </select>
         </div>
 
-        {/* TOP 5 RECOMMENDED - CAROUSEL */}
+        {/* TOP 5 RECOMMENDED - LAYERED CARD STACK */}
         <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>Top 5 Recommended Operators</h2>
-            <p className="text-sm" style={{ color: colors.textMuted }}>Swipe left and right to explore all options</p>
-          </div>
+          {/* Gradient Heading */}
+          <h2 className="text-3xl font-bold mb-8" style={{
+            background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text"
+          }}>Top Recommended Operators</h2>
 
-          {/* Carousel Container */}
-          <div className="relative px-16">
-            {/* Cards Container - Show 3 cards with peek effect */}
-            <div style={{ overflow: "hidden", borderRadius: "12px" }}>
-              <div className="flex gap-6 transition-transform duration-500 ease-out"
-                style={{
-                  transform: `translateX(-${recommendedIndex * 380}px)`,
-                }}>
-                {ranked.map((op, i) => (
-                  <div key={op.id} className="flex-shrink-0" style={{ width: "356px" }}>
-                    <GridOperatorCard op={op} rank={i + 1} />
-                  </div>
-                ))}
-              </div>
+          {/* Card Stack Layout */}
+          <div className="relative h-96 flex items-center justify-center mb-8">
+            {/* Back Layer - Card #5 (Left) */}
+            <div className="absolute" style={{
+              left: "5%",
+              top: "20%",
+              zIndex: 1,
+              transform: `translateX(${recommendedIndex * -150}px)`,
+              transition: "transform 500ms ease-out"
+            }}>
+              {ranked[4] && (
+                <div style={{ width: "340px", opacity: 0.6 }}>
+                  <GridOperatorCard op={ranked[4]} rank={5} />
+                </div>
+              )}
             </div>
 
-            {/* Left Navigation Button */}
+            {/* Back Layer - Card #4 (Center) */}
+            <div className="absolute" style={{
+              left: "50%",
+              top: "35%",
+              zIndex: 2,
+              transform: `translateX(calc(-50% + ${recommendedIndex * 100}px))`,
+              transition: "transform 500ms ease-out"
+            }}>
+              {ranked[3] && (
+                <div style={{ width: "340px" }}>
+                  <GridOperatorCard op={ranked[3]} rank={4} />
+                </div>
+              )}
+            </div>
+
+            {/* Back Layer - Card #3 (Right) */}
+            <div className="absolute" style={{
+              right: "5%",
+              top: "20%",
+              zIndex: 1,
+              transform: `translateX(${recommendedIndex * 150}px)`,
+              transition: "transform 500ms ease-out"
+            }}>
+              {ranked[2] && (
+                <div style={{ width: "340px", opacity: 0.6 }}>
+                  <GridOperatorCard op={ranked[2]} rank={3} />
+                </div>
+              )}
+            </div>
+
+            {/* Front Layer - Card #1 (Left) */}
+            <div className="absolute" style={{
+              left: "25%",
+              top: "-10%",
+              zIndex: 3,
+              transform: `translateX(${recommendedIndex * -80}px)`,
+              transition: "transform 500ms ease-out"
+            }}>
+              {ranked[0] && (
+                <div style={{ width: "340px" }}>
+                  <GridOperatorCard op={ranked[0]} rank={1} />
+                </div>
+              )}
+            </div>
+
+            {/* Front Layer - Card #2 (Right) */}
+            <div className="absolute" style={{
+              right: "25%",
+              top: "-10%",
+              zIndex: 3,
+              transform: `translateX(${recommendedIndex * 80}px)`,
+              transition: "transform 500ms ease-out"
+            }}>
+              {ranked[1] && (
+                <div style={{ width: "340px" }}>
+                  <GridOperatorCard op={ranked[1]} rank={2} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Swipe Controls */}
+          <div className="flex items-center justify-center gap-6 mt-12">
             <button
               onClick={() => setRecommendedIndex(Math.max(0, recommendedIndex - 1))}
               disabled={recommendedIndex === 0}
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+              className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
               style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
               ←
             </button>
 
-            {/* Right Navigation Button */}
-            <button
-              onClick={() => setRecommendedIndex(Math.min(ranked.length - 3, recommendedIndex + 1))}
-              disabled={recommendedIndex >= ranked.length - 3}
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
-              style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
-              →
-            </button>
-
-            {/* Indicators */}
-            <div className="flex items-center justify-center gap-2 mt-8">
-              {Array.from({ length: Math.max(0, ranked.length - 2) }).map((_, idx) => (
+            <div className="flex gap-2">
+              {Array.from({ length: 5 }).map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setRecommendedIndex(idx)}
@@ -1243,64 +1299,33 @@ function OperatorsContent() {
                   }} />
               ))}
             </div>
+
+            <button
+              onClick={() => setRecommendedIndex(Math.min(4, recommendedIndex + 1))}
+              disabled={recommendedIndex >= 4}
+              className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
+              →
+            </button>
           </div>
         </div>
 
-        {/* NEW & UPCOMING OPERATORS - CAROUSEL */}
+        {/* NEW & EMERGING OPERATORS - SIMPLE 3-COLUMN GRID */}
         {UPCOMING_OPERATORS.length > 0 && (
           <div className="mt-16 pt-12" style={{ borderTop: "1px solid " + colors.border }}>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>New & Upcoming Operators</h2>
-              <p className="text-sm" style={{ color: colors.textMuted }}>Emerging operators entering the market with innovative approaches</p>
-            </div>
+            {/* Gradient Heading */}
+            <h2 className="text-3xl font-bold mb-8" style={{
+              background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}>New & Emerging Operators</h2>
 
-            {/* Carousel Container */}
-            <div className="relative px-16">
-              {/* Cards Container - Show 3 cards with peek effect */}
-              <div style={{ overflow: "hidden", borderRadius: "12px" }}>
-                <div className="flex gap-6 transition-transform duration-500 ease-out"
-                  style={{
-                    transform: `translateX(-${upcomingIndex * 380}px)`,
-                  }}>
-                  {UPCOMING_OPERATORS.map((op, i) => (
-                    <div key={op.id} className="flex-shrink-0" style={{ width: "356px" }}>
-                      <UpcomingOperatorCard op={op} rank={i + 1} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Left Navigation Button */}
-              <button
-                onClick={() => setUpcomingIndex(Math.max(0, upcomingIndex - 1))}
-                disabled={upcomingIndex === 0}
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
-                style={{ background: colors.secondary, color: "#FFFFFF", fontSize: "20px" }}>
-                ←
-              </button>
-
-              {/* Right Navigation Button */}
-              <button
-                onClick={() => setUpcomingIndex(Math.min(UPCOMING_OPERATORS.length - 3, upcomingIndex + 1))}
-                disabled={upcomingIndex >= UPCOMING_OPERATORS.length - 3}
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
-                style={{ background: colors.secondary, color: "#FFFFFF", fontSize: "20px" }}>
-                →
-              </button>
-
-              {/* Indicators */}
-              <div className="flex items-center justify-center gap-2 mt-8">
-                {Array.from({ length: Math.max(0, UPCOMING_OPERATORS.length - 2) }).map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setUpcomingIndex(idx)}
-                    className="h-2 rounded-full transition-all"
-                    style={{
-                      width: upcomingIndex === idx ? "24px" : "8px",
-                      background: upcomingIndex === idx ? colors.secondary : colors.border
-                    }} />
-                ))}
-              </div>
+            {/* Simple 3-Column Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {UPCOMING_OPERATORS.slice(0, 3).map((op, i) => (
+                <UpcomingOperatorCard key={op.id} op={op} />
+              ))}
             </div>
           </div>
         )}
