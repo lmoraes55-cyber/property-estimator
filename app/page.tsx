@@ -17,6 +17,75 @@ const colors = {
   shadowLg: "0 20px 25px rgba(0, 0, 0, 0.15)",
 };
 
+// SVG Icons Component
+const IconHouse = ({ color = colors.primary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M8 20L20 8L32 20V32H8V20Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14 32V22H26V32" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconArrows = ({ color = colors.secondary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M10 12L18 20L10 28" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M30 28L22 20L30 12" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconChart = ({ color = colors.primary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M8 28H32" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 28V14" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M20 28V10" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M28 28V18" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconUsers = ({ color = colors.secondary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M14 16C16.209 16 18 14.209 18 12C18 9.791 16.209 8 14 8C11.791 8 10 9.791 10 12C10 14.209 11.791 16 14 16Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M26 16C28.209 16 30 14.209 30 12C30 9.791 28.209 8 26 8C23.791 8 22 9.791 22 12C22 14.209 23.791 16 26 16Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M8 32C8 27.582 11.134 24 14 24C16.866 24 20 27.582 20 32" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M20 32C20 27.582 23.134 24 26 24C28.866 24 32 27.582 32 32" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconCalculator = ({ color = colors.primary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <rect x="8" y="8" width="24" height="28" rx="2" stroke={color} strokeWidth="1.5" />
+    <path d="M8 20H32" stroke={color} strokeWidth="1.5" />
+    <path d="M16 28H24" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 14H12.01" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M20 14H20.01" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M28 14H28.01" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconDocument = ({ color = colors.secondary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M10 8H24L30 14V32C30 33.105 29.105 34 28 34H10C8.895 34 8 33.105 8 32V10C8 8.895 8.895 8 10 8Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M24 8V14H30" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14 22H26" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M14 27H26" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconBarChart = ({ color = colors.primary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M10 30H30" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <rect x="8" y="20" width="6" height="10" rx="1" stroke={color} strokeWidth="1.5" />
+    <rect x="17" y="12" width="6" height="18" rx="1" stroke={color} strokeWidth="1.5" />
+    <rect x="26" y="16" width="6" height="14" rx="1" stroke={color} strokeWidth="1.5" />
+  </svg>
+);
+
+const IconLocation = ({ color = colors.secondary }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M20 8C15.582 8 12 11.582 12 16C12 22.5 20 32 20 32C20 32 28 22.5 28 16C28 11.582 24.418 8 20 8Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M20 19C18.343 19 17 17.657 17 16C17 14.343 18.343 13 20 13C21.657 13 23 14.343 23 16C23 17.657 21.657 19 20 19Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export default function HomePage() {
   const router = useRouter();
 
@@ -91,44 +160,42 @@ export default function HomePage() {
         style={{
           position: "relative",
           overflow: "hidden",
-          minHeight: "600px",
+          minHeight: "700px",
           display: "flex",
           alignItems: "center",
           background: colors.bgMain,
         }}
       >
-        {/* Marina background image - right side with fade */}
+        {/* Marina background image - RIGHT 50% with fade */}
         <div
           style={{
             position: "absolute",
             top: 0,
             right: 0,
-            width: "55%",
+            width: "52%",
             height: "100%",
             backgroundImage: "url('/locations/Marina.png')",
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "left center",
             backgroundRepeat: "no-repeat",
             zIndex: 1,
-            maskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 0%)",
-            WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 20%)",
           }}
         />
 
-        {/* Fade overlay from image to background */}
+        {/* Fade overlay from image to background - smooth gradient */}
         <div
           style={{
             position: "absolute",
             top: 0,
+            left: "40%",
             right: 0,
-            width: "40%",
             height: "100%",
-            background: `linear-gradient(to left, transparent 0%, ${colors.bgMain} 100%)`,
+            background: `linear-gradient(to left, rgba(250,250,248,0) 0%, rgba(250,250,248,0.3) 30%, ${colors.bgMain} 100%)`,
             zIndex: 2,
           }}
         />
 
-        {/* Content container */}
+        {/* Content container - LEFT SIDE */}
         <div
           style={{
             maxWidth: "1400px",
@@ -141,7 +208,7 @@ export default function HomePage() {
             zIndex: 3,
           }}
         >
-          <div style={{ maxWidth: "600px", width: "100%" }}>
+          <div style={{ maxWidth: "580px", width: "100%" }}>
             {/* Main headline with gradient */}
             <h1
               style={{
@@ -225,17 +292,17 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Floating Rental Forecast Card */}
+        {/* Floating Rental Forecast Card - positioned on top of image */}
         <div
           style={{
             position: "absolute",
-            right: "80px",
-            top: "120px",
+            right: "60px",
+            top: "100px",
             width: "360px",
             background: colors.bgSection,
             borderRadius: "16px",
             padding: "32px",
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.12)",
+            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
             zIndex: 4,
           }}
         >
@@ -319,29 +386,15 @@ export default function HomePage() {
           >
             {/* Trust Item 1 */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: colors.primary,
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#FFFFFF",
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                    marginRight: "12px",
-                  }}
-                >
-                  🏠
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
+                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+                  <IconHouse color={colors.primary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted }}>Properties Analyzed</div>
+                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>Properties Analyzed</div>
                 </div>
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 500+
               </div>
               <div style={{ fontSize: "13px", color: colors.textMuted }}>Data-backed insights</div>
@@ -349,29 +402,15 @@ export default function HomePage() {
 
             {/* Trust Item 2 */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: colors.secondary,
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#FFFFFF",
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                    marginRight: "12px",
-                  }}
-                >
-                  ↔️
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
+                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+                  <IconArrows color={colors.secondary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted }}>STR vs LTR Comparison</div>
+                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>STR vs LTR Comparison</div>
                 </div>
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 1000+
               </div>
               <div style={{ fontSize: "13px", color: colors.textMuted }}>Strategies evaluated</div>
@@ -379,29 +418,15 @@ export default function HomePage() {
 
             {/* Trust Item 3 */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: colors.primary,
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#FFFFFF",
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                    marginRight: "12px",
-                  }}
-                >
-                  📊
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
+                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+                  <IconChart color={colors.primary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted }}>Dubai Market Insights</div>
+                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>Dubai Market Insights</div>
                 </div>
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 Real-Time
               </div>
               <div style={{ fontSize: "13px", color: colors.textMuted }}>DLD, Bayut & more</div>
@@ -409,29 +434,15 @@ export default function HomePage() {
 
             {/* Trust Item 4 */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: colors.secondary,
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#FFFFFF",
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                    marginRight: "12px",
-                  }}
-                >
-                  👥
+              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "16px" }}>
+                <div style={{ marginRight: "12px", marginTop: "2px" }}>
+                  <IconUsers color={colors.secondary} />
                 </div>
                 <div>
-                  <div style={{ fontSize: "14px", color: colors.textMuted }}>Operator Recommendations</div>
+                  <div style={{ fontSize: "14px", color: colors.textMuted, fontWeight: "500" }}>Operator Recommendations</div>
                 </div>
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
                 Curated
               </div>
               <div style={{ fontSize: "13px", color: colors.textMuted }}>Top-performing partners</div>
@@ -488,21 +499,8 @@ export default function HomePage() {
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              <div
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  background: colors.primary,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFFFFF",
-                  fontSize: "24px",
-                  marginBottom: "20px",
-                }}
-              >
-                📋
+              <div style={{ marginBottom: "20px" }}>
+                <IconCalculator color={colors.primary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
                 Rental Strategy Analyzer
@@ -547,21 +545,8 @@ export default function HomePage() {
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              <div
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  background: colors.secondary,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFFFFF",
-                  fontSize: "24px",
-                  marginBottom: "20px",
-                }}
-              >
-                📑
+              <div style={{ marginBottom: "20px" }}>
+                <IconDocument color={colors.secondary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
                 Rental Valuation Reports
@@ -604,21 +589,8 @@ export default function HomePage() {
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              <div
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  background: colors.primary,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFFFFF",
-                  fontSize: "24px",
-                  marginBottom: "20px",
-                }}
-              >
-                📊
+              <div style={{ marginBottom: "20px" }}>
+                <IconBarChart color={colors.primary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
                 Market Comparables
@@ -661,21 +633,8 @@ export default function HomePage() {
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              <div
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  background: colors.secondary,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFFFFF",
-                  fontSize: "24px",
-                  marginBottom: "20px",
-                }}
-              >
-                📍
+              <div style={{ marginBottom: "20px" }}>
+                <IconLocation color={colors.secondary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
                 Area Insights
