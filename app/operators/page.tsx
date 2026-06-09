@@ -281,16 +281,17 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
   };
 
   return (
-    <div className="rounded-2xl overflow-hidden relative group flex flex-col"
+    <div className="rounded-2xl overflow-hidden relative group"
       style={{
         background: colors.bgSection,
         border: "1px solid " + colors.border,
         boxShadow: colors.shadowSm,
         transition: "all 0.3s ease",
         cursor: "pointer",
-        height: "680px", // FIXED HEIGHT
-        display: "flex",
-        flexDirection: "column"
+        height: "720px", // FIXED HEIGHT - DESKTOP
+        display: "grid",
+        gridTemplateRows: "120px 80px 100px 1fr 170px 60px", // FIXED VERTICAL ZONES
+        gridTemplateColumns: "1fr"
       }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
@@ -322,8 +323,8 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       )}
 
-      {/* HEADER SECTION - FIXED HEIGHT 100px */}
-      <div style={{ height: "100px", padding: "16px", borderBottom: "1px solid " + colors.border, display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
+      {/* HEADER SECTION - GRID ROW 1 (120px) */}
+      <div style={{ padding: "16px", borderBottom: "1px solid " + colors.border, display: "flex", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden" }}>
         {/* Logo */}
         <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center"
           style={{ background: "#FFFFFF", border: "1px solid " + colors.border, fontSize: "18px", fontWeight: "bold", color: colors.primary }}>
@@ -342,15 +343,15 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </p>
       </div>
 
-      {/* OPERATOR SUMMARY - FIXED HEIGHT 60px */}
-      <div style={{ height: "60px", padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+      {/* OPERATOR SUMMARY - GRID ROW 2 (80px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
         <p className="text-xs leading-relaxed" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {op.tagline || op.pros?.[0] || "Premium holiday home management"}
         </p>
       </div>
 
-      {/* METRICS ROW - FIXED HEIGHT 70px */}
-      <div style={{ height: "70px", padding: "12px 16px", borderBottom: "1px solid " + colors.border, backgroundColor: colors.bgMain }}>
+      {/* METRICS ROW - GRID ROW 3 (100px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, backgroundColor: colors.bgMain }}>
         <div className="grid grid-cols-2 gap-2 h-full">
           <div className="text-center flex flex-col justify-center">
             <p className="text-xs" style={{ color: colors.textMuted }}>Rating</p>
@@ -363,8 +364,11 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       </div>
 
-      {/* PROS & CONS SECTION - FIXED HEIGHT 130px */}
-      <div style={{ height: "130px", padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+      {/* FLEXIBLE SPACER - GRID ROW 4 (1fr - fills remaining space) */}
+      <div style={{ borderBottom: "1px solid " + colors.border }}></div>
+
+      {/* PROS & CONS SECTION - GRID ROW 5 (170px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
         <div className="grid grid-cols-2 gap-3 h-full">
           {/* PROS */}
           <div>
@@ -398,8 +402,8 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       </div>
 
-      {/* FOOTER - CONTACT BUTTON - FIXED HEIGHT 60px - ALWAYS AT BOTTOM */}
-      <div style={{ height: "60px", padding: "12px 16px", marginTop: "auto" }}>
+      {/* FOOTER - CONTACT BUTTON - GRID ROW 6 (60px) - ALWAYS AT BOTTOM */}
+      <div style={{ padding: "12px 16px" }}>
         {op.website && (
           <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105"
