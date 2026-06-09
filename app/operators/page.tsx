@@ -1117,52 +1117,48 @@ function OperatorsContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Property Identity */}
               <div>
-                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PROPERTY</p>
-                <p className="text-lg font-bold mb-2" style={{ color: colors.textMain }}>{result.buildingName}</p>
-                <div className="space-y-1 text-xs" style={{ color: colors.textMuted }}>
-                  <p>📍 {result.buildingInfo?.community ?? "Dubai"}</p>
-                  <p>🛏️ {input.unitSize}</p>
-                  <p>🏠 {input.unitType}</p>
-                  <p>⬆️ Floor {input.floor}</p>
-                  {input.view && <p>👀 {input.view}</p>}
-                  <p>✨ {input.furnished}</p>
+                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PROPERTY</p>
+                <p className="text-lg font-bold mb-3" style={{ color: colors.textMain }}>{result.buildingName}</p>
+                <div className="space-y-1.5 text-xs" style={{ color: colors.textMuted }}>
+                  <p>{result.buildingInfo?.community ?? "Dubai"}</p>
+                  <p>{input.unitSize} · {input.unitType}</p>
+                  <p>Floor {input.floor}</p>
+                  {input.view && <p>{input.view}</p>}
+                  <p>{input.furnished}</p>
                 </div>
               </div>
 
-              {/* Projected Revenue */}
+              {/* Revenue Potential */}
               <div>
-                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PROJECTED REVENUE</p>
-                <p className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
-                  AED {fmt(result.annualNetToLandlord)}
+                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>REVENUE POTENTIAL</p>
+                <p className="text-2xl font-bold mb-1" style={{ color: colors.primary }}>
+                  AED {fmt(result.annualNetToLandlord * 0.9)} - {fmt(result.annualNetToLandlord * 1.1)}
                 </p>
                 <p className="text-xs" style={{ color: colors.textMuted }}>
-                  Annual net to owner based on {(result.avgOccupancy * 100).toFixed(0)}% occupancy
+                  Estimated annual range
                 </p>
               </div>
 
-              {/* Occupancy Metrics */}
+              {/* Occupancy Potential */}
               <div>
-                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>OCCUPANCY METRICS</p>
-                <div className="space-y-2 mb-2">
+                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>OCCUPANCY POTENTIAL</p>
+                <div className="space-y-2">
                   <div>
-                    <p className="text-sm font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
-                    <p className="text-xs" style={{ color: colors.textMuted }}>Estimated Occupancy</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
-                    <p className="text-xs" style={{ color: colors.textMuted }}>Avg Daily Rate</p>
+                    <p className="text-2xl font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                    <p className="text-xs" style={{ color: colors.textMuted }}>Estimated occupancy</p>
                   </div>
                 </div>
               </div>
 
-              {/* Key Insight */}
+              {/* Net to Owner */}
               <div>
-                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PERSONALIZED FOR</p>
-                <div className="rounded-lg p-3" style={{ background: colors.primary + "11", border: "1px solid " + colors.primary + "33" }}>
-                  <p className="text-xs mb-1" style={{ color: colors.primary }}>✓ Your Property Type</p>
-                  <p className="text-xs mb-1" style={{ color: colors.primary }}>✓ Location Expertise</p>
-                  <p className="text-xs" style={{ color: colors.primary }}>✓ Market Fit</p>
-                </div>
+                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>NET TO OWNER</p>
+                <p className="text-2xl font-bold mb-1" style={{ color: colors.secondary }}>
+                  AED {fmt(result.annualNetToLandlord * 0.85)} - {fmt(result.annualNetToLandlord * 1.05)}
+                </p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>
+                  Annual net range
+                </p>
               </div>
             </div>
           </div>
