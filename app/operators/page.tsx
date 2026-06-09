@@ -273,24 +273,37 @@ function CredibilitySignals({ op }: { op: Operator }) {
 function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; matchReasons: string[] }; rank: number }) {
   const isBestMatch = rank === 1;
 
+  // Truncate text helper
+  const truncate = (text: string, maxLines: number = 2) => {
+    if (!text) return "";
+    const lines = text.split("\n");
+    return lines.slice(0, maxLines).join("\n");
+  };
+
   return (
     <div className="rounded-2xl overflow-hidden relative group flex flex-col"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", cursor: "pointer", minHeight: "520px" }}
+      style={{
+        background: colors.bgSection,
+        border: "1px solid " + colors.border,
+        boxShadow: colors.shadowSm,
+        transition: "all 0.3s ease",
+        cursor: "pointer",
+        height: "680px", // FIXED HEIGHT
+        display: "flex",
+        flexDirection: "column"
+      }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
-      {/* Ranking Badge */}
+      {/* RANKING BADGE */}
       <div className="absolute top-4 right-4 z-10">
         <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm"
-          style={{
-            background: isBestMatch ? colors.primary : colors.secondary,
-            color: "#FFFFFF"
-          }}>
+          style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
           {rank}
         </div>
       </div>
 
-      {/* Tier Badge */}
+      {/* TIER BADGE */}
       {op.tier && (
         <div style={{
           position: "absolute",
@@ -309,31 +322,19 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       )}
 
-      {/* Company Header - Streamlined */}
-      <div className="p-6 pb-4" style={{ borderBottom: "1px solid " + colors.border }}>
+      {/* HEADER SECTION - FIXED HEIGHT 100px */}
+      <div style={{ height: "100px", padding: "16px", borderBottom: "1px solid " + colors.border, display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
         {/* Logo */}
-        <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center"
-          style={{
-            background: "#FFFFFF",
-            border: "1px solid " + colors.border,
-            fontSize: "24px",
-            fontWeight: "bold",
-            color: colors.primary
-          }}>
+        <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center"
+          style={{ background: "#FFFFFF", border: "1px solid " + colors.border, fontSize: "18px", fontWeight: "bold", color: colors.primary }}>
           {op.name.split(" ").map(w => w[0]).join("").substring(0, 2)}
         </div>
 
         {/* Name with inline Rating */}
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-lg font-bold" style={{ color: colors.textMain }}>{op.name}</h3>
-          <div className="flex items-center gap-1">
-            <Stars rating={op.googleRating} />
-            <span className="text-sm font-bold" style={{ color: colors.primary }}>{op.googleRating}</span>
-          </div>
+        <div className="flex items-center gap-1 mb-1">
+          <h3 className="text-sm font-bold truncate" style={{ color: colors.textMain }}>{op.name}</h3>
+          <span className="text-xs font-bold" style={{ color: colors.primary }}>{op.googleRating}★</span>
         </div>
-
-        {/* Tagline */}
-        <p className="text-xs mb-2" style={{ color: colors.textMuted }}>{op.tagline}</p>
 
         {/* Review Count */}
         <p className="text-xs" style={{ color: colors.textMuted }}>
@@ -341,31 +342,68 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </p>
       </div>
 
-      {/* Expertise Icons/Tags */}
-      {op.strengthsTags && op.strengthsTags.length > 0 && (
-        <div className="px-6 py-4" style={{ borderTop: "1px solid " + colors.border, borderBottom: "1px solid " + colors.border }}>
-          <div className="grid grid-cols-3 gap-3">
-            {op.strengthsTags.slice(0, 6).map((tag, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center text-xs">
-                <div style={{ fontSize: "20px", marginBottom: "4px" }}>
-                  {tag.includes("Dynamic") ? "📊" : tag.includes("Professional") ? "📸" : tag.includes("Tech") ? "💻" : tag.includes("Award") ? "🏆" : tag.includes("Global") ? "🌍" : "⭐"}
-                </div>
-                <span style={{ color: colors.textMuted, lineHeight: "1.2" }}>{tag.split(" ")[0]}</span>
-              </div>
-            ))}
+      {/* OPERATOR SUMMARY - FIXED HEIGHT 60px */}
+      <div style={{ height: "60px", padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <p className="text-xs leading-relaxed" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {op.tagline || op.pros?.[0] || "Premium holiday home management"}
+        </p>
+      </div>
+
+      {/* METRICS ROW - FIXED HEIGHT 70px */}
+      <div style={{ height: "70px", padding: "12px 16px", borderBottom: "1px solid " + colors.border, backgroundColor: colors.bgMain }}>
+        <div className="grid grid-cols-2 gap-2 h-full">
+          <div className="text-center flex flex-col justify-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Rating</p>
+            <p className="text-sm font-bold" style={{ color: colors.primary }}>{op.googleRating}★</p>
+          </div>
+          <div className="text-center flex flex-col justify-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Years</p>
+            <p className="text-sm font-bold" style={{ color: colors.primary }}>{op.yearsInBusiness || "5"}+</p>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Action Buttons - Push to bottom */}
-      <div className="px-6 py-4 mt-auto">
+      {/* PROS & CONS SECTION - FIXED HEIGHT 130px */}
+      <div style={{ height: "130px", padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <div className="grid grid-cols-2 gap-3 h-full">
+          {/* PROS */}
+          <div>
+            <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>Pros</p>
+            <div className="space-y-1">
+              {op.pros?.slice(0, 2).map((pro, idx) => (
+                <div key={idx} className="flex items-start gap-1">
+                  <span style={{ color: colors.primary, fontSize: "10px", flexShrink: 0, marginTop: "1px" }}>✓</span>
+                  <p className="text-xs" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {pro}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CONS */}
+          <div>
+            <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>Cons</p>
+            <div className="space-y-1">
+              {op.cons?.slice(0, 2).map((con, idx) => (
+                <div key={idx} className="flex items-start gap-1">
+                  <span style={{ color: "#8B4444", fontSize: "10px", flexShrink: 0, marginTop: "1px" }}>•</span>
+                  <p className="text-xs" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {con}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER - CONTACT BUTTON - FIXED HEIGHT 60px - ALWAYS AT BOTTOM */}
+      <div style={{ height: "60px", padding: "12px 16px", marginTop: "auto" }}>
         {op.website && (
           <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105"
-            style={{
-              background: isBestMatch ? colors.primary : colors.secondary,
-              color: "#FFFFFF"
-            }}>
+            style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
             Contact Operator →
           </a>
         )}
