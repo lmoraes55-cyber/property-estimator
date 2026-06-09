@@ -431,13 +431,31 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
 
       {/* FOOTER SECTION - CONTACT BUTTON + TAGS (pushed to bottom with flex-grow) */}
       <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", marginTop: "auto" }}>
-        {/* Contact Button */}
-        {op.website && (
+        {/* Contact Button - Always visible */}
+        {op.website ? (
           <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
             style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
             Contact Operator →
           </a>
+        ) : op.email ? (
+          <a href={`mailto:${op.email}`}
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+            style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
+            Contact Operator →
+          </a>
+        ) : op.phone ? (
+          <a href={`tel:${op.phone}`}
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+            style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
+            Contact Operator →
+          </a>
+        ) : (
+          <button
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2 cursor-not-allowed opacity-70"
+            style={{ background: colors.border, color: colors.textMuted }}>
+            Contact Info Unavailable
+          </button>
         )}
 
         {/* Target Owner Tags - Below Button */}
