@@ -155,18 +155,18 @@ function ReportContent() {
   const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
     const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
 
-    // Premium location-specific images - using high-quality Dubai skyline photos
-    const locationImages = {
-      marina: "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop",
-      downtown: "https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=600&h=500&fit=crop",
-      burj: "https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=600&h=500&fit=crop",
-      palm: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=500&fit=crop",
-      business: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
-      creek: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=500&fit=crop",
-      jvc: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
-      jumeirah: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
-      emaar: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=500&fit=crop",
-      beachfront: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=500&fit=crop",
+    // Location-specific images using reliable Unsplash source API
+    const locationImages: { [key: string]: string } = {
+      marina: "https://source.unsplash.com/600x500/?dubai+marina,skyline",
+      downtown: "https://source.unsplash.com/600x500/?dubai+downtown,burj+khalifa",
+      burj: "https://source.unsplash.com/600x500/?dubai+downtown,burj+khalifa",
+      palm: "https://source.unsplash.com/600x500/?dubai+palm+jumeirah",
+      business: "https://source.unsplash.com/600x500/?dubai+business+bay",
+      creek: "https://source.unsplash.com/600x500/?dubai+creek",
+      jvc: "https://source.unsplash.com/600x500/?dubai+skyline,cityscape",
+      jumeirah: "https://source.unsplash.com/600x500/?dubai+skyline,cityscape",
+      emaar: "https://source.unsplash.com/600x500/?dubai+beachfront,luxury",
+      beachfront: "https://source.unsplash.com/600x500/?dubai+beach,cityscape",
     };
 
     // Check each location keyword
@@ -176,8 +176,8 @@ function ReportContent() {
       }
     }
 
-    // Fallback: Default premium Dubai Marina skyline
-    return "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop";
+    // Fallback: Default Dubai skyline
+    return "https://source.unsplash.com/600x500/?dubai,skyline,night";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
