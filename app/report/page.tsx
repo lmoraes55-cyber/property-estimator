@@ -151,22 +151,22 @@ function ReportContent() {
 
   const strBetter = result.strVsLtrDelta > 0;
 
-  // Get location-specific hero image (picsum - reliable city/building photos)
+  // Get location-specific hero image (premium Dubai photos)
   const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
     const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
 
-    // Premium city/building images from picsum.photos (reliable CDN, high-quality)
+    // Premium location-specific images from public/locations folder
     const locationImages: { [key: string]: string } = {
-      marina: "https://picsum.photos/600/500?random=1",
-      downtown: "https://picsum.photos/600/500?random=2",
-      burj: "https://picsum.photos/600/500?random=2",
-      palm: "https://picsum.photos/600/500?random=3",
-      business: "https://picsum.photos/600/500?random=4",
-      creek: "https://picsum.photos/600/500?random=5",
-      jvc: "https://picsum.photos/600/500?random=6",
-      jumeirah: "https://picsum.photos/600/500?random=7",
-      emaar: "https://picsum.photos/600/500?random=8",
-      beachfront: "https://picsum.photos/600/500?random=9",
+      marina: "/locations/marina.jpg",
+      downtown: "/locations/downtown.jpg",
+      burj: "/locations/downtown.jpg",
+      palm: "/locations/palm.jpg",
+      jumeirah: "/locations/jbr.jpg",
+      jbr: "/locations/jbr.jpg",
+      business: "/locations/downtown.jpg",
+      creek: "/locations/downtown.jpg",
+      emaar: "/locations/marina.jpg",
+      beachfront: "/locations/marina.jpg",
     };
 
     // Check each location keyword
@@ -176,8 +176,8 @@ function ReportContent() {
       }
     }
 
-    // Fallback: Default premium image
-    return "https://picsum.photos/600/500?random=10";
+    // Fallback: Marina image as default
+    return "/locations/marina.jpg";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
