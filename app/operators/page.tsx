@@ -1229,10 +1229,11 @@ function OperatorsContent() {
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
-              height: "auto"
+              height: "620px",
+              overflow: "hidden"
             }}>
               {ranked[(recommendedIndex + 3) % 5] && (
-                <div style={{ width: "340px", height: "auto", opacity: 0.15 }}>
+                <div style={{ width: "340px", height: "620px", opacity: 0.15, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 3) % 5]} rank={(recommendedIndex + 3) % 5 + 1} />
                 </div>
               )}
@@ -1246,11 +1247,12 @@ function OperatorsContent() {
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
-              height: "auto",
-              marginLeft: "-170px"
+              height: "620px",
+              marginLeft: "-170px",
+              overflow: "hidden"
             }}>
               {ranked[(recommendedIndex + 4) % 5] && (
-                <div style={{ width: "340px", height: "auto", opacity: 0.20 }}>
+                <div style={{ width: "340px", height: "620px", opacity: 0.20, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 4) % 5]} rank={(recommendedIndex + 4) % 5 + 1} />
                 </div>
               )}
@@ -1264,16 +1266,17 @@ function OperatorsContent() {
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
-              height: "auto"
+              height: "620px",
+              overflow: "hidden"
             }}>
               {ranked[(recommendedIndex + 2) % 5] && (
-                <div style={{ width: "340px", height: "auto", opacity: 0.15 }}>
+                <div style={{ width: "340px", height: "620px", opacity: 0.15, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 2) % 5]} rank={(recommendedIndex + 2) % 5 + 1} />
                 </div>
               )}
             </div>
 
-            {/* FRONT LAYER - 2 prominent elevated cards - EXACT SAME 340px SIZE */}
+            {/* FRONT LAYER - 2 prominent elevated cards - EXACT SAME 340px x 620px SIZE */}
 
             {/* Front Left Position */}
             <div className="absolute" style={{
@@ -1284,10 +1287,11 @@ function OperatorsContent() {
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
               pointerEvents: "none",
               width: "340px",
-              height: "auto"
+              height: "620px",
+              overflow: "hidden"
             }}>
               {ranked[recommendedIndex] && (
-                <div style={{ width: "340px", height: "auto", opacity: 1.0 }}>
+                <div style={{ width: "340px", height: "620px", opacity: 1.0, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[recommendedIndex]} rank={recommendedIndex + 1} />
                 </div>
               )}
@@ -1302,10 +1306,11 @@ function OperatorsContent() {
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
               pointerEvents: "none",
               width: "340px",
-              height: "auto"
+              height: "620px",
+              overflow: "hidden"
             }}>
               {ranked[(recommendedIndex + 1) % 5] && (
-                <div style={{ width: "340px", height: "auto", opacity: 1.0 }}>
+                <div style={{ width: "340px", height: "620px", opacity: 1.0, overflow: "hidden" }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 1) % 5]} rank={(recommendedIndex + 1) % 5 + 1} />
                 </div>
               )}
@@ -1380,11 +1385,11 @@ function OperatorsContent() {
               <p className="text-sm" style={{ color: colors.textMuted }}>Growing market presence with innovative approaches and specialized expertise</p>
             </div>
 
-            {/* Premium 3-Column Grid - Centered, Equal Importance - UNIFORM 340px SIZE */}
+            {/* Premium 3-Column Grid - Centered, Equal Importance - UNIFORM 340px x 620px SIZE */}
             <div className="flex justify-center">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {UPCOMING_OPERATORS.slice(0, 3).map((op, i) => (
-                  <div key={op.id} style={{ perspective: "1000px", width: "340px" }}>
+                  <div key={op.id} style={{ perspective: "1000px", width: "340px", height: "620px", overflow: "hidden" }}>
                     <UpcomingOperatorCard op={op} />
                   </div>
                 ))}
