@@ -357,37 +357,6 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       )}
 
-      {/* Contact Details */}
-      <div className="px-6 py-4" style={{ borderBottom: "1px solid " + colors.border }}>
-        <p className="text-xs font-semibold mb-3 tracking-wide" style={{ color: colors.textMuted, letterSpacing: "0.05em" }}>CONTACT DETAILS</p>
-        <div className="space-y-2 text-xs">
-          {op.phone && (
-            <div className="flex items-center gap-2">
-              <span style={{ fontSize: "12px" }}>📱</span>
-              <a href={`tel:${op.phone}`} className="transition hover:opacity-70" style={{ color: colors.textMain }}>
-                {op.phone}
-              </a>
-            </div>
-          )}
-          {op.email && (
-            <div className="flex items-center gap-2">
-              <span style={{ fontSize: "12px" }}>✉️</span>
-              <a href={`mailto:${op.email}`} className="transition hover:opacity-70 truncate" style={{ color: colors.textMain }}>
-                {op.email}
-              </a>
-            </div>
-          )}
-          {op.website && (
-            <div className="flex items-center gap-2">
-              <span style={{ fontSize: "12px" }}>🌐</span>
-              <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" className="transition hover:opacity-70 truncate" style={{ color: colors.textMain }}>
-                {op.website}
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Action Buttons */}
       <div className="px-6 py-4 space-y-2">
         <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:brightness-105"
@@ -668,37 +637,6 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 
         {/* ENHANCED: Strength Tags Section */}
         <StrengthTags tags={op.strengthsTags} />
-
-        {/* Contact Information */}
-        <div className="rounded-2xl p-6" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
-          <p className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: colors.primary, letterSpacing: "0.1em" }}>Contact Information</p>
-          <div className="space-y-3">
-            {op.phone && (
-              <div className="flex items-center gap-3">
-                <span style={{ color: colors.primary, fontSize: "16px" }}>📱</span>
-                <a href={`tel:${op.phone}`} className="text-sm transition hover:opacity-80" style={{ color: colors.textMain }}>
-                  {op.phone}
-                </a>
-              </div>
-            )}
-            {op.email && (
-              <div className="flex items-center gap-3">
-                <span style={{ color: colors.primary, fontSize: "16px" }}>✉️</span>
-                <a href={`mailto:${op.email}`} className="text-sm transition hover:opacity-80" style={{ color: colors.textMain }}>
-                  {op.email}
-                </a>
-              </div>
-            )}
-            {op.website && (
-              <div className="flex items-center gap-3">
-                <span style={{ color: colors.primary, fontSize: "16px" }}>🌐</span>
-                <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" className="text-sm transition hover:opacity-80" style={{ color: colors.textMain }}>
-                  {op.website}
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Key stats */}
         <div className="grid grid-cols-3 gap-3">
