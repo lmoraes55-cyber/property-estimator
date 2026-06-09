@@ -269,6 +269,183 @@ function CredibilitySignals({ op }: { op: Operator }) {
   );
 }
 
+// Grid Operator Card - 3-column layout for recommended operators
+function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; matchReasons: string[] }; rank: number }) {
+  const isBestMatch = rank === 1;
+
+  return (
+    <div className="rounded-2xl overflow-hidden relative group"
+      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", cursor: "pointer" }}
+      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
+
+      {/* Ranking Badge */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm"
+          style={{
+            background: isBestMatch ? colors.primary : colors.secondary,
+            color: "#FFFFFF"
+          }}>
+          {rank}
+        </div>
+      </div>
+
+      {/* Tier Badge */}
+      {op.tier && (
+        <div style={{
+          position: "absolute",
+          top: "48px",
+          right: "16px",
+          background: op.tier.includes("Tier 1") ? "#1B5E4A" : op.tier.includes("Tier 2") ? "#B88A44" : "#4A7A68",
+          color: "#FFFFFF",
+          padding: "4px 10px",
+          borderRadius: "12px",
+          fontSize: "10px",
+          fontWeight: "600",
+          zIndex: 9,
+          letterSpacing: "0.05em"
+        }}>
+          {op.tier.includes("Tier 1") ? "TIER 1" : op.tier.includes("Tier 2") ? "TIER 2" : "TIER 3"}
+        </div>
+      )}
+
+      {/* Company Header */}
+      <div className="p-6 pb-4" style={{ borderBottom: "1px solid " + colors.border }}>
+        {/* Logo */}
+        <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid " + colors.border,
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: colors.primary
+          }}>
+          {op.name.split(" ").map(w => w[0]).join("").substring(0, 2)}
+        </div>
+
+        {/* Name & Rating */}
+        <h3 className="text-lg font-bold mb-1" style={{ color: colors.textMain }}>{op.name}</h3>
+        <div className="flex items-center gap-1 mb-2">
+          <Stars rating={op.googleRating} />
+          <span className="text-xs font-medium" style={{ color: colors.textMuted }}>
+            {op.googleRating} ({op.googleReviewCount} reviews)
+          </span>
+        </div>
+
+        {/* Tagline */}
+        <p className="text-xs" style={{ color: colors.textMuted }}>{op.tagline}</p>
+
+        {/* Show more toggle */}
+        <button className="text-xs mt-2 font-medium" style={{ color: colors.primary }}>
+          Show more ▼
+        </button>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="px-6 py-4" style={{ background: colors.bgMain }}>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Revenue</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>
+              AED {(op.portfolio * 150) / 1000}k
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Occupancy</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>75%</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Rating</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.googleRating}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Experience</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.yearsInBusiness || "5"} yrs</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Expertise Icons/Tags */}
+      {op.strengthsTags && op.strengthsTags.length > 0 && (
+        <div className="px-6 py-4" style={{ borderTop: "1px solid " + colors.border, borderBottom: "1px solid " + colors.border }}>
+          <div className="grid grid-cols-3 gap-3">
+            {op.strengthsTags.slice(0, 6).map((tag, idx) => (
+              <div key={idx} className="flex flex-col items-center text-center text-xs">
+                <div style={{ fontSize: "20px", marginBottom: "4px" }}>
+                  {tag.includes("Dynamic") ? "📊" : tag.includes("Professional") ? "📸" : tag.includes("Tech") ? "💻" : tag.includes("Award") ? "🏆" : tag.includes("Global") ? "🌍" : "⭐"}
+                </div>
+                <span style={{ color: colors.textMuted, lineHeight: "1.2" }}>{tag.split(" ")[0]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Contact Details */}
+      <div className="px-6 py-4" style={{ borderBottom: "1px solid " + colors.border }}>
+        <p className="text-xs font-semibold mb-3 tracking-wide" style={{ color: colors.textMuted, letterSpacing: "0.05em" }}>CONTACT DETAILS</p>
+        <div className="space-y-2 text-xs">
+          {op.phone && (
+            <div className="flex items-center gap-2">
+              <span style={{ fontSize: "12px" }}>📱</span>
+              <a href={`tel:${op.phone}`} className="transition hover:opacity-70" style={{ color: colors.textMain }}>
+                {op.phone}
+              </a>
+            </div>
+          )}
+          {op.email && (
+            <div className="flex items-center gap-2">
+              <span style={{ fontSize: "12px" }}>✉️</span>
+              <a href={`mailto:${op.email}`} className="transition hover:opacity-70 truncate" style={{ color: colors.textMain }}>
+                {op.email}
+              </a>
+            </div>
+          )}
+          {op.website && (
+            <div className="flex items-center gap-2">
+              <span style={{ fontSize: "12px" }}>🌐</span>
+              <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" className="transition hover:opacity-70 truncate" style={{ color: colors.textMain }}>
+                {op.website}
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="px-6 py-4 space-y-2">
+        <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:brightness-105"
+          style={{
+            background: isBestMatch ? colors.primary : colors.secondary,
+            color: "#FFFFFF"
+          }}>
+          View Full Profile →
+        </button>
+        <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:bg-opacity-80"
+          style={{
+            background: colors.bgMain,
+            color: colors.textMain,
+            border: "1px solid " + colors.border
+          }}>
+          Contact Operator
+        </button>
+      </div>
+
+      {/* Bottom Tags */}
+      {op.bestFor && op.bestFor.length > 0 && (
+        <div className="px-6 py-4 flex flex-wrap gap-2" style={{ background: colors.bgMain + "55" }}>
+          {op.bestFor.slice(0, 2).map((tag, idx) => (
+            <span key={idx} className="text-xs px-2 py-1 rounded-full"
+              style={{ background: colors.primary + "15", color: colors.primary }}>
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Boutique Operator Card - Compact version for emerging operators
 function BoutiqueOperatorCard({ op, rank }: { op: Operator & { matchScore: number; matchReasons: string[] }; rank: number }) {
   return (
@@ -892,93 +1069,73 @@ function OperatorsContent() {
         </span>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-16">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
-        {/* Hero */}
-        <div className="rounded-2xl p-8" style={{ background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgSection} 100%)`, border: "1px solid " + colors.primary }}>
-          <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>Part 2 of 3 · Curated Operator Marketplace</p>
-          <h1 className="text-4xl font-bold mb-3" style={{ color: colors.textMain }}>Your Operator Match</h1>
-          <p className="text-sm mb-6 max-w-2xl" style={{ color: colors.textMuted }}>
-            Handpicked operators for <span style={{ color: colors.textMain }}>{result.buildingInfo?.community ?? result.buildingName}</span> — {input.unitSize} {input.unitType} on Floor {input.floor}. Ranked by revenue potential, market reputation, and operational excellence.
-          </p>
-          <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
-              <p className="text-xs mb-1 font-medium" style={{ color: colors.textMuted }}>Your STR Net/Year</p>
-              <p className="text-2xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
-            </div>
-            <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
-              <p className="text-xs mb-1 font-medium" style={{ color: colors.textMuted }}>Avg Occupancy</p>
-              <p className="text-2xl font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
-            </div>
-            <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
-              <p className="text-xs mb-1 font-medium" style={{ color: colors.textMuted }}>Avg Daily Rate</p>
-              <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* SECTION 1: TOP 5 RECOMMENDED OPERATORS */}
+        {/* Hero Section - Property Details */}
         <div>
-          <div className="mb-8">
-            <div className="flex items-baseline gap-3 mb-2">
-              <h2 className="text-3xl font-bold" style={{ color: colors.textMain }}>Top 5 Recommended Operators</h2>
-              <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: colors.primary + "15", color: colors.primary }}>Premium Selection</span>
-            </div>
-            <p className="text-sm max-w-2xl" style={{ color: colors.textMuted }}>
-              Institutional leaders and premium operators with proven track records. These operators represent the strongest overall match based on estimated revenue, occupancy potential, market reputation, guest satisfaction, and operational capability.
-            </p>
+          <div className="flex items-center gap-2 mb-4 text-sm" style={{ color: colors.textMuted }}>
+            <button onClick={handleBack} className="hover:opacity-70" style={{ color: colors.primary }}>Home</button>
+            <span>›</span>
+            <span>Operator Suggestions</span>
           </div>
 
-          <div className="space-y-6">
-            {ranked.slice(0, 5).map((op, i) => (
-              <OperatorCard key={op.id} op={op} rank={i} />
-            ))}
+          <div className="flex items-start justify-between gap-8 mb-8">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-2" style={{ color: colors.textMain }}>Recommended Operators</h1>
+              <p className="text-sm" style={{ color: colors.textMuted }}>Top performing holiday home operators for your property</p>
+            </div>
+
+            {/* Property Summary Card */}
+            <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border, minWidth: "320px" }}>
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
+                  <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "32px", fontWeight: "bold" }}>
+                    {result.buildingInfo?.community?.charAt(0) || "P"}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs mb-1 font-medium" style={{ color: colors.textMuted }}>Property Details</p>
+                  <p className="text-sm font-bold" style={{ color: colors.textMain }}>{result.buildingName}</p>
+                  <p className="text-xs" style={{ color: colors.textMuted }}>{input.unitSize} · Floor {input.floor}</p>
+                  <p className="text-xs mt-1" style={{ color: colors.textLight }}>{result.buildingInfo?.community ?? "Dubai"}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-4" style={{ borderTop: "1px solid " + colors.border }}>
+                <div>
+                  <p className="text-xs" style={{ color: colors.textMuted }}>Estimated Annual Revenue</p>
+                  <p className="text-lg font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
+                </div>
+                <div>
+                  <p className="text-xs" style={{ color: colors.textMuted }}>Estimated Occupancy</p>
+                  <p className="text-lg font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* SECTION 2: EMERGING & BOUTIQUE OPERATORS */}
-        {ranked.length > 5 && (
-          <div>
-            <div className="mb-8">
-              <div className="flex items-baseline gap-3 mb-2">
-                <h2 className="text-3xl font-bold" style={{ color: colors.textMain }}>Emerging & Boutique Operators</h2>
-                <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: colors.secondary + "15", color: colors.secondary }}>Growing Market Presence</span>
-              </div>
-              <p className="text-sm max-w-2xl" style={{ color: colors.textMuted }}>
-                Specialized operators with growing market presence, unique management approaches, and niche expertise. Often offering competitive rates and personalized service for property owners seeking differentiated solutions.
-              </p>
-            </div>
+        {/* Filter & Sort Bar */}
+        <div className="flex items-center justify-between">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition hover:brightness-95"
+            style={{ background: colors.bgSection, border: "1px solid " + colors.border, color: colors.textMain }}>
+            🔍 Filter Operators
+          </button>
+          <select className="px-4 py-2 rounded-lg font-medium text-sm transition"
+            style={{ background: colors.bgSection, border: "1px solid " + colors.border, color: colors.textMain }}>
+            <option>Sort by Recommended</option>
+            <option>Highest Revenue</option>
+            <option>Best Reviews</option>
+            <option>Most Experience</option>
+          </select>
+        </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              {ranked.slice(5).map((op, i) => (
-                <BoutiqueOperatorCard key={op.id} op={op} rank={i + 5} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* New & Upcoming Operators Section */}
-        {UPCOMING_OPERATORS.length > 0 && (
-          <>
-            <div className="mt-8">
-              <div className="mb-8">
-                <div className="flex items-baseline gap-3 mb-2">
-                  <h2 className="text-3xl font-bold" style={{ color: colors.textMain }}>Upcoming & New Entrants</h2>
-                  <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: colors.primary + "22", color: colors.primary }}>Future Opportunities</span>
-                </div>
-                <p className="text-sm max-w-2xl" style={{ color: colors.textMuted }}>
-                  Early-stage operators entering the Dubai market with innovative approaches and competitive positioning.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              {UPCOMING_OPERATORS.map((op) => (
-                <UpcomingOperatorCard key={op.id} op={op} />
-              ))}
-            </div>
-          </>
-        )}
+        {/* OPERATORS GRID - 3 COLUMNS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {ranked.map((op, i) => (
+            <GridOperatorCard key={op.id} op={op} rank={i + 1} />
+          ))}
+        </div>
 
         {/* Next Step: Furnishing (if unfurnished) */}
         {input.furnished === "Unfurnished" && (
