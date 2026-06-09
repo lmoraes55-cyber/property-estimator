@@ -840,23 +840,6 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
         </div>
       )}
 
-      {/* Badge - New & Emerging */}
-      <div style={{
-        position: "absolute",
-        top: rank ? "52px" : "16px",
-        right: "16px",
-        background: colors.secondary + "22",
-        color: colors.secondary,
-        padding: "4px 10px",
-        borderRadius: "12px",
-        fontSize: "10px",
-        fontWeight: "600",
-        zIndex: 9,
-        letterSpacing: "0.05em"
-      }}>
-        NEW & EMERGING
-      </div>
-
       {/* Header */}
       <div className="p-6 pb-4" style={{ borderBottom: "1px solid " + colors.border }}>
         <div>
