@@ -1212,25 +1212,27 @@ function OperatorsContent() {
             <p className="text-sm" style={{ color: colors.textMuted }}>Curated selection ranked by market performance and guest satisfaction</p>
           </div>
 
-          {/* Premium Card Stack Layout - Draggable with Rotating Cards - INFINITE LOOP */}
+          {/* Premium Card Stack Layout - UNIFORM SIZES - INFINITE LOOP */}
           <div
             className="relative flex items-center justify-center mb-24 px-24"
             style={{ perspective: "1200px", height: "500px", cursor: "grab" }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
           >
-            {/* BACK LAYER - 3 cards rotating in background - SAME SIZE */}
+            {/* BACK LAYER - 3 cards rotating - EXACT SAME 340px SIZE */}
+
             {/* Back Left Position */}
             <div className="absolute" style={{
               left: "8%",
               top: "25%",
               zIndex: 1,
               transition: "all 500ms ease-out",
-              transformOrigin: "center center",
-              pointerEvents: "none"
+              pointerEvents: "none",
+              width: "340px",
+              height: "auto"
             }}>
               {ranked[(recommendedIndex + 3) % 5] && (
-                <div style={{ width: "340px", opacity: 0.25 }}>
+                <div style={{ width: "340px", height: "auto", opacity: 0.15 }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 3) % 5]} rank={(recommendedIndex + 3) % 5 + 1} />
                 </div>
               )}
@@ -1241,13 +1243,14 @@ function OperatorsContent() {
               left: "50%",
               top: "40%",
               zIndex: 2,
-              transform: "translateX(-50%)",
               transition: "all 500ms ease-out",
-              transformOrigin: "center center",
-              pointerEvents: "none"
+              pointerEvents: "none",
+              width: "340px",
+              height: "auto",
+              marginLeft: "-170px"
             }}>
               {ranked[(recommendedIndex + 4) % 5] && (
-                <div style={{ width: "340px", opacity: 0.35 }}>
+                <div style={{ width: "340px", height: "auto", opacity: 0.20 }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 4) % 5]} rank={(recommendedIndex + 4) % 5 + 1} />
                 </div>
               )}
@@ -1259,17 +1262,18 @@ function OperatorsContent() {
               top: "25%",
               zIndex: 1,
               transition: "all 500ms ease-out",
-              transformOrigin: "center center",
-              pointerEvents: "none"
+              pointerEvents: "none",
+              width: "340px",
+              height: "auto"
             }}>
               {ranked[(recommendedIndex + 2) % 5] && (
-                <div style={{ width: "340px", opacity: 0.25 }}>
+                <div style={{ width: "340px", height: "auto", opacity: 0.15 }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 2) % 5]} rank={(recommendedIndex + 2) % 5 + 1} />
                 </div>
               )}
             </div>
 
-            {/* FRONT LAYER - 2 prominent elevated cards - SAME SIZE */}
+            {/* FRONT LAYER - 2 prominent elevated cards - EXACT SAME 340px SIZE */}
 
             {/* Front Left Position */}
             <div className="absolute" style={{
@@ -1278,10 +1282,12 @@ function OperatorsContent() {
               zIndex: 3,
               transition: "all 500ms ease-out",
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
-              pointerEvents: "none"
+              pointerEvents: "none",
+              width: "340px",
+              height: "auto"
             }}>
               {ranked[recommendedIndex] && (
-                <div style={{ width: "340px", opacity: 1.0 }}>
+                <div style={{ width: "340px", height: "auto", opacity: 1.0 }}>
                   <GridOperatorCard op={ranked[recommendedIndex]} rank={recommendedIndex + 1} />
                 </div>
               )}
@@ -1294,10 +1300,12 @@ function OperatorsContent() {
               zIndex: 3,
               transition: "all 500ms ease-out",
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
-              pointerEvents: "none"
+              pointerEvents: "none",
+              width: "340px",
+              height: "auto"
             }}>
               {ranked[(recommendedIndex + 1) % 5] && (
-                <div style={{ width: "340px", opacity: 1.0 }}>
+                <div style={{ width: "340px", height: "auto", opacity: 1.0 }}>
                   <GridOperatorCard op={ranked[(recommendedIndex + 1) % 5]} rank={(recommendedIndex + 1) % 5 + 1} />
                 </div>
               )}
@@ -1372,11 +1380,11 @@ function OperatorsContent() {
               <p className="text-sm" style={{ color: colors.textMuted }}>Growing market presence with innovative approaches and specialized expertise</p>
             </div>
 
-            {/* Premium 3-Column Grid - Centered, Equal Importance */}
+            {/* Premium 3-Column Grid - Centered, Equal Importance - UNIFORM 340px SIZE */}
             <div className="flex justify-center">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {UPCOMING_OPERATORS.slice(0, 3).map((op, i) => (
-                  <div key={op.id} style={{ perspective: "1000px" }}>
+                  <div key={op.id} style={{ perspective: "1000px", width: "340px" }}>
                     <UpcomingOperatorCard op={op} />
                   </div>
                 ))}
