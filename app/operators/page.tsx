@@ -1228,7 +1228,7 @@ function OperatorsContent() {
         {/* TOP 5 RECOMMENDED - LAYERED CARD STACK */}
         <div>
           {/* Premium Gradient Heading */}
-          <div className="mb-8">
+          <div className="mb-12">
             <h2 className="text-5xl font-bold mb-2" style={{
               background: "linear-gradient(135deg, #1B5E4A 0%, #4D7A4E 33%, #8A8442 66%, #B88A44 100%)",
               WebkitBackgroundClip: "text",
