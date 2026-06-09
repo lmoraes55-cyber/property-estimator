@@ -358,22 +358,17 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
       )}
 
       {/* Action Buttons */}
-      <div className="px-6 py-4 space-y-2">
-        <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:brightness-105"
-          style={{
-            background: isBestMatch ? colors.primary : colors.secondary,
-            color: "#FFFFFF"
-          }}>
-          View Full Profile →
-        </button>
-        <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:bg-opacity-80"
-          style={{
-            background: colors.bgMain,
-            color: colors.textMain,
-            border: "1px solid " + colors.border
-          }}>
-          Contact Operator
-        </button>
+      <div className="px-6 py-4">
+        {op.website && (
+          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105"
+            style={{
+              background: isBestMatch ? colors.primary : colors.secondary,
+              color: "#FFFFFF"
+            }}>
+            Contact Operator →
+          </a>
+        )}
       </div>
 
       {/* Bottom Tags */}
