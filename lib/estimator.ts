@@ -984,6 +984,13 @@ export function rankOperators(output: EstimatorOutput): (Operator & { matchScore
     else if (tier === "mid" && op.minTier === "mid") { score += 15; reasons.push("Well suited to mid-market properties"); }
     else if (tier === "luxury" && op.minTier === "mid") { score += 10; }
 
+    // Tier-based weighting (operator tier classification)
+    if (op.tier) {
+      if (op.tier.includes("Tier 1") || op.tier === "Tier 1") { score += 20; reasons.push("Established, proven Tier 1 operator"); }
+      else if (op.tier.includes("Tier 2") || op.tier === "Tier 2") { score += 15; reasons.push("Real estate-backed Tier 2 operator"); }
+      else if (op.tier.includes("Tier 3") || op.tier === "Tier 3") { score += 10; reasons.push("Specialty luxury operator"); }
+    }
+
     // Unit type match
     if (op.unitTypes.includes(output.unitType)) { score += 20; if (isVilla) reasons.push("Experienced villa management team"); }
 
@@ -1002,8 +1009,54 @@ export function rankOperators(output: EstimatorOutput): (Operator & { matchScore
     // Commission competitive bonus
     if (op.commission[0] <= 15) { score += 5; reasons.push("Competitive commission rate"); }
 
-    // Portfolio size bonus
-    if (op.portfolio >= 800) { score += 5; reasons.push("Large managed portfolio — proven at scale"); }
+    // Portfolio size bonus (enhanced with intelligence scoring)
+    if (op.portfolio >= 800) {
+      score += 10; // Increased from 5 to 10
+      reasons.push("Large managed portfolio — proven at scale");
+    } else if (op.portfolio >= 500) {
+      score += 5;
+    }
+
+    // Experience factor (years in business)
+    if (op.yearsInBusiness) {
+      const yearsMatch = op.yearsInBusiness.match(/\d+/);
+      if (yearsMatch) {
+        const years = parseInt(yearsMatch[0], 10);
+        if (years >= 10) {
+          score += 10;
+          reasons.push("10+ years of proven experience");
+        } else if (years >= 5) {
+          score += 5;
+        }
+      }
+    }
+
+    // Strength tag matching (match operator strengths against property characteristics)
+    if (op.strengthsTags && op.strengthsTags.length > 0) {
+      let strengthMatches = 0;
+
+      // Check for Dynamic Pricing strength (valuable for all properties)
+      if (op.strengthsTags.some(tag => tag.toLowerCase().includes("dynamic") || tag.toLowerCase().includes("pricing"))) {
+        strengthMatches++;
+      }
+
+      // Check for tech-forward capability and Tech-Driven match
+      if (op.strengthsTags.some(tag => tag.toLowerCase().includes("tech"))) {
+        strengthMatches++;
+      }
+
+      // Check for luxury property and Luxury match
+      if ((tier === "luxury" || tier === "ultra-luxury") && op.strengthsTags.some(tag => tag.toLowerCase().includes("luxury"))) {
+        strengthMatches++;
+      }
+
+      // Check for villa and Villa match
+      if (isVilla && op.strengthsTags.some(tag => tag.toLowerCase().includes("villa"))) {
+        strengthMatches++;
+      }
+
+      score += strengthMatches * 5;
+    }
 
     return { ...op, matchScore: score, matchReasons: reasons.slice(0, 3) };
   })

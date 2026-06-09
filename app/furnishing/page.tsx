@@ -251,11 +251,13 @@ function FurnishingContent() {
                   </div>
 
                   <button
-                    className="w-full py-2.5 rounded-lg text-sm font-bold transition"
+                    className="w-full py-2.5 rounded-lg text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
                     style={{
-                      background: idx === 0 ? "linear-gradient(135deg, " + colors.secondary + ", #B8844A)" : colors.bgMain,
-                      color: idx === 0 ? "#FFF" : colors.secondary,
+                      background: idx === 0 ? "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)" : "transparent",
+                      color: idx === 0 ? "#FFF" : colors.primary,
                       border: idx === 0 ? "none" : "1px solid " + colors.primary,
+                      transitionDuration: "250ms",
+                      boxShadow: idx === 0 ? `0 8px 20px rgba(184, 138, 68, 0.3)` : "none"
                     }}
                   >
                     {idx === 0 ? `Contact ${company.name} for Quote` : `Learn More about ${company.name}`}
@@ -347,11 +349,12 @@ function FurnishingContent() {
                   </p>
                   <button
                     onClick={() => router.back()}
-                    className="mt-4 w-full py-2.5 rounded-lg text-sm font-bold"
+                    className="mt-4 w-full py-2.5 rounded-lg text-sm font-bold transition-all hover:-translate-y-0.5 hover:opacity-80"
                     style={{
-                      background: colors.bgMain,
+                      background: "transparent",
                       color: colors.primary,
                       border: "1px solid " + colors.primary,
+                      transitionDuration: "250ms"
                     }}
                   >
                     ← Back to Operators

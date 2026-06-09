@@ -156,11 +156,13 @@ function AgentCard({ agent, rank }: { agent: RealEstateAgent & { matchScore: num
         </div>
 
         {/* CTA */}
-        <button className="w-full py-3 rounded-xl text-sm font-bold transition-all"
+        <button className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
           style={{
-            background: isBest ? "linear-gradient(135deg, #5A9E5A, #7ABF50)" : colors.bgSection,
-            color: isBest ? "#fff" : colors.textLight,
-            border: isBest ? "none" : "1px solid #252525",
+            background: isBest ? "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)" : "transparent",
+            color: isBest ? "#FFF" : colors.primary,
+            border: isBest ? "none" : "1px solid " + colors.primary,
+            transitionDuration: "250ms",
+            boxShadow: isBest ? `0 8px 20px rgba(27, 94, 74, 0.3)` : "none"
           }}>
           {isBest ? `${rank === 0 ? "Contact" : "Get in Touch"} ${agent.name} →` : `Learn More About ${agent.name}`}
         </button>
