@@ -1274,7 +1274,7 @@ function OperatorsContent() {
             <div className="absolute" style={{
               left: "50%",
               top: "40%",
-              zIndex: 2,
+              zIndex: 1,
               transition: "all 500ms ease-out",
               pointerEvents: "none",
               width: "340px",
@@ -1314,6 +1314,20 @@ function OperatorsContent() {
                 </div>
               )}
             </div>
+
+            {/* PREMIUM STAGE MASK - Hide background cards in featured card zone */}
+            <div className="absolute" style={{
+              left: "50%",
+              top: "-20%",
+              zIndex: 2,
+              pointerEvents: "none",
+              width: "740px",
+              height: "760px",
+              marginLeft: "-370px",
+              background: "linear-gradient(135deg, #FFFFFF 0%, " + colors.bgMain + " 35%, " + colors.bgSection + " 100%)",
+              borderRadius: "24px",
+              boxShadow: "inset 0 0 40px rgba(255, 255, 255, 0.3)"
+            }}></div>
 
             {/* FRONT LAYER - 2 prominent elevated cards - EXACT SAME 340px x 620px SIZE */}
 
