@@ -1102,50 +1102,80 @@ function OperatorsContent() {
         </span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-
-        {/* Hero Section - Property Details */}
-        <div>
-          <div className="flex items-center gap-2 mb-4 text-sm" style={{ color: colors.textMuted }}>
+      {/* STICKY PROPERTY SUMMARY HEADER */}
+      <div className="sticky top-0 z-40 backdrop-blur-md" style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.border }}>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 mb-3 text-xs" style={{ color: colors.textMuted }}>
             <button onClick={handleBack} className="hover:opacity-70" style={{ color: colors.primary }}>Home</button>
             <span>›</span>
             <span>Operator Suggestions</span>
           </div>
 
-          <div className="flex items-start justify-between gap-8 mb-8">
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-2" style={{ color: colors.textMain }}>Recommended Operators</h1>
-              <p className="text-sm" style={{ color: colors.textMuted }}>Top performing holiday home operators for your property</p>
-            </div>
-
-            {/* Property Summary Card */}
-            <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.border, minWidth: "320px" }}>
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0" style={{ background: colors.bgMain, border: "1px solid " + colors.border }}>
-                  <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "32px", fontWeight: "bold" }}>
-                    {result.buildingInfo?.community?.charAt(0) || "P"}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs mb-1 font-medium" style={{ color: colors.textMuted }}>Property Details</p>
-                  <p className="text-sm font-bold" style={{ color: colors.textMain }}>{result.buildingName}</p>
-                  <p className="text-xs" style={{ color: colors.textMuted }}>{input.unitSize} · Floor {input.floor}</p>
-                  <p className="text-xs mt-1" style={{ color: colors.textLight }}>{result.buildingInfo?.community ?? "Dubai"}</p>
+          {/* Premium Property Summary Card - Sticky */}
+          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: colors.shadowSm }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Property Identity */}
+              <div>
+                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PROPERTY</p>
+                <p className="text-lg font-bold mb-2" style={{ color: colors.textMain }}>{result.buildingName}</p>
+                <div className="space-y-1 text-xs" style={{ color: colors.textMuted }}>
+                  <p>📍 {result.buildingInfo?.community ?? "Dubai"}</p>
+                  <p>🛏️ {input.unitSize}</p>
+                  <p>🏠 {input.unitType}</p>
+                  <p>⬆️ Floor {input.floor}</p>
+                  {input.view && <p>👀 {input.view}</p>}
+                  <p>✨ {input.furnished}</p>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4" style={{ borderTop: "1px solid " + colors.border }}>
-                <div>
-                  <p className="text-xs" style={{ color: colors.textMuted }}>Estimated Annual Revenue</p>
-                  <p className="text-lg font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
+              {/* Projected Revenue */}
+              <div>
+                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PROJECTED REVENUE</p>
+                <p className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
+                  AED {fmt(result.annualNetToLandlord)}
+                </p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>
+                  Annual net to owner based on {(result.avgOccupancy * 100).toFixed(0)}% occupancy
+                </p>
+              </div>
+
+              {/* Occupancy Metrics */}
+              <div>
+                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>OCCUPANCY METRICS</p>
+                <div className="space-y-2 mb-2">
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                    <p className="text-xs" style={{ color: colors.textMuted }}>Estimated Occupancy</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
+                    <p className="text-xs" style={{ color: colors.textMuted }}>Avg Daily Rate</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs" style={{ color: colors.textMuted }}>Estimated Occupancy</p>
-                  <p className="text-lg font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+              </div>
+
+              {/* Key Insight */}
+              <div>
+                <p className="text-xs font-semibold mb-1 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PERSONALIZED FOR</p>
+                <div className="rounded-lg p-3" style={{ background: colors.primary + "11", border: "1px solid " + colors.primary + "33" }}>
+                  <p className="text-xs mb-1" style={{ color: colors.primary }}>✓ Your Property Type</p>
+                  <p className="text-xs mb-1" style={{ color: colors.primary }}>✓ Location Expertise</p>
+                  <p className="text-xs" style={{ color: colors.primary }}>✓ Market Fit</p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        {/* Hero Section */}
+        <div>
+          <h1 className="text-4xl font-bold mb-2" style={{ color: colors.textMain }}>Recommended Operators</h1>
+          <p className="text-sm" style={{ color: colors.textMuted }}>Top performing holiday home operators analyzed for your property</p>
         </div>
 
         {/* Filter & Sort Bar */}
