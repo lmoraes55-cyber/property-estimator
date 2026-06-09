@@ -179,9 +179,9 @@ export default function HomePage() {
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             zIndex: 1,
-            // Mask only the left edge - right side remains fully crisp and visible
-            maskImage: "linear-gradient(to right, transparent 0%, transparent 10%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 100%)",
-            WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 10%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 100%)",
+            // Minimal left-edge mask - only soft blend, 90%+ of image fully visible
+            maskImage: "linear-gradient(to right, transparent 0%, transparent 2%, rgba(0,0,0,0.7) 7%, rgba(0,0,0,1) 11%, rgba(0,0,0,1) 100%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 2%, rgba(0,0,0,0.7) 7%, rgba(0,0,0,1) 11%, rgba(0,0,0,1) 100%)",
           }}
         />
 
