@@ -151,22 +151,22 @@ function ReportContent() {
 
   const strBetter = result.strVsLtrDelta > 0;
 
-  // Get location-specific Dubai skyline image (Pexels CDN - reliable)
+  // Get location-specific hero image (picsum - reliable city/building photos)
   const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
     const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
 
-    // Premium Dubai skyline images from Pexels (reliable CDN)
+    // Premium city/building images from picsum.photos (reliable CDN, high-quality)
     const locationImages: { [key: string]: string } = {
-      marina: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
-      downtown: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
-      burj: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
-      palm: "https://images.pexels.com/photos/3797534/pexels-photo-3797534.jpeg?w=600&h=500&fit=crop",
-      business: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
-      creek: "https://images.pexels.com/photos/3797551/pexels-photo-3797551.jpeg?w=600&h=500&fit=crop",
-      jvc: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
-      jumeirah: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
-      emaar: "https://images.pexels.com/photos/3797534/pexels-photo-3797534.jpeg?w=600&h=500&fit=crop",
-      beachfront: "https://images.pexels.com/photos/3797534/pexels-photo-3797534.jpeg?w=600&h=500&fit=crop",
+      marina: "https://picsum.photos/600/500?random=1",
+      downtown: "https://picsum.photos/600/500?random=2",
+      burj: "https://picsum.photos/600/500?random=2",
+      palm: "https://picsum.photos/600/500?random=3",
+      business: "https://picsum.photos/600/500?random=4",
+      creek: "https://picsum.photos/600/500?random=5",
+      jvc: "https://picsum.photos/600/500?random=6",
+      jumeirah: "https://picsum.photos/600/500?random=7",
+      emaar: "https://picsum.photos/600/500?random=8",
+      beachfront: "https://picsum.photos/600/500?random=9",
     };
 
     // Check each location keyword
@@ -176,8 +176,8 @@ function ReportContent() {
       }
     }
 
-    // Fallback: Default Dubai skyline
-    return "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop";
+    // Fallback: Default premium image
+    return "https://picsum.photos/600/500?random=10";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
