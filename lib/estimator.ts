@@ -539,6 +539,14 @@ export interface Operator {
   website?: string;             // Company website URL
   phone?: string;               // Company phone number
   email?: string;               // Company email
+  // Enhanced operator intelligence fields
+  tier?: string;                // Tier classification from CSV
+  portfolioValue?: string;      // Estimated portfolio value (AED)
+  yearsInBusiness?: string;     // Years operating
+  optimalBedroomTypes?: string[];  // Optimal property types
+  payoutCycleDay?: string;      // Payout schedule
+  strengthsTags?: string[];     // Array of operator strengths
+  companyProfile?: string;      // Detailed company description
 }
 
 export const OPERATORS: Operator[] = [

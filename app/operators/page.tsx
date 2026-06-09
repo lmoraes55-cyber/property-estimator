@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { runEstimator, rankOperators, fmt, UnitSize, UnitType, OCCStrategy, ViewType, FurnishedStatus, Operator } from "@/lib/estimator";
 import { UPCOMING_OPERATORS, UpcomingOperator } from "@/lib/furnishing";
+import { filterOperatorsByLocation, filterOperatorsByTier } from "@/lib/operators-data";
 import { colors } from "@/lib/colors";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
 
