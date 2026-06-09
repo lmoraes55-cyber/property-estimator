@@ -153,28 +153,19 @@ function ReportContent() {
 
   // Get location-specific hero image (premium Dubai photos)
   const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
-    const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
+    const areaLower = (buildingArea || "").toLowerCase();
 
-    // Premium location-specific images from public/locations folder
-    const locationImages: { [key: string]: string } = {
-      marina: "/locations/Marina.png",
-      downtown: "/locations/Downtown.png",
-      burj: "/locations/Downtown.png",
-      palm: "/locations/Palm.png",
-      jumeirah: "/locations/JBR.png",
-      jbr: "/locations/JBR.png",
-      business: "/locations/Downtown.png",
-      creek: "/locations/Downtown.png",
-      emaar: "/locations/Marina.png",
-      beachfront: "/locations/Marina.png",
-    };
-
-    // Check each location keyword
-    for (const [location, imageUrl] of Object.entries(locationImages)) {
-      if (searchText.includes(location)) {
-        return imageUrl;
-      }
-    }
+    // Direct area-based mapping with exact area names from database
+    if (areaLower.includes("marina")) return "/locations/Marina.png";
+    if (areaLower.includes("downtown")) return "/locations/Downtown.png";
+    if (areaLower.includes("burj")) return "/locations/Downtown.png";
+    if (areaLower.includes("palm")) return "/locations/Palm.png";
+    if (areaLower.includes("jbr") || areaLower.includes("jumeirah beach")) return "/locations/JBR.png";
+    if (areaLower.includes("jumeirah") && !areaLower.includes("village")) return "/locations/JBR.png";
+    if (areaLower.includes("business")) return "/locations/Downtown.png";
+    if (areaLower.includes("creek")) return "/locations/Downtown.png";
+    if (areaLower.includes("emaar")) return "/locations/Marina.png";
+    if (areaLower.includes("beach")) return "/locations/Marina.png";
 
     // Fallback: Marina image as default
     return "/locations/Marina.png";
