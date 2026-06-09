@@ -281,9 +281,9 @@ export default function HomePage() {
               objectFit: "cover",
               objectPosition: "center",
               display: "block",
-              // Narrow left-edge fade only (~130px). Image fully visible after.
-              maskImage: "linear-gradient(to right, transparent 0px, rgba(0,0,0,1) 130px, rgba(0,0,0,1) 100%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0px, rgba(0,0,0,1) 130px, rgba(0,0,0,1) 100%)",
+              // Wider, softer left-edge fade for a more blended, faded look.
+              maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%)",
             }}
           />
         </div>
