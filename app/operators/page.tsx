@@ -1197,40 +1197,41 @@ function OperatorsContent() {
           </div>
 
           {/* Carousel Container */}
-          <div className="relative">
-            {/* Cards Container */}
-            <div className="overflow-hidden">
+          <div className="relative px-16">
+            {/* Cards Container - Show 3 cards with peek effect */}
+            <div style={{ overflow: "hidden", borderRadius: "12px" }}>
               <div className="flex gap-6 transition-transform duration-500 ease-out"
                 style={{
-                  transform: `translateX(calc(-${recommendedIndex * (100 / 1.5)}% - ${recommendedIndex * 24}px))`,
-                  width: `${(ranked.length / 1.5) * 100}%`
+                  transform: `translateX(-${recommendedIndex * 380}px)`,
                 }}>
                 {ranked.map((op, i) => (
-                  <div key={op.id} className="flex-shrink-0" style={{ width: "calc(33.333% - 16px)", minWidth: "340px" }}>
+                  <div key={op.id} className="flex-shrink-0" style={{ width: "356px" }}>
                     <GridOperatorCard op={op} rank={i + 1} />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Navigation Buttons */}
+            {/* Left Navigation Button */}
             <button
               onClick={() => setRecommendedIndex(Math.max(0, recommendedIndex - 1))}
               disabled={recommendedIndex === 0}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: colors.primary, color: "#FFFFFF" }}>
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+              style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
               ←
             </button>
+
+            {/* Right Navigation Button */}
             <button
               onClick={() => setRecommendedIndex(Math.min(ranked.length - 3, recommendedIndex + 1))}
               disabled={recommendedIndex >= ranked.length - 3}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: colors.primary, color: "#FFFFFF" }}>
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+              style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
               →
             </button>
 
             {/* Indicators */}
-            <div className="flex items-center justify-center gap-2 mt-6">
+            <div className="flex items-center justify-center gap-2 mt-8">
               {Array.from({ length: Math.max(0, ranked.length - 2) }).map((_, idx) => (
                 <button
                   key={idx}
@@ -1254,40 +1255,41 @@ function OperatorsContent() {
             </div>
 
             {/* Carousel Container */}
-            <div className="relative">
-              {/* Cards Container */}
-              <div className="overflow-hidden">
+            <div className="relative px-16">
+              {/* Cards Container - Show 3 cards with peek effect */}
+              <div style={{ overflow: "hidden", borderRadius: "12px" }}>
                 <div className="flex gap-6 transition-transform duration-500 ease-out"
                   style={{
-                    transform: `translateX(calc(-${upcomingIndex * (100 / 1.5)}% - ${upcomingIndex * 24}px))`,
-                    width: `${(UPCOMING_OPERATORS.length / 1.5) * 100}%`
+                    transform: `translateX(-${upcomingIndex * 380}px)`,
                   }}>
                   {UPCOMING_OPERATORS.map((op, i) => (
-                    <div key={op.id} className="flex-shrink-0" style={{ width: "calc(33.333% - 16px)", minWidth: "340px" }}>
+                    <div key={op.id} className="flex-shrink-0" style={{ width: "356px" }}>
                       <UpcomingOperatorCard op={op} rank={i + 1} />
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Navigation Buttons */}
+              {/* Left Navigation Button */}
               <button
                 onClick={() => setUpcomingIndex(Math.max(0, upcomingIndex - 1))}
                 disabled={upcomingIndex === 0}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: colors.secondary, color: "#FFFFFF" }}>
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+                style={{ background: colors.secondary, color: "#FFFFFF", fontSize: "20px" }}>
                 ←
               </button>
+
+              {/* Right Navigation Button */}
               <button
                 onClick={() => setUpcomingIndex(Math.min(UPCOMING_OPERATORS.length - 3, upcomingIndex + 1))}
                 disabled={upcomingIndex >= UPCOMING_OPERATORS.length - 3}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: colors.secondary, color: "#FFFFFF" }}>
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+                style={{ background: colors.secondary, color: "#FFFFFF", fontSize: "20px" }}>
                 →
               </button>
 
               {/* Indicators */}
-              <div className="flex items-center justify-center gap-2 mt-6">
+              <div className="flex items-center justify-center gap-2 mt-8">
                 {Array.from({ length: Math.max(0, UPCOMING_OPERATORS.length - 2) }).map((_, idx) => (
                   <button
                     key={idx}
