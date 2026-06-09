@@ -1174,80 +1174,47 @@ function OperatorsContent() {
             <span>Operator Suggestions</span>
           </div>
 
-          {/* Compact Property Summary Card - Premium Enhanced */}
-          <div className="rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-lg" style={{
+          {/* Compact Property Summary Card - Premium Executive */}
+          <div className="rounded-xl group transition-all duration-300" style={{
             background: "linear-gradient(135deg, #FAF7F2 0%, #FFFFFF 100%)",
             border: "1px solid " + colors.border,
-            boxShadow: colors.shadowSm,
-            position: "relative"
+            boxShadow: colors.shadowSm
           }}>
-            {/* Top Gradient Accent Line */}
-            <div style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "3px",
-              background: "linear-gradient(90deg, #1B5E4A 0%, #4D7A4E 50%, #B88A44 100%)"
-            }}></div>
-
-            {/* Content with padding adjustment for accent line */}
-            <div className="p-4" style={{ paddingTop: "12px" }}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Property Identity - Compact */}
-                <div className="relative" style={{ paddingRight: "16px", borderRight: "1px solid " + colors.border + "40" }}>
-                  <div style={{ fontSize: "16px", marginBottom: "6px", opacity: 0.7 }}>🏢</div>
-                  <p className="text-xs font-medium mb-1" style={{ color: colors.textMuted, letterSpacing: "0.05em", fontWeight: 500 }}>PROPERTY</p>
-                  <p className="text-base font-bold mb-2" style={{ color: colors.textMain }}>{result.buildingName}</p>
-
-                  {/* Property Badges */}
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: colors.primary + "15", color: colors.primary, border: `1px solid ${colors.primary}30` }}>
-                      {input.unitSize}
-                    </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: colors.secondary + "15", color: colors.secondary, border: `1px solid ${colors.secondary}30` }}>
-                      F{input.floor}
-                    </span>
-                  </div>
+            {/* Clean Content with Premium Typography */}
+            <div className="p-5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6" style={{ columnGap: "24px" }}>
+                {/* Property Identity - Clean */}
+                <div style={{ borderRight: "1px solid " + colors.border + "30", paddingRight: "24px" }}>
+                  <p className="text-xs font-semibold" style={{ color: colors.primary, letterSpacing: "0.12em", marginBottom: "6px" }}>PROPERTY</p>
+                  <p className="text-base font-bold mb-3" style={{ color: colors.textMain }}>{result.buildingName}</p>
+                  <p className="text-xs" style={{ color: colors.textMuted, lineHeight: "1.5" }}>
+                    {input.unitSize} • Floor {input.floor}
+                  </p>
                 </div>
 
-                {/* Revenue - Compact */}
-                <div className="relative" style={{ paddingRight: "16px", borderRight: "1px solid " + colors.border + "40" }}>
-                  <div style={{ fontSize: "16px", marginBottom: "6px", opacity: 0.7 }}>📈</div>
-                  <p className="text-xs font-medium mb-1" style={{ color: colors.textMuted, letterSpacing: "0.05em", fontWeight: 500 }}>REVENUE</p>
-                  <p className="text-base font-bold" style={{
-                    background: "linear-gradient(135deg, #1B5E4A 0%, #B88A44 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text"
-                  }}>
+                {/* Revenue - Executive */}
+                <div style={{ borderRight: "1px solid " + colors.border + "30", paddingRight: "24px" }}>
+                  <p className="text-xs font-semibold" style={{ color: colors.primary, letterSpacing: "0.12em", marginBottom: "6px" }}>ANNUAL REVENUE</p>
+                  <p className="text-lg font-bold mb-1" style={{ color: colors.primary }}>
                     AED {fmt(result.annualNetToLandlord * 0.9)}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: colors.textMuted, fontSize: "11px" }}>annual range</p>
+                  <p className="text-xs" style={{ color: colors.textMuted }}>annual range</p>
                 </div>
 
-                {/* Occupancy - Compact */}
-                <div className="relative" style={{ paddingRight: "16px", borderRight: "1px solid " + colors.border + "40" }}>
-                  <div style={{ fontSize: "16px", marginBottom: "6px", opacity: 0.7 }}>📊</div>
-                  <p className="text-xs font-medium mb-1" style={{ color: colors.textMuted, letterSpacing: "0.05em", fontWeight: 500 }}>OCCUPANCY</p>
-                  <p className="text-base font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
-                  <p className="text-xs mt-1" style={{ color: colors.textMuted, fontSize: "11px" }}>estimated</p>
+                {/* Occupancy - Executive */}
+                <div style={{ borderRight: "1px solid " + colors.border + "30", paddingRight: "24px" }}>
+                  <p className="text-xs font-semibold" style={{ color: colors.primary, letterSpacing: "0.12em", marginBottom: "6px" }}>OCCUPANCY RATE</p>
+                  <p className="text-lg font-bold mb-1" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                  <p className="text-xs" style={{ color: colors.textMuted }}>estimated</p>
                 </div>
 
-                {/* Net to Owner - Compact - EMPHASIZED */}
+                {/* Net to Owner - Premium Emphasis */}
                 <div>
-                  <div style={{ fontSize: "16px", marginBottom: "6px", opacity: 0.7 }}>💰</div>
-                  <p className="text-xs font-medium mb-1" style={{ color: colors.textMuted, letterSpacing: "0.05em", fontWeight: 600 }}>NET TO OWNER</p>
-                  <p className="font-bold" style={{
-                    fontSize: "18px",
-                    background: "linear-gradient(135deg, #1B5E4A 0%, #B88A44 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text"
-                  }}>
+                  <p className="text-xs font-semibold" style={{ color: colors.primary, letterSpacing: "0.12em", marginBottom: "6px" }}>NET TO OWNER</p>
+                  <p className="text-xl font-bold mb-1" style={{ color: colors.secondary }}>
                     AED {fmt(result.annualNetToLandlord * 0.85)}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: colors.textMuted, fontSize: "11px" }}>annual net</p>
+                  <p className="text-xs" style={{ color: colors.textMuted }}>annual net</p>
                 </div>
               </div>
             </div>
