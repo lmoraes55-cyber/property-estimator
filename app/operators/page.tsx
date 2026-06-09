@@ -1191,26 +1191,33 @@ function OperatorsContent() {
 
         {/* TOP 5 RECOMMENDED - LAYERED CARD STACK */}
         <div>
-          {/* Gradient Heading */}
-          <h2 className="text-3xl font-bold mb-8" style={{
-            background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text"
-          }}>Top Recommended Operators</h2>
+          {/* Premium Gradient Heading */}
+          <div className="mb-8">
+            <h2 className="text-5xl font-bold mb-2" style={{
+              background: "linear-gradient(135deg, #1B5E4A 0%, #4D7A4E 33%, #8A8442 66%, #B88A44 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              letterSpacing: "-0.5px"
+            }}>Top Recommended Operators</h2>
+            <p className="text-sm" style={{ color: colors.textMuted }}>Curated selection ranked by market performance and guest satisfaction</p>
+          </div>
 
-          {/* Card Stack Layout */}
-          <div className="relative h-96 flex items-center justify-center mb-8">
+          {/* Premium Card Stack Layout */}
+          <div className="relative h-96 flex items-center justify-center mb-12" style={{ perspective: "1200px" }}>
+            {/* BACK LAYER - Cards #5, #4, #3 (Partially Visible, Smaller, Faded) */}
+
             {/* Back Layer - Card #5 (Left) */}
             <div className="absolute" style={{
-              left: "5%",
-              top: "20%",
+              left: "8%",
+              top: "25%",
               zIndex: 1,
-              transform: `translateX(${recommendedIndex * -150}px)`,
-              transition: "transform 500ms ease-out"
+              transform: `translateX(${recommendedIndex * -150}px) scale(0.85)`,
+              transition: "transform 500ms ease-out",
+              transformOrigin: "center center"
             }}>
               {ranked[4] && (
-                <div style={{ width: "340px", opacity: 0.6 }}>
+                <div style={{ width: "340px", opacity: 0.5 }}>
                   <GridOperatorCard op={ranked[4]} rank={5} />
                 </div>
               )}
@@ -1219,13 +1226,14 @@ function OperatorsContent() {
             {/* Back Layer - Card #4 (Center) */}
             <div className="absolute" style={{
               left: "50%",
-              top: "35%",
+              top: "40%",
               zIndex: 2,
-              transform: `translateX(calc(-50% + ${recommendedIndex * 100}px))`,
-              transition: "transform 500ms ease-out"
+              transform: `translateX(calc(-50% + ${recommendedIndex * 100}px)) scale(0.90)`,
+              transition: "transform 500ms ease-out",
+              transformOrigin: "center center"
             }}>
               {ranked[3] && (
-                <div style={{ width: "340px" }}>
+                <div style={{ width: "340px", opacity: 0.65 }}>
                   <GridOperatorCard op={ranked[3]} rank={4} />
                 </div>
               )}
@@ -1233,44 +1241,49 @@ function OperatorsContent() {
 
             {/* Back Layer - Card #3 (Right) */}
             <div className="absolute" style={{
-              right: "5%",
-              top: "20%",
+              right: "8%",
+              top: "25%",
               zIndex: 1,
-              transform: `translateX(${recommendedIndex * 150}px)`,
-              transition: "transform 500ms ease-out"
+              transform: `translateX(${recommendedIndex * 150}px) scale(0.85)`,
+              transition: "transform 500ms ease-out",
+              transformOrigin: "center center"
             }}>
               {ranked[2] && (
-                <div style={{ width: "340px", opacity: 0.6 }}>
+                <div style={{ width: "340px", opacity: 0.5 }}>
                   <GridOperatorCard op={ranked[2]} rank={3} />
                 </div>
               )}
             </div>
 
-            {/* Front Layer - Card #1 (Left) */}
+            {/* FRONT LAYER - Cards #1, #2 (Fully Visible, Elevated) */}
+
+            {/* Front Layer - Card #1 (Left, Elevated) */}
             <div className="absolute" style={{
-              left: "25%",
-              top: "-10%",
+              left: "20%",
+              top: "-5%",
               zIndex: 3,
-              transform: `translateX(${recommendedIndex * -80}px)`,
-              transition: "transform 500ms ease-out"
+              transform: `translateX(${recommendedIndex * -80}px) translateZ(20px)`,
+              transition: "transform 500ms ease-out",
+              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))"
             }}>
               {ranked[0] && (
-                <div style={{ width: "340px" }}>
+                <div style={{ width: "340px", opacity: 1.0 }}>
                   <GridOperatorCard op={ranked[0]} rank={1} />
                 </div>
               )}
             </div>
 
-            {/* Front Layer - Card #2 (Right) */}
+            {/* Front Layer - Card #2 (Right, Elevated) */}
             <div className="absolute" style={{
-              right: "25%",
-              top: "-10%",
+              right: "20%",
+              top: "-5%",
               zIndex: 3,
-              transform: `translateX(${recommendedIndex * 80}px)`,
-              transition: "transform 500ms ease-out"
+              transform: `translateX(${recommendedIndex * 80}px) translateZ(20px)`,
+              transition: "transform 500ms ease-out",
+              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))"
             }}>
               {ranked[1] && (
-                <div style={{ width: "340px" }}>
+                <div style={{ width: "340px", opacity: 1.0 }}>
                   <GridOperatorCard op={ranked[1]} rank={2} />
                 </div>
               )}
@@ -1310,22 +1323,30 @@ function OperatorsContent() {
           </div>
         </div>
 
-        {/* NEW & EMERGING OPERATORS - SIMPLE 3-COLUMN GRID */}
+        {/* NEW & EMERGING OPERATORS - PREMIUM 3-COLUMN GRID */}
         {UPCOMING_OPERATORS.length > 0 && (
-          <div className="mt-16 pt-12" style={{ borderTop: "1px solid " + colors.border }}>
-            {/* Gradient Heading */}
-            <h2 className="text-3xl font-bold mb-8" style={{
-              background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text"
-            }}>New & Emerging Operators</h2>
+          <div className="mt-20 pt-16" style={{ borderTop: "1px solid " + colors.border }}>
+            {/* Premium Gradient Heading - Same as Top Recommended */}
+            <div className="mb-12">
+              <h2 className="text-5xl font-bold mb-2" style={{
+                background: "linear-gradient(135deg, #1B5E4A 0%, #4D7A4E 33%, #8A8442 66%, #B88A44 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-0.5px"
+              }}>New & Emerging Operators</h2>
+              <p className="text-sm" style={{ color: colors.textMuted }}>Growing market presence with innovative approaches and specialized expertise</p>
+            </div>
 
-            {/* Simple 3-Column Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {UPCOMING_OPERATORS.slice(0, 3).map((op, i) => (
-                <UpcomingOperatorCard key={op.id} op={op} />
-              ))}
+            {/* Premium 3-Column Grid - Centered, Equal Importance */}
+            <div className="flex justify-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl">
+                {UPCOMING_OPERATORS.slice(0, 3).map((op, i) => (
+                  <div key={op.id} style={{ perspective: "1000px" }}>
+                    <UpcomingOperatorCard op={op} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
