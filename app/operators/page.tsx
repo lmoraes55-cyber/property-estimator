@@ -309,7 +309,7 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       )}
 
-      {/* Company Header */}
+      {/* Company Header - Streamlined */}
       <div className="p-6 pb-4" style={{ borderBottom: "1px solid " + colors.border }}>
         {/* Logo */}
         <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center"
@@ -323,46 +323,22 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
           {op.name.split(" ").map(w => w[0]).join("").substring(0, 2)}
         </div>
 
-        {/* Name & Rating */}
-        <h3 className="text-lg font-bold mb-1" style={{ color: colors.textMain }}>{op.name}</h3>
-        <div className="flex items-center gap-1 mb-2">
-          <Stars rating={op.googleRating} />
-          <span className="text-xs font-medium" style={{ color: colors.textMuted }}>
-            {op.googleRating} ({op.googleReviewCount} reviews)
-          </span>
+        {/* Name with inline Rating */}
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="text-lg font-bold" style={{ color: colors.textMain }}>{op.name}</h3>
+          <div className="flex items-center gap-1">
+            <Stars rating={op.googleRating} />
+            <span className="text-sm font-bold" style={{ color: colors.primary }}>{op.googleRating}</span>
+          </div>
         </div>
 
         {/* Tagline */}
-        <p className="text-xs" style={{ color: colors.textMuted }}>{op.tagline}</p>
+        <p className="text-xs mb-2" style={{ color: colors.textMuted }}>{op.tagline}</p>
 
-        {/* Show more toggle */}
-        <button className="text-xs mt-2 font-medium" style={{ color: colors.primary }}>
-          Show more ▼
-        </button>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="px-6 py-4" style={{ background: colors.bgMain }}>
-        <div className="grid grid-cols-4 gap-3">
-          <div className="text-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Revenue</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>
-              AED {(op.portfolio * 150) / 1000}k
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Occupancy</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>75%</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Rating</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.googleRating}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Experience</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.yearsInBusiness || "5"} yrs</p>
-          </div>
-        </div>
+        {/* Review Count */}
+        <p className="text-xs" style={{ color: colors.textMuted }}>
+          {op.googleReviewCount} reviews
+        </p>
       </div>
 
       {/* Expertise Icons/Tags */}
