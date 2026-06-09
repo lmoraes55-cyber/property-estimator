@@ -12,6 +12,9 @@ export interface UpcomingOperator {
   googleReviewCount: number;
   pros: string[];
   description: string;
+  website?: string;
+  email?: string;
+  phone?: string;
 }
 
 export interface FurnishingCompany {
@@ -52,6 +55,9 @@ export const UPCOMING_OPERATORS: UpcomingOperator[] = [
       "Strong positioning for Emaar's mega-projects",
     ],
     description: "New operator specializing exclusively in Emaar properties. Strong growth trajectory with focus on ultra-premium guest experience.",
+    website: "emaarshortstay.ae",
+    email: "info@emaarshortstay.ae",
+    phone: "+971 4 XXX XXXX",
   },
   {
     id: "villa-masters",
@@ -69,6 +75,9 @@ export const UPCOMING_OPERATORS: UpcomingOperator[] = [
       "Fast-growing in villa-heavy communities",
     ],
     description: "Emerging villa-focused operator gaining traction in premium communities. Ideal if you own a villa.",
+    website: "villamasters.ae",
+    email: "contact@villamasters.ae",
+    phone: "+971 4 XXX XXXX",
   },
   {
     id: "emerging-homes",
@@ -86,6 +95,9 @@ export const UPCOMING_OPERATORS: UpcomingOperator[] = [
       "Building portfolio quickly with aggressive growth",
     ],
     description: "New startup targeting affordable and emerging communities. Great option if you want competitive commission rates.",
+    website: "emerginghomes.ae",
+    email: "hello@emerginghomes.ae",
+    phone: "+971 4 XXX XXXX",
   },
 ];
 

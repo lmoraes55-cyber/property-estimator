@@ -797,8 +797,17 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 
 function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: number }) {
   return (
-    <div className="rounded-2xl overflow-hidden relative group flex flex-col"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", minHeight: "580px" }}
+    <div className="rounded-2xl overflow-hidden relative group"
+      style={{
+        background: colors.bgSection,
+        border: "1px solid " + colors.border,
+        boxShadow: colors.shadowSm,
+        transition: "all 0.3s ease",
+        height: "620px", // FIXED HEIGHT
+        display: "grid",
+        gridTemplateRows: "110px 80px 80px 1fr 100px 70px", // FIXED VERTICAL ZONES
+        gridTemplateColumns: "1fr"
+      }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
@@ -806,76 +815,107 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
       {rank && (
         <div className="absolute top-4 right-4 z-10">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm"
-            style={{
-              background: colors.secondary,
-              color: "#FFFFFF"
-            }}>
+            style={{ background: colors.secondary, color: "#FFFFFF" }}>
             {rank}
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <div className="p-6 pb-4" style={{ borderBottom: "1px solid " + colors.border }}>
-        <div>
-          <h3 className="text-lg font-bold mb-1" style={{ color: colors.textMain }}>{op.name}</h3>
-          <p className="text-xs mb-2" style={{ color: colors.textMuted }}>{op.specialization}</p>
-          <div className="flex items-center gap-1">
-            <span className="text-xs font-medium" style={{ color: colors.textMuted }}>
-              {op.googleRating} ★ ({op.googleReviewCount} reviews)
-            </span>
-          </div>
+      {/* HEADER - GRID ROW 1 (110px) */}
+      <div style={{ padding: "16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <h3 className="text-lg font-bold mb-1 truncate" style={{ color: colors.textMain }}>{op.name}</h3>
+        <p className="text-xs mb-2 truncate" style={{ color: colors.textMuted }}>{op.specialization}</p>
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-medium" style={{ color: colors.textMuted }}>
+            {op.googleRating} ★ ({op.googleReviewCount} reviews)
+          </span>
         </div>
       </div>
 
-      {/* Description */}
-      <div className="px-6 py-4" style={{ borderBottom: "1px solid " + colors.border }}>
-        <p className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>
+      {/* DESCRIPTION - GRID ROW 2 (80px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <p className="text-xs leading-relaxed" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {op.description}
         </p>
       </div>
 
-      {/* Key Stats Grid */}
-      <div className="px-6 py-4" style={{ background: colors.bgMain, borderBottom: "1px solid " + colors.border }}>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center">
+      {/* METRICS - GRID ROW 3 (80px) */}
+      <div style={{ padding: "12px 16px", background: colors.bgMain, borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <div className="grid grid-cols-3 gap-3 h-full">
+          <div className="text-center flex flex-col justify-center">
             <p className="text-xs" style={{ color: colors.textMuted }}>Founded</p>
             <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.founded}</p>
           </div>
-          <div className="text-center">
+          <div className="text-center flex flex-col justify-center">
             <p className="text-xs" style={{ color: colors.textMuted }}>Portfolio</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.portfolio}+ units</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.portfolio}+</p>
           </div>
-          <div className="text-center">
-            <p className="text-xs" style={{ color: colors.textMuted }}>Coverage</p>
-            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.communities.length} areas</p>
+          <div className="text-center flex flex-col justify-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Areas</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.communities.length}</p>
           </div>
         </div>
       </div>
 
-      {/* Key Strengths */}
-      {op.pros && op.pros.length > 0 && (
-        <div className="px-6 py-4" style={{ borderBottom: "1px solid " + colors.border }}>
-          <p className="text-xs font-semibold mb-2 tracking-wide" style={{ color: colors.textMuted, letterSpacing: "0.05em" }}>KEY STRENGTHS</p>
-          <div className="space-y-1">
-            {op.pros.slice(0, 3).map(p => (
-              <div key={p} className="flex items-center gap-2 text-xs" style={{ color: colors.textMain }}>
-                <span style={{ color: colors.primary, fontSize: "12px", fontWeight: "bold" }}>✓</span>
+      {/* KEY STRENGTHS - GRID ROW 4 (1fr - flexible) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>KEY STRENGTHS</p>
+        <div className="space-y-1">
+          {op.pros?.slice(0, 3).map(p => (
+            <div key={p} className="flex items-start gap-2">
+              <span style={{ color: colors.primary, fontSize: "11px", fontWeight: "bold", flexShrink: 0, marginTop: "1px" }}>✓</span>
+              <p className="text-xs" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                 {p}
-              </div>
-            ))}
-          </div>
+              </p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* CTA - Push to bottom */}
-      <div className="p-6 pt-4 mt-auto">
-        <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:brightness-105"
-          style={{
-            background: colors.secondary,
-            color: "#FFFFFF"
-          }}>
-          Learn More →
+      {/* FOOTER - CONTACT INFO - GRID ROW 5 (100px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+        <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>CONTACT</p>
+        <div className="space-y-1 text-xs">
+          {op.website && (
+            <div className="flex items-center gap-1">
+              <span style={{ fontSize: "10px" }}>🌐</span>
+              <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" className="truncate transition hover:opacity-70" style={{ color: colors.textMain }}>
+                {op.website}
+              </a>
+            </div>
+          )}
+          {op.email && (
+            <div className="flex items-center gap-1">
+              <span style={{ fontSize: "10px" }}>✉️</span>
+              <a href={`mailto:${op.email}`} className="truncate transition hover:opacity-70" style={{ color: colors.textMain }}>
+                {op.email}
+              </a>
+            </div>
+          )}
+          {op.phone && (
+            <div className="flex items-center gap-1">
+              <span style={{ fontSize: "10px" }}>📱</span>
+              <a href={`tel:${op.phone}`} className="truncate transition hover:opacity-70" style={{ color: colors.textMain }}>
+                {op.phone}
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ACTION BUTTONS - GRID ROW 6 (70px) */}
+      <div style={{ padding: "12px 16px", display: "flex", gap: "8px", alignItems: "center" }}>
+        {op.website && (
+          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
+            className="flex-1 py-2 rounded-lg font-bold text-xs transition text-center hover:brightness-105"
+            style={{ background: "transparent", color: colors.primary, border: "1px solid " + colors.primary }}>
+            Visit Website
+          </a>
+        )}
+        <button
+          className={`font-bold text-xs transition hover:brightness-105 py-2 rounded-lg text-center ${!op.website ? 'w-full' : 'flex-1'}`}
+          style={{ background: colors.secondary, color: "#FFFFFF" }}>
+          Contact Operator
         </button>
       </div>
     </div>
