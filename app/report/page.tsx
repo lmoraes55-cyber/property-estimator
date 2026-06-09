@@ -152,47 +152,35 @@ function ReportContent() {
   const strBetter = result.strVsLtrDelta > 0;
 
   // Get location-specific Dubai skyline image
-  const getLocationImage = (buildingName: string, area: string): string => {
-    const normalizedArea = area.toLowerCase();
-    const normalizedBuilding = buildingName.toLowerCase();
+  const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
+    const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
 
-    // Premium location-specific images from Unsplash
-    const imageMap: { [key: string]: string } = {
-      // Dubai Marina - Marina skyline at sunset/night
-      "dubai marina": "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop",
-
-      // Downtown Dubai - Burj Khalifa / Downtown skyline
-      "downtown dubai": "https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=600&h=500&fit=crop",
-
-      // Palm Jumeirah - Palm aerial view
-      "palm jumeirah": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=500&fit=crop",
-
-      // Business Bay - Canal and skyline
-      "business bay": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
-
-      // JVC / JVT - Dubai panoramic
-      "jumeirah village circle": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
-      "jvc": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
-
-      // Emaar Beachfront - Beachfront luxury
-      "emaar beachfront": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=500&fit=crop",
-
-      // Creek Harbour - Creek and modern
-      "dubai creek harbour": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=500&fit=crop",
+    // Premium location-specific images - using high-quality Dubai skyline photos
+    const locationImages = {
+      marina: "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop",
+      downtown: "https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=600&h=500&fit=crop",
+      burj: "https://images.unsplash.com/photo-1518684029980-cf91b2c3169f?w=600&h=500&fit=crop",
+      palm: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=500&fit=crop",
+      business: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
+      creek: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=500&fit=crop",
+      jvc: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
+      jumeirah: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=500&fit=crop",
+      emaar: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=500&fit=crop",
+      beachfront: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=500&fit=crop",
     };
 
-    // Check for exact area match
-    for (const [key, image] of Object.entries(imageMap)) {
-      if (normalizedArea.includes(key) || normalizedBuilding.includes(key)) {
-        return image;
+    // Check each location keyword
+    for (const [location, imageUrl] of Object.entries(locationImages)) {
+      if (searchText.includes(location)) {
+        return imageUrl;
       }
     }
 
-    // Default premium Dubai skyline
+    // Fallback: Default premium Dubai Marina skyline
     return "https://images.unsplash.com/photo-1512453391388-44a81a95d1dd?w=600&h=500&fit=crop";
   };
 
-  const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area || "");
+  const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
 
   return (
     <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
@@ -361,9 +349,11 @@ function ReportContent() {
                 {/* Location-Specific Dubai Skyline Image */}
                 <div className="absolute inset-0 w-full h-full"
                   style={{
-                    backgroundImage: `url('${heroImage}')`,
+                    backgroundImage: `url("${heroImage}")`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundColor: colors.primary,
                     transition: "transform 0.6s ease",
                     filter: "brightness(1.05) contrast(1.1)"
                   }} />
