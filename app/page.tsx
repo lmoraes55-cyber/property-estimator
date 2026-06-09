@@ -153,52 +153,31 @@ export default function HomePage() {
       </header>
 
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      {/* HERO SECTION */}
+      {/* HERO SECTION - SIMPLIFIED STRUCTURE */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
       <section
         id="home"
         style={{
           position: "relative",
-          overflow: "hidden",
-          minHeight: "800px",
-          display: "flex",
-          alignItems: "center",
+          minHeight: "760px",
           background: colors.bgMain,
+          overflow: "hidden",
         }}
       >
-        {/* Marina skyline image - RIGHT 45% with left-edge mask for premium panel effect */}
+        {/* Left content container */}
         <div
           style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "45%",
-            height: "100%",
-            backgroundImage: "url('/locations/Marina.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            zIndex: 1,
-            // Minimal left-edge mask - only soft blend, 90%+ of image fully visible
-            maskImage: "linear-gradient(to right, transparent 0%, transparent 2%, rgba(0,0,0,0.7) 7%, rgba(0,0,0,1) 11%, rgba(0,0,0,1) 100%)",
-            WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 2%, rgba(0,0,0,0.7) 7%, rgba(0,0,0,1) 11%, rgba(0,0,0,1) 100%)",
-          }}
-        />
-
-        {/* Content container - LEFT SIDE ONLY */}
-        <div
-          style={{
-            maxWidth: "1400px",
-            margin: "0 auto",
+            position: "relative",
+            width: "50%",
+            maxWidth: "680px",
+            zIndex: 3,
             padding: "100px 40px",
-            width: "100%",
             display: "flex",
             alignItems: "center",
-            position: "relative",
-            zIndex: 3,
+            height: "100%",
           }}
         >
-          <div style={{ maxWidth: "520px", width: "100%" }}>
+          <div style={{ width: "100%" }}>
             {/* Main headline with gradient */}
             <h1
               style={{
@@ -282,12 +261,50 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Floating Rental Forecast Card - positioned on skyline */}
+        {/* Right image container - actual img element */}
         <div
           style={{
             position: "absolute",
-            right: "50px",
-            top: "100px",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: "58vw",
+            zIndex: 1,
+          }}
+        >
+          <img
+            src="/locations/Marina.png"
+            alt="Dubai Marina Skyline"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              display: "block",
+            }}
+          />
+        </div>
+
+        {/* Fade overlay - narrow, only 180px wide */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: "180px",
+            background: `linear-gradient(to right, ${colors.bgMain} 0%, rgba(250, 250, 248, 0.85) 25%, rgba(250, 250, 248, 0.25) 65%, transparent 100%)`,
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        />
+
+        {/* Floating Rental Forecast Card */}
+        <div
+          style={{
+            position: "absolute",
+            right: "6vw",
+            top: "120px",
             width: "420px",
             background: colors.bgSection,
             borderRadius: "16px",
