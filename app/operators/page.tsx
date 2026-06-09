@@ -844,75 +844,104 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
   );
 }
 
-function UpcomingOperatorCard({ op }: { op: UpcomingOperator }) {
+function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: number }) {
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
+    <div className="rounded-2xl overflow-hidden relative group"
+      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease" }}
+      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
+
+      {/* Ranking Badge (for carousel) */}
+      {rank && (
+        <div className="absolute top-4 right-4 z-10">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm"
+            style={{
+              background: colors.secondary,
+              color: "#FFFFFF"
+            }}>
+            {rank}
+          </div>
+        </div>
+      )}
+
+      {/* Badge - New & Emerging */}
+      <div style={{
+        position: "absolute",
+        top: rank ? "52px" : "16px",
+        right: "16px",
+        background: colors.secondary + "22",
+        color: colors.secondary,
+        padding: "4px 10px",
+        borderRadius: "12px",
+        fontSize: "10px",
+        fontWeight: "600",
+        zIndex: 9,
+        letterSpacing: "0.05em"
+      }}>
+        NEW & EMERGING
+      </div>
 
       {/* Header */}
-      <div className="p-6" style={{ borderBottom: "1px solid " + colors.primary }}>
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <span className="inline-block text-xs px-2.5 py-1 rounded-full font-semibold mb-2"
-              style={{ background: colors.bgMain, color: colors.primary, border: "1px solid " + colors.primary }}>
-              New & Emerging
+      <div className="p-6 pb-4" style={{ borderBottom: "1px solid " + colors.border }}>
+        <div>
+          <h3 className="text-lg font-bold mb-1" style={{ color: colors.textMain }}>{op.name}</h3>
+          <p className="text-xs mb-2" style={{ color: colors.textMuted }}>{op.specialization}</p>
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-medium" style={{ color: colors.textMuted }}>
+              {op.googleRating} ★ ({op.googleReviewCount} reviews)
             </span>
-            <h3 className="text-lg font-bold" style={{ color: colors.textMain }}>{op.name}</h3>
-            <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>{op.specialization}</p>
-          </div>
-          <div className="text-right flex-shrink-0 ml-4">
-            <div className="text-2xl font-bold" style={{ color: colors.primary }}>{op.googleRating}</div>
-            <Stars rating={op.googleRating} />
-            <p className="text-xs mt-0.5" style={{ color: colors.textLight }}>{op.googleReviewCount} Google reviews</p>
           </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-5">
+      {/* Description */}
+      <div className="px-6 py-4" style={{ borderBottom: "1px solid " + colors.border }}>
+        <p className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>
+          {op.description}
+        </p>
+      </div>
 
-        {/* Description */}
-        <div>
-          <p className="text-sm" style={{ color: colors.textMuted }}>
-            {op.description}
-          </p>
-        </div>
-
-        {/* Key stats */}
+      {/* Key Stats Grid */}
+      <div className="px-6 py-4" style={{ background: colors.bgMain, borderBottom: "1px solid " + colors.border }}>
         <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: "Founded", value: op.founded },
-            { label: "Portfolio", value: `${op.portfolio}+ units` },
-            { label: "Coverage", value: op.communities.length + " areas" },
-          ].map(s => (
-            <div key={s.label} className="rounded-xl p-3 text-center"
-              style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
-              <p className="text-xs mb-1" style={{ color: colors.textMuted }}>{s.label}</p>
-              <p className="text-sm font-bold" style={{ color: colors.textMain }}>{s.value}</p>
-            </div>
-          ))}
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Founded</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.founded}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Portfolio</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.portfolio}+ units</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs" style={{ color: colors.textMuted }}>Coverage</p>
+            <p className="text-sm font-bold mt-1" style={{ color: colors.primary }}>{op.communities.length} areas</p>
+          </div>
         </div>
+      </div>
 
-        {/* Key Strengths */}
-        <div>
-          <p className="text-xs font-semibold tracking-wider uppercase mb-3" style={{ color: colors.textLight }}>Key Strengths</p>
-          <ul className="space-y-1.5">
-            {op.pros.map(p => (
-              <li key={p} className="flex items-start gap-2 text-xs" style={{ color: colors.textLight }}>
-                <span style={{ color: colors.success, marginTop: "1px", flexShrink: 0 }}>+</span>{p}
-              </li>
+      {/* Key Strengths */}
+      {op.pros && op.pros.length > 0 && (
+        <div className="px-6 py-4" style={{ borderBottom: "1px solid " + colors.border }}>
+          <p className="text-xs font-semibold mb-2 tracking-wide" style={{ color: colors.textMuted, letterSpacing: "0.05em" }}>KEY STRENGTHS</p>
+          <div className="space-y-1">
+            {op.pros.slice(0, 3).map(p => (
+              <div key={p} className="flex items-center gap-2 text-xs" style={{ color: colors.textMain }}>
+                <span style={{ color: colors.primary, fontSize: "12px", fontWeight: "bold" }}>✓</span>
+                {p}
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
+      )}
 
-        {/* CTA */}
-        <button className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
+      {/* CTA */}
+      <div className="p-6 pt-4">
+        <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:brightness-105"
           style={{
-            background: "transparent",
-            color: colors.primary,
-            border: "1px solid " + colors.primary,
-            transitionDuration: "250ms"
+            background: colors.secondary,
+            color: "#FFFFFF"
           }}>
-          Learn More About {op.name} →
+          Learn More →
         </button>
       </div>
     </div>
@@ -1035,6 +1064,10 @@ function OperatorsContent() {
     }
   };
 
+  // Carousel state
+  const [recommendedIndex, setRecommendedIndex] = useState(0);
+  const [upcomingIndex, setUpcomingIndex] = useState(0);
+
   return (
     <div className="min-h-screen" style={{ background: `linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
 
@@ -1130,12 +1163,119 @@ function OperatorsContent() {
           </select>
         </div>
 
-        {/* OPERATORS GRID - 3 COLUMNS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ranked.map((op, i) => (
-            <GridOperatorCard key={op.id} op={op} rank={i + 1} />
-          ))}
+        {/* TOP 5 RECOMMENDED - CAROUSEL */}
+        <div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>Top 5 Recommended Operators</h2>
+            <p className="text-sm" style={{ color: colors.textMuted }}>Swipe left and right to explore all options</p>
+          </div>
+
+          {/* Carousel Container */}
+          <div className="relative">
+            {/* Cards Container */}
+            <div className="overflow-hidden">
+              <div className="flex gap-6 transition-transform duration-500 ease-out"
+                style={{
+                  transform: `translateX(calc(-${recommendedIndex * (100 / 1.5)}% - ${recommendedIndex * 24}px))`,
+                  width: `${(ranked.length / 1.5) * 100}%`
+                }}>
+                {ranked.map((op, i) => (
+                  <div key={op.id} className="flex-shrink-0" style={{ width: "calc(33.333% - 16px)", minWidth: "340px" }}>
+                    <GridOperatorCard op={op} rank={i + 1} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Navigation Buttons */}
+            <button
+              onClick={() => setRecommendedIndex(Math.max(0, recommendedIndex - 1))}
+              disabled={recommendedIndex === 0}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: colors.primary, color: "#FFFFFF" }}>
+              ←
+            </button>
+            <button
+              onClick={() => setRecommendedIndex(Math.min(ranked.length - 3, recommendedIndex + 1))}
+              disabled={recommendedIndex >= ranked.length - 3}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: colors.primary, color: "#FFFFFF" }}>
+              →
+            </button>
+
+            {/* Indicators */}
+            <div className="flex items-center justify-center gap-2 mt-6">
+              {Array.from({ length: Math.max(0, ranked.length - 2) }).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setRecommendedIndex(idx)}
+                  className="h-2 rounded-full transition-all"
+                  style={{
+                    width: recommendedIndex === idx ? "24px" : "8px",
+                    background: recommendedIndex === idx ? colors.primary : colors.border
+                  }} />
+              ))}
+            </div>
+          </div>
         </div>
+
+        {/* NEW & UPCOMING OPERATORS - CAROUSEL */}
+        {UPCOMING_OPERATORS.length > 0 && (
+          <div className="mt-16 pt-12" style={{ borderTop: "1px solid " + colors.border }}>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2" style={{ color: colors.textMain }}>New & Upcoming Operators</h2>
+              <p className="text-sm" style={{ color: colors.textMuted }}>Emerging operators entering the market with innovative approaches</p>
+            </div>
+
+            {/* Carousel Container */}
+            <div className="relative">
+              {/* Cards Container */}
+              <div className="overflow-hidden">
+                <div className="flex gap-6 transition-transform duration-500 ease-out"
+                  style={{
+                    transform: `translateX(calc(-${upcomingIndex * (100 / 1.5)}% - ${upcomingIndex * 24}px))`,
+                    width: `${(UPCOMING_OPERATORS.length / 1.5) * 100}%`
+                  }}>
+                  {UPCOMING_OPERATORS.map((op, i) => (
+                    <div key={op.id} className="flex-shrink-0" style={{ width: "calc(33.333% - 16px)", minWidth: "340px" }}>
+                      <UpcomingOperatorCard op={op} rank={i + 1} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Buttons */}
+              <button
+                onClick={() => setUpcomingIndex(Math.max(0, upcomingIndex - 1))}
+                disabled={upcomingIndex === 0}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: colors.secondary, color: "#FFFFFF" }}>
+                ←
+              </button>
+              <button
+                onClick={() => setUpcomingIndex(Math.min(UPCOMING_OPERATORS.length - 3, upcomingIndex + 1))}
+                disabled={upcomingIndex >= UPCOMING_OPERATORS.length - 3}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: colors.secondary, color: "#FFFFFF" }}>
+                →
+              </button>
+
+              {/* Indicators */}
+              <div className="flex items-center justify-center gap-2 mt-6">
+                {Array.from({ length: Math.max(0, UPCOMING_OPERATORS.length - 2) }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setUpcomingIndex(idx)}
+                    className="h-2 rounded-full transition-all"
+                    style={{
+                      width: upcomingIndex === idx ? "24px" : "8px",
+                      background: upcomingIndex === idx ? colors.secondary : colors.border
+                    }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Next Step: Furnishing (if unfurnished) */}
         {input.furnished === "Unfurnished" && (
