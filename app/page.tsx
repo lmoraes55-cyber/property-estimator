@@ -281,23 +281,12 @@ export default function HomePage() {
               objectFit: "cover",
               objectPosition: "center",
               display: "block",
+              // Narrow left-edge fade only (~130px). Image fully visible after.
+              maskImage: "linear-gradient(to right, transparent 0px, rgba(0,0,0,1) 130px, rgba(0,0,0,1) 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0px, rgba(0,0,0,1) 130px, rgba(0,0,0,1) 100%)",
             }}
           />
         </div>
-
-        {/* Fade overlay - narrow, only 180px wide */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: "180px",
-            background: `linear-gradient(to right, ${colors.bgMain} 0%, rgba(250, 250, 248, 0.85) 25%, rgba(250, 250, 248, 0.25) 65%, transparent 100%)`,
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
 
         {/* Floating Rental Forecast Card */}
         <div
