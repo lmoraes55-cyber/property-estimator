@@ -1123,63 +1123,51 @@ function OperatorsContent() {
         </span>
       </div>
 
-      {/* STICKY PROPERTY SUMMARY HEADER */}
-      <div className="sticky top-0 z-40 backdrop-blur-md" style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.border }}>
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      {/* COMPACT SCROLLING PROPERTY SUMMARY */}
+      <div className="sticky top-0 z-40 backdrop-blur-md transition-all duration-300" style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.border, paddingTop: "8px", paddingBottom: "8px" }}>
+        <div className="max-w-7xl mx-auto px-6">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 mb-3 text-xs" style={{ color: colors.textMuted }}>
+          <div className="flex items-center gap-2 mb-2 text-xs" style={{ color: colors.textMuted }}>
             <button onClick={handleBack} className="hover:opacity-70" style={{ color: colors.primary }}>Home</button>
             <span>›</span>
             <span>Operator Suggestions</span>
           </div>
 
-          {/* Premium Property Summary Card - Sticky */}
-          <div className="rounded-2xl p-6" style={{ background: colors.bgSection, border: "1px solid " + colors.primary, boxShadow: colors.shadowSm }}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Property Identity */}
+          {/* Compact Property Summary Card */}
+          <div className="rounded-xl p-3" style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Property Identity - Compact */}
               <div>
-                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>PROPERTY</p>
-                <p className="text-lg font-bold mb-3" style={{ color: colors.textMain }}>{result.buildingName}</p>
-                <div className="space-y-1.5 text-xs" style={{ color: colors.textMuted }}>
-                  <p>{result.buildingInfo?.community ?? "Dubai"}</p>
-                  <p>{input.unitSize} · {input.unitType}</p>
-                  <p>Floor {input.floor}</p>
-                  {input.view && <p>{input.view}</p>}
-                  <p>{input.furnished}</p>
-                </div>
-              </div>
-
-              {/* Revenue Potential */}
-              <div>
-                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>REVENUE POTENTIAL</p>
-                <p className="text-2xl font-bold mb-1" style={{ color: colors.primary }}>
-                  AED {fmt(result.annualNetToLandlord * 0.9)} - {fmt(result.annualNetToLandlord * 1.1)}
-                </p>
-                <p className="text-xs" style={{ color: colors.textMuted }}>
-                  Estimated annual range
+                <p className="text-xs font-semibold mb-1" style={{ color: colors.primary, letterSpacing: "0.05em" }}>PROPERTY</p>
+                <p className="text-sm font-bold" style={{ color: colors.textMain }}>{result.buildingName}</p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>
+                  {input.unitSize} • Floor {input.floor}
                 </p>
               </div>
 
-              {/* Occupancy Potential */}
+              {/* Revenue - Compact */}
               <div>
-                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>OCCUPANCY POTENTIAL</p>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-2xl font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
-                    <p className="text-xs" style={{ color: colors.textMuted }}>Estimated occupancy</p>
-                  </div>
-                </div>
+                <p className="text-xs font-semibold mb-1" style={{ color: colors.primary, letterSpacing: "0.05em" }}>REVENUE</p>
+                <p className="text-sm font-bold" style={{ color: colors.primary }}>
+                  AED {fmt(result.annualNetToLandlord * 0.9)}
+                </p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>annual range</p>
               </div>
 
-              {/* Net to Owner */}
+              {/* Occupancy - Compact */}
               <div>
-                <p className="text-xs font-semibold mb-2 tracking-widest" style={{ color: colors.primary, letterSpacing: "0.1em" }}>NET TO OWNER</p>
-                <p className="text-2xl font-bold mb-1" style={{ color: colors.secondary }}>
-                  AED {fmt(result.annualNetToLandlord * 0.85)} - {fmt(result.annualNetToLandlord * 1.05)}
+                <p className="text-xs font-semibold mb-1" style={{ color: colors.primary, letterSpacing: "0.05em" }}>OCCUPANCY</p>
+                <p className="text-sm font-bold" style={{ color: colors.secondary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>estimated</p>
+              </div>
+
+              {/* Net to Owner - Compact */}
+              <div>
+                <p className="text-xs font-semibold mb-1" style={{ color: colors.primary, letterSpacing: "0.05em" }}>NET TO OWNER</p>
+                <p className="text-sm font-bold" style={{ color: colors.secondary }}>
+                  AED {fmt(result.annualNetToLandlord * 0.85)}
                 </p>
-                <p className="text-xs" style={{ color: colors.textMuted }}>
-                  Annual net range
-                </p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>annual net</p>
               </div>
             </div>
           </div>
@@ -1224,98 +1212,96 @@ function OperatorsContent() {
             <p className="text-sm" style={{ color: colors.textMuted }}>Curated selection ranked by market performance and guest satisfaction</p>
           </div>
 
-          {/* Premium Card Stack Layout - Draggable */}
+          {/* Premium Card Stack Layout - Draggable with Rotating Cards */}
           <div
             className="relative flex items-center justify-center mb-24"
             style={{ perspective: "1200px", height: "500px", cursor: "grab" }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
           >
-            {/* BACK LAYER - Cards #5, #4, #3 (Partially Visible, Smaller, Heavily Faded) */}
+            {/* Map operators to positions based on current index */}
+            {/* This creates a rotating carousel effect where all 5 operators cycle through */}
 
-            {/* Back Layer - Card #5 (Left) */}
+            {/* BACK LAYER - 3 cards rotating in background */}
+            {/* Back Left Position */}
             <div className="absolute" style={{
               left: "8%",
               top: "25%",
               zIndex: 1,
-              transform: `translateX(${recommendedIndex * -150}px) scale(0.85)`,
-              transition: "transform 500ms ease-out",
+              transition: "all 500ms ease-out",
               transformOrigin: "center center",
               pointerEvents: "none"
             }}>
-              {ranked[4] && (
-                <div style={{ width: "340px", opacity: 0.25 }}>
-                  <GridOperatorCard op={ranked[4]} rank={5} />
+              {ranked[(recommendedIndex + 3) % 5] && (
+                <div style={{ width: "340px", opacity: 0.25, transform: "scale(0.85)" }}>
+                  <GridOperatorCard op={ranked[(recommendedIndex + 3) % 5]} rank={(recommendedIndex + 3) % 5 + 1} />
                 </div>
               )}
             </div>
 
-            {/* Back Layer - Card #4 (Center) */}
+            {/* Back Center Position */}
             <div className="absolute" style={{
               left: "50%",
               top: "40%",
               zIndex: 2,
-              transform: `translateX(calc(-50% + ${recommendedIndex * 100}px)) scale(0.90)`,
-              transition: "transform 500ms ease-out",
+              transform: "translateX(-50%)",
+              transition: "all 500ms ease-out",
               transformOrigin: "center center",
               pointerEvents: "none"
             }}>
-              {ranked[3] && (
-                <div style={{ width: "340px", opacity: 0.35 }}>
-                  <GridOperatorCard op={ranked[3]} rank={4} />
+              {ranked[(recommendedIndex + 4) % 5] && (
+                <div style={{ width: "340px", opacity: 0.35, transform: "scale(0.90)" }}>
+                  <GridOperatorCard op={ranked[(recommendedIndex + 4) % 5]} rank={(recommendedIndex + 4) % 5 + 1} />
                 </div>
               )}
             </div>
 
-            {/* Back Layer - Card #3 (Right) */}
+            {/* Back Right Position */}
             <div className="absolute" style={{
               right: "8%",
               top: "25%",
               zIndex: 1,
-              transform: `translateX(${recommendedIndex * 150}px) scale(0.85)`,
-              transition: "transform 500ms ease-out",
+              transition: "all 500ms ease-out",
               transformOrigin: "center center",
               pointerEvents: "none"
             }}>
-              {ranked[2] && (
-                <div style={{ width: "340px", opacity: 0.25 }}>
-                  <GridOperatorCard op={ranked[2]} rank={3} />
+              {ranked[(recommendedIndex + 2) % 5] && (
+                <div style={{ width: "340px", opacity: 0.25, transform: "scale(0.85)" }}>
+                  <GridOperatorCard op={ranked[(recommendedIndex + 2) % 5]} rank={(recommendedIndex + 2) % 5 + 1} />
                 </div>
               )}
             </div>
 
-            {/* FRONT LAYER - Cards #1, #2 (Fully Visible, Elevated) */}
+            {/* FRONT LAYER - 2 prominent elevated cards */}
 
-            {/* Front Layer - Card #1 (Left, Elevated) */}
+            {/* Front Left Position */}
             <div className="absolute" style={{
               left: "20%",
               top: "-5%",
               zIndex: 3,
-              transform: `translateX(${recommendedIndex * -80}px) translateZ(20px)`,
-              transition: "transform 500ms ease-out",
+              transition: "all 500ms ease-out",
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
               pointerEvents: "none"
             }}>
-              {ranked[0] && (
+              {ranked[recommendedIndex] && (
                 <div style={{ width: "340px", opacity: 1.0 }}>
-                  <GridOperatorCard op={ranked[0]} rank={1} />
+                  <GridOperatorCard op={ranked[recommendedIndex]} rank={recommendedIndex + 1} />
                 </div>
               )}
             </div>
 
-            {/* Front Layer - Card #2 (Right, Elevated) */}
+            {/* Front Right Position */}
             <div className="absolute" style={{
               right: "20%",
               top: "-5%",
               zIndex: 3,
-              transform: `translateX(${recommendedIndex * 80}px) translateZ(20px)`,
-              transition: "transform 500ms ease-out",
+              transition: "all 500ms ease-out",
               filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
               pointerEvents: "none"
             }}>
-              {ranked[1] && (
+              {ranked[(recommendedIndex + 1) % 5] && (
                 <div style={{ width: "340px", opacity: 1.0 }}>
-                  <GridOperatorCard op={ranked[1]} rank={2} />
+                  <GridOperatorCard op={ranked[(recommendedIndex + 1) % 5]} rank={(recommendedIndex + 1) % 5 + 1} />
                 </div>
               )}
             </div>
