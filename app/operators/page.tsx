@@ -274,8 +274,8 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
   const isBestMatch = rank === 1;
 
   return (
-    <div className="rounded-2xl overflow-hidden relative group"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", cursor: "pointer" }}
+    <div className="rounded-2xl overflow-hidden relative group flex flex-col"
+      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", cursor: "pointer", minHeight: "520px" }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
@@ -357,8 +357,8 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="px-6 py-4">
+      {/* Action Buttons - Push to bottom */}
+      <div className="px-6 py-4 mt-auto">
         {op.website && (
           <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105"
@@ -756,7 +756,7 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: number }) {
   return (
     <div className="rounded-2xl overflow-hidden relative group flex flex-col"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", minHeight: "500px" }}
+      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", minHeight: "580px" }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
