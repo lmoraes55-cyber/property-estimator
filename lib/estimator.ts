@@ -1,3 +1,10 @@
+import {
+  BUILDINGS_DATABASE,
+  isOutskirtArea,
+  getBuildingByName,
+  type BuildingRecord
+} from "./buildings-data";
+
 export const MONTHS = ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"] as const;
 export type Month = typeof MONTHS[number];
 
@@ -32,6 +39,40 @@ export function floorPremium(floor: number): number {
   if (floor >= 10) return 0.02;
   if (floor >= 5)  return 0.01;
   return 0;
+}
+
+/**
+ * Calculate tier-based premium for building quality/amenities
+ * - Ultra-luxury/Luxury/High tier: 1-2% premium
+ * - Mid tier: 0.5-1% premium
+ * - Low tier: 0% premium
+ */
+export function getTierPremium(buildingName: string): number {
+  const building = getBuildingByName(buildingName);
+  if (!building) return 0;
+
+  const { premiumPercentage } = building;
+  return premiumPercentage / 100; // Convert to decimal
+}
+
+/**
+ * Check if property qualifies for long-term rental suggestion
+ * Criteria:
+ * - Monthly LT rent < 40,000 AED
+ * - Property is in outskirt area (Dubai South, JVT, DAMAC Hills 2)
+ */
+export function isEligibleForLongTermSuggestion(
+  monthlyLongTermRent: number,
+  area: string
+): boolean {
+  return monthlyLongTermRent < 40000 && isOutskirtArea(area);
+}
+
+/**
+ * Get building info from comprehensive database
+ */
+export function getBuildingInfo(buildingName: string): BuildingRecord | undefined {
+  return getBuildingByName(buildingName);
 }
 
 // Areas where STR does not meaningfully outperform LTR
@@ -343,6 +384,7 @@ export interface EstimatorOutput {
   view: ViewType;
   viewPremium: number;
   floorPremiumPct: number;
+  tierPremiumPct: number;        // building tier-based premium
   longTermRent: number;
   ltrSource: string;
   furnished: FurnishedStatus;
@@ -356,6 +398,7 @@ export interface EstimatorOutput {
   strVsLtrDelta: number;         // net STR - LTR
   grossYield?: number;
   netYield?: number;
+  suggestLongTerm: boolean;      // true if LT rent < 40k and in outskirt area
   months: MonthlyRow[];
 }
 
@@ -372,12 +415,13 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
 
   const vPremium = VIEW_PREMIUMS[view] ?? 0;
   const fPremium = floorPremium(floor);
+  const tPremium = getTierPremium(buildingName); // Add tier-based premium
 
   // For LTR-recommended areas, eliminate the base premium and reduce occupancy
   // so STR net revenue matches LTR rent (making the recommendation logical)
   const ltrWarning = getLTRWarning(buildingName);
   const basePremium = ltrWarning ? 0 : premium;
-  const totalPremium = basePremium + vPremium + fPremium;
+  const totalPremium = basePremium + vPremium + fPremium + tPremium;
 
   // Apply occupancy loss for LTR-recommended areas
   const occRatesAdjusted = ltrWarning
@@ -424,6 +468,10 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const avgOccupancy = months.reduce((s, m) => s + m.occupancy, 0) / 12;
   const avgADR = months.reduce((s, m) => s + m.adr, 0) / 12;
 
+  // Get building area from either new database or old directory
+  const buildingArea = getBuildingInfo(buildingName)?.area || buildingInfo?.area || "";
+  const suggestLongTerm = isEligibleForLongTermSuggestion(longTermRent, buildingArea);
+
   return {
     propertyName: input.propertyName,
     buildingName,
@@ -434,6 +482,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     view,
     viewPremium: vPremium,
     floorPremiumPct: fPremium,
+    tierPremiumPct: tPremium,
     longTermRent,
     ltrSource,
     furnished,
@@ -447,6 +496,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     strVsLtrDelta: annualNetToLandlord - longTermRent,
     grossYield: propertyValue ? (annualRevenue / propertyValue) * 100 : undefined,
     netYield: propertyValue ? (annualNetToLandlord / propertyValue) * 100 : undefined,
+    suggestLongTerm,
     months,
   };
 }
