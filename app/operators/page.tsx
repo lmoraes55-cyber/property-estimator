@@ -822,8 +822,8 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 
 function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: number }) {
   return (
-    <div className="rounded-2xl overflow-hidden relative group"
-      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease" }}
+    <div className="rounded-2xl overflow-hidden relative group flex flex-col"
+      style={{ background: colors.bgSection, border: "1px solid " + colors.border, boxShadow: colors.shadowSm, transition: "all 0.3s ease", minHeight: "500px" }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
@@ -893,8 +893,8 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
         </div>
       )}
 
-      {/* CTA */}
-      <div className="p-6 pt-4">
+      {/* CTA - Push to bottom */}
+      <div className="p-6 pt-4 mt-auto">
         <button className="w-full py-2 rounded-lg font-bold text-sm transition hover:brightness-105"
           style={{
             background: colors.secondary,
