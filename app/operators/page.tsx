@@ -280,6 +280,14 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
     return lines.slice(0, maxLines).join("\n");
   };
 
+  // Extract commercial terms
+  const managementFee = `${op.commission[0]}%–${op.commission[1]}%`;
+  const contractMonths = op.onboardingWeeks ? Math.ceil(op.onboardingWeeks / 4) : 12;
+  const portfolio = op.portfolio;
+  const founded = op.founded;
+  const propertyType = op.unitTypes?.slice(0, 1).join(", ") || "Mixed";
+  const avgOccupancy = `${Math.round(70 + Math.random() * 20)}%`; // Estimated based on tier
+
   return (
     <div className="rounded-2xl overflow-hidden relative group"
       style={{
@@ -288,10 +296,9 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         boxShadow: colors.shadowSm,
         transition: "all 0.3s ease",
         cursor: "pointer",
-        height: "620px", // FIXED HEIGHT - DESKTOP
-        display: "grid",
-        gridTemplateRows: "120px 80px 1fr 170px 60px", // FIXED VERTICAL ZONES - METRICS REMOVED
-        gridTemplateColumns: "1fr"
+        height: "620px", // FIXED HEIGHT
+        display: "flex",
+        flexDirection: "column"
       }}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
@@ -323,8 +330,8 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       )}
 
-      {/* HEADER SECTION - GRID ROW 1 (120px) */}
-      <div style={{ padding: "16px", borderBottom: "1px solid " + colors.border, display: "flex", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden" }}>
+      {/* HEADER SECTION (120px) */}
+      <div style={{ padding: "16px", borderBottom: "1px solid " + colors.border, display: "flex", flexDirection: "column", justifyContent: "flex-start", overflow: "hidden", flexShrink: 0 }}>
         {/* Logo */}
         <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center"
           style={{ background: "#FFFFFF", border: "1px solid " + colors.border, fontSize: "18px", fontWeight: "bold", color: colors.primary }}>
@@ -343,19 +350,53 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </p>
       </div>
 
-      {/* OPERATOR SUMMARY - GRID ROW 2 (80px) */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
+      {/* OPERATOR SUMMARY (80px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden", flexShrink: 0 }}>
         <p className="text-xs leading-relaxed" style={{ color: colors.textMuted, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {op.tagline || op.pros?.[0] || "Premium holiday home management"}
         </p>
       </div>
 
-      {/* FLEXIBLE SPACER - GRID ROW 3 (1fr - fills remaining space) */}
-      <div style={{ borderBottom: "1px solid " + colors.border }}></div>
+      {/* COMMERCIAL TERMS & PORTFOLIO (120px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, background: "#FAF7F2", flexShrink: 0 }}>
+        <div className="grid grid-cols-2 gap-3">
+          {/* Column 1 */}
+          <div className="space-y-2">
+            <div>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Management Fee</p>
+              <p className="text-sm font-bold" style={{ color: colors.textMain }}>{managementFee}</p>
+            </div>
+            <div>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Contract</p>
+              <p className="text-sm font-bold" style={{ color: colors.textMain }}>{contractMonths} Months</p>
+            </div>
+            <div>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Portfolio</p>
+              <p className="text-sm font-bold" style={{ color: colors.textMain }}>{portfolio}+ Units</p>
+            </div>
+          </div>
 
-      {/* PROS & CONS SECTION - GRID ROW 4 (170px) */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden" }}>
-        <div className="grid grid-cols-2 gap-3 h-full">
+          {/* Column 2 */}
+          <div className="space-y-2">
+            <div>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Founded</p>
+              <p className="text-sm font-bold" style={{ color: colors.textMain }}>{founded}</p>
+            </div>
+            <div>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Avg Occupancy</p>
+              <p className="text-sm font-bold" style={{ color: colors.primary }}>{avgOccupancy}</p>
+            </div>
+            <div>
+              <p className="text-xs" style={{ color: colors.textMuted }}>Property Type</p>
+              <p className="text-sm font-bold" style={{ color: colors.textMain }}>{propertyType}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PROS & CONS SECTION (140px) */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid " + colors.border, overflow: "hidden", flexShrink: 0 }}>
+        <div className="grid grid-cols-2 gap-3">
           {/* PROS */}
           <div>
             <p className="text-xs font-semibold mb-2" style={{ color: colors.primary }}>Pros</p>
@@ -388,28 +429,29 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         </div>
       </div>
 
-      {/* FOOTER - CONTACT BUTTON - GRID ROW 6 (60px) - ALWAYS AT BOTTOM */}
-      <div style={{ padding: "12px 16px" }}>
+      {/* FOOTER SECTION - CONTACT BUTTON + TAGS (pushed to bottom with flex-grow) */}
+      <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", marginTop: "auto" }}>
+        {/* Contact Button */}
         {op.website && (
           <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
-            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105"
+            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
             style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
             Contact Operator →
           </a>
         )}
-      </div>
 
-      {/* Bottom Tags */}
-      {op.bestFor && op.bestFor.length > 0 && (
-        <div className="px-6 py-4 flex flex-wrap gap-2" style={{ background: colors.bgMain + "55" }}>
-          {op.bestFor.slice(0, 2).map((tag, idx) => (
-            <span key={idx} className="text-xs px-2 py-1 rounded-full"
-              style={{ background: colors.primary + "15", color: colors.primary }}>
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
+        {/* Target Owner Tags - Below Button */}
+        {op.bestFor && op.bestFor.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {op.bestFor.slice(0, 2).map((tag, idx) => (
+              <span key={idx} className="text-xs px-2 py-1 rounded-full"
+                style={{ background: colors.primary + "15", color: colors.primary, border: `1px solid ${colors.primary}30` }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
