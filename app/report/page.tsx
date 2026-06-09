@@ -151,33 +151,33 @@ function ReportContent() {
 
   const strBetter = result.strVsLtrDelta > 0;
 
-  // Get location-specific Dubai skyline image
+  // Get location-specific Dubai skyline image (Pexels CDN - reliable)
   const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
     const searchText = `${buildingName || ""} ${buildingArea || ""}`.toLowerCase();
 
-    // Premium gradient backgrounds as fallback (solid reliable colors)
+    // Premium Dubai skyline images from Pexels (reliable CDN)
     const locationImages: { [key: string]: string } = {
-      marina: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      downtown: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-      burj: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-      palm: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-      business: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-      creek: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-      jvc: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-      jumeirah: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
-      emaar: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-      beachfront: "linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)",
+      marina: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
+      downtown: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
+      burj: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
+      palm: "https://images.pexels.com/photos/3797534/pexels-photo-3797534.jpeg?w=600&h=500&fit=crop",
+      business: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
+      creek: "https://images.pexels.com/photos/3797551/pexels-photo-3797551.jpeg?w=600&h=500&fit=crop",
+      jvc: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
+      jumeirah: "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop",
+      emaar: "https://images.pexels.com/photos/3797534/pexels-photo-3797534.jpeg?w=600&h=500&fit=crop",
+      beachfront: "https://images.pexels.com/photos/3797534/pexels-photo-3797534.jpeg?w=600&h=500&fit=crop",
     };
 
     // Check each location keyword
-    for (const [location, gradient] of Object.entries(locationImages)) {
+    for (const [location, imageUrl] of Object.entries(locationImages)) {
       if (searchText.includes(location)) {
-        return gradient;
+        return imageUrl;
       }
     }
 
-    // Fallback: Default premium gradient
-    return "linear-gradient(135deg, #1B5E4A 0%, #B88A44 100%)";
+    // Fallback: Default Dubai skyline
+    return "https://images.pexels.com/photos/3797517/pexels-photo-3797517.jpeg?w=600&h=500&fit=crop";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
@@ -346,13 +346,15 @@ function ReportContent() {
                 style={{
                   boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
                 }}>
-                {/* Location-Specific Premium Gradient Background */}
+                {/* Location-Specific Dubai Skyline Image (Pexels CDN) */}
                 <div className="absolute inset-0 w-full h-full"
                   style={{
-                    background: heroImage,
+                    backgroundImage: `url("${heroImage}")`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    transition: "all 0.6s ease"
+                    backgroundColor: "#1B5E4A",
+                    transition: "transform 0.6s ease",
+                    filter: "brightness(1.05) contrast(1.1)"
                   }} />
 
                 {/* Premium Brand Overlay - Green to Gold Gradient */}
