@@ -1067,6 +1067,27 @@ function OperatorsContent() {
   // Carousel state
   const [recommendedIndex, setRecommendedIndex] = useState(0);
   const [upcomingIndex, setUpcomingIndex] = useState(0);
+  const [dragStart, setDragStart] = useState(0);
+
+  // Handle drag/swipe on card stack
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setDragStart(e.clientX);
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    const dragEnd = e.clientX;
+    const diff = dragStart - dragEnd;
+
+    if (Math.abs(diff) > 50) { // Minimum 50px drag
+      if (diff > 0) {
+        // Dragged left, move to next card
+        setRecommendedIndex(Math.min(4, recommendedIndex + 1));
+      } else {
+        // Dragged right, move to previous card
+        setRecommendedIndex(Math.max(0, recommendedIndex - 1));
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen" style={{ background: `linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
@@ -1203,9 +1224,14 @@ function OperatorsContent() {
             <p className="text-sm" style={{ color: colors.textMuted }}>Curated selection ranked by market performance and guest satisfaction</p>
           </div>
 
-          {/* Premium Card Stack Layout */}
-          <div className="relative h-96 flex items-center justify-center mb-12" style={{ perspective: "1200px" }}>
-            {/* BACK LAYER - Cards #5, #4, #3 (Partially Visible, Smaller, Faded) */}
+          {/* Premium Card Stack Layout - Draggable */}
+          <div
+            className="relative flex items-center justify-center mb-24"
+            style={{ perspective: "1200px", height: "500px", cursor: "grab" }}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+          >
+            {/* BACK LAYER - Cards #5, #4, #3 (Partially Visible, Smaller, Heavily Faded) */}
 
             {/* Back Layer - Card #5 (Left) */}
             <div className="absolute" style={{
@@ -1214,10 +1240,11 @@ function OperatorsContent() {
               zIndex: 1,
               transform: `translateX(${recommendedIndex * -150}px) scale(0.85)`,
               transition: "transform 500ms ease-out",
-              transformOrigin: "center center"
+              transformOrigin: "center center",
+              pointerEvents: "none"
             }}>
               {ranked[4] && (
-                <div style={{ width: "340px", opacity: 0.5 }}>
+                <div style={{ width: "340px", opacity: 0.25 }}>
                   <GridOperatorCard op={ranked[4]} rank={5} />
                 </div>
               )}
@@ -1230,10 +1257,11 @@ function OperatorsContent() {
               zIndex: 2,
               transform: `translateX(calc(-50% + ${recommendedIndex * 100}px)) scale(0.90)`,
               transition: "transform 500ms ease-out",
-              transformOrigin: "center center"
+              transformOrigin: "center center",
+              pointerEvents: "none"
             }}>
               {ranked[3] && (
-                <div style={{ width: "340px", opacity: 0.65 }}>
+                <div style={{ width: "340px", opacity: 0.35 }}>
                   <GridOperatorCard op={ranked[3]} rank={4} />
                 </div>
               )}
@@ -1246,10 +1274,11 @@ function OperatorsContent() {
               zIndex: 1,
               transform: `translateX(${recommendedIndex * 150}px) scale(0.85)`,
               transition: "transform 500ms ease-out",
-              transformOrigin: "center center"
+              transformOrigin: "center center",
+              pointerEvents: "none"
             }}>
               {ranked[2] && (
-                <div style={{ width: "340px", opacity: 0.5 }}>
+                <div style={{ width: "340px", opacity: 0.25 }}>
                   <GridOperatorCard op={ranked[2]} rank={3} />
                 </div>
               )}
@@ -1264,7 +1293,8 @@ function OperatorsContent() {
               zIndex: 3,
               transform: `translateX(${recommendedIndex * -80}px) translateZ(20px)`,
               transition: "transform 500ms ease-out",
-              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))"
+              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
+              pointerEvents: "none"
             }}>
               {ranked[0] && (
                 <div style={{ width: "340px", opacity: 1.0 }}>
@@ -1280,7 +1310,8 @@ function OperatorsContent() {
               zIndex: 3,
               transform: `translateX(${recommendedIndex * 80}px) translateZ(20px)`,
               transition: "transform 500ms ease-out",
-              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))"
+              filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
+              pointerEvents: "none"
             }}>
               {ranked[1] && (
                 <div style={{ width: "340px", opacity: 1.0 }}>
@@ -1290,37 +1321,62 @@ function OperatorsContent() {
             </div>
           </div>
 
-          {/* Swipe Controls */}
-          <div className="flex items-center justify-center gap-6 mt-12">
+          {/* Swipe Controls - Navigation */}
+          <div className="flex items-center justify-center gap-8 mt-8">
+            {/* Left Arrow Button */}
             <button
               onClick={() => setRecommendedIndex(Math.max(0, recommendedIndex - 1))}
               disabled={recommendedIndex === 0}
-              className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all hover:brightness-110 hover:scale-110 disabled:opacity-25 disabled:cursor-not-allowed"
+              style={{
+                background: colors.primary,
+                color: "#FFFFFF",
+                fontSize: "24px",
+                fontWeight: "bold",
+                boxShadow: recommendedIndex === 0 ? "none" : colors.shadowMd
+              }}
+              title="Previous operator">
               ←
             </button>
 
+            {/* Indicator Dots */}
             <div className="flex gap-2">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setRecommendedIndex(idx)}
-                  className="h-2 rounded-full transition-all"
+                  className="rounded-full transition-all hover:scale-125"
                   style={{
-                    width: recommendedIndex === idx ? "24px" : "8px",
-                    background: recommendedIndex === idx ? colors.primary : colors.border
-                  }} />
+                    width: recommendedIndex === idx ? "28px" : "10px",
+                    height: "10px",
+                    background: recommendedIndex === idx ? colors.primary : colors.border,
+                    cursor: "pointer"
+                  }}
+                  title={`Go to operator ${idx + 1}`} />
               ))}
             </div>
 
+            {/* Right Arrow Button */}
             <button
               onClick={() => setRecommendedIndex(Math.min(4, recommendedIndex + 1))}
               disabled={recommendedIndex >= 4}
-              className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ background: colors.primary, color: "#FFFFFF", fontSize: "20px" }}>
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all hover:brightness-110 hover:scale-110 disabled:opacity-25 disabled:cursor-not-allowed"
+              style={{
+                background: colors.primary,
+                color: "#FFFFFF",
+                fontSize: "24px",
+                fontWeight: "bold",
+                boxShadow: recommendedIndex >= 4 ? "none" : colors.shadowMd
+              }}
+              title="Next operator">
               →
             </button>
           </div>
+
+          {/* Swipe Hint */}
+          <p className="text-xs text-center mt-6" style={{ color: colors.textMuted }}>
+            Drag left/right or use arrows to explore all 5 operators
+          </p>
         </div>
 
         {/* NEW & EMERGING OPERATORS - PREMIUM 3-COLUMN GRID */}
