@@ -734,48 +734,6 @@ function ReportContent() {
                   );
                 })}
 
-                {/* Total Row - refined */}
-                <tr style={{
-                  background: colors.bgSection,
-                  borderTop: `1px solid ${colors.primary}40`,
-                  borderBottom: "none"
-                }}>
-                  <td className="px-6 py-6 font-bold" style={{ color: colors.textMain, fontSize: "13px", letterSpacing: "0.06em" }}>TOTAL</td>
-
-                  {/* Total Revenue */}
-                  <td className="px-6 py-6">
-                    <p className="text-base font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualRevenue)}</p>
-                  </td>
-
-                  {/* Total Occupancy Average */}
-                  <td className="px-6 py-6">
-                    <p className="text-base font-bold" style={{ color: colors.primary }}>
-                      {(result.avgOccupancy * 100).toFixed(0)}% avg
-                    </p>
-                  </td>
-
-                  <td className="px-6 py-6">
-                    <p className="text-base font-bold" style={{ color: colors.textMain }}>AED {fmt(result.avgADR)} avg</p>
-                  </td>
-
-                  {/* Total Secondary Columns */}
-                  <td className="px-6 py-6">
-                    <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualManagementFee)}</p>
-                  </td>
-                  <td className="px-6 py-6">
-                    <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualUtilities)}</p>
-                  </td>
-                  <td className="px-6 py-6">
-                    <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualMaintenance)}</p>
-                  </td>
-
-                  {/* Total Net To Landlord - Soft green-tinted, refined */}
-                  <td className="px-6 py-6" style={{ background: `${colors.primary}12`, borderLeft: `2px solid ${colors.primary}40` }}>
-                    <p className="text-lg font-bold" style={{ color: colors.primary }}>
-                      AED {fmt(result.annualNetToLandlord)}
-                    </p>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
