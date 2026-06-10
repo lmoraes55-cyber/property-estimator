@@ -402,82 +402,93 @@ export default function HomePage() {
       {/* TRUST BAR */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
       <section style={{ padding: "48px 40px" }}>
+        <style>{`
+          .gw-trust-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+          }
+          .gw-trust-item { position: relative; }
+          .gw-trust-item:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 14%;
+            right: 0;
+            height: 72%;
+            width: 1px;
+            background: ${colors.border};
+          }
+          @media (max-width: 900px) {
+            .gw-trust-grid { grid-template-columns: repeat(2, 1fr); row-gap: 36px; }
+            .gw-trust-item:nth-child(2)::after { display: none; }
+            .gw-trust-item:nth-child(odd)::after { display: block; }
+          }
+          @media (max-width: 560px) {
+            .gw-trust-grid { grid-template-columns: 1fr; row-gap: 32px; }
+            .gw-trust-item::after { display: none !important; }
+          }
+        `}</style>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           <div
+            className="gw-trust-grid"
             style={{
-              background: colors.bgSection,
-              borderRadius: "16px",
-              padding: "36px 40px",
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "40px",
-              boxShadow: colors.shadowSm,
-              border: `1px solid ${colors.border}`,
+              background: colors.bgMain,
+              borderRadius: "22px",
+              padding: "36px 28px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+              border: `1px solid #E7DFD2`,
             }}
           >
-            {/* Trust Item 1 */}
-            <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
-                <div style={{ marginTop: "2px", flexShrink: 0 }}>
-                  <IconHouse color={colors.primary} />
+            {[
+              { icon: <IconHouse color={colors.primary} />, accent: colors.primary, label: "Properties Analyzed", value: "500+", desc: "Data-backed insights" },
+              { icon: <IconArrows color={colors.secondary} />, accent: colors.secondary, label: "STR vs LTR Comparison", value: "1000+", desc: "Strategies evaluated" },
+              { icon: <IconAnalytics color={colors.primary} />, accent: colors.primary, label: "Dubai Market Insights", value: "Real-Time", desc: "DLD, Bayut & more" },
+              { icon: <IconUsers color={colors.secondary} />, accent: colors.secondary, label: "Operator Recommendations", value: "Curated", desc: "Top-performing partners" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="gw-trust-item"
+                style={{ display: "flex", alignItems: "center", gap: "16px", padding: "4px 28px" }}
+              >
+                {/* Icon badge */}
+                <div
+                  style={{
+                    width: "52px",
+                    height: "52px",
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    background: `${item.accent}14`,
+                    border: `1px solid ${item.accent}26`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {item.icon}
                 </div>
-                <div>
-                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>Properties Analyzed</div>
-                </div>
-              </div>
-              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
-                500+
-              </div>
-              <div style={{ fontSize: "12px", color: colors.textMuted }}>Data-backed insights</div>
-            </div>
-
-            {/* Trust Item 2 */}
-            <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
-                <div style={{ marginTop: "2px", flexShrink: 0 }}>
-                  <IconArrows color={colors.secondary} />
-                </div>
-                <div>
-                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>STR vs LTR Comparison</div>
-                </div>
-              </div>
-              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
-                1000+
-              </div>
-              <div style={{ fontSize: "12px", color: colors.textMuted }}>Strategies evaluated</div>
-            </div>
-
-            {/* Trust Item 3 */}
-            <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
-                <div style={{ marginTop: "2px", flexShrink: 0 }}>
-                  <IconAnalytics color={colors.primary} />
-                </div>
-                <div>
-                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>Dubai Market Insights</div>
-                </div>
-              </div>
-              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
-                Real-Time
-              </div>
-              <div style={{ fontSize: "12px", color: colors.textMuted }}>DLD, Bayut & more</div>
-            </div>
-
-            {/* Trust Item 4 */}
-            <div>
-              <div style={{ display: "flex", alignItems: "flex-start", marginBottom: "14px", gap: "10px" }}>
-                <div style={{ marginTop: "2px", flexShrink: 0 }}>
-                  <IconUsers color={colors.secondary} />
-                </div>
-                <div>
-                  <div style={{ fontSize: "13px", color: colors.textMuted, fontWeight: "500" }}>Operator Recommendations</div>
+                {/* Text stack */}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: "12.5px", color: colors.textMuted, fontWeight: 600, marginBottom: "4px", letterSpacing: "0.01em" }}>
+                    {item.label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "28px",
+                      fontWeight: 800,
+                      lineHeight: 1.1,
+                      marginBottom: "4px",
+                      fontFamily: "'Georgia', serif",
+                      background: `linear-gradient(135deg, ${colors.primary} 0%, ${item.accent} 100%)`,
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    {item.value}
+                  </div>
+                  <div style={{ fontSize: "12.5px", color: colors.textMuted }}>{item.desc}</div>
                 </div>
               </div>
-              <div style={{ fontSize: "26px", fontWeight: "700", color: colors.textMain, marginBottom: "4px" }}>
-                Curated
-              </div>
-              <div style={{ fontSize: "12px", color: colors.textMuted }}>Top-performing partners</div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
