@@ -138,8 +138,6 @@ export default function HomePage() {
       >
         <div
           style={{
-            maxWidth: "1400px",
-            margin: "0 auto",
             padding: "16px 40px",
             display: "flex",
             alignItems: "center",
