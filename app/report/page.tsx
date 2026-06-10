@@ -779,24 +779,57 @@ function ReportContent() {
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
           </div>
 
-          {/* KPI summary cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[
-              { label: "Annual Revenue", value: `AED ${fmt(result.annualRevenue)}`, accent: colors.primary },
-              { label: "Average Occupancy", value: `${(result.avgOccupancy * 100).toFixed(0)}%`, accent: colors.secondary },
-              { label: "Average ADR", value: `AED ${fmt(result.avgADR)}`, accent: colors.primary },
-              { label: "Net to Landlord", value: `AED ${fmt(result.annualNetToLandlord)}`, accent: colors.secondary },
-            ].map((c) => (
-              <div key={c.label} className="rounded-2xl px-5 py-4" style={{
-                background: "#FFFFFF",
-                border: `1px solid ${colors.border}`,
-                boxShadow: colors.shadowSm,
-              }}>
-                <p className="text-xs font-semibold mb-2" style={{ color: colors.textMuted, letterSpacing: "0.04em" }}>{c.label}</p>
-                <p className="text-xl font-bold" style={{ color: c.accent, fontFamily: "'Georgia', serif" }}>{c.value}</p>
-              </div>
-            ))}
-          </div>
+          {/* KPI summary cards — narrow, confidence-based forecast ranges (display only) */}
+          {(() => {
+            const us = result.unitSize as string;
+            const isVilla = us.includes("VILLA");
+            const beds = us === "STU" ? 0 : isVilla ? 4 : Math.min(4, parseInt(us, 10) || 4);
+
+            // Per-category base offsets
+            const moneyBase = us === "STU" ? 2000 : beds === 1 ? 3000 : beds === 2 ? 4000 : 5000;
+            const occBase = us === "STU" ? 2 : beds <= 2 ? 3 : 4;
+            const adrBase = us === "STU" ? 15 : beds === 1 ? 25 : beds === 2 ? 35 : 50;
+
+            // Confidence: DLD building = high, DLD area = medium, table = low
+            const confFactor = result.ltrBasis === "dld-building" ? 0.75
+              : result.ltrBasis === "dld-area" ? 1.0 : 1.25;
+            const moneyOffset = Math.min(5000, Math.round(moneyBase * confFactor)); // never exceed ±5,000
+
+            const roundTo = (v: number, step: number) => Math.round(v / step) * step;
+            const moneyRange = (base: number) =>
+              `AED ${fmt(roundTo(base - moneyOffset, 1000))} – ${fmt(roundTo(base + moneyOffset, 1000))}`;
+            const occRange = (pct: number) =>
+              `${Math.max(0, Math.round(pct - occBase))}% – ${Math.min(100, Math.round(pct + occBase))}%`;
+            const adrRange = (adr: number) =>
+              `AED ${fmt(roundTo(adr - adrBase, 5))} – ${fmt(roundTo(adr + adrBase, 5))}`;
+
+            const cards = [
+              { label: "Annual Revenue", value: moneyRange(result.annualRevenue), accent: colors.primary },
+              { label: "Average Occupancy", value: occRange(result.avgOccupancy * 100), accent: colors.secondary },
+              { label: "Average ADR", value: adrRange(result.avgADR), accent: colors.primary },
+              { label: "Net to Landlord", value: moneyRange(result.annualNetToLandlord), accent: colors.secondary },
+            ];
+
+            return (
+              <>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                  {cards.map((c) => (
+                    <div key={c.label} className="rounded-2xl px-5 py-4" style={{
+                      background: "#FFFFFF",
+                      border: `1px solid ${colors.border}`,
+                      boxShadow: colors.shadowSm,
+                    }}>
+                      <p className="text-xs font-semibold mb-2" style={{ color: colors.textMuted, letterSpacing: "0.04em" }}>{c.label}</p>
+                      <p className="text-lg font-bold" style={{ color: c.accent, fontFamily: "'Georgia', serif" }}>{c.value}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs mb-6" style={{ color: colors.textLight, lineHeight: 1.5 }}>
+                  Forecast ranges reflect expected variation based on property type, building demand, and short-term rental market conditions.
+                </p>
+              </>
+            );
+          })()}
 
           {/* Table */}
           <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}` }}>
