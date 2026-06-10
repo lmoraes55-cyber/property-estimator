@@ -44,6 +44,104 @@ const ALL_BUILDINGS = Array.from(
   ])
 ).sort();
 
+// Display labels for unit sizes (stored value unchanged for logic)
+const UNIT_DISPLAY: Record<string, string> = {
+  "STU": "Studio",
+  "1BR": "1 Bedroom",
+  "2BR": "2 Bedroom",
+  "3BR": "3 Bedroom",
+  "4BR APT": "4 Bedroom Apartment",
+  "5BR APT": "5 Bedroom Apartment",
+  "6BR APT": "6 Bedroom Apartment",
+  "4BR VILLA": "4 Bedroom Villa",
+  "5BR VILLA": "5 Bedroom Villa",
+  "6BR VILLA": "6 Bedroom Villa",
+  "7BR VILLA": "7 Bedroom Villa",
+  "8BR VILLA": "8 Bedroom Villa",
+  "9BR VILLA": "9 Bedroom Villa",
+};
+
+const stk = (c: string, w = 1.3) => ({ stroke: c, strokeWidth: w, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
+
+// Unit icons
+const IconApartment = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1" {...stk(color)} /><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" {...stk(color)} /></svg>
+);
+const IconVilla = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 12L12 5l8 7" {...stk(color)} /><path d="M6 11v9h12v-9" {...stk(color)} /><path d="M10 20v-4h4v4" {...stk(color)} /></svg>
+);
+const IconBed = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 17v-4a2 2 0 012-2h14a2 2 0 012 2v4" {...stk(color)} /><path d="M3 17v2M21 17v2M3 13h18" {...stk(color)} /><path d="M7 11V9a1 1 0 011-1h3v3" {...stk(color)} /></svg>
+);
+
+// Capability row icons
+const CapCalendar = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" {...stk(color)} /><path d="M4 9h16M8 3v4M16 3v4" {...stk(color)} /><path d="M9 14l2 2 3-3" {...stk(color)} /></svg>
+);
+const CapBuilding = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1" {...stk(color)} /><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" {...stk(color)} /></svg>
+);
+const CapPie = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9h-9V3z" {...stk(color)} /><path d="M12 3v9h9" {...stk(color)} /></svg>
+);
+const CapUsers = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" {...stk(color)} /><circle cx="17" cy="9" r="2.2" {...stk(color)} /><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5" {...stk(color)} /><path d="M15 14c2.2 0 4 1.8 4 4" {...stk(color)} /></svg>
+);
+
+// Advisory insight icons
+const InLocation = ({ color }: { color: string }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z" {...stk(color)} /><circle cx="12" cy="10" r="2.4" {...stk(color)} /></svg>
+);
+const InRates = ({ color }: { color: string }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 18l5-5 4 3 7-8" {...stk(color)} /><path d="M17 8h4v4" {...stk(color)} /></svg>
+);
+const InOccupancy = ({ color }: { color: string }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" {...stk(color)} /><circle cx="17" cy="9" r="2.2" {...stk(color)} /><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5" {...stk(color)} /><path d="M15 14c2.2 0 4 1.8 4 4" {...stk(color)} /></svg>
+);
+const InYield = ({ color }: { color: string }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9h-9V3z" {...stk(color)} /><path d="M12 3v9h9" {...stk(color)} /></svg>
+);
+const InShield = ({ color }: { color: string }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" {...stk(color)} /><path d="M9 12l2 2 4-4" {...stk(color)} /></svg>
+);
+const InfoCircle = ({ color }: { color: string }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" {...stk(color)} /><path d="M12 11v5" {...stk(color)} /><circle cx="12" cy="7.6" r="0.6" fill={color} /></svg>
+);
+
+// Step-aware advisory panel content
+const ADVISORY = [
+  {
+    body: "Your building and unit type play a key role in determining rental performance.",
+    items: [
+      { Icon: InLocation, title: "Location & Community", text: "Impacts guest demand and tenant interest" },
+      { Icon: InRates, title: "Nightly & Monthly Rates", text: "Vary by building, view, and submarket" },
+      { Icon: InOccupancy, title: "Occupancy Potential", text: "High-demand buildings achieve better occupancy" },
+      { Icon: InYield, title: "Yield Potential", text: "STR and LTR returns differ by property type" },
+      { Icon: InShield, title: "Strategy Accuracy", text: "Helps us recommend the best rental strategy" },
+    ],
+  },
+  {
+    body: "Floor level and view quality significantly influence achievable nightly rates.",
+    items: [
+      { Icon: InRates, title: "View Premium", text: "Sea, Marina, and Burj views command higher rates" },
+      { Icon: InLocation, title: "Floor Height", text: "Higher floors typically achieve stronger pricing" },
+      { Icon: InOccupancy, title: "Guest Demand", text: "Premium outlooks improve booking conversion" },
+      { Icon: InYield, title: "Furnishing Impact", text: "Furnished units unlock short-term rental potential" },
+      { Icon: InShield, title: "Accurate Forecast", text: "These details refine your revenue projection" },
+    ],
+  },
+  {
+    body: "Financial inputs let us model your true net returns, not just gross revenue.",
+    items: [
+      { Icon: InYield, title: "Management Fee", text: "Directly affects your net STR income" },
+      { Icon: InRates, title: "Property Value", text: "Used to calculate gross and net yield" },
+      { Icon: InOccupancy, title: "Operating Costs", text: "Factored into realistic profit estimates" },
+      { Icon: InShield, title: "Net Yield", text: "The metric that matters most for decisions" },
+      { Icon: InLocation, title: "Strategy Fit", text: "Confirms whether STR or LTR wins for you" },
+    ],
+  },
+];
+
 export default function Home() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -119,26 +217,42 @@ export default function Home() {
     router.push(`/report?${buildParams().toString()}`);
   };
 
-  const STEPS = [
-    { label: "The Property" },
-    { label: "Floor & View" },
-    { label: "Financials" },
-  ];
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16 animate-fade-in"
+    <main className="min-h-screen flex flex-col items-center px-4 py-16 animate-fade-in relative overflow-hidden"
       style={{
         background: `radial-gradient(ellipse 800px 600px at 80% 0%, ${colors.secondary}0E 0%, transparent 55%), radial-gradient(ellipse 700px 500px at 10% 10%, ${colors.primary}08 0%, transparent 55%), linear-gradient(180deg, ${colors.bgMain} 0%, ${colors.bgSection} 100%)`
       }}>
 
+      {/* Faint Dubai skyline watermark */}
+      <img
+        src="/locations/Downtown.png"
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: "42%",
+          height: "auto",
+          maxHeight: "80%",
+          objectFit: "cover",
+          opacity: 0.06,
+          pointerEvents: "none",
+          zIndex: 0,
+          maskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, transparent 100%)",
+        }}
+      />
+
       {/* Service-page Hero */}
-      <div className="text-center mb-12 animate-slide-up max-w-3xl px-2" style={{ animationDelay: "0.1s" }}>
+      <div className="w-full max-w-6xl mb-10 animate-slide-up px-2 relative z-10" style={{ animationDelay: "0.1s" }}>
         <div className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
           Rental Strategy Analyzer
         </div>
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight"
           style={{
             fontFamily: "'Georgia', serif",
+            maxWidth: "640px",
             background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
             backgroundClip: "text",
             WebkitBackgroundClip: "text",
@@ -146,73 +260,34 @@ export default function Home() {
           }}>
           Compare STR vs LTR Returns Before You Decide
         </h1>
-        <p className="text-base max-w-xl mx-auto mb-8" style={{ color: colors.textMuted, lineHeight: "1.7" }}>
+        <p className="text-base mb-8" style={{ color: colors.textMuted, lineHeight: "1.7", maxWidth: "560px" }}>
           Enter your property details to estimate short-term and long-term rental performance, compare potential yields, and identify the most suitable rental strategy.
         </p>
 
-        {/* Mini trust row */}
-        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+        {/* Capability row */}
+        <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
           {[
-            { label: "STR Forecast" },
-            { label: "LTR Forecast" },
-            { label: "Yield Comparison" },
-            { label: "Operator Recommendations" },
-          ].map((item, i) => (
-            <div key={item.label} className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8.5L6.5 12L13 4.5" stroke={i % 2 === 0 ? colors.primary : colors.secondary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span className="text-xs font-medium" style={{ color: colors.textMuted }}>{item.label}</span>
+            { label: "STR Forecast", Icon: CapCalendar, color: colors.primary },
+            { label: "LTR Forecast", Icon: CapBuilding, color: colors.primary },
+            { label: "Yield Comparison", Icon: CapPie, color: colors.secondary },
+            { label: "Operator Recommendations", Icon: CapUsers, color: colors.primary },
+          ].map(({ label, Icon, color }) => (
+            <div key={label} className="flex items-center gap-2.5">
+              <Icon color={color} />
+              <span className="text-sm font-semibold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{label}</span>
             </div>
           ))}
         </div>
       </div>
 
-{/* Step pills + Progress indicator */}
-      <div className="flex flex-col items-center gap-4 mb-12 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-        <div className="flex items-center gap-1 p-1.5 rounded-full"
-          style={{
-            background: colors.bgSection,
-            border: "1px solid " + colors.border,
-            boxShadow: `0 4px 12px rgba(0,0,0,0.04)`,
-            backdropFilter: "blur(10px)"
-          }}>
-          {STEPS.map((s, i) => (
-            <button key={s.label}
-              onClick={() => i < step && setStep(i)}
-              disabled={i >= step}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all hover:bg-white/5"
-              style={{
-                background: i === step ? `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)` : "transparent",
-                color: i === step ? "#FFF" : i < step ? colors.primary : colors.textLight,
-                cursor: i < step ? "pointer" : i === step ? "default" : "not-allowed",
-                opacity: i <= step ? 1 : 0.5,
-                letterSpacing: "0.05em"
-              }}>
-              <span className="hidden sm:block">{i + 1}. {s.label}</span>
-              <span className="sm:hidden font-bold">{i + 1}</span>
-            </button>
-          ))}
-        </div>
-        {step > 0 && (
-          <button onClick={() => setStep(s => s - 1)}
-            className="text-xs px-4 py-2 rounded-lg transition-all hover:-translate-y-0.5 font-medium"
-            style={{
-              color: colors.primary,
-              background: colors.primary + "08",
-              border: "1px solid " + colors.primary + "20"
-            }}>
-            ← Back to {STEPS[step - 1].label}
-          </button>
-        )}
-      </div>
+      {/* Two-column layout: Analyzer card + Advisory panel */}
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6 items-start relative z-10">
 
       {/* Card */}
-      <div className="w-full max-w-xl rounded-3xl overflow-hidden animate-slide-up" style={{
+      <div className="w-full lg:flex-1 rounded-3xl overflow-hidden animate-slide-up" style={{
         background: colors.bgSection,
         border: "1px solid " + colors.border,
         boxShadow: `0 1px 2px rgba(0,0,0,.04), 0 12px 32px rgba(0,0,0,.06), 0 24px 48px rgba(0,0,0,.04)`,
-        backdropFilter: "blur(20px)",
         animationDelay: "0.3s"
       }}>
 
@@ -300,22 +375,37 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Unit size */}
+              {/* Unit size — premium selection cards */}
               <div>
                 <label className="block text-xs font-medium mb-3 tracking-wider" style={{ color: colors.textMuted }}>NUMBER OF BEDROOMS</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {UNIT_SIZES.map(s => (
-                    <button key={s.label}
-                      onClick={() => { set("unitSize", s.label); set("unitType", s.type); }}
-                      className="py-3 rounded-xl text-xs font-semibold transition-all"
-                      style={{
-                        background: form.unitSize === s.label ? colors.secondary : colors.bgMain,
-                        color: form.unitSize === s.label ? "#FFF" : colors.textMuted,
-                        border: `1px solid ${form.unitSize === s.label ? colors.secondary : colors.border}`,
-                      }}>
-                      {s.label}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {UNIT_SIZES.map(s => {
+                    const selected = form.unitSize === s.label;
+                    const Icon = s.type === "Villa" ? IconVilla : (s.label === "STU" || s.label === "1BR" || s.label === "2BR" || s.label === "3BR") ? IconBed : IconApartment;
+                    const accent = selected ? colors.primary : colors.textMuted;
+                    return (
+                      <button key={s.label}
+                        onClick={() => { set("unitSize", s.label); set("unitType", s.type); }}
+                        className="relative text-left rounded-2xl p-3 transition-all"
+                        style={{
+                          background: selected ? `${colors.primary}0D` : colors.bgSection,
+                          border: `1.5px solid ${selected ? colors.primary : colors.border}`,
+                          boxShadow: selected ? `0 4px 14px ${colors.primary}1A` : "none",
+                          minHeight: "78px",
+                        }}>
+                        {selected && (
+                          <span className="absolute top-2 right-2 flex items-center justify-center rounded-full"
+                            style={{ width: "18px", height: "18px", background: colors.primary }}>
+                            <svg width="11" height="11" viewBox="0 0 12 12"><path d="M2.5 6.2L5 8.5L9.5 3.5" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          </span>
+                        )}
+                        <div className="mb-2"><Icon color={accent} /></div>
+                        <div className="text-xs font-semibold leading-snug" style={{ color: selected ? colors.primary : colors.textMain }}>
+                          {UNIT_DISPLAY[s.label] ?? s.label}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -516,7 +606,7 @@ export default function Home() {
                   letterSpacing: "0.05em",
                   transitionDuration: "250ms"
                 }}>
-                Continue →
+                Continue Analysis →
               </button>
             ) : (
               <button onClick={handleGenerate}
@@ -532,10 +622,62 @@ export default function Home() {
               </button>
             )}
           </div>
+
+          {/* Security note */}
+          <div className="flex items-center justify-center gap-2 pb-6 -mt-2">
+            <svg width="13" height="13" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" {...stk(colors.textLight)} /><path d="M8 11V8a4 4 0 018 0v3" {...stk(colors.textLight)} /></svg>
+            <span className="text-xs" style={{ color: colors.textLight }}>Your data is secure and used only for analysis purposes.</span>
+          </div>
         </div>
       </div>
 
-      <p className="mt-8 text-xs text-center" style={{ color: colors.textLight }}>
+      {/* Advisory panel */}
+      <aside className="w-full lg:w-80 lg:flex-shrink-0 rounded-3xl animate-slide-up" style={{
+        background: colors.bgSection,
+        border: "1px solid " + colors.border,
+        boxShadow: `0 1px 2px rgba(0,0,0,.04), 0 12px 32px rgba(0,0,0,.05)`,
+        animationDelay: "0.35s",
+        padding: "32px 28px",
+      }}>
+        <div className="flex items-center justify-center mb-5" style={{
+          width: "44px", height: "44px", borderRadius: "50%",
+          background: `${colors.secondary}15`, border: `1px solid ${colors.secondary}30`,
+        }}>
+          <InfoCircle color={colors.secondary} />
+        </div>
+        <h3 className="text-xl font-bold mb-1" style={{ fontFamily: "'Georgia', serif", color: colors.primary }}>Why We Ask This</h3>
+        <div className="h-0.5 w-10 mb-4 rounded-full" style={{ background: colors.secondary }} />
+        <p className="text-sm mb-6" style={{ color: colors.textMuted, lineHeight: "1.6" }}>{ADVISORY[step].body}</p>
+
+        <div className="space-y-5">
+          {ADVISORY[step].items.map(({ Icon, title, text }, i) => (
+            <div key={title} className="flex items-start gap-3">
+              <div className="flex items-center justify-center flex-shrink-0" style={{
+                width: "34px", height: "34px", borderRadius: "50%",
+                background: `${i % 2 === 0 ? colors.primary : colors.secondary}12`,
+              }}>
+                <Icon color={i % 2 === 0 ? colors.primary : colors.secondary} />
+              </div>
+              <div>
+                <div className="text-sm font-bold mb-0.5" style={{ color: colors.primary }}>{title}</div>
+                <div className="text-xs" style={{ color: colors.textMuted, lineHeight: "1.5" }}>{text}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Trust box */}
+        <div className="mt-7 rounded-2xl p-4 flex items-start gap-3" style={{ background: colors.bgMain, border: `1px solid ${colors.border}` }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" {...stk(colors.secondary)} /><path d="M9 12l2 2 4-4" {...stk(colors.secondary)} /></svg>
+          <p className="text-xs" style={{ color: colors.textMuted, lineHeight: "1.55" }}>
+            Used by 500+ property owners across Dubai to make confident, data-driven rental decisions.
+          </p>
+        </div>
+      </aside>
+
+      </div>
+
+      <p className="mt-8 text-xs text-center relative z-10" style={{ color: colors.textLight }}>
         Projections based on Dubai market data · indicative only
       </p>
 
