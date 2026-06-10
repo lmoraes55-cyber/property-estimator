@@ -383,7 +383,9 @@ const MAINTENANCE: Record<UnitSize, number> = {
 // Occupancy base curves — seasonal shape only (avg ≈ 1.0 when normalised)
 // Scaled per unit size to hit target annual occupancy averages:
 //   STU / 1BR → 75%  |  2BR → 70%  |  3BR → 65%  |  Villas → 60%
-const OCC_BASE_SHAPE = [1.077,1.064,1.054,1.044,1.034,0.895,0.886,0.877,0.891,1.034,1.050,1.063];
+// Months order: Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar, Apr, May
+// Winter (Nov–Mar) high occupancy, summer (Jun–Aug) low. Avg ≈ 1.0 (normalised).
+const OCC_BASE_SHAPE = [0.88,0.86,0.87,0.95,1.04,1.08,1.10,1.09,1.10,1.06,1.00,0.92];
 
 const OCC_TARGETS: Record<UnitSize, number> = {
   "STU": 0.75, "1BR": 0.75, "2BR": 0.70, "3BR": 0.65,
@@ -398,8 +400,10 @@ function getOccRates(unitSize: UnitSize): number[] {
 }
 
 // Revenue distribution by property type
-const DIST_APARTMENT = [0.103,0.088,0.103,0.090,0.082,0.053,0.053,0.053,0.070,0.092,0.105,0.108];
-const DIST_VILLA     = [0.102,0.080,0.092,0.075,0.075,0.069,0.070,0.072,0.075,0.088,0.091,0.111];
+// Months order: Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar, Apr, May
+// Dubai STR seasonality: winter (Nov–Mar) is peak, summer (Jun–Aug) is low.
+const DIST_APARTMENT = [0.065,0.063,0.064,0.082,0.090,0.102,0.104,0.103,0.095,0.091,0.073,0.068];
+const DIST_VILLA     = [0.070,0.069,0.070,0.082,0.088,0.097,0.098,0.097,0.091,0.089,0.076,0.073];
 
 export type FurnishedStatus = "Furnished" | "Unfurnished";
 
