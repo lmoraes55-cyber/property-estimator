@@ -144,11 +144,11 @@ function PremiumCTACard({
     <div
       className="relative overflow-hidden text-center"
       style={{
-        borderRadius: "32px",
-        padding: "64px 40px",
+        borderRadius: "28px",
+        padding: "44px 36px",
         background: bg,
         border: `1px solid ${accent}33`,
-        boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 18px 50px rgba(0,0,0,0.06)",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 40px rgba(0,0,0,0.06)",
       }}
     >
       {/* LEFT decorative watermark */}
@@ -220,17 +220,17 @@ function PremiumCTACard({
       {/* Content */}
       <div className="relative" style={{ zIndex: 1 }}>
         {/* Eyebrow + diamond divider */}
-        <p className="text-xs font-bold uppercase mb-3" style={{ color: eyebrowColor, letterSpacing: "0.18em" }}>{eyebrow}</p>
-        <div className="flex items-center justify-center gap-3 mb-7">
-          <span style={{ width: "70px", height: "1px", background: `${accent}40` }} />
+        <p className="text-xs font-bold uppercase mb-2.5" style={{ color: eyebrowColor, letterSpacing: "0.18em" }}>{eyebrow}</p>
+        <div className="flex items-center justify-center gap-3 mb-5">
+          <span style={{ width: "60px", height: "1px", background: `${accent}40` }} />
           <svg width="9" height="9" viewBox="0 0 9 9"><rect x="4.5" y="0" width="6.4" height="6.4" transform="rotate(45 4.5 0)" fill="none" stroke={accent} strokeWidth="1" /></svg>
-          <span style={{ width: "70px", height: "1px", background: `${accent}40` }} />
+          <span style={{ width: "60px", height: "1px", background: `${accent}40` }} />
         </div>
 
         {/* Heading with green→bronze gradient */}
-        <h2 className="font-bold mb-4" style={{
+        <h2 className="font-bold mb-3" style={{
           fontFamily: "'Georgia', serif",
-          fontSize: "40px",
+          fontSize: "32px",
           lineHeight: 1.15,
           background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
           backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
@@ -238,7 +238,7 @@ function PremiumCTACard({
           {heading}
         </h2>
 
-        <p className="text-sm mb-9 max-w-lg mx-auto" style={{ color: colors.textMuted, lineHeight: 1.7 }}>
+        <p className="text-sm mb-6 max-w-lg mx-auto" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
           {description}
         </p>
 
@@ -246,7 +246,7 @@ function PremiumCTACard({
           onClick={onClick}
           className="inline-flex items-center gap-2 font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-105"
           style={{
-            padding: "15px 36px",
+            padding: "13px 30px",
             borderRadius: "999px",
             background: buttonGradient,
             color: "#FFF",
@@ -356,7 +356,7 @@ function ReportContent() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
 
         {/* Unfurnished notice */}
         {result.furnished === "Unfurnished" && (
@@ -535,7 +535,7 @@ function ReportContent() {
           boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
           backdropFilter: "blur(20px)"
         }}>
-          <h2 className="text-sm font-bold tracking-widest uppercase mb-8" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Key Metrics</h2>
+          <h2 className="text-sm font-bold tracking-widest uppercase mb-5" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Key Metrics</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} icon="💼" />
             <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" icon="👤" />
@@ -550,6 +550,200 @@ function ReportContent() {
             <StatCard label="STR vs LTR DELTA" value={`${strBetter ? "+" : ""}AED ${fmt(result.strVsLtrDelta)}`}
               sub={strBetter ? "STR earns more" : "LTR earns more"} icon="📈" />
             <StatCard label="AVERAGE DAILY RATE" value={`AED ${fmt(result.avgADR)}`} sub="Blended across 12 months" icon="📅" />
+          </div>
+        </div>
+
+        {/* Monthly breakdown table - Premium investor-grade */}
+        <div>
+          {/* Section header */}
+          <div className="mb-6">
+            <p className="text-xs font-bold uppercase mb-2" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
+              12-Month Rental Projection
+            </p>
+            <h2 className="text-2xl font-bold mb-1" style={{
+              fontFamily: "'Georgia', serif",
+              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              Monthly Breakdown
+            </h2>
+            <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
+          </div>
+
+          {/* KPI summary cards — narrow, confidence-based forecast ranges (display only) */}
+          {(() => {
+            const us = result.unitSize as string;
+            const isVilla = us.includes("VILLA");
+            const beds = us === "STU" ? 0 : isVilla ? 4 : Math.min(4, parseInt(us, 10) || 4);
+
+            // Per-category base offsets
+            const moneyBase = us === "STU" ? 2000 : beds === 1 ? 3000 : beds === 2 ? 4000 : 5000;
+            const occBase = us === "STU" ? 2 : beds <= 2 ? 3 : 4;
+            const adrBase = us === "STU" ? 15 : beds === 1 ? 25 : beds === 2 ? 35 : 50;
+
+            // Confidence: DLD building = high, DLD area = medium, table = low
+            const confFactor = result.ltrBasis === "dld-building" ? 0.75
+              : result.ltrBasis === "dld-area" ? 1.0 : 1.25;
+            const moneyOffset = Math.min(5000, Math.round(moneyBase * confFactor)); // never exceed ±5,000
+
+            const roundTo = (v: number, step: number) => Math.round(v / step) * step;
+            const moneyRange = (base: number) =>
+              `AED ${fmt(roundTo(base - moneyOffset, 1000))} – ${fmt(roundTo(base + moneyOffset, 1000))}`;
+            const occRange = (pct: number) =>
+              `${Math.max(0, Math.round(pct - occBase))}% – ${Math.min(100, Math.round(pct + occBase))}%`;
+            const adrRange = (adr: number) =>
+              `AED ${fmt(roundTo(adr - adrBase, 5))} – ${fmt(roundTo(adr + adrBase, 5))}`;
+
+            const cards = [
+              { label: "Annual Revenue", value: moneyRange(result.annualRevenue), accent: colors.primary },
+              { label: "Average Occupancy", value: occRange(result.avgOccupancy * 100), accent: colors.secondary },
+              { label: "Average ADR", value: adrRange(result.avgADR), accent: colors.primary },
+              { label: "Net to Landlord", value: moneyRange(result.annualNetToLandlord), accent: colors.secondary },
+            ];
+
+            return (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-4">
+                  {cards.map((c) => (
+                    <div
+                      key={c.label}
+                      className="relative overflow-hidden flex flex-col"
+                      style={{
+                        background: `linear-gradient(160deg, #FFFFFF 0%, ${colors.bgSection} 100%)`,
+                        border: `1px solid ${colors.border}`,
+                        borderRadius: "24px",
+                        boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 36px rgba(0,0,0,0.05)",
+                        padding: "26px 24px 24px",
+                        minHeight: "132px",
+                      }}
+                    >
+                      {/* Top accent bar */}
+                      <span style={{
+                        position: "absolute", top: 0, left: 0, right: 0, height: "3px",
+                        background: `linear-gradient(90deg, ${c.accent} 0%, ${c.accent}66 100%)`,
+                      }} />
+                      <p className="mb-3" style={{
+                        fontSize: "12px", fontWeight: 600, color: colors.textMuted,
+                        letterSpacing: "0.06em", textTransform: "uppercase",
+                      }}>
+                        {c.label}
+                      </p>
+                      <p style={{
+                        marginTop: "auto",
+                        fontSize: "20px", fontWeight: 700, lineHeight: 1.3,
+                        color: c.accent, fontFamily: "'Georgia', serif",
+                        letterSpacing: "0.01em", overflowWrap: "normal",
+                      }}>
+                        {c.value.replace(" – ", " – ")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs mb-6" style={{ color: colors.textLight, lineHeight: 1.5 }}>
+                  Forecast ranges reflect expected variation based on property type, building demand, and short-term rental market conditions.
+                </p>
+              </>
+            );
+          })()}
+
+          {/* Table */}
+          <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}` }}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
+                  {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Net to Landlord"].map(h => (
+                    <th key={h} className="px-6 py-4 text-left font-semibold" style={{ color: colors.textMuted, fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {result.months.map((m, i) => {
+                  const revenuePercent = (m.revenue / result.annualRevenue * 100).toFixed(1);
+                  const occupancyRate = m.occupancy * 100;
+                  let occupancyColor = colors.textLight;
+                  if (occupancyRate >= 75) occupancyColor = colors.primary;
+                  else if (occupancyRate >= 67) occupancyColor = colors.secondary;
+                  else occupancyColor = "#A0826D";
+                  const barColor = occupancyRate >= 75 ? colors.primary : colors.secondary;
+
+                  return (
+                    <tr key={m.month} style={{
+                      borderBottom: `1px solid ${colors.border}80`,
+                      background: "#FFFFFF",
+                      transition: "background-color 0.2s"
+                    }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = `${colors.primary}06`)}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#FFFFFF")}>
+                      <td className="px-6 py-5 font-semibold" style={{ color: colors.textMain }}>{m.month}</td>
+
+                      {/* Revenue Column with Percentage and Progress Bar */}
+                      <td className="px-6 py-5">
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: colors.primary }}>AED {fmt(m.revenue)}</p>
+                            <p className="text-xs" style={{ color: colors.textMuted }}>{revenuePercent}% of annual</p>
+                          </div>
+                          <div style={{ width: "100%", height: "5px", background: `${colors.border}99`, borderRadius: "99px", overflow: "hidden" }}>
+                            <div style={{
+                              width: `${revenuePercent}%`,
+                              height: "100%",
+                              background: colors.primary,
+                              borderRadius: "99px",
+                              transition: "width 0.3s"
+                            }} />
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Occupancy Column with Progress Bar */}
+                      <td className="px-6 py-5">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium" style={{ color: occupancyColor }}>{occupancyRate.toFixed(0)}%</p>
+                          <div style={{ width: "100%", height: "5px", background: `${colors.border}99`, borderRadius: "99px", overflow: "hidden" }}>
+                            <div style={{
+                              width: `${Math.min(occupancyRate, 100)}%`,
+                              height: "100%",
+                              background: barColor,
+                              borderRadius: "99px",
+                              transition: "background-color 0.3s, width 0.3s"
+                            }} />
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5" style={{ color: colors.textMain }}>
+                        <p className="text-sm">AED {fmt(m.adr)}</p>
+                      </td>
+
+                      {/* Secondary Columns - Softer Emphasis */}
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.managementFee)}</p>
+                      </td>
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.utilities)}</p>
+                      </td>
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.maintenance)}</p>
+                      </td>
+
+                      {/* Net To Landlord - Subtle emphasis */}
+                      <td className="px-6 py-5" style={{ background: `${colors.primary}06`, borderLeft: `2px solid ${colors.primary}40` }}>
+                        <p className="text-sm font-bold" style={{ color: colors.primary, fontSize: "16px" }}>
+                          AED {fmt(m.netToLandlord)}
+                        </p>
+                      </td>
+                    </tr>
+                  );
+                })}
+
+              </tbody>
+            </table>
+          </div>
           </div>
         </div>
 
@@ -759,201 +953,6 @@ function ReportContent() {
             </div>
           </div>
         </div>
-
-        {/* Monthly breakdown table - Premium investor-grade */}
-        <div>
-          {/* Section header */}
-          <div className="mb-6">
-            <p className="text-xs font-bold uppercase mb-2" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
-              12-Month Rental Projection
-            </p>
-            <h2 className="text-2xl font-bold mb-1" style={{
-              fontFamily: "'Georgia', serif",
-              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}>
-              Monthly Breakdown
-            </h2>
-            <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
-          </div>
-
-          {/* KPI summary cards — narrow, confidence-based forecast ranges (display only) */}
-          {(() => {
-            const us = result.unitSize as string;
-            const isVilla = us.includes("VILLA");
-            const beds = us === "STU" ? 0 : isVilla ? 4 : Math.min(4, parseInt(us, 10) || 4);
-
-            // Per-category base offsets
-            const moneyBase = us === "STU" ? 2000 : beds === 1 ? 3000 : beds === 2 ? 4000 : 5000;
-            const occBase = us === "STU" ? 2 : beds <= 2 ? 3 : 4;
-            const adrBase = us === "STU" ? 15 : beds === 1 ? 25 : beds === 2 ? 35 : 50;
-
-            // Confidence: DLD building = high, DLD area = medium, table = low
-            const confFactor = result.ltrBasis === "dld-building" ? 0.75
-              : result.ltrBasis === "dld-area" ? 1.0 : 1.25;
-            const moneyOffset = Math.min(5000, Math.round(moneyBase * confFactor)); // never exceed ±5,000
-
-            const roundTo = (v: number, step: number) => Math.round(v / step) * step;
-            const moneyRange = (base: number) =>
-              `AED ${fmt(roundTo(base - moneyOffset, 1000))} – ${fmt(roundTo(base + moneyOffset, 1000))}`;
-            const occRange = (pct: number) =>
-              `${Math.max(0, Math.round(pct - occBase))}% – ${Math.min(100, Math.round(pct + occBase))}%`;
-            const adrRange = (adr: number) =>
-              `AED ${fmt(roundTo(adr - adrBase, 5))} – ${fmt(roundTo(adr + adrBase, 5))}`;
-
-            const cards = [
-              { label: "Annual Revenue", value: moneyRange(result.annualRevenue), accent: colors.primary },
-              { label: "Average Occupancy", value: occRange(result.avgOccupancy * 100), accent: colors.secondary },
-              { label: "Average ADR", value: adrRange(result.avgADR), accent: colors.primary },
-              { label: "Net to Landlord", value: moneyRange(result.annualNetToLandlord), accent: colors.secondary },
-            ];
-
-            return (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-4">
-                  {cards.map((c) => (
-                    <div
-                      key={c.label}
-                      className="relative overflow-hidden flex flex-col"
-                      style={{
-                        background: `linear-gradient(160deg, #FFFFFF 0%, ${colors.bgSection} 100%)`,
-                        border: `1px solid ${colors.border}`,
-                        borderRadius: "24px",
-                        boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 36px rgba(0,0,0,0.05)",
-                        padding: "26px 24px 24px",
-                        minHeight: "132px",
-                      }}
-                    >
-                      {/* Top accent bar */}
-                      <span style={{
-                        position: "absolute", top: 0, left: 0, right: 0, height: "3px",
-                        background: `linear-gradient(90deg, ${c.accent} 0%, ${c.accent}66 100%)`,
-                      }} />
-                      <p className="mb-3" style={{
-                        fontSize: "12px", fontWeight: 600, color: colors.textMuted,
-                        letterSpacing: "0.06em", textTransform: "uppercase",
-                      }}>
-                        {c.label}
-                      </p>
-                      <p style={{
-                        marginTop: "auto",
-                        fontSize: "20px", fontWeight: 700, lineHeight: 1.3,
-                        color: c.accent, fontFamily: "'Georgia', serif",
-                        letterSpacing: "0.01em", overflowWrap: "normal",
-                      }}>
-                        {c.value.replace(" – ", " – ")}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs mb-6" style={{ color: colors.textLight, lineHeight: 1.5 }}>
-                  Forecast ranges reflect expected variation based on property type, building demand, and short-term rental market conditions.
-                </p>
-              </>
-            );
-          })()}
-
-          {/* Table */}
-          <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}` }}>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
-                  {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Net to Landlord"].map(h => (
-                    <th key={h} className="px-6 py-4 text-left font-semibold" style={{ color: colors.textMuted, fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {result.months.map((m, i) => {
-                  const revenuePercent = (m.revenue / result.annualRevenue * 100).toFixed(1);
-                  const occupancyRate = m.occupancy * 100;
-                  let occupancyColor = colors.textLight;
-                  if (occupancyRate >= 75) occupancyColor = colors.primary;
-                  else if (occupancyRate >= 67) occupancyColor = colors.secondary;
-                  else occupancyColor = "#A0826D";
-                  const barColor = occupancyRate >= 75 ? colors.primary : colors.secondary;
-
-                  return (
-                    <tr key={m.month} style={{
-                      borderBottom: `1px solid ${colors.border}80`,
-                      background: "#FFFFFF",
-                      transition: "background-color 0.2s"
-                    }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = `${colors.primary}06`)}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "#FFFFFF")}>
-                      <td className="px-6 py-5 font-semibold" style={{ color: colors.textMain }}>{m.month}</td>
-
-                      {/* Revenue Column with Percentage and Progress Bar */}
-                      <td className="px-6 py-5">
-                        <div className="space-y-2">
-                          <div>
-                            <p className="text-sm font-medium" style={{ color: colors.primary }}>AED {fmt(m.revenue)}</p>
-                            <p className="text-xs" style={{ color: colors.textMuted }}>{revenuePercent}% of annual</p>
-                          </div>
-                          <div style={{ width: "100%", height: "5px", background: `${colors.border}99`, borderRadius: "99px", overflow: "hidden" }}>
-                            <div style={{
-                              width: `${revenuePercent}%`,
-                              height: "100%",
-                              background: colors.primary,
-                              borderRadius: "99px",
-                              transition: "width 0.3s"
-                            }} />
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Occupancy Column with Progress Bar */}
-                      <td className="px-6 py-5">
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium" style={{ color: occupancyColor }}>{occupancyRate.toFixed(0)}%</p>
-                          <div style={{ width: "100%", height: "5px", background: `${colors.border}99`, borderRadius: "99px", overflow: "hidden" }}>
-                            <div style={{
-                              width: `${Math.min(occupancyRate, 100)}%`,
-                              height: "100%",
-                              background: barColor,
-                              borderRadius: "99px",
-                              transition: "background-color 0.3s, width 0.3s"
-                            }} />
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-5" style={{ color: colors.textMain }}>
-                        <p className="text-sm">AED {fmt(m.adr)}</p>
-                      </td>
-
-                      {/* Secondary Columns - Softer Emphasis */}
-                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
-                        <p className="text-sm">AED {fmt(m.managementFee)}</p>
-                      </td>
-                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
-                        <p className="text-sm">AED {fmt(m.utilities)}</p>
-                      </td>
-                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
-                        <p className="text-sm">AED {fmt(m.maintenance)}</p>
-                      </td>
-
-                      {/* Net To Landlord - Subtle emphasis */}
-                      <td className="px-6 py-5" style={{ background: `${colors.primary}06`, borderLeft: `2px solid ${colors.primary}40` }}>
-                        <p className="text-sm font-bold" style={{ color: colors.primary, fontSize: "16px" }}>
-                          AED {fmt(m.netToLandlord)}
-                        </p>
-                      </td>
-                    </tr>
-                  );
-                })}
-
-              </tbody>
-            </table>
-          </div>
-          </div>
-        </div>
-
 
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
         {ltrRecommended ? (
