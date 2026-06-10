@@ -86,6 +86,30 @@ const IconLocation = ({ color = colors.secondary }) => (
   </svg>
 );
 
+const IconTools = ({ color = colors.secondary }) => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18.5 11.5L21 9C21.5 9.2 22 9.3 22.5 9.3C24.7 9.3 26.5 7.5 26.5 5.3C26.5 4.7 26.4 4.1 26.1 3.6L23.5 6.2L21 5.5L20.3 3L22.9 0.4C22.4 0.1 21.8 0 21.2 0C19 0 17.2 1.8 17.2 4C17.2 4.5 17.3 5 17.5 5.5L6 17C5.5 16.8 5 16.7 4.5 16.7C2.3 16.7 0.5 18.5 0.5 20.7C0.5 21.3 0.6 21.9 0.9 22.4L3.5 19.8L6 20.5L6.7 23L4.1 25.6C4.6 25.9 5.2 26 5.8 26C8 26 9.8 24.2 9.8 22C9.8 21.5 9.7 21 9.5 20.5L18.5 11.5Z" stroke={color} strokeWidth="1.2" transform="translate(2.5 3)" />
+  </svg>
+);
+
+const IconWorkflow = ({ color = colors.primary }) => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="5" width="8" height="8" rx="1.5" stroke={color} strokeWidth="1.2" />
+    <rect x="19" y="5" width="8" height="8" rx="1.5" stroke={color} strokeWidth="1.2" />
+    <rect x="12" y="19" width="8" height="8" rx="1.5" stroke={color} strokeWidth="1.2" />
+    <path d="M9 13V16H23V13" stroke={color} strokeWidth="1.2" />
+    <path d="M16 16V19" stroke={color} strokeWidth="1.2" />
+  </svg>
+);
+
+const IconGrowth = ({ color = colors.secondary }) => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 24H26" stroke={color} strokeWidth="1.2" />
+    <path d="M6 24L12 17L17 21L26 10" stroke={color} strokeWidth="1.2" />
+    <path d="M21 10H26V15" stroke={color} strokeWidth="1.2" />
+  </svg>
+);
+
 export default function HomePage() {
   const router = useRouter();
 
@@ -404,8 +428,8 @@ export default function HomePage() {
           </div>
 
           {/* Service cards grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "28px" }}>
-            {/* Service 1 */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "28px", alignItems: "stretch" }}>
+            {/* Service 1 - Rental Strategy Analyzer */}
             <div
               style={{
                 background: colors.bgSection,
@@ -415,6 +439,8 @@ export default function HomePage() {
                 boxShadow: colors.shadowSm,
                 transition: "all 0.3s ease",
                 cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = colors.shadowMd;
@@ -431,8 +457,8 @@ export default function HomePage() {
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
                 Rental Strategy Analyzer
               </h3>
-              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px" }}>
-                Compare short-term and long-term rental returns and identify the most suitable strategy for your property.
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px", flex: 1 }}>
+                Compare short-term and long-term rental performance and identify the most suitable strategy for your property using projected revenue, yield analysis, and market data.
               </p>
               <button
                 onClick={handleAnalyzeClick}
@@ -445,13 +471,14 @@ export default function HomePage() {
                   cursor: "pointer",
                   padding: 0,
                   textDecoration: "none",
+                  textAlign: "left",
                 }}
               >
                 Analyze My Property →
               </button>
             </div>
 
-            {/* Service 2 */}
+            {/* Service 2 - Self-Manage Your Property */}
             <div
               style={{
                 background: colors.bgSection,
@@ -461,6 +488,8 @@ export default function HomePage() {
                 boxShadow: colors.shadowSm,
                 transition: "all 0.3s ease",
                 cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = colors.shadowMd;
@@ -472,14 +501,26 @@ export default function HomePage() {
               }}
             >
               <div style={{ marginBottom: "20px" }}>
-                <IconDocument color={colors.secondary} />
+                <IconTools color={colors.secondary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Rental Valuation Reports
+                Self-Manage Your Property
               </h3>
-              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px" }}>
-                Understand what your property should realistically rent for using market-backed analysis.
-              </p>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+                  Built for owners managing up to 8 units who want to maximize profitability through self-management, automation, and proven short-term rental systems.
+                </p>
+                <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
+                  Includes dedicated guidance for:
+                </div>
+                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 16px 0", paddingLeft: "18px" }}>
+                  <li>Self-Management</li>
+                  <li>STR Sub-Leasing</li>
+                </ul>
+                <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px" }}>
+                  Learn how to choose the safest and most profitable route to sub-leasing in short-term rentals through proper due diligence, risk management, and financial analysis.
+                </p>
+              </div>
               <button
                 style={{
                   color: colors.secondary,
@@ -489,13 +530,14 @@ export default function HomePage() {
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: 0,
+                  textAlign: "left",
                 }}
               >
-                Learn More →
+                Explore Self-Management →
               </button>
             </div>
 
-            {/* Service 3 */}
+            {/* Service 3 - Operational Setup */}
             <div
               style={{
                 background: colors.bgSection,
@@ -505,6 +547,8 @@ export default function HomePage() {
                 boxShadow: colors.shadowSm,
                 transition: "all 0.3s ease",
                 cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = colors.shadowMd;
@@ -516,14 +560,24 @@ export default function HomePage() {
               }}
             >
               <div style={{ marginBottom: "20px" }}>
-                <IconChart color={colors.primary} />
+                <IconWorkflow color={colors.primary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Market Comparables
+                Operational Setup
               </h3>
-              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px" }}>
-                Benchmark your property against similar listings, rental prices, and market activity.
-              </p>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+                  Built for small and mid-sized operators looking to streamline and scale their short-term rental operations using proven strategies, operational frameworks, automation tools, and best practices.
+                </p>
+                <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
+                  Built for:
+                </div>
+                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 24px 0", paddingLeft: "18px" }}>
+                  <li>Holiday home operators</li>
+                  <li>Boutique operators</li>
+                  <li>Property managers</li>
+                </ul>
+              </div>
               <button
                 style={{
                   color: colors.primary,
@@ -533,13 +587,14 @@ export default function HomePage() {
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: 0,
+                  textAlign: "left",
                 }}
               >
-                Learn More →
+                Explore Operational Setup →
               </button>
             </div>
 
-            {/* Service 4 */}
+            {/* Service 4 - Investment Research */}
             <div
               style={{
                 background: colors.bgSection,
@@ -549,6 +604,8 @@ export default function HomePage() {
                 boxShadow: colors.shadowSm,
                 transition: "all 0.3s ease",
                 cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = colors.shadowMd;
@@ -560,14 +617,26 @@ export default function HomePage() {
               }}
             >
               <div style={{ marginBottom: "20px" }}>
-                <IconLocation color={colors.secondary} />
+                <IconGrowth color={colors.secondary} />
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Area Insights
+                Investment Research
               </h3>
-              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px" }}>
-                Explore community-level rental demand, yields, and investment outlook across Dubai.
-              </p>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+                  Designed for property owners, investors, and real estate agents seeking reliable short-term and long-term rental estimates before purchasing a property.
+                </p>
+                <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
+                  Focus areas:
+                </div>
+                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 24px 0", paddingLeft: "18px" }}>
+                  <li>STR projections</li>
+                  <li>LTR projections</li>
+                  <li>Yield analysis</li>
+                  <li>Area intelligence</li>
+                  <li>Investment feasibility</li>
+                </ul>
+              </div>
               <button
                 style={{
                   color: colors.secondary,
@@ -577,9 +646,10 @@ export default function HomePage() {
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: 0,
+                  textAlign: "left",
                 }}
               >
-                Learn More →
+                Explore Research →
               </button>
             </div>
           </div>
