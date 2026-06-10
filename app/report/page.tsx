@@ -604,17 +604,51 @@ function ReportContent() {
         </div>
 
         {/* Monthly breakdown table - Premium investor-grade */}
-        <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`, backdropFilter: "blur(20px)" }}>
-          <div className="px-8 py-6" style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
-            <h2 className="text-lg font-bold mb-1" style={{ color: colors.textMain }}>Monthly Breakdown</h2>
+        <div>
+          {/* Section header */}
+          <div className="mb-6">
+            <p className="text-xs font-bold uppercase mb-2" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
+              12-Month Rental Projection
+            </p>
+            <h2 className="text-2xl font-bold mb-1" style={{
+              fontFamily: "'Georgia', serif",
+              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              Monthly Breakdown
+            </h2>
             <p className="text-xs" style={{ color: colors.textMuted }}>Full 12-month projection with all income and cost lines</p>
           </div>
+
+          {/* KPI summary cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {[
+              { label: "Annual Revenue", value: `AED ${fmt(result.annualRevenue)}`, accent: colors.primary },
+              { label: "Average Occupancy", value: `${(result.avgOccupancy * 100).toFixed(0)}%`, accent: colors.secondary },
+              { label: "Average ADR", value: `AED ${fmt(result.avgADR)}`, accent: colors.primary },
+              { label: "Net to Landlord", value: `AED ${fmt(result.annualNetToLandlord)}`, accent: colors.secondary },
+            ].map((c) => (
+              <div key={c.label} className="rounded-2xl px-5 py-4" style={{
+                background: "#FFFFFF",
+                border: `1px solid ${colors.border}`,
+                boxShadow: colors.shadowSm,
+              }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: colors.textMuted, letterSpacing: "0.04em" }}>{c.label}</p>
+                <p className="text-xl font-bold" style={{ color: c.accent, fontFamily: "'Georgia', serif" }}>{c.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Table */}
+          <div className="rounded-3xl overflow-hidden" style={{ border: "1px solid " + colors.border, boxShadow: `${colors.shadowSm}, ${colors.shadowMd}` }}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead style={{ position: "sticky", top: 0, zIndex: 10 }}>
-                <tr style={{ background: colors.bgSection, borderBottom: "2px solid " + colors.primary }}>
+              <thead>
+                <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
                   {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Net to Landlord"].map(h => (
-                    <th key={h} className="px-6 py-4 text-left text-xs font-semibold" style={{ color: colors.textMuted, letterSpacing: "0.05em", background: colors.bgSection }}>
+                    <th key={h} className="px-6 py-4 text-left font-semibold" style={{ color: colors.textMuted, fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                       {h}
                     </th>
                   ))}
@@ -628,13 +662,16 @@ function ReportContent() {
                   if (occupancyRate >= 75) occupancyColor = colors.primary;
                   else if (occupancyRate >= 67) occupancyColor = colors.secondary;
                   else occupancyColor = "#A0826D";
+                  const barColor = occupancyRate >= 75 ? colors.primary : colors.secondary;
 
                   return (
                     <tr key={m.month} style={{
-                      borderBottom: "1px solid " + colors.border,
-                      background: i % 2 === 0 ? "#FFFFFF" : "#FCFAF7",
+                      borderBottom: `1px solid ${colors.border}80`,
+                      background: "#FFFFFF",
                       transition: "background-color 0.2s"
-                    }}>
+                    }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = `${colors.primary}06`)}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#FFFFFF")}>
                       <td className="px-6 py-5 font-semibold" style={{ color: colors.textMain }}>{m.month}</td>
 
                       {/* Revenue Column with Percentage and Progress Bar */}
@@ -644,12 +681,12 @@ function ReportContent() {
                             <p className="text-sm font-medium" style={{ color: colors.primary }}>AED {fmt(m.revenue)}</p>
                             <p className="text-xs" style={{ color: colors.textMuted }}>{revenuePercent}% of annual</p>
                           </div>
-                          <div style={{ width: "100%", height: "4px", background: colors.border, borderRadius: "2px", overflow: "hidden" }}>
+                          <div style={{ width: "100%", height: "5px", background: `${colors.border}99`, borderRadius: "99px", overflow: "hidden" }}>
                             <div style={{
                               width: `${revenuePercent}%`,
                               height: "100%",
                               background: colors.primary,
-                              borderRadius: "2px",
+                              borderRadius: "99px",
                               transition: "width 0.3s"
                             }} />
                           </div>
@@ -660,12 +697,12 @@ function ReportContent() {
                       <td className="px-6 py-5">
                         <div className="space-y-2">
                           <p className="text-sm font-medium" style={{ color: occupancyColor }}>{occupancyRate.toFixed(0)}%</p>
-                          <div style={{ width: "100%", height: "4px", background: colors.border, borderRadius: "2px", overflow: "hidden" }}>
+                          <div style={{ width: "100%", height: "5px", background: `${colors.border}99`, borderRadius: "99px", overflow: "hidden" }}>
                             <div style={{
                               width: `${Math.min(occupancyRate, 100)}%`,
                               height: "100%",
-                              background: occupancyColor,
-                              borderRadius: "2px",
+                              background: barColor,
+                              borderRadius: "99px",
                               transition: "background-color 0.3s, width 0.3s"
                             }} />
                           </div>
@@ -687,8 +724,8 @@ function ReportContent() {
                         <p className="text-sm">AED {fmt(m.maintenance)}</p>
                       </td>
 
-                      {/* Net To Landlord - Visually Dominant */}
-                      <td className="px-6 py-5" style={{ background: `${colors.primary}08`, borderLeft: `3px solid ${colors.primary}` }}>
+                      {/* Net To Landlord - Subtle emphasis */}
+                      <td className="px-6 py-5" style={{ background: `${colors.primary}06`, borderLeft: `2px solid ${colors.primary}40` }}>
                         <p className="text-sm font-bold" style={{ color: colors.primary, fontSize: "16px" }}>
                           AED {fmt(m.netToLandlord)}
                         </p>
@@ -697,13 +734,13 @@ function ReportContent() {
                   );
                 })}
 
-                {/* Total Row - Enhanced */}
+                {/* Total Row - refined */}
                 <tr style={{
-                  background: "#F5F2ED",
-                  borderTop: "2px solid " + colors.primary,
+                  background: colors.bgSection,
+                  borderTop: `1px solid ${colors.primary}40`,
                   borderBottom: "none"
                 }}>
-                  <td className="px-6 py-6 font-bold" style={{ color: colors.textMain, fontSize: "15px" }}>TOTAL</td>
+                  <td className="px-6 py-6 font-bold" style={{ color: colors.textMain, fontSize: "13px", letterSpacing: "0.06em" }}>TOTAL</td>
 
                   {/* Total Revenue */}
                   <td className="px-6 py-6">
@@ -732,15 +769,16 @@ function ReportContent() {
                     <p className="text-base font-bold" style={{ color: colors.textLight }}>AED {fmt(result.annualMaintenance)}</p>
                   </td>
 
-                  {/* Total Net To Landlord - Most Prominent */}
-                  <td className="px-6 py-6" style={{ background: colors.primary, borderLeft: `3px solid ${colors.primary}` }}>
-                    <p className="text-lg font-bold" style={{ color: "#FFF" }}>
+                  {/* Total Net To Landlord - Soft green-tinted, refined */}
+                  <td className="px-6 py-6" style={{ background: `${colors.primary}12`, borderLeft: `2px solid ${colors.primary}40` }}>
+                    <p className="text-lg font-bold" style={{ color: colors.primary }}>
                       AED {fmt(result.annualNetToLandlord)}
                     </p>
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
           </div>
         </div>
 
