@@ -57,6 +57,45 @@ export function getTierPremium(buildingName: string): number {
 }
 
 /**
+ * STR DEMAND PREMIUM (location-based)
+ * Prime tourist communities sustain stronger short-term rental demand than the
+ * city average — higher occupancy and a wider STR-vs-LTR uplift. This is kept
+ * SEPARATE from the building-tier premium (which reflects building quality) to
+ * avoid double-counting. Effects are small and capped.
+ */
+export interface STRDemand {
+  tier: "prime" | "strong" | "standard";
+  revenuePremium: number; // added to the STR revenue premium
+  occUplift: number;      // added to monthly occupancy (points), capped at 0.97
+}
+
+const STR_DEMAND_TIERS: { tier: "prime" | "strong"; revenuePremium: number; occUplift: number; match: string[] }[] = [
+  {
+    tier: "prime", revenuePremium: 0.04, occUplift: 0.03,
+    match: ["palm jumeirah", "bluewaters", "jbr", "jumeirah beach residence", "dubai marina", "marina", "downtown dubai", "downtown"],
+  },
+  {
+    tier: "strong", revenuePremium: 0.015, occUplift: 0.015,
+    match: ["business bay", "dubai creek harbour", "creek harbour", "emaar beachfront", "dubai harbour", "city walk", "difc", "jumeirah village circle", "jvc"],
+  },
+];
+
+export function getSTRDemand(buildingName: string): STRDemand {
+  // Gather candidate location strings for this building
+  const dir = BUILDING_DIRECTORY[buildingName];
+  const rec = getBuildingByName(buildingName);
+  const haystack = [dir?.community, dir?.area, rec?.area, buildingName]
+    .filter(Boolean).join(" ").toLowerCase();
+
+  for (const t of STR_DEMAND_TIERS) {
+    if (t.match.some(m => haystack.includes(m))) {
+      return { tier: t.tier, revenuePremium: t.revenuePremium, occUplift: t.occUplift };
+    }
+  }
+  return { tier: "standard", revenuePremium: 0, occUplift: 0 };
+}
+
+/**
  * Check if property qualifies for long-term rental suggestion
  * Criteria:
  * - Monthly LT rent < 40,000 AED
@@ -490,12 +529,16 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // so STR net revenue matches LTR rent (making the recommendation logical)
   const ltrWarning = getLTRWarning(buildingName);
   const basePremium = ltrWarning ? 0 : premium;
-  const totalPremium = basePremium + vPremium + fPremium + tPremium;
 
-  // Apply occupancy loss for LTR-recommended areas
+  // STR demand premium for prime tourist communities (skipped in LTR-recommended areas)
+  const strDemand = ltrWarning ? { tier: "standard" as const, revenuePremium: 0, occUplift: 0 } : getSTRDemand(buildingName);
+
+  const totalPremium = basePremium + vPremium + fPremium + tPremium + strDemand.revenuePremium;
+
+  // Apply occupancy loss for LTR-recommended areas; add demand uplift for prime areas (capped)
   const occRatesAdjusted = ltrWarning
     ? occRates.map(rate => rate * (1 - ltrWarning.avgOccupancyLoss))
-    : occRates;
+    : occRates.map(rate => Math.min(0.97, rate + strDemand.occUplift));
 
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
