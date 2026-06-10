@@ -244,3 +244,19 @@ export function rankAgents(community: string, unitType: string): (RealEstateAgen
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, 5);
 }
+
+// ── Boutique / emerging leasing specialists (display-only directory) ─────────
+// Smaller, personalized agencies surfaced alongside the ranked majors.
+// Not part of rankAgents() — additive content for the /agents recommendation page.
+export interface BoutiqueAgent {
+  id: string;
+  name: string;
+  badge: string;          // e.g. "Boutique Specialist"
+  specialization: string; // one-line "best for"
+}
+
+export const BOUTIQUE_AGENTS: BoutiqueAgent[] = [
+  { id: "b1", name: "Keystone Living", badge: "Boutique Specialist", specialization: "Personalized landlord communication & tenant vetting" },
+  { id: "b2", name: "Crest Residential", badge: "Emerging Agency", specialization: "Fast leasing for mid-market apartments" },
+  { id: "b3", name: "Anchor Leasing Co.", badge: "Promising Agency", specialization: "Hands-on management for single-property landlords" },
+];
