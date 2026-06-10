@@ -475,8 +475,13 @@ const OCC_TARGETS: Record<UnitSize, number> = {
   "7BR VILLA": 0.55, "8BR VILLA": 0.54, "9BR VILLA": 0.52,
 };
 
-function getOccRates(unitSize: UnitSize): number[] {
-  const target = OCC_TARGETS[unitSize] ?? 0.65;
+// targetAdj makes the per-bedroom occupancy a flexible baseline:
+//   - the bedroom value is the floor (we allow it to dip at most ~3% below)
+//   - the upside is uncapped by this logic — it rises as far as the data/quality
+//     signals warrant; only the physical 97% per-month realism limit applies.
+function getOccRates(unitSize: UnitSize, targetAdj = 0): number[] {
+  const base = OCC_TARGETS[unitSize] ?? 0.65;
+  const target = base + targetAdj;
   return OCC_BASE_SHAPE.map(v => Math.min(v * target, 0.97));
 }
 
@@ -557,12 +562,17 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     longTermRentOverride, furnished,
   } = input;
 
-  const occRates = getOccRates(unitSize);
   const dist = unitType === "Villa" ? DIST_VILLA : DIST_APARTMENT;
 
   const vPremium = VIEW_PREMIUMS[view] ?? 0;
   const fPremium = floorPremium(floor);
   const tPremium = getTierPremium(buildingName); // Add tier-based premium
+
+  // Dynamic occupancy baseline: the per-bedroom target is the floor (allow ≤3% dip),
+  // and rises with property quality (tier + view + floor). Upside is uncapped here —
+  // only the physical 97% per-month limit applies inside getOccRates.
+  const occQualityAdj = Math.max(-0.03, (tPremium + vPremium + fPremium - 0.04) * 0.4);
+  const occRates = getOccRates(unitSize, occQualityAdj);
 
   // For LTR-recommended areas, eliminate the base premium and reduce occupancy
   // so STR net revenue matches LTR rent (making the recommendation logical).
