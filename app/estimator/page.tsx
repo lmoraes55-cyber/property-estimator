@@ -703,103 +703,117 @@ export default function Home() {
 
       {/* LTR Area Warning Interstitial */}
       {ltrWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-          style={{ background: "#000000CC", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl"
-            style={{ background: colors.bgSection, border: "1px solid #2A2A2A" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 overflow-y-auto"
+          style={{ background: "rgba(20,24,22,0.55)", backdropFilter: "blur(10px)" }}>
+          <div className="relative w-full rounded-[30px] overflow-hidden my-auto"
+            style={{
+              maxWidth: "660px",
+              background: `linear-gradient(180deg, #FEFCF8 0%, ${colors.bgSection} 100%)`,
+              border: `1px solid ${colors.secondary}40`,
+              boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 30px 70px rgba(0,0,0,0.30)",
+            }}>
+            {/* Bronze top accent */}
+            <div style={{ height: "3px", background: `linear-gradient(90deg, ${colors.secondary}00, ${colors.secondary}, ${colors.secondary}00)` }} />
 
-            {/* Amber top strip */}
-            <div className="h-1" style={{ background: "linear-gradient(90deg, #C9A84C, #E8D5A3, #C9A84C)" }} />
-
-            <div className="p-8 space-y-6">
-              {/* Heading */}
+            <div style={{ padding: "clamp(24px, 4vw, 40px)" }} className="space-y-6">
+              {/* Header */}
               <div>
-                <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary }}>
-                  Our Recommendation
-                </p>
-                <h2 className="text-xl font-bold leading-snug" style={{ color: colors.secondary }}>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <span className="flex items-center justify-center rounded-full" style={{ width: "30px", height: "30px", background: `${colors.primary}12`, border: `1px solid ${colors.primary}30` }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 5.6L20 8.2l-4 4.1.9 5.7L12 15.4 7.1 18l.9-5.7-4-4.1 5.6-.6L12 2z" stroke={colors.primary} strokeWidth="1.3" strokeLinejoin="round"/></svg>
+                  </span>
+                  <span className="text-xs font-bold uppercase" style={{ color: colors.primary, letterSpacing: "0.16em" }}>Our Recommendation</span>
+                </div>
+                <h2 className="font-bold" style={{
+                  fontFamily: "'Georgia', serif",
+                  fontSize: "clamp(28px, 4.2vw, 42px)",
+                  lineHeight: 1.12,
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 50%, ${colors.secondary} 100%)`,
+                  WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
+                }}>
                   Long-term rental may be the stronger option here
                 </h2>
               </div>
 
-              {/* Reason */}
-              <div className="rounded-xl p-4" style={{ background: colors.bgMain, border: "1px solid colors.primary" }}>
-                <p className="text-sm leading-relaxed" style={{ color: "#999" }}>
-                  {ltrWarning.reason}
-                </p>
-                <p className="text-sm mt-3 leading-relaxed" style={{ color: "#999" }}>
-                  In this area, short-term rental income is likely to <span className="font-medium" style={{ color: colors.secondary }}>match — not significantly exceed</span> your
-                  long-term rent, after management fees and seasonal vacancy are factored in.
-                </p>
-              </div>
-
-              {/* Trade-off table */}
-              <div className="space-y-3">
-                <p className="text-xs font-semibold tracking-wider uppercase" style={{ color: colors.textMuted }}>The Trade-off</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl p-4" style={{ background: colors.bgSection, border: "1px solid colors.primary" }}>
-                    <p className="text-xs font-bold mb-2" style={{ color: colors.mutedGreen }}>Long-Term Rental</p>
-                    <ul className="space-y-1.5">
-                      {["Guaranteed monthly income", "No vacancy risk", "Zero management hassle", "Lower operating costs"].map(p => (
-                        <li key={p} className="flex items-start gap-1.5 text-xs" style={{ color: colors.textLight }}>
-                          <span style={{ color: colors.mutedGreen, marginTop: "1px" }}>—</span> {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="rounded-xl p-4" style={{ background: "colors.bgSection", border: "1px solid colors.primary" }}>
-                    <p className="text-xs font-bold mb-2" style={{ color: colors.primary }}>Short-Term Rental</p>
-                    <ul className="space-y-1.5">
-                      {["Full flexibility — use it anytime", "Similar net income in this area", "Option to switch operators", "No fixed tenant commitment"].map(p => (
-                        <li key={p} className="flex items-start gap-1.5 text-xs" style={{ color: colors.textLight }}>
-                          <span style={{ color: colors.primary, marginTop: "1px" }}>✓</span> {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+              {/* Explanation box */}
+              <div className="rounded-2xl p-5 flex gap-4" style={{ background: colors.bgMain, border: `1px solid ${colors.border}` }}>
+                <span className="flex items-center justify-center flex-shrink-0 rounded-full" style={{ width: "44px", height: "44px", background: "#FFFFFF", border: `1px solid ${colors.secondary}40` }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7M5 10v9h5v-5h4v5h5v-9" stroke={colors.secondary} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
+                <div>
+                  <p className="text-sm leading-relaxed" style={{ color: colors.textMuted }}>{ltrWarning.reason}</p>
+                  <p className="text-sm mt-2.5 leading-relaxed" style={{ color: colors.textMuted }}>
+                    In this area, short-term rental income is likely to <span className="font-semibold" style={{ color: colors.secondary }}>match — not significantly exceed</span> your long-term rent, after management fees and seasonal vacancy are factored in.
+                  </p>
                 </div>
               </div>
 
-              {/* Question */}
-              <div className="rounded-xl p-4 text-center" style={{ background: "#111", border: "1px solid colors.primary" }}>
-                <p className="text-sm font-medium mb-1" style={{ color: colors.secondary }}>
-                  Would you still like to see the short-term projection?
-                </p>
-                <p className="text-xs" style={{ color: colors.textMuted }}>
-                  You&apos;ll earn similar revenue but keep full flexibility over your property.
-                </p>
+              {/* Trade-off divider */}
+              <div className="flex items-center justify-center gap-3">
+                <span className="flex-1" style={{ height: "1px", background: colors.border }} />
+                <span className="text-xs font-bold uppercase" style={{ color: colors.textMuted, letterSpacing: "0.16em" }}>The Trade-off</span>
+                <span className="flex-1" style={{ height: "1px", background: colors.border }} />
+              </div>
+
+              {/* Trade-off columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-0">
+                {[
+                  { title: "Long-Term Rental", icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7M5 10v9h5v-5h4v5h5v-9" stroke={colors.primary} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>), items: ["Guaranteed monthly income", "No vacancy risk", "Zero management hassle", "Lower operating costs"] },
+                  { title: "Short-Term Rental", icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4.5" width="18" height="16" rx="2" stroke={colors.primary} strokeWidth="1.3"/><path d="M3 9h18M8 2.5v4M16 2.5v4" stroke={colors.primary} strokeWidth="1.3" strokeLinecap="round"/></svg>), items: ["Full flexibility — use it anytime", "Similar net income in this area", "Option to switch operators", "No fixed tenant commitment"] },
+                ].map((col, ci) => (
+                  <div key={col.title} className={ci === 1 ? "sm:pl-6 sm:border-l" : "sm:pr-6"} style={ci === 1 ? { borderColor: colors.border } : undefined}>
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <span className="flex items-center justify-center rounded-full" style={{ width: "34px", height: "34px", background: `${colors.primary}10`, border: `1px solid ${colors.primary}25` }}>{col.icon}</span>
+                      <p className="text-sm font-bold" style={{ color: colors.primary }}>{col.title}</p>
+                    </div>
+                    <ul className="space-y-2">
+                      {col.items.map(p => (
+                        <li key={p} className="flex items-start gap-2 text-sm" style={{ color: colors.textMain }}>
+                          <svg className="flex-shrink-0 mt-0.5" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke={colors.primary} strokeWidth="1.2" opacity="0.35"/><path d="M8 12.2l2.6 2.6L16 9.4" stroke={colors.primary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              {/* STR projection callout */}
+              <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, ${colors.primary} 0%, #164A3A 100%)`, boxShadow: "0 10px 24px rgba(27,94,74,0.25)" }}>
+                <span className="flex items-center justify-center flex-shrink-0 rounded-xl" style={{ width: "42px", height: "42px", background: `${colors.secondary}22`, border: `1px solid ${colors.secondary}55` }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="#E8D5A3" strokeWidth="1.3" strokeLinejoin="round"/></svg>
+                </span>
+                <div>
+                  <p className="text-sm font-bold mb-0.5" style={{ color: "#F4E9D0" }}>Would you still like to see the short-term projection?</p>
+                  <p className="text-xs" style={{ color: "#FFFFFFCC" }}>You&apos;ll earn similar revenue but keep full flexibility over your property.</p>
+                </div>
               </div>
 
               {/* Actions */}
               <div className="flex flex-col gap-3">
                 <button onClick={proceedWithSTR}
-                  className="w-full py-3.5 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-103"
-                  style={{
-                    background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
-                    color: "#FFF",
-                    transitionDuration: "250ms",
-                    boxShadow: `0 8px 20px rgba(184, 138, 68, 0.3)`
-                  }}>
-                  Yes — show me the STR projection anyway ✦
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-105"
+                  style={{ background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)", color: "#FFF", transitionDuration: "250ms", boxShadow: "0 8px 20px rgba(184,138,68,0.3)" }}>
+                  Yes — show me the STR projection anyway →
                 </button>
                 <button
                   onClick={() => {
                     setLtrWarning(null);
                     router.push(`/agents?${buildParams().toString()}&ltrRecommended=true`);
                   }}
-                  className="w-full py-3.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5 hover:brightness-103"
-                  style={{
-                    background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
-                    color: "#FFF",
-                    transitionDuration: "250ms",
-                    boxShadow: `0 8px 20px rgba(27, 94, 74, 0.3)`
-                  }}>
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all hover:-translate-y-0.5 hover:brightness-105"
+                  style={{ background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)", color: "#FFF", transitionDuration: "250ms", boxShadow: "0 8px 20px rgba(27,94,74,0.3)" }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="#fff" strokeWidth="1.4"/><circle cx="17" cy="9" r="2.2" stroke="#fff" strokeWidth="1.4"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round"/><path d="M16 14c2.5 0 4.5 1.8 4.5 4.5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round"/></svg>
                   Find me a long-term leasing agent
                 </button>
-                <button onClick={() => setLtrWarning(null)}
-                  className="text-xs transition-all hover:opacity-70" style={{ color: colors.textLight, transitionDuration: "250ms" }}>
-                  ← Go back and change my property
-                </button>
+                <div className="flex items-center justify-center gap-3 pt-1">
+                  <span className="flex-1" style={{ height: "1px", background: colors.border }} />
+                  <button onClick={() => setLtrWarning(null)}
+                    className="text-xs transition-all hover:opacity-70 whitespace-nowrap" style={{ color: colors.textLight, transitionDuration: "250ms" }}>
+                    ← Go back and change my property
+                  </button>
+                  <span className="flex-1" style={{ height: "1px", background: colors.border }} />
+                </div>
               </div>
             </div>
           </div>
