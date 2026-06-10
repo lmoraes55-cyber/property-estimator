@@ -458,7 +458,22 @@ function ReportContent() {
                 <div className="group">
                   <p className="text-xs font-semibold tracking-widest mb-2" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>LTR/YEAR</p>
                   <p className="text-4xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
-                  <p className="text-xs mt-2" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
+                  {result.ltrBasis === "dld-building" || result.ltrBasis === "dld-area" ? (
+                    <div className="mt-2 space-y-1">
+                      {result.ltrRangeLow != null && result.ltrRangeHigh != null && (
+                        <p className="text-xs" style={{ color: colors.textMuted }}>
+                          Typical range AED {fmt(result.ltrRangeLow)}–{fmt(result.ltrRangeHigh)}
+                        </p>
+                      )}
+                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold"
+                        style={{ background: `${colors.primary}10`, color: colors.primary, border: `1px solid ${colors.primary}25` }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="1.4" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        DLD-verified · {result.ltrSampleSize?.toLocaleString()} contracts
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs mt-2" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
+                  )}
                 </div>
                 <div className="group">
                   <p className="text-xs font-semibold tracking-widest mb-2" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>AVG OCCUPANCY</p>

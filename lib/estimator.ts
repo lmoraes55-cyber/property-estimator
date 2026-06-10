@@ -194,21 +194,45 @@ const LTR_FALLBACK: Partial<Record<UnitSize, number>> = {
   "7BR VILLA": 700000, "8BR VILLA": 850000, "9BR VILLA": 1100000,
 };
 
-export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): { rent: number; source: string } {
+export interface LTRMarketRent {
+  rent: number;
+  source: string;
+  /** Confidence metadata when sourced from DLD actual contracts */
+  sampleSize?: number;     // number of registered contracts
+  rangeLow?: number;       // p25
+  rangeHigh?: number;      // p75
+  basis?: "dld-building" | "dld-area" | "table"; // data tier used
+}
+
+export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): LTRMarketRent {
   const info = BUILDING_DIRECTORY[buildingName];
   const community = info?.community;
 
   // 1. Building-level actual rents from DLD registered contracts (preferred)
   const dldBuilding = lookupDLDBuilding(buildingName, unitSize);
   if (dldBuilding) {
-    return { rent: dldBuilding.median, source: `${dldBuilding.n} registered DLD contracts · ${buildingName}` };
+    return {
+      rent: dldBuilding.median,
+      source: `${dldBuilding.n.toLocaleString()} registered DLD contracts · ${buildingName}`,
+      sampleSize: dldBuilding.n,
+      rangeLow: dldBuilding.p25,
+      rangeHigh: dldBuilding.p75,
+      basis: "dld-building",
+    };
   }
 
   // 2. Area-level actual rents from DLD (when this building has too few contracts)
   if (community) {
     const dldArea = lookupDLDArea(community, unitSize);
     if (dldArea) {
-      return { rent: dldArea.median, source: `${community} · DLD registered contracts` };
+      return {
+        rent: dldArea.median,
+        source: `${dldArea.n.toLocaleString()} registered DLD contracts · ${community}`,
+        sampleSize: dldArea.n,
+        rangeLow: dldArea.p25,
+        rangeHigh: dldArea.p75,
+        basis: "dld-area",
+      };
     }
   }
 
@@ -218,7 +242,7 @@ export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): { re
   const source = communityRents?.[unitSize]
     ? `${community} market average`
     : "Dubai market average";
-  return { rent, source };
+  return { rent, source, basis: "table" };
 }
 
 // Dubai buildings mapped to community + area type
@@ -404,6 +428,10 @@ export interface EstimatorOutput {
   tierPremiumPct: number;        // building tier-based premium
   longTermRent: number;
   ltrSource: string;
+  ltrSampleSize?: number;   // DLD registered-contract count (confidence)
+  ltrRangeLow?: number;     // DLD p25
+  ltrRangeHigh?: number;    // DLD p75
+  ltrBasis?: "dld-building" | "dld-area" | "table";
   furnished: FurnishedStatus;
   annualRevenue: number;
   annualNetToLandlord: number;
@@ -448,7 +476,8 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
   // Derive LTR from market data unless overridden internally
-  const { rent: marketRent, source: ltrSource } = getLTRMarketRent(buildingName, unitSize);
+  const ltrMarket = getLTRMarketRent(buildingName, unitSize);
+  const { rent: marketRent, source: ltrSource } = ltrMarket;
   const longTermRent = longTermRentOverride ?? marketRent;
 
   // Target annual STR revenue: LTR + blended premium (base + view + floor), scaled by management fee
@@ -502,6 +531,10 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     tierPremiumPct: tPremium,
     longTermRent,
     ltrSource,
+    ltrSampleSize: ltrMarket.sampleSize,
+    ltrRangeLow: ltrMarket.rangeLow,
+    ltrRangeHigh: ltrMarket.rangeHigh,
+    ltrBasis: ltrMarket.basis,
     furnished,
     annualRevenue,
     annualNetToLandlord,

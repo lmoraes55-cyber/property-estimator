@@ -7,9 +7,12 @@
  * The JSON is produced by scripts/ingest-dld-rents.mjs from the official
  * Dubai Land Department "Rent Contracts" (Ejari) open dataset.
  *
- * When the dataset is empty (placeholder), all lookups return null and the
- * caller falls back to the existing community-average table — so behaviour is
- * unchanged until real data is ingested.
+ * Matching cascade for a building name:
+ *   1. exact normalized key
+ *   2. fuzzy/alias match — merges DLD project variants
+ *      (e.g. "Marina Gate" → "At Marina Gate 1" + "At Marina Gate 2";
+ *       "Address Boulevard" → "Address Blvd")
+ *   3. caller falls back to area-level, then the internal table.
  */
 
 import type { UnitSize } from "./estimator";
@@ -20,6 +23,7 @@ export interface RentStat {
   p25: number;
   p75: number;
   n: number; // sample size (number of registered contracts)
+  match?: "building" | "building-group" | "area"; // how it was resolved
 }
 
 interface BuildingEntry {
@@ -47,23 +51,96 @@ export function normalizeName(name: string): string {
     .trim();
 }
 
+// Canonicalize abbreviations + filler so variants collide.
+function canon(s: string): string {
+  return s
+    .replace(/\bblvd\b/g, "boulevard")
+    .replace(/\bbld\b/g, "boulevard")
+    .replace(/\bresidenc\b/g, "")
+    .replace(/\b(at|by|jumeirah living|emaar|nshama|the)\b/g, "")
+    .replace(/\b(\d+)(st|nd|rd|th)\b/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Precompute canonical index of building keys → original keys
+const buildingKeys = Object.keys(data.buildings);
+const canonIndex: Map<string, string[]> = new Map();
+for (const k of buildingKeys) {
+  const c = canon(k);
+  if (!c) continue;
+  const arr = canonIndex.get(c) ?? [];
+  arr.push(k);
+  canonIndex.set(c, arr);
+}
+
+// Merge several RentStat samples (sample-weighted median, widest range, summed n)
+function mergeStats(stats: RentStat[]): RentStat | null {
+  const valid = stats.filter(Boolean);
+  if (!valid.length) return null;
+  if (valid.length === 1) return valid[0];
+  let wSum = 0, nSum = 0, p25 = Infinity, p75 = 0;
+  for (const s of valid) {
+    wSum += s.median * s.n;
+    nSum += s.n;
+    p25 = Math.min(p25, s.p25);
+    p75 = Math.max(p75, s.p75);
+  }
+  return { median: Math.round(wSum / nSum), p25, p75, n: nSum };
+}
+
 /** Building-level actual rent for a given building name + unit size. */
 export function lookupDLDBuilding(buildingName: string, unitSize: UnitSize): RentStat | null {
   const norm = normalizeName(buildingName);
   if (!norm) return null;
-  const entry = data.buildings[norm];
-  return entry?.beds?.[unitSize] ?? null;
+
+  // 1. Exact normalized key
+  const exact = data.buildings[norm]?.beds?.[unitSize];
+  if (exact) return { ...exact, match: "building" };
+
+  // 2. Fuzzy / alias match via canonical names
+  const t = canon(norm);
+  if (t.length < 4) return null;
+
+  const matchedKeys = new Set<string>();
+
+  // exact canonical hit (handles abbreviations like blvd↔boulevard)
+  for (const k of canonIndex.get(t) ?? []) matchedKeys.add(k);
+
+  // containment both directions, word-boundary safe
+  if (!matchedKeys.size) {
+    for (const [c, keys] of canonIndex) {
+      if (c === t) { keys.forEach(k => matchedKeys.add(k)); continue; }
+      // DLD variant contains our name: "marina gate" ⊂ "marina gate 1"
+      if (c.startsWith(t + " ") || c.includes(" " + t + " ") || c.endsWith(" " + t)) keys.forEach(k => matchedKeys.add(k));
+      // our name contains DLD variant (only if variant is reasonably specific)
+      else if (c.length >= 6 && (t.startsWith(c + " ") || t.endsWith(" " + c))) keys.forEach(k => matchedKeys.add(k));
+    }
+  }
+
+  if (!matchedKeys.size) return null;
+
+  const stats: RentStat[] = [];
+  for (const k of matchedKeys) {
+    const s = data.buildings[k]?.beds?.[unitSize];
+    if (s) stats.push(s);
+  }
+  const merged = mergeStats(stats);
+  if (!merged) return null;
+  return { ...merged, match: matchedKeys.size > 1 ? "building-group" : "building" };
 }
 
 /** Area-level actual rent (fallback when a specific building has too few contracts). */
 export function lookupDLDArea(areaName: string, unitSize: UnitSize): RentStat | null {
   if (!areaName) return null;
   const direct = data.areas[areaName]?.beds?.[unitSize];
-  if (direct) return direct;
-  // Tolerant match on normalized area string
+  if (direct) return { ...direct, match: "area" };
   const target = areaName.toLowerCase().trim();
   for (const [k, v] of Object.entries(data.areas)) {
-    if (k.toLowerCase().trim() === target) return v.beds?.[unitSize] ?? null;
+    if (k.toLowerCase().trim() === target) {
+      const s = v.beds?.[unitSize];
+      return s ? { ...s, match: "area" } : null;
+    }
   }
   return null;
 }
