@@ -624,7 +624,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   //   required premium = minAdvantage + (utilities + maintenance) / LTR
   // Premium properties whose natural premium already exceeds this keep their higher value.
   // LTR-recommended areas are exempt (there STR is intentionally not advantaged).
-  const MIN_STR_NET_ADVANTAGE = 0.25; // STR net ≥ 25% above LTR
+  const MIN_STR_NET_ADVANTAGE = 0.18; // STR net ≥ 18% above LTR (realistic, achievable margin)
   const requiredPremium = MIN_STR_NET_ADVANTAGE + (annualUtilEst + annualMaintEst) / longTermRent;
   const effectivePremium = ltrWarning ? totalPremium : Math.max(totalPremium, requiredPremium);
 
