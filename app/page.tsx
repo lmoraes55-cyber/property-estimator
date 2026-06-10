@@ -389,8 +389,11 @@ export default function HomePage() {
                 fontSize: "44px",
                 fontFamily: "'Georgia', serif",
                 fontWeight: "700",
-                color: colors.textMain,
                 marginBottom: "16px",
+                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
               }}
             >
               Everything You Need for Smarter Rental Decisions
