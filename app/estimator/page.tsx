@@ -207,7 +207,7 @@ export default function Home() {
   });
 
   const handleGenerate = () => {
-    const warning = getLTRWarning(form.buildingName);
+    const warning = getLTRWarning(form.buildingName, form.unitSize as UnitSize);
     if (warning) {
       setLtrWarning(warning);
       return; // show interstitial instead

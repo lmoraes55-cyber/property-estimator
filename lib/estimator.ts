@@ -64,9 +64,10 @@ export function getTierPremium(buildingName: string): number {
  * avoid double-counting. Effects are small and capped.
  */
 export interface STRDemand {
-  tier: "prime" | "strong" | "standard";
-  revenuePremium: number; // added to the STR revenue premium
-  occUplift: number;      // added to monthly occupancy (points), capped at 0.97
+  tier: "prime" | "strong" | "value-monthly" | "standard";
+  revenuePremium: number;      // added to the STR revenue premium
+  occUplift: number;           // added to every month's occupancy (points), capped at 0.97
+  lowSeasonOccUplift: number;  // extra occupancy added to low-season months (Jun–Sep)
 }
 
 const STR_DEMAND_TIERS: { tier: "prime" | "strong"; revenuePremium: number; occUplift: number; match: string[] }[] = [
@@ -80,19 +81,30 @@ const STR_DEMAND_TIERS: { tier: "prime" | "strong"; revenuePremium: number; occU
   },
 ];
 
-export function getSTRDemand(buildingName: string): STRDemand {
-  // Gather candidate location strings for this building
-  const dir = BUILDING_DIRECTORY[buildingName];
-  const rec = getBuildingByName(buildingName);
-  const haystack = [dir?.community, dir?.area, rec?.area, buildingName]
-    .filter(Boolean).join(" ").toLowerCase();
+export function getSTRDemand(buildingName: string, unitSize?: UnitSize): STRDemand {
+  const haystack = locationHaystack(buildingName);
 
+  // Prime tourist core (applies to all unit types)
   for (const t of STR_DEMAND_TIERS) {
-    if (t.match.some(m => haystack.includes(m))) {
-      return { tier: t.tier, revenuePremium: t.revenuePremium, occUplift: t.occUplift };
+    if (t.tier === "prime" && t.match.some(m => haystack.includes(m))) {
+      return { tier: t.tier, revenuePremium: t.revenuePremium, occUplift: t.occUplift, lowSeasonOccUplift: 0 };
     }
   }
-  return { tier: "standard", revenuePremium: 0, occUplift: 0 };
+
+  // Monthly-stay studios/1BR in value communities: strong, low-season-supported occupancy,
+  // modest revenue uplift (monthly rates sit only slightly above LTR).
+  if (isMonthlyStayStudio(buildingName, unitSize)) {
+    return { tier: "value-monthly", revenuePremium: 0.02, occUplift: 0.04, lowSeasonOccUplift: 0.10 };
+  }
+
+  // Strong secondary areas
+  for (const t of STR_DEMAND_TIERS) {
+    if (t.tier === "strong" && t.match.some(m => haystack.includes(m))) {
+      return { tier: t.tier, revenuePremium: t.revenuePremium, occUplift: t.occUplift, lowSeasonOccUplift: 0 };
+    }
+  }
+
+  return { tier: "standard", revenuePremium: 0, occUplift: 0, lowSeasonOccUplift: 0 };
 }
 
 /**
@@ -135,8 +147,35 @@ export const LTR_RECOMMENDED_AREAS: Record<string, LTRAreaWarning> = {
   "Town Square":   { reason: "New developing area with limited short-term rental guest demand currently.", avgOccupancyLoss: 0.20, stillPossible: true },
 };
 
+// Value communities where operators run STR profitably on MONTHLY stays —
+// studios/1BR keep strong, low-season-supported occupancy despite being
+// outside the prime tourist core.
+const MONTHLY_STAY_AREAS = [
+  "jumeirah village circle", "jvc",
+  "arjan", "al furjan", "furjan",
+  "dubai sports city", "sports city",
+  "damac hills 2", "damac hills",
+  "town square",
+];
+
+function locationHaystack(buildingName: string): string {
+  const dir = BUILDING_DIRECTORY[buildingName];
+  const rec = getBuildingByName(buildingName);
+  return [dir?.community, dir?.area, rec?.area, buildingName].filter(Boolean).join(" ").toLowerCase();
+}
+
+// Studios / 1BR in monthly-stay value areas are a viable STR product (not LTR-only)
+export function isMonthlyStayStudio(buildingName: string, unitSize?: UnitSize): boolean {
+  if (unitSize !== "STU" && unitSize !== "1BR") return false;
+  const hay = locationHaystack(buildingName);
+  return MONTHLY_STAY_AREAS.some(a => hay.includes(a));
+}
+
 // Check if a building or manually typed area is in an LTR-recommended zone
-export function getLTRWarning(buildingName: string): LTRAreaWarning | null {
+export function getLTRWarning(buildingName: string, unitSize?: UnitSize): LTRAreaWarning | null {
+  // Studios/1BR in monthly-stay value areas perform well via monthly stays —
+  // don't steer them to LTR.
+  if (isMonthlyStayStudio(buildingName, unitSize)) return null;
   // Check building directory first
   const info = BUILDING_DIRECTORY[buildingName];
   if (info) {
@@ -526,19 +565,27 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const tPremium = getTierPremium(buildingName); // Add tier-based premium
 
   // For LTR-recommended areas, eliminate the base premium and reduce occupancy
-  // so STR net revenue matches LTR rent (making the recommendation logical)
-  const ltrWarning = getLTRWarning(buildingName);
+  // so STR net revenue matches LTR rent (making the recommendation logical).
+  // Studios/1BR in monthly-stay value areas are exempt (handled below).
+  const ltrWarning = getLTRWarning(buildingName, unitSize);
   const basePremium = ltrWarning ? 0 : premium;
 
-  // STR demand premium for prime tourist communities (skipped in LTR-recommended areas)
-  const strDemand = ltrWarning ? { tier: "standard" as const, revenuePremium: 0, occUplift: 0 } : getSTRDemand(buildingName);
+  // STR demand profile by location + unit (prime, strong, value-monthly). Skipped in LTR areas.
+  const strDemand = ltrWarning
+    ? { tier: "standard" as const, revenuePremium: 0, occUplift: 0, lowSeasonOccUplift: 0 }
+    : getSTRDemand(buildingName, unitSize);
 
   const totalPremium = basePremium + vPremium + fPremium + tPremium + strDemand.revenuePremium;
 
-  // Apply occupancy loss for LTR-recommended areas; add demand uplift for prime areas (capped)
+  // Low season = Jun, Jul, Aug, Sep (indices 0–3 in MONTHS)
+  const isLowSeason = (i: number) => i <= 3;
+
+  // Apply occupancy loss for LTR-recommended areas; otherwise add demand uplift
+  // (with extra low-season support for monthly-stay studios), capped at 97%.
   const occRatesAdjusted = ltrWarning
     ? occRates.map(rate => rate * (1 - ltrWarning.avgOccupancyLoss))
-    : occRates.map(rate => Math.min(0.97, rate + strDemand.occUplift));
+    : occRates.map((rate, i) =>
+        Math.min(0.97, rate + strDemand.occUplift + (isLowSeason(i) ? strDemand.lowSeasonOccUplift : 0)));
 
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
