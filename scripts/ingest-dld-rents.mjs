@@ -90,13 +90,14 @@ function normalizeName(name) {
     .trim();
 }
 
-// Map a raw DLD "rooms" string to our UnitSize buckets.
-function toBedBucket(roomsRaw, subTypeRaw) {
-  const r = String(roomsRaw || "").toLowerCase();
-  const sub = String(subTypeRaw || "").toLowerCase();
-  const isVilla = sub.includes("villa");
+// Map DLD bedroom text + property type to our UnitSize buckets.
+//   bedroomText e.g. "Studio", "1 bed room+hall", "4 bed rooms+hall"  (ejari_property_sub_type_en)
+//   propTypeText e.g. "Villa", "Unit"                                  (ejari_property_type_en)
+function toBedBucket(bedroomText, propTypeText) {
+  const r = String(bedroomText || "").toLowerCase();
+  const isVilla = String(propTypeText || "").toLowerCase().includes("villa") || r.includes("villa");
   if (r.includes("studio")) return "STU";
-  const m = r.match(/(\d+)\s*b/); // "1 b/r", "2 b r", etc.
+  const m = r.match(/(\d+)\s*bed/) || r.match(/(\d+)\s*b\b/) || r.match(/(\d+)\s*b/);
   const beds = m ? parseInt(m[1], 10) : null;
   if (beds === null) return null;
   if (!isVilla) {
@@ -155,10 +156,10 @@ async function main() {
       col = {
         project: findCol(headers, ["project_name_en", "project name", "project"]),
         area: findCol(headers, ["area_name_en", "area name", "area"]),
-        rooms: findCol(headers, ["rooms_en", "rooms", "room"]),
-        subType: findCol(headers, ["ejari_property_sub_type_en", "property_sub_type_en", "sub_type", "subtype"]),
+        bedrooms: findCol(headers, ["ejari_property_sub_type_en", "property_sub_type_en", "rooms_en", "rooms"]),
+        propType: findCol(headers, ["ejari_property_type_en", "property_type_en", "property_type"]),
         usage: findCol(headers, ["property_usage_en", "usage_en", "usage"]),
-        annual: findCol(headers, ["annual_amount", "annual amount", "contract_amount", "amount"]),
+        annual: findCol(headers, ["annual_amount", "annual amount", "amount"]),
         start: findCol(headers, ["contract_start_date", "start_date", "registration_date"]),
       };
       if (col.project === -1 || col.area === -1 || col.annual === -1) {
@@ -188,7 +189,10 @@ async function main() {
     const annual = Number(String(f[col.annual] || "").replace(/[^0-9.]/g, ""));
     if (!annual || annual < 5000 || annual > 20000000) continue; // sanity bounds
 
-    const bed = toBedBucket(f[col.rooms], col.subType !== -1 ? f[col.subType] : "");
+    const bed = toBedBucket(
+      col.bedrooms !== -1 ? f[col.bedrooms] : "",
+      col.propType !== -1 ? f[col.propType] : ""
+    );
     if (!bed) continue;
 
     const projectRaw = f[col.project] || "";
