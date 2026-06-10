@@ -11,6 +11,18 @@ import { FilterPanel, FilterState } from "@/components/FilterPanel";
 
 const STAR_COLOR = colors.primary;
 
+// Convert an operator name to a URL slug for its profile page
+// e.g. "Deluxe Holiday Homes" -> "deluxe-holiday-homes"
+function operatorSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 function Stars({ rating, max = 5 }: { rating: number; max?: number }) {
   return (
     <span className="inline-flex items-center gap-0.5">
@@ -272,6 +284,8 @@ function CredibilitySignals({ op }: { op: Operator }) {
 // Grid Operator Card - 3-column layout for recommended operators
 function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; matchReasons: string[] }; rank: number }) {
   const isBestMatch = rank === 1;
+  const router = useRouter();
+  const goToProfile = () => router.push(`/operators/${operatorSlug(op.name)}`);
 
   // Truncate text helper
   const truncate = (text: string, maxLines: number = 2) => {
@@ -300,6 +314,7 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
         display: "flex",
         flexDirection: "column"
       }}
+      onClick={goToProfile}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
@@ -431,32 +446,34 @@ function GridOperatorCard({ op, rank }: { op: Operator & { matchScore: number; m
 
       {/* FOOTER SECTION - CONTACT BUTTON + TAGS (pushed to bottom with flex-grow) */}
       <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", marginTop: "auto" }}>
+        {/* View Analysis - routes to operator profile */}
+        <button
+          onClick={(e) => { e.stopPropagation(); goToProfile(); }}
+          className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+          style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
+          View Analysis →
+        </button>
+
         {/* Contact Button - Always visible */}
         {op.website ? (
-          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
-            style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
+            style={{ background: "transparent", color: colors.primary, border: `1px solid ${colors.border}` }}>
             Contact Operator →
           </a>
         ) : op.email ? (
-          <a href={`mailto:${op.email}`}
+          <a href={`mailto:${op.email}`} onClick={(e) => e.stopPropagation()}
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
-            style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
+            style={{ background: "transparent", color: colors.primary, border: `1px solid ${colors.border}` }}>
             Contact Operator →
           </a>
         ) : op.phone ? (
-          <a href={`tel:${op.phone}`}
+          <a href={`tel:${op.phone}`} onClick={(e) => e.stopPropagation()}
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
-            style={{ background: isBestMatch ? colors.primary : colors.secondary, color: "#FFFFFF" }}>
+            style={{ background: "transparent", color: colors.primary, border: `1px solid ${colors.border}` }}>
             Contact Operator →
           </a>
-        ) : (
-          <button
-            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2 cursor-not-allowed opacity-70"
-            style={{ background: colors.border, color: colors.textMuted }}>
-            Contact Info Unavailable
-          </button>
-        )}
+        ) : null}
 
         {/* Target Owner Tags - Below Button */}
         {op.bestFor && op.bestFor.length > 0 && (
@@ -842,6 +859,8 @@ function OperatorCard({ op, rank }: { op: Operator & { matchScore: number; match
 }
 
 function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: number }) {
+  const router = useRouter();
+  const goToProfile = () => router.push(`/operators/${operatorSlug(op.name)}`);
   return (
     <div className="rounded-2xl overflow-hidden relative group"
       style={{
@@ -849,10 +868,12 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
         border: "1px solid " + colors.border,
         boxShadow: colors.shadowSm,
         transition: "all 0.3s ease",
+        cursor: "pointer",
         height: "620px", // FIXED HEIGHT - MATCHES RECOMMENDED CARDS
         display: "flex",
         flexDirection: "column"
       }}
+      onClick={goToProfile}
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = colors.shadowLg)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = colors.shadowSm)}>
 
@@ -946,32 +967,34 @@ function UpcomingOperatorCard({ op, rank }: { op: UpcomingOperator; rank?: numbe
 
       {/* FOOTER SECTION - CONTACT BUTTON + TAGS (pushed to bottom with margin-top: auto) */}
       <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", marginTop: "auto" }}>
+        {/* View Analysis - routes to operator profile */}
+        <button
+          onClick={(e) => { e.stopPropagation(); goToProfile(); }}
+          className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
+          style={{ background: colors.secondary, color: "#FFFFFF" }}>
+          View Analysis →
+        </button>
+
         {/* Contact Button - Always visible */}
         {op.website ? (
-          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://${op.website}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
-            style={{ background: colors.secondary, color: "#FFFFFF" }}>
+            style={{ background: "transparent", color: colors.primary, border: `1px solid ${colors.border}` }}>
             Contact Operator →
           </a>
         ) : op.email ? (
-          <a href={`mailto:${op.email}`}
+          <a href={`mailto:${op.email}`} onClick={(e) => e.stopPropagation()}
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
-            style={{ background: colors.secondary, color: "#FFFFFF" }}>
+            style={{ background: "transparent", color: colors.primary, border: `1px solid ${colors.border}` }}>
             Contact Operator →
           </a>
         ) : op.phone ? (
-          <a href={`tel:${op.phone}`}
+          <a href={`tel:${op.phone}`} onClick={(e) => e.stopPropagation()}
             className="w-full block py-2 rounded-lg font-bold text-sm transition text-center hover:brightness-105 mb-2"
-            style={{ background: colors.secondary, color: "#FFFFFF" }}>
+            style={{ background: "transparent", color: colors.primary, border: `1px solid ${colors.border}` }}>
             Contact Operator →
           </a>
-        ) : (
-          <button
-            className="w-full block py-2 rounded-lg font-bold text-sm transition text-center mb-2 cursor-not-allowed opacity-70"
-            style={{ background: colors.border, color: colors.textMuted }}>
-            Contact Info Unavailable
-          </button>
-        )}
+        ) : null}
 
         {/* Target Owner Tags - Below Button */}
         {op.communities && op.communities.length > 0 && (
