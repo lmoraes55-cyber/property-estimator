@@ -389,33 +389,28 @@ function ReportContent() {
           </div>
         )}
 
-        {/* Hero verdict with image - Premium Report Cover */}
-        <div className="rounded-3xl p-7 relative overflow-hidden"
+        {/* Compact executive summary card */}
+        <div className="rounded-3xl relative overflow-hidden"
           style={{
             background: colors.bgSection,
             border: `1px solid ${colors.border}`,
-            boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
-            backdropFilter: "blur(20px)"
+            boxShadow: `${colors.shadowSm}, ${colors.shadowMd}`,
+            padding: "28px",
           }}>
-          {/* Subtle gradient background */}
-          <div className="absolute inset-0 opacity-40"
-            style={{ background: `radial-gradient(circle at 100% 100%, ${colors.secondary}08 0%, transparent 50%)` }} />
+          <div className="relative flex flex-col lg:flex-row lg:items-stretch gap-6">
 
-          <div className="relative flex gap-8 items-center">
-            {/* Left side content */}
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-3 mb-3">
-                <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: colors.primary, letterSpacing: "0.15em" }}>
-                  12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
-                </span>
-                {result.buildingInfo && (
-                  <span className="text-xs px-3 py-1 rounded-full" style={{ background: `${colors.secondary}15`, color: colors.secondary, border: `1px solid ${colors.secondary}30` }}>
-                    {result.buildingInfo.community} · {result.buildingInfo.tier}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-4">
+            {/* Left: verdict */}
+            <div className="lg:w-[32%] flex flex-col justify-center">
+              <span className="text-[11px] font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary, letterSpacing: "0.14em" }}>
+                12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
+              </span>
+              <h1 className="text-2xl font-bold leading-snug mb-2" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>
+                {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
+              </h1>
+              <p className="text-lg font-bold mb-3" style={{ color: colors.secondary }}>
+                AED {fmt(Math.abs(result.strVsLtrDelta))} {strBetter ? "more per year" : "difference"}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
                 {[
                   `Floor ${result.floor}`,
                   result.furnished,
@@ -423,106 +418,54 @@ function ReportContent() {
                   result.floorPremiumPct > 0 ? `+${Math.round(result.floorPremiumPct * 100)}% floor` : null,
                   result.viewPremium > 0 ? `+${Math.round(result.viewPremium * 100)}% view` : null,
                 ].filter(Boolean).map(tag => (
-                  <span key={tag!} className="text-xs px-3 py-1 rounded-lg font-medium"
+                  <span key={tag!} className="text-[11px] px-2 py-0.5 rounded-md font-medium"
                     style={{ background: `${colors.primary}08`, color: colors.primary, border: `1px solid ${colors.primary}20` }}>
                     {tag}
                   </span>
                 ))}
               </div>
+            </div>
 
-              {/* Premium Headline */}
-              <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight"
-                style={{
-                  color: colors.textMain,
-                  background: `linear-gradient(135deg, ${colors.textMain} 0%, ${colors.primary} 100%)`,
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  fontFamily: "system-ui, -apple-system, sans-serif"
-                }}>
-                {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
-              </h1>
+            {/* Divider */}
+            <div className="hidden lg:block" style={{ width: "1px", background: colors.border }} />
 
-              {/* Premium value difference highlight */}
-              <div className="mb-5 pb-5 border-b" style={{ borderColor: colors.border }}>
-                <p className="text-sm mb-1.5" style={{ color: colors.textMuted }}>Revenue advantage</p>
-                <p className="text-2xl font-bold" style={{ color: colors.secondary }}>
-                  AED {fmt(Math.abs(result.strVsLtrDelta))} {strBetter ? "more per year" : "difference"}
-                </p>
+            {/* Middle: 2x2 compact metrics */}
+            <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-4 self-center">
+              <div>
+                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>STR NET/YEAR</p>
+                <p className="text-2xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
               </div>
-
-              {/* Premium Metric Strip */}
-              <div className="grid grid-cols-2 gap-x-8 gap-y-5">
-                <div className="group">
-                  <p className="text-xs font-semibold tracking-widest mb-1" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>STR NET/YEAR</p>
-                  <p className="text-3xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
-                </div>
-                <div className="group">
-                  <p className="text-xs font-semibold tracking-widest mb-1" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>LTR/YEAR</p>
-                  <p className="text-3xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
-                  {result.ltrBasis === "dld-building" || result.ltrBasis === "dld-area" ? (
-                    <div className="mt-2 space-y-1">
-                      {result.ltrRangeLow != null && result.ltrRangeHigh != null && (
-                        <p className="text-xs" style={{ color: colors.textMuted }}>
-                          Typical range AED {fmt(result.ltrRangeLow)}–{fmt(result.ltrRangeHigh)}
-                        </p>
-                      )}
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold"
-                        style={{ background: `${colors.primary}10`, color: colors.primary, border: `1px solid ${colors.primary}25` }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="1.4" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                        DLD-verified · {result.ltrSampleSize?.toLocaleString()} contracts{result.ltrAsOf ? ` · to ${result.ltrAsOf}` : ""}
-                      </span>
-                    </div>
-                  ) : (
-                    <p className="text-xs mt-2" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
-                  )}
-                </div>
-                <div className="group">
-                  <p className="text-xs font-semibold tracking-widest mb-1" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>AVG OCCUPANCY</p>
-                  <p className="text-3xl font-bold" style={{ color: colors.primary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
-                </div>
-                <div className="group">
-                  <p className="text-xs font-semibold tracking-widest mb-1" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>AVG DAILY RATE</p>
-                  <p className="text-3xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
-                </div>
+              <div>
+                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>LTR/YEAR</p>
+                <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
+                {result.ltrBasis === "dld-building" || result.ltrBasis === "dld-area" ? (
+                  <p className="text-[10px] mt-0.5 inline-flex items-center gap-1" style={{ color: colors.primary }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="1.6" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    DLD-verified · {result.ltrSampleSize?.toLocaleString()} contracts
+                  </p>
+                ) : (
+                  <p className="text-[10px] mt-0.5" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
+                )}
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>AVG OCCUPANCY</p>
+                <p className="text-2xl font-bold" style={{ color: colors.primary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>AVG DAILY RATE</p>
+                <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
               </div>
             </div>
 
-            {/* Right side premium image panel */}
-            <div className="hidden lg:block flex-shrink-0 w-72">
-              <div className="relative w-full h-72 rounded-3xl overflow-hidden group"
-                style={{
-                  boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
-                }}>
-                {/* Location-Specific Dubai Skyline Image (Pexels CDN) */}
-                <div className="absolute inset-0 w-full h-full"
-                  style={{
-                    backgroundImage: `url("${heroImage}")`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundColor: "#1B5E4A",
-                    transition: "transform 0.6s ease",
-                    filter: "brightness(1.05) contrast(1.1)"
-                  }} />
-
-                {/* Premium Brand Overlay - Green to Gold Gradient */}
-                <div className="absolute inset-0"
-                  style={{
-                    background: `linear-gradient(180deg, rgba(27,94,74,0.08) 0%, rgba(184,138,68,0.08) 100%)`,
-                    pointerEvents: "none"
-                  }} />
-
-                {/* Subtle Trend Line Accent */}
-                <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.15, mixBlendMode: "screen" }}>
-                  <polyline
-                    points="10,300 50,280 100,260 150,240 200,220 250,200 300,190 350,180 390,170"
-                    fill="none"
-                    stroke={colors.secondary}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            {/* Right: small thumbnail */}
+            <div className="hidden xl:block flex-shrink-0 self-center">
+              <div className="relative rounded-2xl overflow-hidden" style={{ width: "200px", height: "130px", boxShadow: colors.shadowSm }}>
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `url("${heroImage}")`,
+                  backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#1B5E4A",
+                  filter: "brightness(1.05) contrast(1.1)",
+                }} />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(27,94,74,0.08) 0%, rgba(184,138,68,0.08) 100%)` }} />
               </div>
             </div>
           </div>
