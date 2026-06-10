@@ -8,7 +8,6 @@ import {
 } from "@/lib/estimator";
 import { BUILDINGS_DATABASE, getAllAreas } from "@/lib/buildings-data";
 import { colors } from "@/lib/colors";
-import GroundWorksLogo from "@/components/GroundWorksLogo";
 
 const UNIT_SIZES: { label: UnitSize; type: UnitType }[] = [
   { label: "STU", type: "Apartment" },
@@ -129,37 +128,44 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16 animate-fade-in"
       style={{
-        background: `radial-gradient(ellipse 900px 700px at 50% 35%, ${colors.secondary}12 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 30%, ${colors.bgSection} 100%)`
+        background: `radial-gradient(ellipse 800px 600px at 80% 0%, ${colors.secondary}0E 0%, transparent 55%), radial-gradient(ellipse 700px 500px at 10% 10%, ${colors.primary}08 0%, transparent 55%), linear-gradient(180deg, ${colors.bgMain} 0%, ${colors.bgSection} 100%)`
       }}>
 
-      {/* Header */}
-      <div className="text-center mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-        <div className="flex flex-col items-center gap-4 mb-8">
-          <GroundWorksLogo size={120} />
-          <div>
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-3xl font-bold tracking-tight" style={{ color: colors.textMain }}>Ground</span>
-              <span className="text-3xl font-bold tracking-tight" style={{ color: colors.primary }}>Works</span>
-            </div>
-            <p className="text-xs tracking-widest font-medium" style={{ color: colors.textMuted, letterSpacing: "0.2em" }}>We work, You Decide</p>
-          </div>
+      {/* Service-page Hero */}
+      <div className="text-center mb-12 animate-slide-up max-w-3xl px-2" style={{ animationDelay: "0.1s" }}>
+        <div className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
+          Rental Strategy Analyzer
         </div>
-        <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border text-xs font-semibold tracking-widest uppercase"
-          style={{ borderColor: colors.primary + "30", color: colors.primary, background: colors.primary + "08", backdropFilter: "blur(10px)" }}>
-          Dubai Short-Term Rental Estimator
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4 leading-tight" style={{ color: colors.textMain }}>
-          How much can your<br />
-          <span style={{
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight"
+          style={{
+            fontFamily: "'Georgia', serif",
             background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
             backgroundClip: "text",
             WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent"
-          }}>Dubai property earn?</span>
+            WebkitTextFillColor: "transparent",
+          }}>
+          Compare STR vs LTR Returns Before You Decide
         </h1>
-        <p className="text-base max-w-md mx-auto" style={{ color: colors.textMuted, lineHeight: "1.7" }}>
-          Answer 3 questions. Get a data-driven 12-month rental forecast from our property intelligence platform.
+        <p className="text-base max-w-xl mx-auto mb-8" style={{ color: colors.textMuted, lineHeight: "1.7" }}>
+          Enter your property details to estimate short-term and long-term rental performance, compare potential yields, and identify the most suitable rental strategy.
         </p>
+
+        {/* Mini trust row */}
+        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+          {[
+            { label: "STR Forecast" },
+            { label: "LTR Forecast" },
+            { label: "Yield Comparison" },
+            { label: "Operator Recommendations" },
+          ].map((item, i) => (
+            <div key={item.label} className="flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8.5L6.5 12L13 4.5" stroke={i % 2 === 0 ? colors.primary : colors.secondary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="text-xs font-medium" style={{ color: colors.textMuted }}>{item.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
 {/* Step pills + Progress indicator */}
