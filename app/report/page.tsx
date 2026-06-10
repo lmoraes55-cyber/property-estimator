@@ -812,15 +812,39 @@ function ReportContent() {
 
             return (
               <>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-4">
                   {cards.map((c) => (
-                    <div key={c.label} className="rounded-2xl px-5 py-4" style={{
-                      background: "#FFFFFF",
-                      border: `1px solid ${colors.border}`,
-                      boxShadow: colors.shadowSm,
-                    }}>
-                      <p className="text-xs font-semibold mb-2" style={{ color: colors.textMuted, letterSpacing: "0.04em" }}>{c.label}</p>
-                      <p className="text-lg font-bold" style={{ color: c.accent, fontFamily: "'Georgia', serif" }}>{c.value}</p>
+                    <div
+                      key={c.label}
+                      className="relative overflow-hidden flex flex-col"
+                      style={{
+                        background: `linear-gradient(160deg, #FFFFFF 0%, ${colors.bgSection} 100%)`,
+                        border: `1px solid ${colors.border}`,
+                        borderRadius: "24px",
+                        boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 36px rgba(0,0,0,0.05)",
+                        padding: "26px 24px 24px",
+                        minHeight: "132px",
+                      }}
+                    >
+                      {/* Top accent bar */}
+                      <span style={{
+                        position: "absolute", top: 0, left: 0, right: 0, height: "3px",
+                        background: `linear-gradient(90deg, ${c.accent} 0%, ${c.accent}66 100%)`,
+                      }} />
+                      <p className="mb-3" style={{
+                        fontSize: "12px", fontWeight: 600, color: colors.textMuted,
+                        letterSpacing: "0.06em", textTransform: "uppercase",
+                      }}>
+                        {c.label}
+                      </p>
+                      <p style={{
+                        marginTop: "auto",
+                        fontSize: "20px", fontWeight: 700, lineHeight: 1.3,
+                        color: c.accent, fontFamily: "'Georgia', serif",
+                        letterSpacing: "0.01em", overflowWrap: "normal",
+                      }}>
+                        {c.value.replace(" – ", " – ")}
+                      </p>
                     </div>
                   ))}
                 </div>
