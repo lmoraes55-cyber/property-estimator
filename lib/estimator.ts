@@ -613,8 +613,23 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const { rent: marketRent, source: ltrSource } = ltrMarket;
   const longTermRent = longTermRentOverride ?? marketRent;
 
-  // Target annual STR revenue: LTR + blended premium (base + view + floor), scaled by management fee
-  const targetRevenue = (longTermRent * (1 + totalPremium)) / (1 - managementFee);
+  // Annual owner-paid running costs (in STR the OWNER pays these; in LTR the tenant does).
+  const annualUtilEst = MONTHS.reduce((s, _m, i) => s + DEWA[unitSize][i] + AC[unitSize][i] + DU[unitSize], 0);
+  const annualMaintEst = MAINTENANCE[unitSize] * 12;
+
+  // STR must clear a MEANINGFUL margin over LTR for an owner to bother (extra management,
+  // furnishing, vacancy risk). Because the owner absorbs utilities under STR, a flat premium
+  // can leave net BELOW LTR. So we floor the premium so STR net is always at least
+  // MIN_STR_NET_ADVANTAGE above LTR — net = LTR × (1 + premium) − utilities − maintenance.
+  //   required premium = minAdvantage + (utilities + maintenance) / LTR
+  // Premium properties whose natural premium already exceeds this keep their higher value.
+  // LTR-recommended areas are exempt (there STR is intentionally not advantaged).
+  const MIN_STR_NET_ADVANTAGE = 0.25; // STR net ≥ 25% above LTR
+  const requiredPremium = MIN_STR_NET_ADVANTAGE + (annualUtilEst + annualMaintEst) / longTermRent;
+  const effectivePremium = ltrWarning ? totalPremium : Math.max(totalPremium, requiredPremium);
+
+  // Target annual STR revenue, scaled up so net (after mgmt fee) lands at the intended margin.
+  const targetRevenue = (longTermRent * (1 + effectivePremium)) / (1 - managementFee);
 
   const months: MonthlyRow[] = MONTHS.map((month, i) => {
     const revenue = targetRevenue * dist[i];
