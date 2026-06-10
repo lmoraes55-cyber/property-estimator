@@ -201,6 +201,7 @@ export interface LTRMarketRent {
   sampleSize?: number;     // number of registered contracts
   rangeLow?: number;       // p25
   rangeHigh?: number;      // p75
+  asOf?: string;           // latest contract month used (YYYY-MM)
   basis?: "dld-building" | "dld-area" | "table"; // data tier used
 }
 
@@ -217,6 +218,7 @@ export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): LTRM
       sampleSize: dldBuilding.n,
       rangeLow: dldBuilding.p25,
       rangeHigh: dldBuilding.p75,
+      asOf: dldBuilding.asOf,
       basis: "dld-building",
     };
   }
@@ -231,6 +233,7 @@ export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): LTRM
         sampleSize: dldArea.n,
         rangeLow: dldArea.p25,
         rangeHigh: dldArea.p75,
+        asOf: dldArea.asOf,
         basis: "dld-area",
       };
     }
@@ -431,6 +434,7 @@ export interface EstimatorOutput {
   ltrSampleSize?: number;   // DLD registered-contract count (confidence)
   ltrRangeLow?: number;     // DLD p25
   ltrRangeHigh?: number;    // DLD p75
+  ltrAsOf?: string;         // latest DLD contract month used (YYYY-MM)
   ltrBasis?: "dld-building" | "dld-area" | "table";
   furnished: FurnishedStatus;
   annualRevenue: number;
@@ -534,6 +538,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     ltrSampleSize: ltrMarket.sampleSize,
     ltrRangeLow: ltrMarket.rangeLow,
     ltrRangeHigh: ltrMarket.rangeHigh,
+    ltrAsOf: ltrMarket.asOf,
     ltrBasis: ltrMarket.basis,
     furnished,
     annualRevenue,

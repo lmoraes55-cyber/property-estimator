@@ -40,9 +40,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
 // ── Config ───────────────────────────────────────────────────────────────
-const MIN_SAMPLES = Number(process.env.MIN_SAMPLES ?? 5);   // min contracts for a building×bed group
-const MONTHS_WINDOW = Number(process.env.MONTHS_WINDOW ?? 18); // only contracts started within N months
+const MIN_SAMPLES = Number(process.env.MIN_SAMPLES ?? 5);     // min contracts for a reliable group
+const COLLECT_WINDOW = Number(process.env.COLLECT_WINDOW ?? 60); // months of history to retain
+// Recency ladder: try the freshest window first; widen only if too few samples.
+const LADDER = (process.env.LADDER ?? "3,6,12,18,24,36,48,60").split(",").map(Number);
 const OUT_PATH = path.join(ROOT, "lib", "data", "building-ltr-rents.json");
+
+// Anchor "recent" to the current calendar month.
+const NOW = new Date();
+const NOW_YM = NOW.getFullYear() * 12 + NOW.getMonth(); // months since year 0
 
 const csvPath = process.argv[2] || process.env.DLD_CSV;
 if (!csvPath) {
@@ -134,6 +140,37 @@ function findCol(headers, candidates) {
 function median(sorted) { const n = sorted.length; return n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2; }
 function percentile(sorted, p) { const idx = Math.min(sorted.length - 1, Math.max(0, Math.round((p / 100) * (sorted.length - 1)))); return sorted[idx]; }
 
+// Parse a date string to a year-month integer (year*12 + month-1). Null if invalid.
+function toYM(s) {
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return null;
+  return d.getFullYear() * 12 + d.getMonth();
+}
+
+// Given dated entries [{ym, amt}], pick the FRESHEST window on the ladder that
+// has >= MIN_SAMPLES contracts, and compute stats on just that window.
+// Falls through to wider windows only when recent data is too thin.
+function freshestStats(entries) {
+  if (entries.length < MIN_SAMPLES) return null;
+  for (const w of LADDER) {
+    const minYM = NOW_YM - w;
+    const subset = entries.filter(e => e.ym >= minYM);
+    if (subset.length >= MIN_SAMPLES) {
+      const amts = subset.map(e => e.amt).sort((a, b) => a - b);
+      const latestYM = subset.reduce((m, e) => Math.max(m, e.ym), 0);
+      return {
+        median: Math.round(median(amts)),
+        p25: Math.round(percentile(amts, 25)),
+        p75: Math.round(percentile(amts, 75)),
+        n: amts.length,
+        windowMonths: w,
+        asOf: `${Math.floor(latestYM / 12)}-${String((latestYM % 12) + 1).padStart(2, "0")}`,
+      };
+    }
+  }
+  return null; // not enough data even in the widest window
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────
 async function main() {
   const rl = readline.createInterface({ input: fs.createReadStream(csvPath), crlfDelay: Infinity });
@@ -142,12 +179,11 @@ async function main() {
   let col = {};
   let sourceRows = 0;
   let usedRows = 0;
-  const cutoff = new Date();
-  cutoff.setMonth(cutoff.getMonth() - MONTHS_WINDOW);
+  const minYM = NOW_YM - COLLECT_WINDOW;
 
-  // group key -> array of annual amounts
-  const buildingGroups = new Map(); // `${norm}||${bed}` -> { displayName, area, amounts:[] }
-  const areaGroups = new Map();     // `${area}||${bed}`  -> amounts:[]
+  // group key -> dated entries (so we can prefer the freshest window later)
+  const buildingGroups = new Map(); // `${norm}||${bed}` -> { displayName, area, entries:[{ym,amt}] }
+  const areaGroups = new Map();     // `${area}||${bed}`  -> entries:[{ym,amt}]
 
   for await (const line of rl) {
     if (!line.trim()) continue;
@@ -180,11 +216,9 @@ async function main() {
       if (u && !u.includes("residential")) continue;
     }
 
-    // Recency window
-    if (col.start !== -1) {
-      const d = new Date(f[col.start]);
-      if (!isNaN(d.getTime()) && d < cutoff) continue;
-    }
+    // Recency: keep only contracts within the collection window, drop future-dated.
+    const ym = col.start !== -1 ? toYM(f[col.start]) : null;
+    if (ym === null || ym > NOW_YM || ym < minYM) continue;
 
     const annual = Number(String(f[col.annual] || "").replace(/[^0-9.]/g, ""));
     if (!annual || annual < 5000 || annual > 20000000) continue; // sanity bounds
@@ -203,43 +237,33 @@ async function main() {
     usedRows++;
 
     const bKey = `${norm}||${bed}`;
-    if (!buildingGroups.has(bKey)) buildingGroups.set(bKey, { displayName: projectRaw.trim(), area, amounts: [] });
-    buildingGroups.get(bKey).amounts.push(annual);
+    if (!buildingGroups.has(bKey)) buildingGroups.set(bKey, { displayName: projectRaw.trim(), area, entries: [] });
+    buildingGroups.get(bKey).entries.push({ ym, amt: annual });
 
     const aKey = `${area}||${bed}`;
     if (!areaGroups.has(aKey)) areaGroups.set(aKey, []);
-    areaGroups.get(aKey).push(annual);
+    areaGroups.get(aKey).push({ ym, amt: annual });
 
     if (sourceRows % 200000 === 0) console.log(`  …processed ${sourceRows.toLocaleString()} rows`);
   }
 
-  // Build output
+  // Build output — each group uses its FRESHEST reliable window.
   const buildings = {};
   for (const [key, g] of buildingGroups) {
-    if (g.amounts.length < MIN_SAMPLES) continue;
+    const stat = freshestStats(g.entries);
+    if (!stat) continue;
     const [norm, bed] = key.split("||");
-    const sorted = g.amounts.sort((a, b) => a - b);
     if (!buildings[norm]) buildings[norm] = { displayName: g.displayName, area: g.area, beds: {} };
-    buildings[norm].beds[bed] = {
-      median: Math.round(median(sorted)),
-      p25: Math.round(percentile(sorted, 25)),
-      p75: Math.round(percentile(sorted, 75)),
-      n: sorted.length,
-    };
+    buildings[norm].beds[bed] = stat;
   }
 
   const areas = {};
-  for (const [key, amounts] of areaGroups) {
-    if (amounts.length < MIN_SAMPLES) continue;
+  for (const [key, entries] of areaGroups) {
+    const stat = freshestStats(entries);
+    if (!stat) continue;
     const [area, bed] = key.split("||");
-    const sorted = amounts.sort((a, b) => a - b);
     if (!areas[area]) areas[area] = { beds: {} };
-    areas[area].beds[bed] = {
-      median: Math.round(median(sorted)),
-      p25: Math.round(percentile(sorted, 25)),
-      p75: Math.round(percentile(sorted, 75)),
-      n: sorted.length,
-    };
+    areas[area].beds[bed] = stat;
   }
 
   const out = {
@@ -248,7 +272,8 @@ async function main() {
       sourceRows,
       usedRows,
       minSamples: MIN_SAMPLES,
-      monthsWindow: MONTHS_WINDOW,
+      collectWindow: COLLECT_WINDOW,
+      ladder: LADDER,
       buildingsCovered: Object.keys(buildings).length,
       areasCovered: Object.keys(areas).length,
     },

@@ -23,6 +23,8 @@ export interface RentStat {
   p25: number;
   p75: number;
   n: number; // sample size (number of registered contracts)
+  windowMonths?: number; // recency window the stat was computed over
+  asOf?: string;         // latest contract month used (YYYY-MM)
   match?: "building" | "building-group" | "area"; // how it was resolved
 }
 
@@ -79,14 +81,17 @@ function mergeStats(stats: RentStat[]): RentStat | null {
   const valid = stats.filter(Boolean);
   if (!valid.length) return null;
   if (valid.length === 1) return valid[0];
-  let wSum = 0, nSum = 0, p25 = Infinity, p75 = 0;
+  let wSum = 0, nSum = 0, p25 = Infinity, p75 = 0, windowMonths = 0;
+  let asOf = "";
   for (const s of valid) {
     wSum += s.median * s.n;
     nSum += s.n;
     p25 = Math.min(p25, s.p25);
     p75 = Math.max(p75, s.p75);
+    if (s.windowMonths) windowMonths = Math.max(windowMonths, s.windowMonths);
+    if (s.asOf && s.asOf > asOf) asOf = s.asOf;
   }
-  return { median: Math.round(wSum / nSum), p25, p75, n: nSum };
+  return { median: Math.round(wSum / nSum), p25, p75, n: nSum, windowMonths: windowMonths || undefined, asOf: asOf || undefined };
 }
 
 /** Building-level actual rent for a given building name + unit size. */

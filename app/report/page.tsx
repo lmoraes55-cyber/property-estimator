@@ -468,7 +468,7 @@ function ReportContent() {
                       <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold"
                         style={{ background: `${colors.primary}10`, color: colors.primary, border: `1px solid ${colors.primary}25` }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="1.4" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                        DLD-verified · {result.ltrSampleSize?.toLocaleString()} contracts
+                        DLD-verified · {result.ltrSampleSize?.toLocaleString()} contracts{result.ltrAsOf ? ` · to ${result.ltrAsOf}` : ""}
                       </span>
                     </div>
                   ) : (
