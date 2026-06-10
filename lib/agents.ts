@@ -256,7 +256,7 @@ export interface BoutiqueAgent {
 }
 
 export const BOUTIQUE_AGENTS: BoutiqueAgent[] = [
-  { id: "b1", name: "Keystone Living", badge: "Boutique Specialist", specialization: "Personalized landlord communication & tenant vetting" },
-  { id: "b2", name: "Crest Residential", badge: "Emerging Agency", specialization: "Fast leasing for mid-market apartments" },
-  { id: "b3", name: "Anchor Leasing Co.", badge: "Promising Agency", specialization: "Hands-on management for single-property landlords" },
+  { id: "b1", name: "Espace Real Estate", badge: "Boutique Specialist", specialization: "High-touch service and strong landlord care" },
+  { id: "b2", name: "White & Co Real Estate", badge: "Emerging Agency", specialization: "Fast-growing boutique with strong marketing reach" },
+  { id: "b3", name: "McCone Properties", badge: "Boutique Specialist", specialization: "Personalized leasing and property management" },
 ];
