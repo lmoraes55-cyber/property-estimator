@@ -158,7 +158,13 @@ function freshestStats(entries) {
     if (subset.length >= MIN_SAMPLES) {
       const amts = subset.map(e => e.amt).sort((a, b) => a - b);
       const latestYM = subset.reduce((m, e) => Math.max(m, e.ym), 0);
-      return {
+
+      // Rent per sqft (DLD actual_area is sqm; 1 sqm = 10.7639 sqft)
+      const SQM_TO_SQFT = 10.7639;
+      const psf = subset.filter(e => e.sqm > 10 && e.sqm < 5000).map(e => (e.amt / e.sqm) / SQM_TO_SQFT).sort((a, b) => a - b);
+      const sqftSizes = subset.filter(e => e.sqm > 10 && e.sqm < 5000).map(e => e.sqm * SQM_TO_SQFT).sort((a, b) => a - b);
+
+      const stat = {
         median: Math.round(median(amts)),
         p25: Math.round(percentile(amts, 25)),
         p75: Math.round(percentile(amts, 75)),
@@ -166,6 +172,11 @@ function freshestStats(entries) {
         windowMonths: w,
         asOf: `${Math.floor(latestYM / 12)}-${String((latestYM % 12) + 1).padStart(2, "0")}`,
       };
+      if (psf.length >= 3) {
+        stat.aedPerSqft = Math.round(median(psf));
+        stat.medianSqft = Math.round(median(sqftSizes));
+      }
+      return stat;
     }
   }
   return null; // not enough data even in the widest window
@@ -197,6 +208,7 @@ async function main() {
         usage: findCol(headers, ["property_usage_en", "usage_en", "usage"]),
         annual: findCol(headers, ["annual_amount", "annual amount", "amount"]),
         start: findCol(headers, ["contract_start_date", "start_date", "registration_date"]),
+        areaSqm: findCol(headers, ["actual_area", "area_sqm", "actual area", "procedure_area"]),
       };
       if (col.project === -1 || col.area === -1 || col.annual === -1) {
         console.error("Could not locate required columns. Headers found:");
@@ -236,13 +248,16 @@ async function main() {
 
     usedRows++;
 
+    // actual_area is in square metres in the DLD dataset
+    const sqm = col.areaSqm !== -1 ? Number(String(f[col.areaSqm] || "").replace(/[^0-9.]/g, "")) : 0;
+
     const bKey = `${norm}||${bed}`;
     if (!buildingGroups.has(bKey)) buildingGroups.set(bKey, { displayName: projectRaw.trim(), area, entries: [] });
-    buildingGroups.get(bKey).entries.push({ ym, amt: annual });
+    buildingGroups.get(bKey).entries.push({ ym, amt: annual, sqm });
 
     const aKey = `${area}||${bed}`;
     if (!areaGroups.has(aKey)) areaGroups.set(aKey, []);
-    areaGroups.get(aKey).push({ ym, amt: annual });
+    areaGroups.get(aKey).push({ ym, amt: annual, sqm });
 
     if (sourceRows % 200000 === 0) console.log(`  …processed ${sourceRows.toLocaleString()} rows`);
   }

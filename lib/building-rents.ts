@@ -25,6 +25,8 @@ export interface RentStat {
   n: number; // sample size (number of registered contracts)
   windowMonths?: number; // recency window the stat was computed over
   asOf?: string;         // latest contract month used (YYYY-MM)
+  aedPerSqft?: number;   // median annual rent per sqft
+  medianSqft?: number;   // median unit size (sqft)
   match?: "building" | "building-group" | "area"; // how it was resolved
 }
 
@@ -83,6 +85,7 @@ function mergeStats(stats: RentStat[]): RentStat | null {
   if (valid.length === 1) return valid[0];
   let wSum = 0, nSum = 0, p25 = Infinity, p75 = 0, windowMonths = 0;
   let asOf = "";
+  let psfSum = 0, psfN = 0, sqftSum = 0, sqftN = 0;
   for (const s of valid) {
     wSum += s.median * s.n;
     nSum += s.n;
@@ -90,8 +93,15 @@ function mergeStats(stats: RentStat[]): RentStat | null {
     p75 = Math.max(p75, s.p75);
     if (s.windowMonths) windowMonths = Math.max(windowMonths, s.windowMonths);
     if (s.asOf && s.asOf > asOf) asOf = s.asOf;
+    if (s.aedPerSqft) { psfSum += s.aedPerSqft * s.n; psfN += s.n; }
+    if (s.medianSqft) { sqftSum += s.medianSqft * s.n; sqftN += s.n; }
   }
-  return { median: Math.round(wSum / nSum), p25, p75, n: nSum, windowMonths: windowMonths || undefined, asOf: asOf || undefined };
+  return {
+    median: Math.round(wSum / nSum), p25, p75, n: nSum,
+    windowMonths: windowMonths || undefined, asOf: asOf || undefined,
+    aedPerSqft: psfN ? Math.round(psfSum / psfN) : undefined,
+    medianSqft: sqftN ? Math.round(sqftSum / sqftN) : undefined,
+  };
 }
 
 /** Building-level actual rent for a given building name + unit size. */

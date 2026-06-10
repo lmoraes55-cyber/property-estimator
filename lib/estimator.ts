@@ -205,16 +205,28 @@ export interface LTRMarketRent {
   basis?: "dld-building" | "dld-area" | "table"; // data tier used
 }
 
-export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): LTRMarketRent {
+// Refine a median rent by the unit's size using rent-per-sqft, guarded so a
+// typo or atypical unit can't produce a wild number (clamped near the median).
+function sizeAdjust(median: number, aedPerSqft?: number, sizeSqft?: number): { rent: number; adjusted: boolean } {
+  if (!aedPerSqft || !sizeSqft || sizeSqft < 150 || sizeSqft > 20000) return { rent: median, adjusted: false };
+  const raw = aedPerSqft * sizeSqft;
+  const clamped = Math.max(median * 0.7, Math.min(median * 1.4, raw));
+  return { rent: Math.round(clamped), adjusted: true };
+}
+
+export function getLTRMarketRent(buildingName: string, unitSize: UnitSize, sizeSqft?: number): LTRMarketRent {
   const info = BUILDING_DIRECTORY[buildingName];
   const community = info?.community;
 
   // 1. Building-level actual rents from DLD registered contracts (preferred)
   const dldBuilding = lookupDLDBuilding(buildingName, unitSize);
   if (dldBuilding) {
+    const adj = sizeAdjust(dldBuilding.median, dldBuilding.aedPerSqft, sizeSqft);
     return {
-      rent: dldBuilding.median,
-      source: `${dldBuilding.n.toLocaleString()} registered DLD contracts · ${buildingName}`,
+      rent: adj.rent,
+      source: adj.adjusted
+        ? `${dldBuilding.n.toLocaleString()} DLD contracts · ${buildingName} · size-adjusted`
+        : `${dldBuilding.n.toLocaleString()} registered DLD contracts · ${buildingName}`,
       sampleSize: dldBuilding.n,
       rangeLow: dldBuilding.p25,
       rangeHigh: dldBuilding.p75,
@@ -402,6 +414,7 @@ export interface EstimatorInput {
   managementFee: number;      // fraction e.g. 0.20
   occStrategy: OCCStrategy;
   propertyValue?: number;     // optional for yield calc
+  sizeSqft?: number;          // optional unit size for rent-per-sqft refinement
   premium?: number;           // fraction, default 0.15
   // longTermRent is now derived from market data — not a user input
   longTermRentOverride?: number;
@@ -480,7 +493,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
   // Derive LTR from market data unless overridden internally
-  const ltrMarket = getLTRMarketRent(buildingName, unitSize);
+  const ltrMarket = getLTRMarketRent(buildingName, unitSize, input.sizeSqft);
   const { rent: marketRent, source: ltrSource } = ltrMarket;
   const longTermRent = longTermRentOverride ?? marketRent;
 

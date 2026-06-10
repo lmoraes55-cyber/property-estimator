@@ -277,6 +277,8 @@ function ReportContent() {
     occStrategy: (params.get("occStrategy") ?? "LOCCHP") as OCCStrategy,
     managementFee: Number(params.get("managementFee") ?? 0.20),
     propertyValue: params.get("propertyValue") ? Number(params.get("propertyValue")) : undefined,
+    // User enters size in sqm; convert to sqft for the rent-per-sqft refinement
+    sizeSqft: params.get("sizeSqm") ? Number(params.get("sizeSqm")) * 10.7639 : undefined,
   };
 
   const result: EstimatorOutput = runEstimator(input);

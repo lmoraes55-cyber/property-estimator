@@ -160,6 +160,7 @@ export default function Home() {
     managementFee: "20",
     propertyValue: "",
     propertyValueDisplay: "", // comma-formatted display value
+    sizeSqm: "", // optional unit size (sqm) for rent-per-sqft refinement
   });
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
@@ -202,6 +203,7 @@ export default function Home() {
     furnished: form.furnished,
     managementFee: String(Number(form.managementFee) / 100),
     ...(form.propertyValue ? { propertyValue: form.propertyValue } : {}),
+    ...(form.sizeSqm ? { sizeSqm: form.sizeSqm } : {}),
   });
 
   const handleGenerate = () => {
@@ -446,6 +448,23 @@ export default function Home() {
                     onChange={e => set("floor", e.target.value)}
                   />
                 </div>
+              </div>
+
+              {/* Optional unit size (sqm) for rent-per-sqft refinement */}
+              <div>
+                <label className="block text-xs font-medium mb-2 tracking-wider" style={{ color: colors.textMuted }}>
+                  UNIT SIZE (SQM) <span className="font-normal" style={{ color: colors.textLight }}>· optional, sharpens the estimate</span>
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={10} max={2000}
+                  className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition"
+                  style={{ background: colors.bgMain, border: `1px solid ${form.sizeSqm ? "#C9A84C55" : colors.border}`, color: colors.textMain }}
+                  placeholder="e.g. 70"
+                  value={form.sizeSqm}
+                  onChange={e => set("sizeSqm", e.target.value.replace(/[^0-9.]/g, ""))}
+                />
               </div>
 
               {/* View type */}
