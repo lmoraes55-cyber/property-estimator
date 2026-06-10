@@ -400,11 +400,20 @@ function ReportContent() {
           <div className="relative flex flex-col lg:flex-row lg:items-stretch gap-6">
 
             {/* Left: verdict */}
-            <div className="lg:w-[32%] flex flex-col justify-center">
+            <div className="lg:w-2/5 flex flex-col justify-center">
               <span className="text-[11px] font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary, letterSpacing: "0.14em" }}>
                 12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
               </span>
-              <h1 className="text-2xl font-bold leading-snug mb-2" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>
+              <h1 className="font-bold mb-2"
+                style={{
+                  fontSize: "clamp(26px, 2.4vw, 38px)",
+                  lineHeight: 1.1,
+                  fontFamily: "'Georgia', serif",
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 55%, ${colors.secondary} 100%)`,
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}>
                 {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
               </h1>
               <p className="text-lg font-bold mb-3" style={{ color: colors.secondary }}>
