@@ -112,9 +112,14 @@ const IconGrowth = ({ color = colors.secondary }) => (
 
 export default function HomePage() {
   const router = useRouter();
+  const [servicesOpen, setServicesOpen] = React.useState(false);
 
   const handleAnalyzeClick = () => {
     router.push("/estimator");
+  };
+
+  const handleSelfManageClick = () => {
+    router.push("/self-manage");
   };
 
   return (
@@ -160,9 +165,90 @@ export default function HomePage() {
             <a href="#home" style={{ textDecoration: "none", color: colors.textMain, fontSize: "15px", fontWeight: "500" }}>
               Home
             </a>
-            <a href="#services" style={{ textDecoration: "none", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>
-              Services
-            </a>
+
+            {/* Services dropdown */}
+            <div
+              style={{ position: "relative" }}
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
+            >
+              <a
+                href="#services"
+                style={{
+                  textDecoration: "none",
+                  color: colors.textMuted,
+                  fontSize: "15px",
+                  fontWeight: "500",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                }}
+              >
+                Services
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ marginTop: "2px" }}>
+                  <path d="M2 3.5L5 6.5L8 3.5" stroke={colors.textMuted} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+              {servicesOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: "-16px",
+                    paddingTop: "14px",
+                    zIndex: 200,
+                  }}
+                >
+                  <div
+                    style={{
+                      background: colors.bgSection,
+                      borderRadius: "12px",
+                      border: `1px solid ${colors.border}`,
+                      boxShadow: colors.shadowLg,
+                      padding: "8px",
+                      minWidth: "240px",
+                    }}
+                  >
+                    {[
+                      { label: "Rental Strategy Analyzer", action: handleAnalyzeClick },
+                      { label: "Self-Manage Your Property", action: handleSelfManageClick },
+                      { label: "Operational Setup", action: () => router.push("/#services") },
+                      { label: "Investment Research", action: () => router.push("/#services") },
+                    ].map((item) => (
+                      <button
+                        key={item.label}
+                        onClick={item.action}
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          textAlign: "left",
+                          background: "transparent",
+                          border: "none",
+                          padding: "12px 14px",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          color: colors.textMain,
+                          cursor: "pointer",
+                          borderRadius: "8px",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = colors.bgMain;
+                          e.currentTarget.style.color = colors.primary;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = colors.textMain;
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <a href="#sample" style={{ textDecoration: "none", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>
               Sample Report
             </a>
@@ -522,6 +608,7 @@ export default function HomePage() {
                 </p>
               </div>
               <button
+                onClick={handleSelfManageClick}
                 style={{
                   color: colors.secondary,
                   background: "transparent",
