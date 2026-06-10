@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "generatedAt": null,
+    "sourceRows": 0,
+    "usedRows": 0,
+    "minSamples": 5,
+    "monthsWindow": 18,
+    "buildingsCovered": 0,
+    "areasCovered": 0,
+    "note": "Placeholder. Run `node scripts/ingest-dld-rents.mjs <rent_contracts.csv>` to populate with real DLD data."
+  },
+  "buildings": {},
+  "areas": {}
+}

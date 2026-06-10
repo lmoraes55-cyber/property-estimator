@@ -4,6 +4,7 @@ import {
   getBuildingByName,
   type BuildingRecord
 } from "./buildings-data";
+import { lookupDLDBuilding, lookupDLDArea } from "./building-rents";
 
 export const MONTHS = ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"] as const;
 export type Month = typeof MONTHS[number];
@@ -196,6 +197,22 @@ const LTR_FALLBACK: Partial<Record<UnitSize, number>> = {
 export function getLTRMarketRent(buildingName: string, unitSize: UnitSize): { rent: number; source: string } {
   const info = BUILDING_DIRECTORY[buildingName];
   const community = info?.community;
+
+  // 1. Building-level actual rents from DLD registered contracts (preferred)
+  const dldBuilding = lookupDLDBuilding(buildingName, unitSize);
+  if (dldBuilding) {
+    return { rent: dldBuilding.median, source: `${dldBuilding.n} registered DLD contracts · ${buildingName}` };
+  }
+
+  // 2. Area-level actual rents from DLD (when this building has too few contracts)
+  if (community) {
+    const dldArea = lookupDLDArea(community, unitSize);
+    if (dldArea) {
+      return { rent: dldArea.median, source: `${community} · DLD registered contracts` };
+    }
+  }
+
+  // 3. Fallback to internal community-average benchmark table
   const communityRents = community ? LTR_MARKET_RENTS[community] : null;
   const rent = communityRents?.[unitSize] ?? LTR_FALLBACK[unitSize] ?? 100000;
   const source = communityRents?.[unitSize]
