@@ -232,15 +232,16 @@ export default function Home() {
           position: "absolute",
           top: 0,
           right: 0,
-          width: "42%",
+          width: "46%",
           height: "auto",
-          maxHeight: "80%",
+          maxHeight: "85%",
           objectFit: "cover",
-          opacity: 0.06,
+          opacity: 0.22,
+          filter: "contrast(1.08) saturate(1.05)",
           pointerEvents: "none",
           zIndex: 0,
-          maskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, transparent 100%)",
+          maskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.6) 75%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.6) 75%, transparent 100%)",
         }}
       />
 
@@ -624,8 +625,8 @@ export default function Home() {
           </div>
 
           {/* Security note */}
-          <div className="flex items-center justify-center gap-2 pb-6 -mt-2">
-            <svg width="13" height="13" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" {...stk(colors.textLight)} /><path d="M8 11V8a4 4 0 018 0v3" {...stk(colors.textLight)} /></svg>
+          <div className="flex items-center justify-center gap-2 pb-7" style={{ marginTop: "28px", opacity: 0.85 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" {...stk(colors.textLight)} /><path d="M8 11V8a4 4 0 018 0v3" {...stk(colors.textLight)} /></svg>
             <span className="text-xs" style={{ color: colors.textLight }}>Your data is secure and used only for analysis purposes.</span>
           </div>
         </div>
