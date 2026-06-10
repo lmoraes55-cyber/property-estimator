@@ -249,6 +249,12 @@ export default function Home() {
 
       {/* Service-page Hero */}
       <div className="w-full max-w-6xl mb-10 animate-slide-up px-2 relative z-10" style={{ animationDelay: "0.1s" }}>
+        <button onClick={() => router.push("/")}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg mb-5 transition hover:opacity-80"
+          style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, color: colors.primary }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 10v9h5v-5h2v5h5v-9" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          Back to Home
+        </button>
         <div className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
           Rental Strategy Analyzer
         </div>
