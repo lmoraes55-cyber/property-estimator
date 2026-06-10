@@ -19,6 +19,10 @@ function agentScores(a: RealEstateAgent) {
 
 const initialsOf = (name: string) => name.split(" ").filter(w => w[0] && /[A-Za-z0-9]/.test(w[0])).map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
+// No agent profiles/contact records are stored — open a search for the real agency.
+const contactAgent = (name: string) =>
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(name + " Dubai real estate contact")}`, "_blank", "noopener,noreferrer");
+
 function AgentsContent() {
   const params = useSearchParams();
   const router = useRouter();
@@ -178,19 +182,13 @@ function AgentsContent() {
                   <p className="text-sm" style={{ color: colors.textMain, lineHeight: 1.6 }}>{a.matchReasons?.[0] ?? a.title}</p>
                 </div>
 
-                {/* Buttons */}
-                <div className="flex gap-3 mt-6">
-                  <button
-                    className="flex-1 py-3 rounded-xl text-sm font-bold transition hover:brightness-105"
-                    style={{ background: colors.primary, color: "#fff", boxShadow: `0 8px 20px ${colors.primary}33` }}>
-                    View Full Analysis
-                  </button>
-                  <button
-                    className="flex-1 py-3 rounded-xl text-sm font-bold transition hover:bg-black/[0.02]"
-                    style={{ background: "transparent", color: colors.secondary, border: `1.5px solid ${colors.secondary}` }}>
-                    Contact Agent
-                  </button>
-                </div>
+                {/* Contact */}
+                <button onClick={() => contactAgent(a.name)}
+                  className="w-full inline-flex items-center justify-center gap-2 mt-6 py-3 rounded-xl text-sm font-bold transition hover:brightness-105"
+                  style={{ background: colors.primary, color: "#fff", boxShadow: `0 8px 20px ${colors.primary}33` }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5.5C4 4.7 4.7 4 5.5 4h2.6c.6 0 1.1.4 1.3 1l1 3.2c.1.5 0 1-.4 1.3l-1.6 1.3a12 12 0 0 0 5.4 5.4l1.3-1.6c.3-.4.8-.5 1.3-.4l3.2 1c.6.2 1 .7 1 1.3v2.6c0 .8-.7 1.5-1.5 1.5A15.5 15.5 0 0 1 4 5.5z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round"/></svg>
+                  Contact Agent
+                </button>
               </div>
             );
           })}
@@ -204,7 +202,7 @@ function AgentsContent() {
               {others.map((a) => {
                 const sc = agentScores(a);
                 return (
-                  <div key={a.id} className="rounded-2xl p-5 flex items-center gap-4"
+                  <div key={a.id} onClick={() => contactAgent(a.name)} className="rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition hover:-translate-y-0.5"
                     style={{ background: "#FFFFFF", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm }}>
                     <div className="flex items-center justify-center flex-shrink-0" style={{
                       width: "44px", height: "44px", borderRadius: "50%", background: colors.primary, color: "#fff",
@@ -216,7 +214,7 @@ function AgentsContent() {
                         <span className="text-xs" style={{ color: colors.textMuted }}>Landlord <b style={{ color: colors.textMain }}>{sc.landlord}</b></span>
                         <span className="text-xs" style={{ color: colors.textMuted }}>Leasing <b style={{ color: colors.textMain }}>{sc.leasing}</b></span>
                       </div>
-                      <span className="text-xs font-semibold mt-1.5 inline-block" style={{ color: colors.secondary }}>View Analysis →</span>
+                      <span className="text-xs font-semibold mt-1.5 inline-block" style={{ color: colors.secondary }}>Contact →</span>
                     </div>
                   </div>
                 );
@@ -232,7 +230,7 @@ function AgentsContent() {
             <p className="text-sm mb-5" style={{ color: colors.textMuted }}>Promising leasing specialists and boutique agencies offering more personalized landlord support.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {boutique.map((a) => (
-                <div key={a.id} className="rounded-2xl p-5 flex items-center gap-4"
+                <div key={a.id} onClick={() => contactAgent(a.name)} className="rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition hover:-translate-y-0.5"
                   style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm }}>
                   <div className="flex items-center justify-center flex-shrink-0" style={{
                     width: "44px", height: "44px", borderRadius: "50%", background: `${colors.secondary}1A`, color: colors.secondary,
@@ -242,7 +240,7 @@ function AgentsContent() {
                     <p className="text-sm font-bold truncate" style={{ color: colors.textMain }}>{a.name}</p>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-1" style={{ background: `${colors.secondary}14`, color: colors.secondary }}>{a.badge}</span>
                     <p className="text-xs mt-1.5 truncate" style={{ color: colors.textMuted }}>{a.specialization}</p>
-                    <span className="text-xs font-semibold mt-1.5 inline-block" style={{ color: colors.secondary }}>View Analysis →</span>
+                    <span className="text-xs font-semibold mt-1.5 inline-block" style={{ color: colors.secondary }}>Contact →</span>
                   </div>
                 </div>
               ))}
