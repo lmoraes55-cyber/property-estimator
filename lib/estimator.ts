@@ -569,9 +569,18 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const tPremium = getTierPremium(buildingName); // Add tier-based premium
 
   // Dynamic occupancy baseline: the per-bedroom target is the floor (allow ≤3% dip),
-  // and rises with property quality (tier + view + floor). Upside is uncapped here —
-  // only the 90% realism ceiling applies inside getOccRates.
-  const occQualityAdj = Math.max(-0.03, (tPremium + vPremium + fPremium - 0.04) * 0.4);
+  // and rises with property quality (tier + view + floor).
+  // Smaller units (studio/1BR) fill easily so they capture the full upside; larger
+  // units (2BR/3BR+) target a narrower guest pool and are harder to fill, so their
+  // upside is dampened. The downside floor (-3%) is the same for all unit sizes.
+  // Upside is uncapped here — only the 90% realism ceiling applies inside getOccRates.
+  const rawOccAdj = (tPremium + vPremium + fPremium - 0.04) * 0.4;
+  const occUpsideFactor =
+    unitSize === "STU" || unitSize === "1BR" ? 1.0 :
+    unitSize === "2BR" ? 0.6 :
+    unitSize === "3BR" ? 0.45 :
+    0.35; // 4BR+ apartments and villas — hardest to fill
+  const occQualityAdj = rawOccAdj >= 0 ? rawOccAdj * occUpsideFactor : Math.max(-0.03, rawOccAdj);
   const occRates = getOccRates(unitSize, occQualityAdj);
 
   // For LTR-recommended areas, eliminate the base premium and reduce occupancy
