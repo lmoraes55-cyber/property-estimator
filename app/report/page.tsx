@@ -120,6 +120,146 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
+// Premium luxury-advisory CTA card with decorative watermarks
+function PremiumCTACard({
+  theme, eyebrow, eyebrowColor, heading, description, buttonText, buttonGradient, buttonShadow, onClick,
+}: {
+  theme: "bronze" | "green";
+  eyebrow: string;
+  eyebrowColor: string;
+  heading: string;
+  description: React.ReactNode;
+  buttonText: string;
+  buttonGradient: string;
+  buttonShadow: string;
+  onClick: () => void;
+}) {
+  const isBronze = theme === "bronze";
+  const accent = isBronze ? colors.secondary : colors.primary;
+  const bg = isBronze
+    ? `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.secondary}12 0%, transparent 70%), linear-gradient(135deg, #FCF8F1 0%, #FBF6EE 100%)`
+    : `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.primary}0E 0%, transparent 70%), linear-gradient(135deg, #F7FAF8 0%, #FAFBF9 100%)`;
+
+  return (
+    <div
+      className="relative overflow-hidden text-center"
+      style={{
+        borderRadius: "32px",
+        padding: "64px 40px",
+        background: bg,
+        border: `1px solid ${accent}33`,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 18px 50px rgba(0,0,0,0.06)",
+      }}
+    >
+      {/* LEFT decorative watermark */}
+      {isBronze ? (
+        <img
+          src="/locations/Downtown.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute", left: 0, top: 0, bottom: 0, width: "32%", height: "100%",
+            objectFit: "cover", objectPosition: "left center", opacity: 0.08, pointerEvents: "none", zIndex: 0,
+            filter: "grayscale(0.2)",
+            maskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, transparent 100%)",
+          }}
+        />
+      ) : (
+        // Palm leaf watermark (SVG)
+        <svg aria-hidden="true" width="280" height="280" viewBox="0 0 200 200"
+          style={{ position: "absolute", left: "-30px", bottom: "-40px", opacity: 0.07, pointerEvents: "none", zIndex: 0 }}>
+          <g stroke={colors.primary} strokeWidth="1.4" fill="none" strokeLinecap="round">
+            <path d="M30 180 C60 130 90 90 150 50" />
+            {Array.from({ length: 11 }).map((_, i) => {
+              const t = i / 10;
+              const x = 30 + (120 * t);
+              const y = 180 - (130 * t);
+              const len = 26 * (1 - t * 0.4);
+              return <path key={i} d={`M${x} ${y} q ${len * 0.5} ${-len * 0.9} ${len} ${-len * 0.4}`} />;
+            })}
+            {Array.from({ length: 11 }).map((_, i) => {
+              const t = i / 10;
+              const x = 30 + (120 * t);
+              const y = 180 - (130 * t);
+              const len = 26 * (1 - t * 0.4);
+              return <path key={`b${i}`} d={`M${x} ${y} q ${len * 0.9} ${-len * 0.4} ${len} ${len * 0.2}`} />;
+            })}
+          </g>
+        </svg>
+      )}
+
+      {/* RIGHT decorative pattern */}
+      {isBronze ? (
+        // Curved bronze line patterns
+        <svg aria-hidden="true" width="320" height="320" viewBox="0 0 320 320"
+          style={{ position: "absolute", right: "-60px", top: "50%", transform: "translateY(-50%)", opacity: 0.18, pointerEvents: "none", zIndex: 0 }}>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <path key={i} d={`M${320} ${40 + i * 22} C ${200 - i * 10} ${80 + i * 18}, ${180 - i * 8} ${200 - i * 14}, ${300} ${300 - i * 6}`}
+              stroke={colors.secondary} strokeWidth="1" fill="none" />
+          ))}
+        </svg>
+      ) : (
+        // Geometric network pattern
+        <svg aria-hidden="true" width="300" height="300" viewBox="0 0 300 300"
+          style={{ position: "absolute", right: "-30px", top: "50%", transform: "translateY(-50%)", opacity: 0.08, pointerEvents: "none", zIndex: 0 }}>
+          <g stroke={colors.primary} strokeWidth="0.8" fill="none">
+            {[[60,60],[160,40],[240,90],[110,140],[210,170],[70,210],[180,240],[260,210]].map((p, i, arr) => (
+              <g key={i}>
+                <circle cx={p[0]} cy={p[1]} r="3" fill={colors.primary} stroke="none" />
+                {arr.slice(i + 1).map((q, j) => {
+                  const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+                  return d < 130 ? <line key={j} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} /> : null;
+                })}
+              </g>
+            ))}
+          </g>
+        </svg>
+      )}
+
+      {/* Content */}
+      <div className="relative" style={{ zIndex: 1 }}>
+        {/* Eyebrow + diamond divider */}
+        <p className="text-xs font-bold uppercase mb-3" style={{ color: eyebrowColor, letterSpacing: "0.18em" }}>{eyebrow}</p>
+        <div className="flex items-center justify-center gap-3 mb-7">
+          <span style={{ width: "70px", height: "1px", background: `${accent}40` }} />
+          <svg width="9" height="9" viewBox="0 0 9 9"><rect x="4.5" y="0" width="6.4" height="6.4" transform="rotate(45 4.5 0)" fill="none" stroke={accent} strokeWidth="1" /></svg>
+          <span style={{ width: "70px", height: "1px", background: `${accent}40` }} />
+        </div>
+
+        {/* Heading with green→bronze gradient */}
+        <h2 className="font-bold mb-4" style={{
+          fontFamily: "'Georgia', serif",
+          fontSize: "40px",
+          lineHeight: 1.15,
+          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+          backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+        }}>
+          {heading}
+        </h2>
+
+        <p className="text-sm mb-9 max-w-lg mx-auto" style={{ color: colors.textMuted, lineHeight: 1.7 }}>
+          {description}
+        </p>
+
+        <button
+          onClick={onClick}
+          className="inline-flex items-center gap-2 font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-105"
+          style={{
+            padding: "15px 36px",
+            borderRadius: "999px",
+            background: buttonGradient,
+            color: "#FFF",
+            boxShadow: buttonShadow,
+            transitionDuration: "250ms",
+          }}>
+          {buttonText}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ReportContent() {
   const params = useSearchParams();
   const router = useRouter();
@@ -743,92 +883,43 @@ function ReportContent() {
 
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
         {ltrRecommended ? (
-          <div className="rounded-3xl p-10 text-center"
-            style={{
-              background: `linear-gradient(135deg, ${colors.primary}15 0%, ${colors.primary}08 100%)`,
-              border: `1px solid ${colors.border}`,
-              boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
-              backdropFilter: "blur(20px)"
-            }}>
-            <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Part 2 of 2</p>
-            <h2 className="text-3xl font-bold mb-3" style={{ color: colors.textMain }}>Find your leasing agent</h2>
-            <p className="text-sm mb-8 max-w-lg mx-auto" style={{ color: colors.textMuted }}>
-              Get your top 5 leasing agent matches for <span style={{ color: colors.primary, fontWeight: "600" }}>{result.buildingInfo?.community ?? result.buildingName}</span> — ranked by area expertise, days to let, and landlord review scores.
-            </p>
-            <button
-              onClick={() => {
-                const p = new URLSearchParams(window.location.search);
-                window.location.href = `/agents?${p.toString()}`;
-              }}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-103"
-              style={{
-                background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
-                color: "#FFF",
-                boxShadow: `0 8px 20px rgba(27, 94, 74, 0.3)`,
-                transitionDuration: "250ms"
-              }}>
-              Find a Leasing Agent →
-            </button>
-          </div>
+          <PremiumCTACard
+            theme="bronze"
+            eyebrow="Part 2 of 2"
+            eyebrowColor={colors.secondary}
+            heading="Find your leasing agent"
+            description={<>Get your top 5 leasing agent matches for <span style={{ color: colors.primary, fontWeight: 600 }}>{result.buildingInfo?.community ?? result.buildingName}</span> — ranked by area expertise, days to let, and landlord review scores.</>}
+            buttonText="Find a Leasing Agent →"
+            buttonGradient="linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)"
+            buttonShadow="0 8px 20px rgba(27, 94, 74, 0.3)"
+            onClick={() => { const p = new URLSearchParams(window.location.search); window.location.href = `/agents?${p.toString()}`; }}
+          />
         ) : (
-          <div className="rounded-3xl p-10 text-center"
-            style={{
-              background: `linear-gradient(135deg, ${colors.secondary}15 0%, ${colors.secondary}08 100%)`,
-              border: `1px solid ${colors.border}`,
-              boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
-              backdropFilter: "blur(20px)"
-            }}>
-            <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Part 2 of 2</p>
-            <h2 className="text-3xl font-bold mb-3" style={{ color: colors.textMain }}>Now find your best operator</h2>
-            <p className="text-sm mb-8 max-w-lg mx-auto" style={{ color: colors.textMuted }}>
-              Get your top 5 operator matches — ranked by fit for your property, with full pros & cons,
-              OTA platform ratings, and recent guest reviews.
-            </p>
-            <button
-              onClick={() => {
-                const p = new URLSearchParams(window.location.search);
-                window.location.href = `/operators?${p.toString()}`;
-              }}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-103"
-              style={{
-                background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
-                color: "#FFF",
-                boxShadow: `0 8px 20px rgba(184, 138, 68, 0.3)`,
-                transitionDuration: "250ms"
-              }}>
-              Find My Best Operator →
-            </button>
-          </div>
+          <PremiumCTACard
+            theme="bronze"
+            eyebrow="Part 2 of 2"
+            eyebrowColor={colors.secondary}
+            heading="Now find your best operator"
+            description={<>Get your top 5 operator matches — ranked by fit for your property, with full pros &amp; cons, OTA platform ratings, and recent guest reviews.</>}
+            buttonText="Find My Best Operator →"
+            buttonGradient="linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)"
+            buttonShadow="0 8px 20px rgba(184, 138, 68, 0.3)"
+            onClick={() => { const p = new URLSearchParams(window.location.search); window.location.href = `/operators?${p.toString()}`; }}
+          />
         )}
 
         {/* Self Manage Alternative CTA */}
-        <div className="rounded-3xl p-10 text-center"
-          style={{
-            background: `linear-gradient(135deg, ${colors.bgSection} 0%, ${colors.bgWhite} 100%)`,
-            border: `1px solid ${colors.border}`,
-            boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
-            backdropFilter: "blur(20px)"
-          }}>
-          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Alternative Path</p>
-          <h2 className="text-3xl font-bold mb-3" style={{ color: colors.textMain }}>Want to keep 100% of your income?</h2>
-          <p className="text-sm mb-8 max-w-lg mx-auto" style={{ color: colors.textMuted }}>
-            Learn how to manage your property yourself and handle all operations independently in Dubai.
-          </p>
-          <button
-            onClick={() => {
-              const p = new URLSearchParams(window.location.search);
-              window.location.href = `/self-manage?${p.toString()}`;
-            }}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-103"
-            style={{
-              background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)",
-              color: "#FFF",
-              boxShadow: `0 8px 20px rgba(27, 94, 74, 0.3)`,
-              transitionDuration: "250ms"
-            }}>
-            Find Out How to Self Manage →
-          </button>
-        </div>
+        <PremiumCTACard
+          theme="green"
+          eyebrow="Alternative Path"
+          eyebrowColor={colors.primary}
+          heading="Want to keep 100% of your income?"
+          description={<>Learn how to manage your property yourself and handle all operations independently in Dubai.</>}
+          buttonText="Find Out How to Self Manage →"
+          buttonGradient="linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)"
+          buttonShadow="0 8px 20px rgba(27, 94, 74, 0.3)"
+          onClick={() => { const p = new URLSearchParams(window.location.search); window.location.href = `/self-manage?${p.toString()}`; }}
+        />
 
         {/* Disclaimer */}
         <div className="text-center pb-10 space-y-2">
