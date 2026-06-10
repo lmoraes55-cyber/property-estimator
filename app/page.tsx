@@ -171,7 +171,7 @@ export default function HomePage() {
             width: "50%",
             maxWidth: "680px",
             zIndex: 3,
-            padding: "100px 40px",
+            padding: "155px 40px 100px 40px",
             display: "flex",
             alignItems: "center",
             height: "100%",
