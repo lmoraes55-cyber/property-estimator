@@ -66,7 +66,7 @@ export function getTierPremium(buildingName: string): number {
 export interface STRDemand {
   tier: "prime" | "strong" | "value-monthly" | "standard";
   revenuePremium: number;      // added to the STR revenue premium
-  occUplift: number;           // added to every month's occupancy (points), capped at 0.97
+  occUplift: number;           // added to every month's occupancy (points), capped at 0.90
   lowSeasonOccUplift: number;  // extra occupancy added to low-season months (Jun–Sep)
 }
 
@@ -478,11 +478,11 @@ const OCC_TARGETS: Record<UnitSize, number> = {
 // targetAdj makes the per-bedroom occupancy a flexible baseline:
 //   - the bedroom value is the floor (we allow it to dip at most ~3% below)
 //   - the upside is uncapped by this logic — it rises as far as the data/quality
-//     signals warrant; only the physical 97% per-month realism limit applies.
+//     signals warrant; only the 90% realism ceiling applies (STR rarely exceeds this outside rare long stays).
 function getOccRates(unitSize: UnitSize, targetAdj = 0): number[] {
   const base = OCC_TARGETS[unitSize] ?? 0.65;
   const target = base + targetAdj;
-  return OCC_BASE_SHAPE.map(v => Math.min(v * target, 0.97));
+  return OCC_BASE_SHAPE.map(v => Math.min(v * target, 0.90));
 }
 
 // Revenue distribution by property type
@@ -570,7 +570,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
 
   // Dynamic occupancy baseline: the per-bedroom target is the floor (allow ≤3% dip),
   // and rises with property quality (tier + view + floor). Upside is uncapped here —
-  // only the physical 97% per-month limit applies inside getOccRates.
+  // only the 90% realism ceiling applies inside getOccRates.
   const occQualityAdj = Math.max(-0.03, (tPremium + vPremium + fPremium - 0.04) * 0.4);
   const occRates = getOccRates(unitSize, occQualityAdj);
 
@@ -591,11 +591,11 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const isLowSeason = (i: number) => i <= 3;
 
   // Apply occupancy loss for LTR-recommended areas; otherwise add demand uplift
-  // (with extra low-season support for monthly-stay studios), capped at 97%.
+  // (with extra low-season support for monthly-stay studios), capped at 90%.
   const occRatesAdjusted = ltrWarning
     ? occRates.map(rate => rate * (1 - ltrWarning.avgOccupancyLoss))
     : occRates.map((rate, i) =>
-        Math.min(0.97, rate + strDemand.occUplift + (isLowSeason(i) ? strDemand.lowSeasonOccUplift : 0)));
+        Math.min(0.90, rate + strDemand.occUplift + (isLowSeason(i) ? strDemand.lowSeasonOccUplift : 0)));
 
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
