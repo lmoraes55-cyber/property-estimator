@@ -204,6 +204,7 @@ export default function SelfManagePage() {
             <a onClick={() => router.push("/")} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>Home</a>
             <a onClick={() => router.push("/#services")} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>Services</a>
             <a style={{ color: colors.primary, fontSize: "15px", fontWeight: "600" }}>Self-Manage</a>
+            <a href="#pricing" style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>Pricing</a>
             <a onClick={handleAnalyzeClick} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>Analyzer</a>
           </nav>
         </div>
@@ -239,6 +240,9 @@ export default function SelfManagePage() {
             </a>
             <a href="#sublease" style={{ padding: "14px 28px", background: "transparent", color: colors.primary, border: `2px solid ${colors.primary}`, borderRadius: "8px", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>
               Explore STR Sub-Leasing
+            </a>
+            <a href="#pricing" style={{ padding: "14px 28px", background: "transparent", color: colors.secondary, border: `2px solid ${colors.secondary}`, borderRadius: "8px", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>
+              View Pricing
             </a>
           </div>
         </div>

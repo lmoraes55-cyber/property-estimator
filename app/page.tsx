@@ -612,12 +612,15 @@ export default function HomePage() {
                   <li>Self-Management</li>
                   <li>STR Sub-Leasing</li>
                 </ul>
-                <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px" }}>
+                <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
                   Learn how to choose the safest and most profitable route to sub-leasing in short-term rentals through proper due diligence, risk management, and financial analysis.
                 </p>
               </div>
+              <p style={{ fontSize: "13px", fontWeight: 700, color: colors.primary, marginBottom: "16px" }}>
+                Free guides · setup from AED 1,500
+              </p>
               <button
-                onClick={handleSelfManageClick}
+                onClick={() => router.push("/self-manage#pricing")}
                 style={{
                   color: colors.secondary,
                   background: "transparent",
@@ -629,7 +632,7 @@ export default function HomePage() {
                   textAlign: "left",
                 }}
               >
-                Explore Self-Management →
+                View Self-Manage Pricing →
               </button>
             </div>
 
@@ -668,13 +671,17 @@ export default function HomePage() {
                 <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
                   Built for:
                 </div>
-                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 24px 0", paddingLeft: "18px" }}>
+                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 16px 0", paddingLeft: "18px" }}>
                   <li>Holiday home operators</li>
                   <li>Boutique operators</li>
                   <li>Property managers</li>
                 </ul>
               </div>
+              <p style={{ fontSize: "13px", fontWeight: 700, color: colors.primary, marginBottom: "16px" }}>
+                Done-for-you launch from AED 3,500
+              </p>
               <button
+                onClick={() => router.push("/self-manage#pricing")}
                 style={{
                   color: colors.primary,
                   background: "transparent",
@@ -686,7 +693,7 @@ export default function HomePage() {
                   textAlign: "left",
                 }}
               >
-                Explore Operational Setup →
+                View Operations Pricing →
               </button>
             </div>
 
