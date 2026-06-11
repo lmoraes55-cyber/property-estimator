@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
 import LeadModal from "@/components/LeadModal";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 const colors = {
   primary: "#1B5E4A",
@@ -163,6 +164,7 @@ export default function SelfManagePage() {
   const router = useRouter();
   const handleAnalyzeClick = () => router.push("/estimator");
   const [pkg, setPkg] = React.useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh" }}>
@@ -180,10 +182,11 @@ export default function SelfManagePage() {
           style={{
             maxWidth: "1400px",
             margin: "0 auto",
-            padding: "16px 40px",
+            padding: isMobile ? "14px 20px" : "16px 40px",
             display: "flex",
             alignItems: "center",
-            gap: "60px",
+            justifyContent: isMobile ? "space-between" : "flex-start",
+            gap: isMobile ? "12px" : "60px",
           }}
         >
           <div
@@ -200,7 +203,10 @@ export default function SelfManagePage() {
               </div>
             </div>
           </div>
-          <nav style={{ display: "flex", gap: "40px", flex: 1 }}>
+          {isMobile && (
+            <a href="#pricing" style={{ padding: "9px 16px", background: colors.primary, color: "#fff", borderRadius: "8px", fontSize: "13px", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>Pricing</a>
+          )}
+          <nav style={{ display: isMobile ? "none" : "flex", gap: "40px", flex: 1 }}>
             <a onClick={() => router.push("/")} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>Home</a>
             <a onClick={() => router.push("/#services")} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>Services</a>
             <a style={{ color: colors.primary, fontSize: "15px", fontWeight: "600" }}>Self-Manage</a>
@@ -211,14 +217,14 @@ export default function SelfManagePage() {
       </header>
 
       {/* ─── 1. HERO ─── */}
-      <section style={{ position: "relative", minHeight: "560px", overflow: "hidden", background: colors.bgMain }}>
-        <div style={{ position: "relative", width: "52%", maxWidth: "700px", zIndex: 3, padding: "120px 40px 100px 40px" }}>
+      <section style={{ position: "relative", minHeight: isMobile ? "auto" : "560px", overflow: "hidden", background: colors.bgMain }}>
+        <div style={{ position: "relative", width: isMobile ? "100%" : "52%", maxWidth: isMobile ? "100%" : "700px", zIndex: 3, padding: isMobile ? "48px 20px 40px" : "120px 40px 100px 40px" }}>
           <div style={{ fontSize: "12px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.1em", marginBottom: "16px" }}>
             SELF-MANAGEMENT HUB
           </div>
           <h1
             style={{
-              fontSize: "52px",
+              fontSize: isMobile ? "32px" : "52px",
               fontFamily: serifHeading,
               fontWeight: 700,
               lineHeight: 1.2,
@@ -234,7 +240,7 @@ export default function SelfManagePage() {
           <p style={{ fontSize: "16px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "32px" }}>
             Built for owners managing up to 8 units and STR entrepreneurs looking to maximize profitability through proven systems, automation, operational frameworks, and industry best practices.
           </p>
-          <div style={{ display: "flex", gap: "16px" }}>
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
             <a href="#blueprint" style={{ padding: "14px 28px", background: colors.primary, color: "#fff", borderRadius: "8px", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>
               Explore Self-Management
             </a>
@@ -264,10 +270,10 @@ export default function SelfManagePage() {
       </section>
 
       {/* ─── 2. CHOOSE YOUR PATH ─── */}
-      <section style={{ padding: "80px 40px" }}>
+      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <SectionHeading label="GET STARTED" title="Choose Your Path" subtitle="Select the route that best matches your goals." />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "28px" }}>
             <PathCard
               icon={<IconOwner color={colors.primary} />}
               title="Property Owners"
@@ -291,10 +297,10 @@ export default function SelfManagePage() {
       </section>
 
       {/* ─── 3. BLUEPRINT ─── */}
-      <section id="blueprint" style={{ padding: "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
+      <section id="blueprint" style={{ padding: isMobile ? "52px 20px" : "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <SectionHeading label="THE FRAMEWORK" title="The Self-Management Blueprint" subtitle="Everything required to successfully manage and scale your short-term rental operation." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "28px" }}>
             <FeatureCard icon={<IconTech color={colors.primary} />} title="Technology Stack" text="Build the right software foundation with PMS tools, channel managers, dynamic pricing, and automation systems." />
             <FeatureCard icon={<IconRevenue color={colors.secondary} />} title="Revenue Management" text="Increase revenue through dynamic pricing, occupancy optimization, seasonality planning, and revenue forecasting." />
             <FeatureCard icon={<IconChat color={colors.primary} />} title="Guest Communication" text="Deliver consistent guest experiences with automated messaging, guest journey mapping, templates, and support workflows." />
@@ -306,10 +312,10 @@ export default function SelfManagePage() {
       </section>
 
       {/* ─── 4. TOOLS ─── */}
-      <section style={{ padding: "80px 40px" }}>
+      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <SectionHeading label="TECHNOLOGY" title="Tools Used By Professional Operators" subtitle="Technology recommendations for owners and operators managing short-term rentals." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "28px" }}>
             <ToolCard icon={<IconPMS color={colors.primary} />} title="Property Management Systems" tools={["Guesty", "Hostaway", "Hostfully"]} />
             <ToolCard icon={<IconPricing color={colors.secondary} />} title="Dynamic Pricing" tools={["PriceLabs", "Wheelhouse", "Beyond"]} />
             <ToolCard icon={<IconChat color={colors.primary} />} title="Guest Communication" tools={["Hospitable", "Host Tools"]} />
@@ -319,12 +325,12 @@ export default function SelfManagePage() {
       </section>
 
       {/* ─── 5. SUB-LEASING PLAYBOOK ─── */}
-      <section id="sublease" style={{ padding: "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
+      <section id="sublease" style={{ padding: isMobile ? "52px 20px" : "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <SectionHeading label="SUB-LEASING" title="The STR Sub-Leasing Playbook" subtitle="Learn how to evaluate opportunities, reduce risk, and build a profitable sub-leasing business." />
 
           {/* Before You Sign + Financial Analysis */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px", marginBottom: "48px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "28px", marginBottom: "48px" }}>
             {/* Checklist */}
             <div style={{ background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}`, padding: "36px", boxShadow: colors.shadowSm }}>
               <h3 style={{ fontSize: "20px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "24px" }}>Before You Sign A Lease</h3>
@@ -381,7 +387,7 @@ export default function SelfManagePage() {
           {/* Risk Assessment */}
           <h3 style={{ fontSize: "24px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px", textAlign: "center" }}>Risk Assessment Framework</h3>
           <p style={{ fontSize: "15px", color: colors.textMuted, textAlign: "center", marginBottom: "36px" }}>Evaluate every opportunity before committing.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "28px" }}>
             <RiskCard level="Low Risk" color={colors.primary} text="Established STR communities with strong tourism demand and proven performance." />
             <RiskCard level="Medium Risk" color={colors.secondary} text="Emerging opportunities requiring additional due diligence." />
             <RiskCard level="High Risk" color="#A14B3D" text="Markets with uncertain demand, restrictive policies, or weak profitability." />
@@ -390,10 +396,10 @@ export default function SelfManagePage() {
       </section>
 
       {/* ─── 6. FREE RESOURCES ─── */}
-      <section style={{ padding: "80px 40px" }}>
+      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <SectionHeading label="FREE RESOURCES" title="Downloadable Resources & Frameworks" subtitle="Practical templates and checklists to put these systems into action." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "28px" }}>
             <ResourceCard title="STR Startup Checklist" text="Step-by-step launch checklist." />
             <ResourceCard title="Property Evaluation Worksheet" text="Analyze investment opportunities." />
             <ResourceCard title="Revenue Forecast Template" text="Estimate STR performance." />
@@ -403,7 +409,7 @@ export default function SelfManagePage() {
       </section>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" style={{ padding: "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
+      <section id="pricing" style={{ padding: isMobile ? "52px 20px" : "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "48px", maxWidth: "640px", marginLeft: "auto", marginRight: "auto" }}>
             <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondary, marginBottom: "12px" }}>Pricing</p>
@@ -451,7 +457,7 @@ export default function SelfManagePage() {
         onClose={() => setPkg(null)} />
 
       {/* ─── 7. FINAL CTA ─── */}
-      <section style={{ padding: "80px 40px" }}>
+      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
         <div
           style={{
             maxWidth: "1000px",
@@ -525,7 +531,7 @@ function PathCard({ icon, title, description, items, cta, accent, href }: { icon
       <div style={{ marginBottom: "20px" }}>{icon}</div>
       <h3 style={{ fontSize: "24px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "12px" }}>{title}</h3>
       <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>{description}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "32px", flex: 1 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "12px", marginBottom: "32px", flex: 1 }}>
         {items.map((item) => (
           <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: accent, flexShrink: 0 }} />

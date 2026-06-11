@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 const colors = {
   primary: "#1B5E4A",      // Forest green
@@ -113,6 +114,7 @@ const IconGrowth = ({ color = colors.secondary }) => (
 export default function HomePage() {
   const router = useRouter();
   const [servicesOpen, setServicesOpen] = React.useState(false);
+  const isMobile = useIsMobile();
 
   const handleAnalyzeClick = () => {
     router.push("/estimator");
@@ -138,11 +140,11 @@ export default function HomePage() {
       >
         <div
           style={{
-            padding: "16px 40px",
+            padding: isMobile ? "14px 20px" : "16px 40px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start",
-            gap: "60px",
+            justifyContent: isMobile ? "space-between" : "flex-start",
+            gap: isMobile ? "12px" : "60px",
           }}
         >
           {/* Logo */}
@@ -158,8 +160,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav style={{ display: "flex", gap: "40px", flex: 1 }}>
+          {/* Navigation (hidden on mobile to avoid overflow) + mobile Analyze button */}
+          {isMobile && (
+            <button onClick={handleAnalyzeClick}
+              style={{ padding: "9px 16px", background: colors.primary, color: "#fff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+              Analyze
+            </button>
+          )}
+          <nav style={{ display: isMobile ? "none" : "flex", gap: "40px", flex: 1 }}>
             <a href="#home" style={{ textDecoration: "none", color: colors.textMain, fontSize: "15px", fontWeight: "500" }}>
               Home
             </a>
@@ -267,7 +275,7 @@ export default function HomePage() {
         id="home"
         style={{
           position: "relative",
-          minHeight: "760px",
+          minHeight: isMobile ? "auto" : "760px",
           background: colors.bgMain,
           overflow: "hidden",
         }}
@@ -276,10 +284,10 @@ export default function HomePage() {
         <div
           style={{
             position: "relative",
-            width: "50%",
-            maxWidth: "680px",
+            width: isMobile ? "100%" : "50%",
+            maxWidth: isMobile ? "100%" : "680px",
             zIndex: 3,
-            padding: "155px 40px 100px 40px",
+            padding: isMobile ? "48px 20px 56px 20px" : "155px 40px 100px 40px",
             display: "flex",
             alignItems: "center",
             height: "100%",
@@ -289,7 +297,7 @@ export default function HomePage() {
             {/* Main headline with gradient */}
             <h1
               style={{
-                fontSize: "56px",
+                fontSize: isMobile ? "34px" : "56px",
                 fontFamily: "'Georgia', serif",
                 fontWeight: "700",
                 lineHeight: "1.2",
@@ -316,7 +324,7 @@ export default function HomePage() {
             </p>
 
             {/* CTA Buttons */}
-            <div style={{ display: "flex", gap: "16px" }}>
+            <div style={{ display: "flex", gap: "16px", flexDirection: isMobile ? "column" : "row" }}>
               <button
                 onClick={handleAnalyzeClick}
                 style={{
@@ -369,7 +377,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right image container - actual img element */}
+        {/* Right image container - actual img element (hidden on mobile) */}
         <div
           style={{
             position: "absolute",
@@ -378,6 +386,7 @@ export default function HomePage() {
             bottom: 0,
             width: "58vw",
             zIndex: 1,
+            display: isMobile ? "none" : "block",
           }}
         >
           <img
@@ -401,7 +410,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* TRUST BAR */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section style={{ padding: "48px 40px" }}>
+      <section style={{ padding: isMobile ? "32px 20px" : "48px 40px" }}>
         <style>{`
           .gw-trust-grid {
             display: grid;
@@ -496,7 +505,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* SERVICES SECTION */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section id="services" style={{ padding: "80px 40px" }}>
+      <section id="services" style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           {/* Section header */}
           <div style={{ marginBottom: "64px" }}>
@@ -762,7 +771,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* WHY GROUNDWORKS — TRUST / DIFFERENTIATION */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section style={{ padding: "80px 40px", background: colors.bgSection }}>
+      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px", background: colors.bgSection }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           {/* Header */}
           <div style={{ marginBottom: "48px", maxWidth: "760px" }}>
