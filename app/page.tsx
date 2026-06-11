@@ -532,7 +532,7 @@ export default function HomePage() {
           </div>
 
           {/* Service cards grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "28px", alignItems: "stretch" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "28px", alignItems: "stretch" }}>
             {/* Service 1 - Rental Strategy Analyzer */}
             <div
               style={{

@@ -318,38 +318,38 @@ function ReportContent() {
   return (
     <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
       {/* Top bar */}
-      <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 px-4 sm:px-6 py-3"
         style={{ background: colors.bgMain + "ee", borderBottom: "1px solid " + colors.primary, backdropFilter: "blur(12px)" }}>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 min-w-0">
           <button onClick={() => router.back()}
-            className="text-xs px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium"
+            className="text-xs px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium flex-shrink-0"
             style={{ background: colors.bgSection, border: "1px solid #333", color: colors.primary }}>
             ← Back
           </button>
-          <div className="flex items-center gap-2">
-            <GroundWorksLogo size={40} />
-            <div className="flex flex-col">
+          <div className="flex items-center gap-2 min-w-0">
+            <GroundWorksLogo size={36} />
+            <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
                 <span className="text-base font-bold" style={{ color: colors.textMain }}>Ground</span>
                 <span className="text-base font-bold" style={{ color: colors.primary }}>Works</span>
               </div>
-              <span className="text-xs tracking-widest" style={{ color: colors.textLight, letterSpacing: "0.14em" }}>We work, You Decide</span>
+              <span className="hidden sm:inline text-xs tracking-widest" style={{ color: colors.textLight, letterSpacing: "0.14em" }}>We work, You Decide</span>
             </div>
           </div>
-          <div className="w-px h-4" style={{ background: colors.textLight }} />
-          <div>
+          <div className="hidden md:block w-px h-4" style={{ background: colors.textLight }} />
+          <div className="hidden md:block min-w-0">
             <p className="text-xs font-medium" style={{ color: colors.textMuted }}>Rental Report</p>
-            <p className="text-sm font-semibold" style={{ color: colors.textMain }}>{result.propertyName}</p>
+            <p className="text-sm font-semibold truncate" style={{ color: colors.textMain }}>{result.propertyName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full font-medium"
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="hidden sm:inline text-xs px-3 py-1 rounded-full font-medium"
             style={{ background: "#C9A84C22", color: colors.primary, border: "1px solid #C9A84C44" }}>
             {input.unitSize} · {input.unitType}
           </span>
           <button
             onClick={() => window.print()}
-            className="text-xs px-3 py-1.5 rounded-lg font-semibold transition"
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold transition flex-shrink-0"
             style={{ background: colors.primary, color: "#FFF" }}>
             Export PDF
           </button>
@@ -488,7 +488,7 @@ function ReportContent() {
           backdropFilter: "blur(20px)"
         }}>
           <h2 className="text-sm font-bold tracking-widest uppercase mb-5" style={{ color: colors.primary, letterSpacing: "0.15em" }}>Key Metrics</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} icon="💼" />
             <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" icon="👤" />
             <StatCard label="MANAGEMENT FEES" value={`AED ${fmt(result.annualManagementFee)}`} sub={`${(input.managementFee * 100).toFixed(0)}% of revenue`} icon="⏰" />
