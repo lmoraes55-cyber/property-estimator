@@ -2,49 +2,67 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic"; // never cache lead submissions
 
-interface LeadPayload {
-  name?: string;
-  phone?: string;
-  email?: string;
-  target?: string;   // operator/agent the owner wants to reach
-  targetType?: string; // "operator" | "agent"
-  property?: string; // building / unit context
-  notes?: string;
+// Generate a GroundWorks lead reference, e.g. GW-2406-7F3K
+function makeRef(): string {
+  const d = new Date();
+  const yymm = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `GW-${yymm}-${rand}`;
 }
 
+const str = (v: unknown) => (v == null ? "" : String(v).trim());
+
 export async function POST(request: Request) {
-  let body: LeadPayload;
+  let b: Record<string, unknown>;
   try {
-    body = await request.json();
+    b = await request.json();
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  const name = (body.name || "").trim();
-  const phone = (body.phone || "").trim();
-  const email = (body.email || "").trim();
+  const name = str(b.name);
+  const phone = str(b.phone);
+  const email = str(b.email);
 
   // Require a name and at least one contact method
   if (!name || (!phone && !email)) {
     return NextResponse.json({ ok: false, error: "Name and a phone or email are required." }, { status: 400 });
   }
 
+  const ref = makeRef();
+
+  // A "GroundWorks Lead" — a qualified owner with full property + analysis context,
+  // delivered to the matched operator/agent under the GroundWorks brand.
   const lead = {
-    name,
-    phone,
-    email,
-    target: (body.target || "").trim(),
-    targetType: (body.targetType || "").trim(),
-    property: (body.property || "").trim(),
-    notes: (body.notes || "").trim(),
+    ref,
+    status: "New",
     submittedAt: new Date().toISOString(),
     source: "groundworks.ae",
+    // Owner
+    name, phone, email,
+    // Who they want to reach
+    target: str(b.target),
+    targetType: str(b.targetType), // operator | agent
+    // Property
+    property: str(b.property),
+    building: str(b.building),
+    community: str(b.community),
+    unitSize: str(b.unitSize),
+    floor: str(b.floor),
+    view: str(b.view),
+    furnished: str(b.furnished),
+    // GroundWorks analysis snapshot (what makes the lead qualified)
+    recommendation: str(b.recommendation), // STR | LTR
+    strNetPerYear: str(b.strNetPerYear),
+    ltrPerYear: str(b.ltrPerYear),
+    occupancy: str(b.occupancy),
+    adr: str(b.adr),
   };
 
-  // Always log — leads show up in Vercel runtime logs even before a webhook is wired.
-  console.log("[LEAD]", JSON.stringify(lead));
+  // Always log — leads appear in Vercel runtime logs even before a webhook is wired.
+  console.log("[GW-LEAD]", JSON.stringify(lead));
 
-  // Forward to a destination if configured (Google Apps Script / Zapier / Make / Slack / email service).
+  // Forward to the lead destination (Google Sheet via Apps Script / Zapier / Make / Slack / email).
   const webhook = process.env.LEAD_WEBHOOK_URL;
   if (webhook) {
     try {
@@ -54,10 +72,9 @@ export async function POST(request: Request) {
         body: JSON.stringify(lead),
       });
     } catch (e) {
-      // Don't fail the user's submission if the webhook is down — the log still has it.
-      console.error("[LEAD] webhook forward failed:", (e as Error).message);
+      console.error("[GW-LEAD] webhook forward failed:", (e as Error).message);
     }
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, ref });
 }

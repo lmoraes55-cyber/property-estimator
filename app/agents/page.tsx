@@ -286,7 +286,18 @@ function AgentsContent() {
         </div>
       </div>
 
-      <LeadModal open={!!lead} target={lead ?? ""} targetType="agent" property={propertyCtx} onClose={() => setLead(null)} />
+      <LeadModal open={!!lead} target={lead ?? ""} targetType="agent" property={propertyCtx}
+        context={{
+          recommendation: "LTR",
+          building: buildingName,
+          community,
+          unitSize,
+          floor,
+          view,
+          furnished,
+          ltrPerYear: ltrRangeStr,
+        }}
+        onClose={() => setLead(null)} />
     </div>
   );
 }

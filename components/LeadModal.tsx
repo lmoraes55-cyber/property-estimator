@@ -8,20 +8,22 @@ interface LeadModalProps {
   target: string;        // operator/agent name
   targetType: "operator" | "agent";
   property?: string;     // building / unit context
+  context?: Record<string, string | number | undefined>; // property + GW estimate snapshot
   onClose: () => void;
   onSuccess?: () => void; // called after a successful submit (e.g. proceed to contact)
 }
 
-export default function LeadModal({ open, target, targetType, property, onClose, onSuccess }: LeadModalProps) {
+export default function LeadModal({ open, target, targetType, property, context, onClose, onSuccess }: LeadModalProps) {
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [status, setStatus] = React.useState<"idle" | "submitting" | "done" | "error">("idle");
   const [error, setError] = React.useState("");
+  const [ref, setRef] = React.useState("");
 
   if (!open) return null;
 
-  const reset = () => { setName(""); setPhone(""); setEmail(""); setStatus("idle"); setError(""); };
+  const reset = () => { setName(""); setPhone(""); setEmail(""); setStatus("idle"); setError(""); setRef(""); };
   const handleClose = () => { reset(); onClose(); };
 
   const submit = async () => {
@@ -34,10 +36,11 @@ export default function LeadModal({ open, target, targetType, property, onClose,
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, email, target, targetType, property }),
+        body: JSON.stringify({ name, phone, email, target, targetType, property, ...(context || {}) }),
       });
       const j = await res.json();
       if (!res.ok || !j.ok) throw new Error(j.error || "Something went wrong.");
+      setRef(j.ref || "");
       setStatus("done");
     } catch (e) {
       setStatus("error");
@@ -68,9 +71,14 @@ export default function LeadModal({ open, target, targetType, property, onClose,
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke={colors.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </span>
               <h3 className="text-xl font-bold mb-2" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>Request received</h3>
-              <p className="text-sm mb-6" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
+              <p className="text-sm mb-4" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
                 Thanks{name ? `, ${name.split(" ")[0]}` : ""} — we&rsquo;ll connect you with <span style={{ color: colors.primary, fontWeight: 600 }}>{target}</span> and be in touch shortly.
               </p>
+              {ref && (
+                <p className="text-xs mb-6 inline-block px-3 py-1.5 rounded-lg" style={{ background: colors.bgMain, border: `1px solid ${colors.border}`, color: colors.textMuted }}>
+                  Your reference: <span style={{ color: colors.textMain, fontWeight: 700, letterSpacing: "0.04em" }}>{ref}</span>
+                </p>
+              )}
               <button onClick={() => { onSuccess?.(); handleClose(); }}
                 className="w-full py-3 rounded-xl text-sm font-bold transition hover:brightness-105"
                 style={{ background: colors.primary, color: "#fff", boxShadow: `0 8px 20px ${colors.primary}33` }}>

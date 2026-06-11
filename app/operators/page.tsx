@@ -414,7 +414,21 @@ function OperatorsContent() {
         </div>
       </div>
 
-      <LeadModal open={!!lead} target={lead ?? ""} targetType="operator" property={propertyCtx} onClose={() => setLead(null)} />
+      <LeadModal open={!!lead} target={lead ?? ""} targetType="operator" property={propertyCtx}
+        context={{
+          recommendation: "STR",
+          building: input.buildingName,
+          community: result.buildingInfo?.community ?? "",
+          unitSize: input.unitSize,
+          floor: String(input.floor),
+          view: input.view,
+          furnished: input.furnished,
+          strNetPerYear: `AED ${fmt(result.annualNetToLandlord)}`,
+          ltrPerYear: `AED ${fmt(result.longTermRent)}`,
+          occupancy: `${Math.round(result.avgOccupancy * 100)}%`,
+          adr: `AED ${fmt(result.avgADR)}`,
+        }}
+        onClose={() => setLead(null)} />
     </div>
   );
 }
