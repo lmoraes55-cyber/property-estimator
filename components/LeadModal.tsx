@@ -5,8 +5,8 @@ import { colors } from "@/lib/colors";
 
 interface LeadModalProps {
   open: boolean;
-  target: string;        // operator/agent name
-  targetType: "operator" | "agent";
+  target: string;        // operator/agent name, or service/package name
+  targetType: "operator" | "agent" | "service";
   property?: string;     // building / unit context
   context?: Record<string, string | number | undefined>; // property + GW estimate snapshot
   onClose: () => void;
@@ -48,7 +48,8 @@ export default function LeadModal({ open, target, targetType, property, context,
     }
   };
 
-  const labelType = targetType === "operator" ? "operator" : "leasing agent";
+  const isService = targetType === "service";
+  const labelType = targetType === "operator" ? "operator" : targetType === "agent" ? "leasing agent" : "service";
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 py-6 overflow-y-auto"
@@ -72,7 +73,9 @@ export default function LeadModal({ open, target, targetType, property, context,
               </span>
               <h3 className="text-xl font-bold mb-2" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>Request received</h3>
               <p className="text-sm mb-4" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
-                Thanks{name ? `, ${name.split(" ")[0]}` : ""} — we&rsquo;ll connect you with <span style={{ color: colors.primary, fontWeight: 600 }}>{target}</span> and be in touch shortly.
+                Thanks{name ? `, ${name.split(" ")[0]}` : ""} — {isService
+                  ? <>our team will be in touch shortly about <span style={{ color: colors.primary, fontWeight: 600 }}>{target}</span>.</>
+                  : <>we&rsquo;ll connect you with <span style={{ color: colors.primary, fontWeight: 600 }}>{target}</span> and be in touch shortly.</>}
               </p>
               {ref && (
                 <p className="text-xs mb-6 inline-block px-3 py-1.5 rounded-lg" style={{ background: colors.bgMain, border: `1px solid ${colors.border}`, color: colors.textMuted }}>
@@ -87,12 +90,14 @@ export default function LeadModal({ open, target, targetType, property, context,
             </div>
           ) : (
             <>
-              <p className="text-xs font-bold uppercase mb-2" style={{ color: colors.secondary, letterSpacing: "0.14em" }}>Request an introduction</p>
+              <p className="text-xs font-bold uppercase mb-2" style={{ color: colors.secondary, letterSpacing: "0.14em" }}>{isService ? "Get started" : "Request an introduction"}</p>
               <h3 className="text-xl font-bold mb-1.5" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>
-                Connect with {target}
+                {isService ? target : `Connect with ${target}`}
               </h3>
               <p className="text-sm mb-5" style={{ color: colors.textMuted, lineHeight: 1.55 }}>
-                Leave your details and we&rsquo;ll arrange an introduction with this {labelType}{property ? ` for ${property}` : ""}.
+                {isService
+                  ? <>Leave your details and our team will reach out to get you started{property ? ` (${property})` : ""}.</>
+                  : <>Leave your details and we&rsquo;ll arrange an introduction with this {labelType}{property ? ` for ${property}` : ""}.</>}
               </p>
 
               <div className="space-y-3">

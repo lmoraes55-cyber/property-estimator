@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
+import LeadModal from "@/components/LeadModal";
 
 const colors = {
   primary: "#1B5E4A",
@@ -112,9 +113,56 @@ const IconDownload = ({ color = colors.primary }) => (
 
 const serifHeading = "'Georgia', serif";
 
+interface Tier { name: string; price: string; note: string; features: string[]; cta: string; paid?: boolean; featured?: boolean }
+
+function PriceCard({ t, onGet }: { t: Tier; onGet: () => void }) {
+  return (
+    <div style={{
+      background: colors.bgMain,
+      border: `1px solid ${t.featured ? colors.primary : colors.border}`,
+      borderRadius: "22px",
+      padding: "28px 24px",
+      boxShadow: t.featured ? "0 16px 40px rgba(27,94,74,0.10)" : colors.shadowSm,
+      display: "flex", flexDirection: "column", position: "relative",
+    }}>
+      {t.featured && (
+        <span style={{
+          position: "absolute", top: "-11px", left: "24px", fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em",
+          textTransform: "uppercase", color: "#fff", background: colors.primary, padding: "3px 10px", borderRadius: "999px",
+        }}>Most popular</span>
+      )}
+      <h3 style={{ fontSize: "17px", fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>{t.name}</h3>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "4px" }}>
+        <span style={{ fontSize: "28px", fontWeight: 700, color: colors.primary, fontFamily: "'Georgia', serif" }}>{t.price}</span>
+        <span style={{ fontSize: "12px", color: colors.textMuted }}>{t.note}</span>
+      </div>
+      <ul style={{ listStyle: "none", padding: 0, margin: "16px 0 22px", flex: 1 }}>
+        {t.features.map((f) => (
+          <li key={f} style={{ display: "flex", gap: "9px", alignItems: "flex-start", marginBottom: "9px" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "2px" }}><circle cx="12" cy="12" r="9.5" stroke={colors.primary} strokeWidth="1.2" opacity="0.35" /><path d="M8 12.2l2.6 2.6L16 9.4" stroke={colors.primary} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <span style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.5 }}>{f}</span>
+          </li>
+        ))}
+      </ul>
+      <button onClick={onGet}
+        style={{
+          width: "100%", padding: "12px", borderRadius: "12px", fontSize: "14px", fontWeight: 700, cursor: "pointer",
+          transition: "all 0.2s ease",
+          background: t.paid ? colors.primary : "transparent",
+          color: t.paid ? "#fff" : colors.primary,
+          border: t.paid ? "none" : `1.5px solid ${colors.primary}`,
+          boxShadow: t.paid ? "0 8px 20px rgba(27,94,74,0.25)" : "none",
+        }}>
+        {t.cta} →
+      </button>
+    </div>
+  );
+}
+
 export default function SelfManagePage() {
   const router = useRouter();
   const handleAnalyzeClick = () => router.push("/estimator");
+  const [pkg, setPkg] = React.useState<string | null>(null);
 
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh" }}>
@@ -349,6 +397,54 @@ export default function SelfManagePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── PRICING ─── */}
+      <section id="pricing" style={{ padding: "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px", maxWidth: "640px", marginLeft: "auto", marginRight: "auto" }}>
+            <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondary, marginBottom: "12px" }}>Pricing</p>
+            <h2 style={{
+              fontFamily: "'Georgia', serif", fontSize: "36px", lineHeight: 1.15, fontWeight: 700, marginBottom: "14px",
+              background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 55%, ${colors.secondary} 100%)`,
+              WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
+            }}>Self-Manage & Operations Help</h2>
+            <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.6 }}>
+              One-time fees. Whether you want to run it yourself or have us launch it for you — choose the level of support that fits.
+            </p>
+          </div>
+
+          {/* Self-Manage tiers */}
+          <p style={{ fontSize: "13px", fontWeight: 700, color: colors.textMain, marginBottom: "16px", letterSpacing: "0.02em" }}>Self-Manage Your Property</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px", marginBottom: "44px" }}>
+            {[
+              { name: "Free Playbook", price: "Free", note: "Guides, tools & checklists", features: ["Self-management blueprint", "Recommended tools & systems", "Sub-leasing playbook"], cta: "Explore Resources", paid: false },
+              { name: "Setup Session", price: "AED 1,500", note: "one-time", features: ["1:1 onboarding call", "PMS + dynamic pricing setup", "OTA listing optimization", "DET licensing guidance"], cta: "Get Started", paid: true, featured: true },
+              { name: "Launch + Coaching", price: "AED 2,900", note: "one-time", features: ["Everything in Setup Session", "60-day coaching", "Listing review", "Pricing & revenue check-in"], cta: "Get Started", paid: true },
+            ].map((t) => (
+              <PriceCard key={t.name} t={t} onGet={() => t.paid ? setPkg(`Self-Manage — ${t.name}`) : router.push("#blueprint")} />
+            ))}
+          </div>
+
+          {/* Operations Help tiers */}
+          <p style={{ fontSize: "13px", fontWeight: 700, color: colors.textMain, marginBottom: "16px", letterSpacing: "0.02em" }}>Operations Help — Done-For-You Setup</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
+            {[
+              { name: "Essentials Launch", price: "AED 3,500", note: "one-time", features: ["DET / DTCM permit assistance", "Multi-OTA listing creation", "Dynamic pricing + channel manager setup", "Guest-comms templates"], cta: "Get Started", paid: true },
+              { name: "Premium Launch", price: "AED 5,500", note: "one-time", features: ["Everything in Essentials", "Professional photography", "Listing copywriting", "Smart-lock / access setup guidance", "30-day post-launch support"], cta: "Get Started", paid: true, featured: true },
+            ].map((t) => (
+              <PriceCard key={t.name} t={t} onGet={() => setPkg(`Operations Help — ${t.name}`)} />
+            ))}
+          </div>
+
+          <p style={{ fontSize: "12px", color: colors.textMuted, textAlign: "center", marginTop: "28px" }}>
+            All prices in AED, one-time. Ongoing day-to-day management is handled by our vetted operator partners.
+          </p>
+        </div>
+      </section>
+
+      <LeadModal open={!!pkg} target={pkg ?? ""} targetType="service"
+        context={{ recommendation: "Service", service: pkg ?? "" }}
+        onClose={() => setPkg(null)} />
 
       {/* ─── 7. FINAL CTA ─── */}
       <section style={{ padding: "80px 40px" }}>
