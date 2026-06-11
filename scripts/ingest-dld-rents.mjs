@@ -147,37 +147,49 @@ function toYM(s) {
   return d.getFullYear() * 12 + d.getMonth();
 }
 
-// Given dated entries [{ym, amt}], pick the FRESHEST window on the ladder that
-// has >= MIN_SAMPLES contracts, and compute stats on just that window.
-// Falls through to wider windows only when recent data is too thin.
+// Compute the stat object from a chosen subset of contracts.
+function statFromSubset(subset, w, basis) {
+  const amts = subset.map(e => e.amt).sort((a, b) => a - b);
+  const latestYM = subset.reduce((m, e) => Math.max(m, e.ym), 0);
+
+  // Rent per sqft (DLD actual_area is sqm; 1 sqm = 10.7639 sqft)
+  const SQM_TO_SQFT = 10.7639;
+  const psf = subset.filter(e => e.sqm > 10 && e.sqm < 5000).map(e => (e.amt / e.sqm) / SQM_TO_SQFT).sort((a, b) => a - b);
+  const sqftSizes = subset.filter(e => e.sqm > 10 && e.sqm < 5000).map(e => e.sqm * SQM_TO_SQFT).sort((a, b) => a - b);
+
+  const stat = {
+    median: Math.round(median(amts)),
+    p25: Math.round(percentile(amts, 25)),
+    p75: Math.round(percentile(amts, 75)),
+    n: amts.length,
+    windowMonths: w,
+    basis, // "new" = new lets only, "all" = new+renewals fallback
+    asOf: `${Math.floor(latestYM / 12)}-${String((latestYM % 12) + 1).padStart(2, "0")}`,
+  };
+  if (psf.length >= 3) {
+    stat.aedPerSqft = Math.round(median(psf));
+    stat.medianSqft = Math.round(median(sqftSizes));
+  }
+  return stat;
+}
+
+// Prefer NEW contracts (today's market rate) over renewals (RERA-capped, lagging).
+// 1st pass: freshest window with >= MIN_SAMPLES *new* lets → use new-only.
+// 2nd pass (fallback): freshest window with >= MIN_SAMPLES of any contract → use all.
 function freshestStats(entries) {
   if (entries.length < MIN_SAMPLES) return null;
+
+  // Pass 1 — new lets only
+  for (const w of LADDER) {
+    const minYM = NOW_YM - w;
+    const subset = entries.filter(e => e.isNew && e.ym >= minYM);
+    if (subset.length >= MIN_SAMPLES) return statFromSubset(subset, w, "new");
+  }
+  // Pass 2 — all contracts (new + renewals)
   for (const w of LADDER) {
     const minYM = NOW_YM - w;
     const subset = entries.filter(e => e.ym >= minYM);
-    if (subset.length >= MIN_SAMPLES) {
-      const amts = subset.map(e => e.amt).sort((a, b) => a - b);
-      const latestYM = subset.reduce((m, e) => Math.max(m, e.ym), 0);
-
-      // Rent per sqft (DLD actual_area is sqm; 1 sqm = 10.7639 sqft)
-      const SQM_TO_SQFT = 10.7639;
-      const psf = subset.filter(e => e.sqm > 10 && e.sqm < 5000).map(e => (e.amt / e.sqm) / SQM_TO_SQFT).sort((a, b) => a - b);
-      const sqftSizes = subset.filter(e => e.sqm > 10 && e.sqm < 5000).map(e => e.sqm * SQM_TO_SQFT).sort((a, b) => a - b);
-
-      const stat = {
-        median: Math.round(median(amts)),
-        p25: Math.round(percentile(amts, 25)),
-        p75: Math.round(percentile(amts, 75)),
-        n: amts.length,
-        windowMonths: w,
-        asOf: `${Math.floor(latestYM / 12)}-${String((latestYM % 12) + 1).padStart(2, "0")}`,
-      };
-      if (psf.length >= 3) {
-        stat.aedPerSqft = Math.round(median(psf));
-        stat.medianSqft = Math.round(median(sqftSizes));
-      }
-      return stat;
-    }
+    if (subset.length >= MIN_SAMPLES) return statFromSubset(subset, w, "all");
   }
   return null; // not enough data even in the widest window
 }
@@ -209,6 +221,7 @@ async function main() {
         annual: findCol(headers, ["annual_amount", "annual amount", "amount"]),
         start: findCol(headers, ["contract_start_date", "start_date", "registration_date"]),
         areaSqm: findCol(headers, ["actual_area", "area_sqm", "actual area", "procedure_area"]),
+        regType: findCol(headers, ["contract_reg_type_en", "reg_type_en", "contract_type"]),
       };
       if (col.project === -1 || col.area === -1 || col.annual === -1) {
         console.error("Could not locate required columns. Headers found:");
@@ -250,23 +263,27 @@ async function main() {
 
     // actual_area is in square metres in the DLD dataset
     const sqm = col.areaSqm !== -1 ? Number(String(f[col.areaSqm] || "").replace(/[^0-9.]/g, "")) : 0;
+    // New vs Renew — new lets reflect today's market rate; renewals lag (RERA-capped)
+    const isNew = col.regType !== -1 ? (f[col.regType] || "").toLowerCase().includes("new") : false;
 
     const bKey = `${norm}||${bed}`;
     if (!buildingGroups.has(bKey)) buildingGroups.set(bKey, { displayName: projectRaw.trim(), area, entries: [] });
-    buildingGroups.get(bKey).entries.push({ ym, amt: annual, sqm });
+    buildingGroups.get(bKey).entries.push({ ym, amt: annual, sqm, isNew });
 
     const aKey = `${area}||${bed}`;
     if (!areaGroups.has(aKey)) areaGroups.set(aKey, []);
-    areaGroups.get(aKey).push({ ym, amt: annual, sqm });
+    areaGroups.get(aKey).push({ ym, amt: annual, sqm, isNew });
 
     if (sourceRows % 200000 === 0) console.log(`  …processed ${sourceRows.toLocaleString()} rows`);
   }
 
-  // Build output — each group uses its FRESHEST reliable window.
+  // Build output — each group uses its FRESHEST reliable window, new lets preferred.
+  let basisNew = 0, basisAll = 0;
   const buildings = {};
   for (const [key, g] of buildingGroups) {
     const stat = freshestStats(g.entries);
     if (!stat) continue;
+    if (stat.basis === "new") basisNew++; else basisAll++;
     const [norm, bed] = key.split("||");
     if (!buildings[norm]) buildings[norm] = { displayName: g.displayName, area: g.area, beds: {} };
     buildings[norm].beds[bed] = stat;
@@ -291,6 +308,8 @@ async function main() {
       ladder: LADDER,
       buildingsCovered: Object.keys(buildings).length,
       areasCovered: Object.keys(areas).length,
+      buildingBedsFromNewLets: basisNew,
+      buildingBedsFromAllContracts: basisAll,
     },
     buildings,
     areas,
