@@ -40,11 +40,11 @@ each a **"Party"** and together the **"Parties"**.
 3.3 The Partner is solely responsible for its own services, pricing, contracts with owners, licensing (incl. DET/DTCM holiday-home permits), and compliance.
 
 ## 4. Fees & Payment
-4.1 In consideration for Leads and Conversions, the Partner shall pay GroundWorks the fees set out in **Schedule A**.
+4.1 **Success-based only.** GroundWorks is paid **only when a Lead converts** into a Signed Property. There is **no per-lead charge** and **no fee for Leads that do not convert**. For each Conversion, the Partner shall pay GroundWorks the **Success Fee** set out in **Schedule A**.
 
-4.2 The Partner shall report each Conversion (referencing the GroundWorks Reference) within **[5] business days** of signing the owner. GroundWorks may also confirm Conversions directly with the owner.
+4.2 The Partner shall report each Conversion (referencing the GroundWorks Reference) within **[5] business days** of signing the owner, including the agreed Management Fee / rate so the Success Fee can be calculated. GroundWorks may also confirm Conversions directly with the owner.
 
-4.3 GroundWorks will invoice monthly. Invoices are payable within **[14] days**. All fees are exclusive of **VAT**, which will be added where applicable.
+4.3 GroundWorks will invoice the Success Fee on Conversion (and, where the fee is income-based, in line with Schedule A). Invoices are payable within **[14] days**. All fees are exclusive of **VAT**, which will be added where applicable.
 
 4.4 Late payments may accrue interest at **[1]%** per month on overdue amounts.
 
@@ -104,15 +104,18 @@ each a **"Party"** and together the **"Parties"**.
 
 | Item | Term |
 |---|---|
-| **Per-Qualified-Lead fee** | AED `[250]` per Qualified Lead delivered |
-| **Success fee on Conversion** | `[10]%` of the first-year Management Fee **— OR —** flat AED `[2,000]` per Signed Property |
-| **Attribution Window** | `[120]` days from Lead delivery |
-| **Qualified Lead criteria** | Genuine owner; valid phone/email; property within Partner's service areas: `[areas]`; not a duplicate/test |
-| **Exclusivity** | Each Lead exclusive to the named Partner |
-| **Invoicing** | Monthly, payable within `[14]` days, + VAT |
+| **Per-lead fee** | **None.** GroundWorks charges nothing for Leads, and nothing for Leads that do not convert. |
+| **Success Fee (on Conversion)** | Choose one per partner: **(a) One-time fee** of AED `[____]` per Signed Property; **— OR — (b) Income share:** `[__]%` of the gross rental income the Signed Property generates over the **first 12 months** of management. |
+| **Income-share basis** | Gross rental income collected for the unit during the 12 months from the start of the Partner's management of that property. |
+| **Income-share invoicing** | `[Monthly / Quarterly]` in arrears against income reports — **OR** estimated upfront and reconciled at 12 months *(pick one)*. |
+| **Attribution Window** | A Conversion counts if the owner signs with the Partner within `[120]` days of Lead delivery. |
+| **Qualified Lead criteria** | Genuine owner; valid phone/email; property within Partner's service areas: `[areas]`; not a duplicate/test. |
+| **Exclusivity** | Each Lead is exclusive to the named Partner. |
+| **Payment terms** | Invoices payable within `[14]` days, + VAT. |
 
-> Tip: many partners accept a **small per-lead fee + a success fee**. You can also offer a
-> reduced/zero per-lead fee in exchange for a higher success %.
+> Note: this is a **success-only** model — GroundWorks earns only when an introduced owner
+> actually signs with the Partner. Pick **(a)** a one-time fee for simplicity, or **(b)** the
+> 12-month income share for higher upside on strong-performing units.
 
 ---
 
