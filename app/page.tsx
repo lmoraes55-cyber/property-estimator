@@ -751,6 +751,114 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+      {/* WHY GROUNDWORKS — TRUST / DIFFERENTIATION */}
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+      <section style={{ padding: "80px 40px", background: colors.bgSection }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ marginBottom: "48px", maxWidth: "760px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondary, marginBottom: "14px" }}>
+              Why GroundWorks
+            </p>
+            <h2 style={{
+              fontFamily: "'Georgia', serif", fontSize: "38px", lineHeight: 1.15, fontWeight: 700, marginBottom: "16px",
+              background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 55%, ${colors.secondary} 100%)`,
+              WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
+            }}>
+              Real data and real connections — not a generic guess
+            </h2>
+            <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.7 }}>
+              Anyone can ask an AI &ldquo;what could my Dubai apartment earn?&rdquo; and get a confident-sounding number. GroundWorks gives you something an AI can&rsquo;t: figures grounded in millions of real registered contracts, a model tuned to how Dubai short-term rentals actually perform, and a direct line to vetted operators and leasing agents.
+            </p>
+          </div>
+
+          {/* Differentiator cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", marginBottom: "48px" }}>
+            {[
+              {
+                title: "Grounded in real DLD data",
+                body: "Built on 10M+ actual Dubai Land Department rent contracts — building-level, newest lets first. Every figure is real and traceable, not estimated.",
+                icon: <path d="M4 19V5M4 19h16M8 16V9M12 16V6M16 16v-4M20 16v-8" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
+                accent: colors.primary,
+              },
+              {
+                title: "STR-native modeling",
+                body: "Occupancy, seasonality, fees, and prime-area demand calibrated to how Dubai short-term rentals truly perform — the part generic tools and AI miss entirely.",
+                icon: <path d="M4 14l4-4 4 3 6-7M14 6h4v4" stroke={colors.secondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
+                accent: colors.secondary,
+              },
+              {
+                title: "Operator & agent network",
+                body: "We don't just give an answer — we match you to vetted holiday-home operators and leasing agents, and make the introduction. A network, not a chatbot.",
+                icon: <><circle cx="9" cy="8" r="3" stroke={colors.primary} strokeWidth="1.5" /><circle cx="17" cy="9" r="2.2" stroke={colors.primary} strokeWidth="1.5" /><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5M15 14c2.2 0 4 1.8 4 4" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" /></>,
+                accent: colors.primary,
+              },
+              {
+                title: "Neutral & on your side",
+                body: "Most Dubai rental calculators are run by management companies steering you to STR. We compare STR vs LTR honestly and recommend whichever genuinely wins.",
+                icon: <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3zM9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
+                accent: colors.secondary,
+              },
+            ].map((c) => (
+              <div key={c.title} style={{
+                background: "#FFFFFF", border: `1px solid ${colors.border}`, borderRadius: "20px",
+                padding: "26px 24px", boxShadow: colors.shadowSm,
+              }}>
+                <div style={{
+                  width: "44px", height: "44px", borderRadius: "12px", background: `${c.accent}12`,
+                  display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px",
+                }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">{c.icon}</svg>
+                </div>
+                <h3 style={{ fontSize: "16px", fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>{c.title}</h3>
+                <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6 }}>{c.body}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Just-ask-AI comparison */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0",
+            border: `1px solid ${colors.border}`, borderRadius: "24px", overflow: "hidden", background: "#FFFFFF",
+            boxShadow: colors.shadowSm,
+          }}>
+            <div style={{ padding: "30px 28px", borderRight: `1px solid ${colors.border}` }}>
+              <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8E8E8E", marginBottom: "14px" }}>
+                Just asking an AI
+              </p>
+              {[
+                "A plausible-sounding number it made up",
+                "No real contracts behind it — can't be verified",
+                "Different answer every time you ask",
+                "No view on operators, agents, or next steps",
+              ].map((t) => (
+                <div key={t} style={{ display: "flex", gap: "10px", alignItems: "flex-start", marginBottom: "10px" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "2px" }}><path d="M7 7l10 10M17 7L7 17" stroke={"#8E8E8E"} strokeWidth="1.6" strokeLinecap="round" /></svg>
+                  <span style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.5 }}>{t}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "30px 28px", background: `${colors.primary}06` }}>
+              <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.primary, marginBottom: "14px" }}>
+                With GroundWorks
+              </p>
+              {[
+                "Figures from real registered Dubai contracts",
+                "Traceable — see how many contracts back each number",
+                "Consistent, defensible projections you can act on",
+                "Matched operators & leasing agents, with an introduction",
+              ].map((t) => (
+                <div key={t} style={{ display: "flex", gap: "10px", alignItems: "flex-start", marginBottom: "10px" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "2px" }}><circle cx="12" cy="12" r="9.5" stroke={colors.primary} strokeWidth="1.2" opacity="0.35" /><path d="M8 12.2l2.6 2.6L16 9.4" stroke={colors.primary} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  <span style={{ fontSize: "13.5px", color: colors.textMain, lineHeight: 1.5 }}>{t}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
