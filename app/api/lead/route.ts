@@ -59,11 +59,19 @@ export async function POST(request: Request) {
     adr: str(b.adr),
   };
 
-  // Always log — leads appear in Vercel runtime logs even before a webhook is wired.
-  console.log("[GW-LEAD]", JSON.stringify(lead));
+  const isService = lead.targetType === "service";
 
-  // Forward to the lead destination (Google Sheet via Apps Script / Zapier / Make / Slack / email).
-  const webhook = process.env.LEAD_WEBHOOK_URL;
+  // Always log — leads appear in Vercel runtime logs even before a webhook is wired.
+  console.log(isService ? "[GW-SERVICE-LEAD]" : "[GW-LEAD]", JSON.stringify(lead));
+
+  // Route to the right destination sheet:
+  //  - Service enquiries (self-manage / operations)  -> LEAD_WEBHOOK_URL_SERVICES
+  //  - Operator / agent introductions                -> LEAD_WEBHOOK_URL
+  // Service leads fall back to the main webhook only if a dedicated one isn't configured.
+  const webhook = isService
+    ? (process.env.LEAD_WEBHOOK_URL_SERVICES || process.env.LEAD_WEBHOOK_URL)
+    : process.env.LEAD_WEBHOOK_URL;
+
   if (webhook) {
     try {
       await fetch(webhook, {
