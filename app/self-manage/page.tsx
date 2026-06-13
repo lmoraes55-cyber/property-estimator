@@ -310,7 +310,7 @@ export default function SelfManagePage() {
               items={["Unit sourcing", "Landlord negotiations", "Profitability checks", "Risk assessment", "Compliance considerations", "Scaling strategy"]}
               cta="Explore STR Sub-Leasing"
               accent={colors.secondary}
-              href="#sublease"
+              href="/self-manage/str-subleasing"
             />
           </div>
         </div>
