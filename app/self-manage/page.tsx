@@ -331,19 +331,6 @@ export default function SelfManagePage() {
         </div>
       </section>
 
-      {/* ─── 4. TOOLS ─── */}
-      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <SectionHeading label="TECHNOLOGY" title="Tools Used By Professional Operators" subtitle="Technology recommendations for owners and operators managing short-term rentals." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "28px" }}>
-            <ToolCard icon={<IconPMS color={colors.primary} />} title="Property Management Systems" tools={["Guesty", "Hostaway", "Hostfully"]} />
-            <ToolCard icon={<IconPricing color={colors.secondary} />} title="Dynamic Pricing" tools={["PriceLabs", "Wheelhouse", "Beyond"]} />
-            <ToolCard icon={<IconChat color={colors.primary} />} title="Guest Communication" tools={["Hospitable", "Host Tools"]} />
-            <ToolCard icon={<IconAccess color={colors.secondary} />} title="Smart Access" tools={["Yale", "Nuki", "TTLock"]} />
-          </div>
-        </div>
-      </section>
-
       {/* ─── 5. SUB-LEASING PLAYBOOK ─── */}
       <section id="sublease" style={{ padding: isMobile ? "52px 20px" : "80px 40px", background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -411,19 +398,6 @@ export default function SelfManagePage() {
             <RiskCard level="Low Risk" color={colors.primary} text="Established STR communities with strong tourism demand and proven performance." />
             <RiskCard level="Medium Risk" color={colors.secondary} text="Emerging opportunities requiring additional due diligence." />
             <RiskCard level="High Risk" color="#A14B3D" text="Markets with uncertain demand, restrictive policies, or weak profitability." />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 6. FREE RESOURCES ─── */}
-      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <SectionHeading label="FREE RESOURCES" title="Downloadable Resources & Frameworks" subtitle="Practical templates and checklists to put these systems into action." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "28px" }}>
-            <ResourceCard title="STR Startup Checklist" text="Step-by-step launch checklist." />
-            <ResourceCard title="Property Evaluation Worksheet" text="Analyze investment opportunities." />
-            <ResourceCard title="Revenue Forecast Template" text="Estimate STR performance." />
-            <ResourceCard title="Sub-Leasing Due Diligence Guide" text="Evaluate risk before signing leases." />
           </div>
         </div>
       </section>
