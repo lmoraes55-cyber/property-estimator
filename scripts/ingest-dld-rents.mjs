@@ -228,6 +228,7 @@ async function ingestFile(filePath, ctx) {
         usage: findCol(headers, ["property_usage_en", "usage_en", "usage"]),
         annual: findCol(headers, ["annual_amount", "annual amount", "amount"]),
         start: findCol(headers, ["contract_start_date", "start_date", "registration_date"]),
+        end: findCol(headers, ["contract_end_date", "end_date", "expiry_date"]),
         areaSqm: findCol(headers, ["actual_area", "area_sqm", "actual area", "procedure_area"]),
         regType: findCol(headers, ["contract_reg_type_en", "reg_type_en", "contract_type"]),
       };
@@ -264,6 +265,17 @@ async function ingestFile(filePath, ctx) {
     // Recency: keep only contracts within the collection window, drop future-dated.
     const ym = col.start !== -1 ? toYM(f[col.start]) : null;
     if (ym === null || ym > NOW_YM || ym < minYM) continue;
+
+    // Duration filter: annual LTR contracts only (330–400 days).
+    // Short-term (3/6-month) contracts inflate the rent figure — exclude them.
+    if (col.end !== -1 && col.start !== -1) {
+      const startMs = new Date(f[col.start]).getTime();
+      const endMs = new Date(f[col.end]).getTime();
+      if (!isNaN(startMs) && !isNaN(endMs)) {
+        const days = (endMs - startMs) / 86400000;
+        if (days < 330 || days > 400) continue;
+      }
+    }
 
     const annual = Number(String(f[col.annual] || "").replace(/[^0-9.]/g, ""));
     if (!annual || annual < 5000 || annual > 20000000) continue; // sanity bounds
