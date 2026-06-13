@@ -165,7 +165,8 @@ export default function Home() {
     managementFee: "20",
     propertyValue: "",
     propertyValueDisplay: "", // comma-formatted display value
-    sizeSqm: "", // optional unit size (sqm) for rent-per-sqft refinement
+    sizeSqm: "", // optional unit size for rent-per-sqft refinement
+    sizeUnit: "sqft" as "sqm" | "sqft", // user's chosen input unit
     dldKey: "",   // exact DLD dataset key (set when selected from DLD autocomplete)
     dldArea: "",  // DLD administrative area
   });
@@ -216,7 +217,11 @@ export default function Home() {
     furnished: form.furnished,
     managementFee: String(Number(form.managementFee) / 100),
     ...(form.propertyValue ? { propertyValue: form.propertyValue } : {}),
-    ...(form.sizeSqm ? { sizeSqm: form.sizeSqm } : {}),
+    ...(form.sizeSqm ? {
+      sizeSqm: form.sizeUnit === "sqft"
+        ? String(Math.round(Number(form.sizeSqm) / 10.7639))
+        : form.sizeSqm,
+    } : {}),
     ...(form.dldKey ? { dldKey: form.dldKey } : {}),
     ...(form.dldArea ? { dldArea: form.dldArea } : {}),
   });
@@ -490,18 +495,37 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Optional unit size (sqm) for rent-per-sqft refinement */}
+              {/* Optional unit size for rent-per-sqft refinement */}
               <div>
-                <label className="block text-xs font-medium mb-2 tracking-wider" style={{ color: colors.textMuted }}>
-                  UNIT SIZE (SQM) <span className="font-normal" style={{ color: colors.textLight }}>· optional, sharpens the estimate</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-medium tracking-wider" style={{ color: colors.textMuted }}>
+                    UNIT SIZE <span className="font-normal" style={{ color: colors.textLight }}>· optional, sharpens the estimate</span>
+                  </label>
+                  <div className="flex rounded-lg overflow-hidden" style={{ border: `1px solid ${colors.border}`, fontSize: 11 }}>
+                    {(["sqft", "sqm"] as const).map(u => (
+                      <button
+                        key={u}
+                        onClick={() => { set("sizeUnit", u); set("sizeSqm", ""); }}
+                        style={{
+                          padding: "3px 10px",
+                          background: form.sizeUnit === u ? colors.secondary : "transparent",
+                          color: form.sizeUnit === u ? "#fff" : colors.textMuted,
+                          fontWeight: form.sizeUnit === u ? 600 : 400,
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                      >{u}</button>
+                    ))}
+                  </div>
+                </div>
                 <input
                   type="number"
                   inputMode="numeric"
-                  min={10} max={2000}
+                  min={form.sizeUnit === "sqft" ? 100 : 10}
+                  max={form.sizeUnit === "sqft" ? 20000 : 2000}
                   className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition"
                   style={{ background: colors.bgMain, border: `1px solid ${form.sizeSqm ? "#C9A84C55" : colors.border}`, color: colors.textMain }}
-                  placeholder="e.g. 70"
+                  placeholder={form.sizeUnit === "sqft" ? "e.g. 750" : "e.g. 70"}
                   value={form.sizeSqm}
                   onChange={e => set("sizeSqm", e.target.value.replace(/[^0-9.]/g, ""))}
                 />
