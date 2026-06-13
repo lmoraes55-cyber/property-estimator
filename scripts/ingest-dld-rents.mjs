@@ -46,7 +46,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
 // ── Config ───────────────────────────────────────────────────────────────
-const MIN_SAMPLES = Number(process.env.MIN_SAMPLES ?? 5);     // min contracts for a reliable group
+const MIN_SAMPLES = Number(process.env.MIN_SAMPLES ?? 3);     // min contracts for a reliable group
 const COLLECT_WINDOW = Number(process.env.COLLECT_WINDOW ?? 60); // months of history to retain
 // Recency ladder: try the freshest window first; widen only if too few samples.
 const LADDER = (process.env.LADDER ?? "3,6,12,18,24,36,48,60").split(",").map(Number);
