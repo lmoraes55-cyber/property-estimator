@@ -11,6 +11,7 @@ import {
   runEstimator,
   fmt, UnitSize, UnitType, OCCStrategy, ViewType, FurnishedStatus, EstimatorOutput,
 } from "@/lib/estimator";
+import { checkSTRViability } from "@/lib/str-viability";
 import { colors } from "@/lib/colors";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
 
@@ -285,6 +286,9 @@ function ReportContent() {
 
   const result: EstimatorOutput = runEstimator(input);
 
+  const community = result.buildingInfo?.community ?? input.buildingName;
+  const strViability = checkSTRViability(input.buildingName, community);
+
   const chartData = result.months.map(m => ({
     month: m.month,
     "STR Net": Math.round(m.netToLandlord),
@@ -371,6 +375,27 @@ function ReportContent() {
               Your property is currently unfurnished. A furnishing package is required before listing on any short-term rental platform.
               We will suggest curated packages tailored to your property size and community in the next section.
             </p>
+          </div>
+        )}
+
+        {/* STR viability warning */}
+        {!strViability.viable && (
+          <div className="rounded-2xl p-5" style={{ background: "#FFF8EC", border: "1.5px solid #C9A84C" }}>
+            <div className="flex gap-3 items-start">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                <path d="M10 2L18 17H2L10 2Z" stroke="#C9A84C" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M10 8V11" stroke="#C9A84C" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle cx="10" cy="14" r="0.75" fill="#C9A84C"/>
+              </svg>
+              <div>
+                <p className="text-sm font-semibold mb-1" style={{ color: "#8B6914" }}>
+                  {strViability.type === "area" ? "Area not typically viable for STR" : "Building may underperform for STR"}
+                </p>
+                <p className="text-xs leading-relaxed" style={{ color: "#7A5C10" }}>
+                  {strViability.reason} The numbers below are shown for reference, but we recommend considering a long-term tenancy for this property.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
