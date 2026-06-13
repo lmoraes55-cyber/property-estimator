@@ -451,8 +451,7 @@ function ReportContent() {
                   `Floor ${result.floor}`,
                   result.furnished,
                   result.view,
-                  result.floorPremiumPct > 0 ? `+${Math.round(result.floorPremiumPct * 100)}% floor` : null,
-                  result.viewPremium > 0 ? `+${Math.round(result.viewPremium * 100)}% view` : null,
+
                 ].filter(Boolean).map(tag => (
                   <span key={tag!} className="text-[11px] px-2 py-0.5 rounded-md font-medium"
                     style={{ background: `${colors.primary}08`, color: colors.primary, border: `1px solid ${colors.primary}20` }}>
