@@ -360,7 +360,18 @@ export function getLTRMarketRent(
     }
   }
 
-  // 3. Fallback to internal community-average benchmark table
+  // 3. Per-building curated override (manually sourced from DXB Interact / Bayut)
+  //    Used for buildings absent from DLD Ejari but with known market rents.
+  const buildingOverride = BUILDING_LTR_OVERRIDES[buildingName]?.[unitSize];
+  if (buildingOverride) {
+    return {
+      rent: buildingOverride,
+      source: `${buildingName} market data`,
+      basis: "table",
+    };
+  }
+
+  // 4. Fallback to internal community-average benchmark table
   const communityRents = community ? LTR_MARKET_RENTS[community] : null;
   const rent = communityRents?.[unitSize] ?? LTR_FALLBACK[unitSize] ?? 100000;
   const source = communityRents?.[unitSize]
@@ -368,6 +379,17 @@ export function getLTRMarketRent(
     : "Dubai market average";
   return { rent, source, basis: "table" };
 }
+
+// Per-building LTR overrides for buildings absent from DLD Ejari.
+// Source: DXB Interact rental transactions (manually verified).
+// Last updated: June 2026.
+const BUILDING_LTR_OVERRIDES: Record<string, Partial<Record<UnitSize, number>>> = {
+  "South Ridge 1": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
+  "South Ridge 2": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
+  "South Ridge 3": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
+  "South Ridge 4": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
+  "South Ridge 5": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
+};
 
 // Dubai buildings mapped to community + area type
 export interface BuildingInfo {
@@ -377,7 +399,12 @@ export interface BuildingInfo {
 }
 
 export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
-  // Downtown / Burj Khalifa area
+  // Downtown / Burj Khalifa area — South Ridge
+  "South Ridge 1":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
+  "South Ridge 2":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
+  "South Ridge 3":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
+  "South Ridge 4":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
+  "South Ridge 5":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
   "Burj Khalifa":          { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
   "Address Boulevard":     { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
   "The Address Residences": { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
