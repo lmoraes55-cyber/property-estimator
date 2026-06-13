@@ -444,98 +444,105 @@ function ReportContent() {
           </div>
         )}
 
-        {/* Compact executive summary card */}
+        {/* Executive summary card */}
         <div className="rounded-3xl relative overflow-hidden"
           style={{
-            background: colors.bgSection,
-            border: `1px solid ${colors.border}`,
-            boxShadow: `${colors.shadowSm}, ${colors.shadowMd}`,
+            background: "#FAFAF6",
+            border: "1px solid #D8D4CC",
+            boxShadow: "0 2px 8px rgba(27,94,74,0.05), 0 8px 32px rgba(27,94,74,0.07)",
             padding: "28px",
           }}>
-          <div className="relative flex flex-col lg:flex-row lg:items-stretch gap-6">
+          <div className="relative flex flex-col lg:flex-row lg:items-stretch gap-0">
 
-            {/* Left: verdict */}
-            <div className="lg:w-2/5 flex flex-col justify-center">
-              <span className="text-[11px] font-semibold tracking-widest uppercase mb-2" style={{ color: colors.primary, letterSpacing: "0.14em" }}>
+            {/* Left: verdict — soft tinted panel */}
+            <div className="lg:w-[38%] flex flex-col justify-center rounded-2xl"
+              style={{ background: "rgba(27,94,74,0.04)", border: "1px solid rgba(27,94,74,0.08)", padding: "22px 24px", marginRight: 20 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.primary, marginBottom: 10, display: "block", opacity: 0.7 }}>
                 12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
               </span>
-              <h1 className="font-bold mb-2"
+              <h1 className="font-bold"
                 style={{
-                  fontSize: "clamp(26px, 2.4vw, 38px)",
-                  lineHeight: 1.1,
+                  fontSize: "clamp(24px, 2.2vw, 34px)",
+                  lineHeight: 1.15,
                   fontFamily: "'Georgia', serif",
                   background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 55%, ${colors.secondary} 100%)`,
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   WebkitTextFillColor: "transparent",
+                  marginBottom: 6,
                 }}>
                 {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
               </h1>
-              <p className="text-lg font-bold mb-3" style={{ color: colors.secondary }}>
+              <div style={{ height: 1, background: "linear-gradient(90deg, #B88A4440, transparent)", marginBottom: 10, marginTop: 2 }} />
+              <p style={{ fontSize: 17, fontWeight: 700, color: colors.secondary, marginBottom: 14 }}>
                 AED {fmt(Math.abs(result.strVsLtrDelta))} {strBetter ? "more per year" : "difference"}
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  `Floor ${result.floor}`,
-                  result.furnished,
-                  result.view,
 
-                ].filter(Boolean).map(tag => (
-                  <span key={tag!} className="text-[11px] px-2 py-0.5 rounded-md font-medium"
-                    style={{ background: `${colors.primary}08`, color: colors.primary, border: `1px solid ${colors.primary}20` }}>
-                    {tag}
-                  </span>
-                ))}
+              {/* Premium pill tags */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {/* Floor */}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.18)", borderRadius: 20, padding: "3px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                  Floor {result.floor}
+                </span>
+                {/* Furnished status */}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.18)", borderRadius: 20, padding: "3px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2"/><path d="M2 9a2 2 0 0 1 2 2v2h16v-2a2 2 0 0 1 2-2"/><path d="M4 13v4h16v-4"/></svg>
+                  {result.furnished}
+                </span>
+                {/* View */}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.18)", borderRadius: 20, padding: "3px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                  {result.view}
+                </span>
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="hidden lg:block" style={{ width: "1px", background: colors.border }} />
-
             {/* Middle: 2x2 compact metrics */}
-            <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-4 self-center">
+            <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-5 self-center" style={{ padding: "8px 0" }}>
               <div>
-                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>STR NET/YEAR</p>
-                <p className="text-2xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A9A8A", marginBottom: 4 }}>STR Net/Year</p>
+                <p style={{ fontSize: 26, fontWeight: 700, color: colors.primary, lineHeight: 1 }}>AED {fmt(result.annualNetToLandlord)}</p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>LTR/YEAR (UNFURNISHED)</p>
-                <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A9A8A", marginBottom: 4 }}>LTR/Year (Unfurnished)</p>
+                <p style={{ fontSize: 26, fontWeight: 700, color: colors.secondary, lineHeight: 1, marginBottom: 5 }}>AED {fmt(result.longTermRent)}</p>
                 {result.ltrBasis === "dld-building" ? (
-                  <p className="text-[10px] mt-0.5 inline-flex items-center gap-1" style={{ color: colors.primary }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="1.6" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.primary, background: "rgba(27,94,74,0.07)", border: "1px solid rgba(27,94,74,0.14)", borderRadius: 20, padding: "2px 8px" }}>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     {result.ltrSampleSize?.toLocaleString()} DLD contracts · this building{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
-                  </p>
+                  </span>
                 ) : result.ltrBasis === "dld-area" ? (
-                  <p className="text-[10px] mt-0.5 inline-flex items-center gap-1" style={{ color: colors.secondary }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="1.6" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     {result.ltrSampleSize?.toLocaleString()} DLD contracts · area average{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
-                  </p>
+                  </span>
                 ) : (
-                  <p className="text-[10px] mt-0.5" style={{ color: colors.textMuted }}>Estimated · {result.ltrSource}</p>
+                  <span style={{ fontSize: 10, color: "#9A9A9A" }}>Estimated · {result.ltrSource}</span>
                 )}
               </div>
               <div>
-                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>AVG OCCUPANCY</p>
-                <p className="text-2xl font-bold" style={{ color: colors.primary }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A9A8A", marginBottom: 4 }}>Avg Occupancy</p>
+                <p style={{ fontSize: 26, fontWeight: 700, color: colors.primary, lineHeight: 1 }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>AVG DAILY RATE</p>
-                <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.avgADR)}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8A9A8A", marginBottom: 4 }}>Avg Daily Rate</p>
+                <p style={{ fontSize: 26, fontWeight: 700, color: colors.secondary, lineHeight: 1 }}>AED {fmt(result.avgADR)}</p>
               </div>
             </div>
 
-            {/* Right: small thumbnail */}
-            <div className="hidden xl:block flex-shrink-0 self-center">
-              <div className="relative rounded-2xl overflow-hidden" style={{ width: "200px", height: "130px", boxShadow: colors.shadowSm }}>
+            {/* Right: framed thumbnail */}
+            <div className="hidden xl:block flex-shrink-0 self-center" style={{ marginLeft: 20 }}>
+              <div className="relative overflow-hidden" style={{ width: 200, height: 130, borderRadius: 16, border: "1px solid #D8D4CC", boxShadow: "0 4px 16px rgba(27,94,74,0.10)" }}>
                 <div className="absolute inset-0" style={{
                   backgroundImage: `url("${heroImage}")`,
                   backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#1B5E4A",
-                  filter: "brightness(1.05) contrast(1.1)",
+                  filter: "brightness(1.05) contrast(1.08)",
                 }} />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(27,94,74,0.08) 0%, rgba(184,138,68,0.08) 100%)` }} />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(27,94,74,0.06) 0%, rgba(184,138,68,0.06) 100%)" }} />
               </div>
             </div>
+
           </div>
         </div>
 
