@@ -366,15 +366,43 @@ function ReportContent() {
 
         {/* Unfurnished notice */}
         {result.furnished === "Unfurnished" && (
-          <div className="rounded-2xl p-5"
-            style={{ background: colors.bgSection, border: "1px solid " + colors.primary }}>
-            <p className="text-sm font-semibold mb-1" style={{ color: colors.primary }}>
-              Furnishing package required
-            </p>
-            <p className="text-xs leading-relaxed" style={{ color: colors.textMuted }}>
-              Your property is currently unfurnished. A furnishing package is required before listing on any short-term rental platform.
-              We will suggest curated packages tailored to your property size and community in the next section.
-            </p>
+          <div style={{
+            background: "#FAFAF6",
+            border: "1px solid #C9A84C40",
+            borderLeft: "3px solid #B88A44",
+            borderRadius: 18,
+            padding: "18px 22px",
+            boxShadow: "0 2px 12px rgba(27,94,74,0.06)",
+            display: "flex",
+            gap: 16,
+            alignItems: "center",
+          }}>
+            {/* Icon badge */}
+            <div style={{
+              width: 44, height: 44, borderRadius: 12,
+              background: "#EEF5F1",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E4A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 9V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2" />
+                <path d="M2 9a2 2 0 0 1 2 2v2h16v-2a2 2 0 0 1 2-2" />
+                <path d="M4 13v4h16v-4" />
+                <path d="M6 17v2M18 17v2" />
+              </svg>
+            </div>
+            {/* Text */}
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", color: "#B88A44", textTransform: "uppercase", marginBottom: 3 }}>
+                Furnishing Status
+              </p>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "#1B5E4A", marginBottom: 4, lineHeight: 1.3 }}>
+                Furnishing package required
+              </p>
+              <p style={{ fontSize: 12, color: "#6B6B6B", lineHeight: 1.6, margin: 0 }}>
+                Your property is <span style={{ fontWeight: 600, color: "#3D3D3D" }}>currently unfurnished</span>. A <span style={{ fontWeight: 600, color: "#3D3D3D" }}>furnishing package is required</span> before listing on any short-term rental platform. We will suggest curated packages tailored to your property size and community in the next section.
+              </p>
+            </div>
           </div>
         )}
 
