@@ -255,9 +255,6 @@ export default function HomePage() {
               )}
             </div>
 
-            <a href="#sample" style={{ textDecoration: "none", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>
-              Sample Report
-            </a>
             <a href="#insights" style={{ textDecoration: "none", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>
               Insights
             </a>
@@ -350,29 +347,6 @@ export default function HomePage() {
                 Analyze My Property
               </button>
 
-              <button
-                style={{
-                  padding: "14px 32px",
-                  background: "transparent",
-                  color: colors.primary,
-                  border: `2px solid ${colors.primary}`,
-                  borderRadius: "8px",
-                  fontSize: "15px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = colors.primary;
-                  e.currentTarget.style.color = "#FFFFFF";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = colors.primary;
-                }}
-              >
-                View Sample Report
-              </button>
             </div>
           </div>
         </div>
