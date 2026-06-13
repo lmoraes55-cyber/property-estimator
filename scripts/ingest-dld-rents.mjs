@@ -159,6 +159,7 @@ function toYM(s) {
 
 // Compute the stat object from a chosen subset of contracts.
 function statFromSubset(subset, w, basis) {
+  w = w ?? null; // windowMonths is no longer used (replaced by RECENT_N approach)
   const amts = subset.map(e => e.amt).sort((a, b) => a - b);
   const latestYM = subset.reduce((m, e) => Math.max(m, e.ym), 0);
 
@@ -183,25 +184,29 @@ function statFromSubset(subset, w, basis) {
   return stat;
 }
 
-// Prefer NEW contracts (today's market rate) over renewals (RERA-capped, lagging).
-// 1st pass: freshest window with >= MIN_SAMPLES *new* lets → use new-only.
-// 2nd pass (fallback): freshest window with >= MIN_SAMPLES of any contract → use all.
-function freshestStats(entries) {
-  if (entries.length < MIN_SAMPLES) return null;
+const RECENT_N = Number(process.env.RECENT_N ?? 4); // how many most-recent contracts to use
 
-  // Pass 1 — new lets only
-  for (const w of LADDER) {
-    const minYM = NOW_YM - w;
-    const subset = entries.filter(e => e.isNew && e.ym >= minYM);
-    if (subset.length >= MIN_SAMPLES) return statFromSubset(subset, w, "new");
+// Take the N most-recent new lets; fall back to all contracts if not enough new ones.
+function freshestStats(entries) {
+  if (!entries.length) return null;
+
+  // Sort descending by contract month
+  const byDate = [...entries].sort((a, b) => b.ym - a.ym);
+
+  // Pass 1 — most recent N new lets
+  const newOnly = byDate.filter(e => e.isNew);
+  if (newOnly.length >= MIN_SAMPLES) {
+    const subset = newOnly.slice(0, RECENT_N);
+    return statFromSubset(subset, null, "new");
   }
-  // Pass 2 — all contracts (new + renewals)
-  for (const w of LADDER) {
-    const minYM = NOW_YM - w;
-    const subset = entries.filter(e => e.ym >= minYM);
-    if (subset.length >= MIN_SAMPLES) return statFromSubset(subset, w, "all");
+
+  // Pass 2 — most recent N of any contract (new + renewals)
+  if (byDate.length >= MIN_SAMPLES) {
+    const subset = byDate.slice(0, RECENT_N);
+    return statFromSubset(subset, null, "all");
   }
-  return null; // not enough data even in the widest window
+
+  return null;
 }
 
 // Read a single CSV part into the shared groups. Returns per-file counters.
@@ -363,8 +368,8 @@ async function main() {
       usedRows,
       duplicateRowsSkipped: dupRows,
       minSamples: MIN_SAMPLES,
+      recentN: RECENT_N,
       collectWindow: COLLECT_WINDOW,
-      ladder: LADDER,
       buildingsCovered: Object.keys(buildings).length,
       areasCovered: Object.keys(areas).length,
       buildingBedsFromNewLets: basisNew,
