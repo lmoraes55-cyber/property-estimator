@@ -301,7 +301,7 @@ export default function SelfManagePage() {
               items={["Guest communication", "Occupancy improvement", "Automation systems", "Pricing strategy", "Cleaning workflows", "Review management"]}
               cta="Explore Self-Management"
               accent={colors.primary}
-              href="#blueprint"
+              href="/self-manage/owners"
             />
             <PathCard
               icon={<IconSubLease color={colors.secondary} />}
