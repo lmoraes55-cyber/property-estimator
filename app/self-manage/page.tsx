@@ -476,33 +476,6 @@ export default function SelfManagePage() {
         </div>
       </section>
 
-      {/* ─── 7. FINAL CTA ─── */}
-      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
-        <div
-          style={{
-            maxWidth: "1000px",
-            margin: "0 auto",
-            background: `linear-gradient(135deg, ${colors.primary} 0%, #14513F 100%)`,
-            borderRadius: "20px",
-            padding: "64px 48px",
-            textAlign: "center",
-          }}
-        >
-          <h2 style={{ fontSize: "36px", fontFamily: serifHeading, fontWeight: 700, color: "#fff", marginBottom: "16px" }}>
-            Not Sure Whether To Self-Manage?
-          </h2>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.85)", lineHeight: 1.6, maxWidth: "640px", margin: "0 auto 32px auto" }}>
-            Start with the Rental Strategy Analyzer and discover whether short-term or long-term rental is the best fit for your property before deciding how to operate it.
-          </p>
-          <button
-            onClick={handleAnalyzeClick}
-            style={{ padding: "16px 40px", background: colors.secondary, color: "#fff", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: "pointer" }}
-          >
-            Analyze My Property
-          </button>
-        </div>
-      </section>
-
       {/* ─── FOOTER ─── */}
       <footer style={{ background: colors.bgSection, borderTop: `1px solid ${colors.border}`, padding: "40px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
