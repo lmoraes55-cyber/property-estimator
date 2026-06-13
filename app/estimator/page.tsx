@@ -7,6 +7,8 @@ import {
   VIEW_PREMIUMS, BUILDING_DIRECTORY, getLTRWarning, LTRAreaWarning,
 } from "@/lib/estimator";
 import { BUILDINGS_DATABASE, getAllAreas } from "@/lib/buildings-data";
+import { getDLDBuildingList, type DLDBuildingEntry } from "@/lib/building-rents";
+import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 import { colors } from "@/lib/colors";
 
 const UNIT_SIZES: { label: UnitSize; type: UnitType }[] = [
@@ -36,7 +38,10 @@ const VIEWS: ViewType[] = [
 ];
 
 
-// Use new comprehensive buildings database, falling back to old directory for compatibility
+// DLD-backed building list (1,400+ buildings with real contract data)
+const DLD_BUILDINGS: DLDBuildingEntry[] = getDLDBuildingList();
+// Curated list as fallback additions (buildings not already in DLD)
+const DLD_KEYS_SET = new Set(DLD_BUILDINGS.map(b => b.key));
 const ALL_BUILDINGS = Array.from(
   new Set([
     ...Object.keys(BUILDINGS_DATABASE),
@@ -161,6 +166,8 @@ export default function Home() {
     propertyValue: "",
     propertyValueDisplay: "", // comma-formatted display value
     sizeSqm: "", // optional unit size (sqm) for rent-per-sqft refinement
+    dldKey: "",   // exact DLD dataset key (set when selected from DLD autocomplete)
+    dldArea: "",  // DLD administrative area
   });
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
@@ -176,12 +183,18 @@ export default function Home() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const filteredBuildings = ALL_BUILDINGS.filter(b =>
-    b.toLowerCase().includes(buildingSearch.toLowerCase())
-  ).slice(0, 8);
+  // Search DLD buildings first (primary source), then curated list as supplement
+  const q = buildingSearch.toLowerCase();
+  const filteredDLD: DLDBuildingEntry[] = q.length >= 2
+    ? DLD_BUILDINGS.filter(b => b.displayName.toLowerCase().includes(q)).slice(0, 8)
+    : [];
+  const filteredCurated = q.length >= 2
+    ? ALL_BUILDINGS.filter(b => b.toLowerCase().includes(q) && !filteredDLD.some(d => d.displayName.toLowerCase() === b.toLowerCase())).slice(0, Math.max(0, 8 - filteredDLD.length))
+    : [];
 
-  // Try new building database first, then fall back to old directory
+  // Community display for selected building
   const buildingInfo = BUILDING_DIRECTORY[form.buildingName] ||
+    (form.dldArea ? { community: DLD_AREA_TO_COMMUNITY[form.dldArea] ?? form.dldArea, area: form.dldArea, tier: "mid" as const } : undefined) ||
     (BUILDINGS_DATABASE[form.buildingName] ?
       { community: BUILDINGS_DATABASE[form.buildingName].area, area: BUILDINGS_DATABASE[form.buildingName].area, tier: "mid" as const }
       : undefined);
@@ -204,6 +217,8 @@ export default function Home() {
     managementFee: String(Number(form.managementFee) / 100),
     ...(form.propertyValue ? { propertyValue: form.propertyValue } : {}),
     ...(form.sizeSqm ? { sizeSqm: form.sizeSqm } : {}),
+    ...(form.dldKey ? { dldKey: form.dldKey } : {}),
+    ...(form.dldArea ? { dldArea: form.dldArea } : {}),
   });
 
   const handleGenerate = () => {
@@ -350,21 +365,40 @@ export default function Home() {
                     )}
                   </div>
                 )}
-                {showSuggestions && buildingSearch && filteredBuildings.length > 0 && (
+                {showSuggestions && buildingSearch.length >= 2 && (filteredDLD.length > 0 || filteredCurated.length > 0) && (
                   <div className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden shadow-2xl"
                     style={{ background: colors.bgSection, border: "1px solid " + colors.border }}>
-                    {filteredBuildings.map(b => (
+                    {filteredDLD.map(b => {
+                      const community = DLD_AREA_TO_COMMUNITY[b.dldArea] ?? b.dldArea;
+                      return (
+                        <button key={b.key}
+                          className="w-full text-left px-4 py-3 text-sm transition hover:bg-white/5 flex items-center justify-between gap-2"
+                          style={{ color: colors.textMain, borderBottom: "1px solid " + colors.border }}
+                          onMouseDown={() => {
+                            setForm(f => ({ ...f, buildingName: b.displayName, dldKey: b.key, dldArea: b.dldArea }));
+                            setBuildingSearch("");
+                            setShowSuggestions(false);
+                          }}>
+                          <span className="truncate">{b.displayName}</span>
+                          <span className="text-xs shrink-0 flex items-center gap-1" style={{ color: colors.primary }}>
+                            <svg width="8" height="8" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            {community}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {filteredCurated.map(b => (
                       <button key={b}
-                        className="w-full text-left px-4 py-3 text-sm transition hover:bg-white/5 flex items-center justify-between"
+                        className="w-full text-left px-4 py-3 text-sm transition hover:bg-white/5 flex items-center justify-between gap-2"
                         style={{ color: colors.textMain, borderBottom: "1px solid " + colors.border }}
                         onMouseDown={() => {
-                          set("buildingName", b);
+                          setForm(f => ({ ...f, buildingName: b, dldKey: "", dldArea: "" }));
                           setBuildingSearch("");
                           setShowSuggestions(false);
                         }}>
-                        <span>{b}</span>
+                        <span className="truncate">{b}</span>
                         {(BUILDING_DIRECTORY[b] || BUILDINGS_DATABASE[b]) && (
-                          <span className="text-xs" style={{ color: colors.textMuted }}>
+                          <span className="text-xs shrink-0" style={{ color: colors.textMuted }}>
                             {BUILDING_DIRECTORY[b]?.community || BUILDINGS_DATABASE[b]?.area}
                           </span>
                         )}
@@ -374,7 +408,7 @@ export default function Home() {
                       className="w-full text-left px-4 py-3 text-xs transition"
                       style={{ color: colors.textMuted }}
                       onMouseDown={() => {
-                        set("buildingName", buildingSearch);
+                        setForm(f => ({ ...f, buildingName: buildingSearch, dldKey: "", dldArea: "" }));
                         setBuildingSearch("");
                         setShowSuggestions(false);
                       }}>

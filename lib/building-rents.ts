@@ -163,3 +163,39 @@ export function lookupDLDArea(areaName: string, unitSize: UnitSize): RentStat | 
 export function hasDLDData(): boolean {
   return Object.keys(data.buildings).length > 0 || Object.keys(data.areas).length > 0;
 }
+
+export interface DLDBuildingEntry {
+  key: string;          // normalized key used for exact lookup
+  displayName: string;  // raw DLD project name (title-cased for display)
+  dldArea: string;      // DLD administrative area
+  beds: string[];       // available unit types e.g. ["1BR","2BR","3BR"]
+}
+
+/** All 1,400+ buildings from the DLD dataset — used to power autocomplete. */
+export function getDLDBuildingList(): DLDBuildingEntry[] {
+  return Object.entries(data.buildings).map(([key, b]) => ({
+    key,
+    displayName: toTitleCase(b.displayName),
+    dldArea: b.area,
+    beds: Object.keys(b.beds),
+  }));
+}
+
+/** Exact-key lookup — skips fuzzy matching entirely. */
+export function lookupDLDByKey(key: string, unitSize: UnitSize): RentStat | null {
+  const entry = data.buildings[key];
+  if (!entry) return null;
+  const s = entry.beds[unitSize];
+  return s ? { ...s, match: "building" } : null;
+}
+
+function toTitleCase(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/\bAl\b/g, "Al")
+    .replace(/\bBy\b/g, "by")
+    .replace(/\bAt\b/g, "at")
+    .replace(/\bThe\b/g, "the")
+    .replace(/^(the|at|by) /i, m => m.toUpperCase());
+}

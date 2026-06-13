@@ -4,7 +4,8 @@ import {
   getBuildingByName,
   type BuildingRecord
 } from "./buildings-data";
-import { lookupDLDBuilding, lookupDLDArea } from "./building-rents";
+import { lookupDLDBuilding, lookupDLDArea, lookupDLDByKey } from "./building-rents";
+import { DLD_AREA_TO_COMMUNITY } from "./dld-area-map";
 
 export const MONTHS = ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"] as const;
 export type Month = typeof MONTHS[number];
@@ -292,11 +293,39 @@ function sizeAdjust(median: number, aedPerSqft?: number, sizeSqft?: number): { r
   return { rent: Math.round(clamped), adjusted: true };
 }
 
-export function getLTRMarketRent(buildingName: string, unitSize: UnitSize, sizeSqft?: number): LTRMarketRent {
+export function getLTRMarketRent(
+  buildingName: string,
+  unitSize: UnitSize,
+  sizeSqft?: number,
+  dldKey?: string,        // exact DLD dataset key — bypasses fuzzy matching when set
+  dldArea?: string,       // DLD administrative area from the dataset
+): LTRMarketRent {
   const info = BUILDING_DIRECTORY[buildingName];
-  const community = info?.community;
+  // Resolve community: prefer BUILDING_DIRECTORY, then map via DLD area, then DLD area itself
+  const community = info?.community
+    ?? (dldArea ? (DLD_AREA_TO_COMMUNITY[dldArea] ?? dldArea) : undefined);
 
-  // 1. Building-level actual rents from DLD registered contracts (preferred)
+  // 1a. Exact DLD key lookup (when building was selected from DLD autocomplete)
+  if (dldKey) {
+    const exact = lookupDLDByKey(dldKey, unitSize);
+    if (exact) {
+      const adj = sizeAdjust(exact.median, exact.aedPerSqft, sizeSqft);
+      const displayName = buildingName || dldKey;
+      return {
+        rent: adj.rent,
+        source: adj.adjusted
+          ? `${exact.n.toLocaleString()} DLD contracts · ${displayName} · size-adjusted`
+          : `${exact.n.toLocaleString()} registered DLD contracts · ${displayName}`,
+        sampleSize: exact.n,
+        rangeLow: exact.p25,
+        rangeHigh: exact.p75,
+        asOf: exact.asOf,
+        basis: "dld-building",
+      };
+    }
+  }
+
+  // 1b. Fuzzy building-level lookup (free-typed building name)
   const dldBuilding = lookupDLDBuilding(buildingName, unitSize);
   if (dldBuilding) {
     const adj = sizeAdjust(dldBuilding.median, dldBuilding.aedPerSqft, sizeSqft);
@@ -313,17 +342,19 @@ export function getLTRMarketRent(buildingName: string, unitSize: UnitSize, sizeS
     };
   }
 
-  // 2. Area-level actual rents from DLD (when this building has too few contracts)
-  if (community) {
-    const dldArea = lookupDLDArea(community, unitSize);
-    if (dldArea) {
+  // 2. Area-level actual rents from DLD
+  //    Try the mapped community name, then the raw DLD area name as fallback
+  const areaLookupTargets = [community, dldArea].filter(Boolean) as string[];
+  for (const target of areaLookupTargets) {
+    const dldAreaStat = lookupDLDArea(target, unitSize);
+    if (dldAreaStat) {
       return {
-        rent: dldArea.median,
-        source: `${dldArea.n.toLocaleString()} registered DLD contracts · ${community}`,
-        sampleSize: dldArea.n,
-        rangeLow: dldArea.p25,
-        rangeHigh: dldArea.p75,
-        asOf: dldArea.asOf,
+        rent: dldAreaStat.median,
+        source: `${dldAreaStat.n.toLocaleString()} registered DLD contracts · ${community ?? target}`,
+        sampleSize: dldAreaStat.n,
+        rangeLow: dldAreaStat.p25,
+        rangeHigh: dldAreaStat.p75,
+        asOf: dldAreaStat.asOf,
         basis: "dld-area",
       };
     }
@@ -461,6 +492,47 @@ const MAINTENANCE: Record<UnitSize, number> = {
   "7BR VILLA": 3000, "8BR VILLA": 3000, "9BR VILLA": 6000,
 };
 
+// Annual furniture cost for STR units (AED/year) — two tiers:
+//
+// FURNITURE_AMORT_FULL: property needs furnishing before STR.
+//   = fit-out cost ÷ 5-year life + annual refresh budget.
+//   STU: AED 30k/5y + 2k refresh = 8k | 1BR: 45k/5y + 3k = 12k | 2BR: 65k/5y + 4k = 17k
+//
+// FURNITURE_AMORT_REFRESH: property is already fully furnished (fit-out is sunk).
+//   = ongoing refresh/replacement only (linens, worn items, periodic updates).
+//   Roughly 30% of the full figure — the refresh portion only.
+const FURNITURE_AMORT_FULL: Record<UnitSize, number> = {
+  "STU":       8000,
+  "1BR":      12000,
+  "2BR":      17000,
+  "3BR":      23000,
+  "4BR APT":  30000,
+  "5BR APT":  37000,
+  "6BR APT":  44000,
+  "4BR VILLA": 50000,
+  "5BR VILLA": 62000,
+  "6BR VILLA": 75000,
+  "7BR VILLA": 90000,
+  "8BR VILLA": 105000,
+  "9BR VILLA": 120000,
+};
+
+const FURNITURE_AMORT_REFRESH: Record<UnitSize, number> = {
+  "STU":       2000,
+  "1BR":       3000,
+  "2BR":       4000,
+  "3BR":       5000,
+  "4BR APT":   6000,
+  "5BR APT":   7000,
+  "6BR APT":   8000,
+  "4BR VILLA": 10000,
+  "5BR VILLA": 12000,
+  "6BR VILLA": 14000,
+  "7BR VILLA": 16000,
+  "8BR VILLA": 18000,
+  "9BR VILLA": 20000,
+};
+
 // Occupancy base curves — seasonal shape only (avg ≈ 1.0 when normalised)
 // Scaled per unit size to hit target annual occupancy averages:
 //   STU / 1BR → 75%  |  2BR → 70%  |  3BR → 65%  |  Villas → 60%
@@ -505,6 +577,8 @@ export interface EstimatorInput {
   occStrategy: OCCStrategy;
   propertyValue?: number;     // optional for yield calc
   sizeSqft?: number;          // optional unit size for rent-per-sqft refinement
+  dldKey?: string;            // exact DLD building key (set when selected from DLD autocomplete)
+  dldArea?: string;           // DLD administrative area name (from DLD dataset)
   premium?: number;           // fraction, default 0.15
   // longTermRent is now derived from market data — not a user input
   longTermRentOverride?: number;
@@ -518,6 +592,7 @@ export interface MonthlyRow {
   managementFee: number;
   utilities: number;
   maintenance: number;
+  furnitureAmort: number;
   netToLandlord: number;
 }
 
@@ -545,6 +620,7 @@ export interface EstimatorOutput {
   annualManagementFee: number;
   annualUtilities: number;
   annualMaintenance: number;
+  annualFurnitureAmort: number;
   avgOccupancy: number;
   avgADR: number;
   strVsLtrDelta: number;         // net STR - LTR
@@ -609,13 +685,17 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
   // Derive LTR from market data unless overridden internally
-  const ltrMarket = getLTRMarketRent(buildingName, unitSize, input.sizeSqft);
+  const ltrMarket = getLTRMarketRent(buildingName, unitSize, input.sizeSqft, input.dldKey, input.dldArea);
   const { rent: marketRent, source: ltrSource } = ltrMarket;
   const longTermRent = longTermRentOverride ?? marketRent;
 
   // Annual owner-paid running costs (in STR the OWNER pays these; in LTR the tenant does).
   const annualUtilEst = MONTHS.reduce((s, _m, i) => s + DEWA[unitSize][i] + AC[unitSize][i] + DU[unitSize], 0);
   const annualMaintEst = MAINTENANCE[unitSize] * 12;
+  const furnitureAmortAnnual = furnished === "Furnished"
+    ? FURNITURE_AMORT_REFRESH[unitSize]
+    : FURNITURE_AMORT_FULL[unitSize];
+  const furnitureAmortMonthly = furnitureAmortAnnual / 12;
 
   // STR must clear a MEANINGFUL margin over LTR for an owner to bother (extra management,
   // furnishing, vacancy risk). Because the owner absorbs utilities under STR, a flat premium
@@ -625,7 +705,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // Premium properties whose natural premium already exceeds this keep their higher value.
   // LTR-recommended areas are exempt (there STR is intentionally not advantaged).
   const MIN_STR_NET_ADVANTAGE = 0.18; // STR net ≥ 18% above LTR (realistic, achievable margin)
-  const requiredPremium = MIN_STR_NET_ADVANTAGE + (annualUtilEst + annualMaintEst) / longTermRent;
+  const requiredPremium = MIN_STR_NET_ADVANTAGE + (annualUtilEst + annualMaintEst + furnitureAmortAnnual) / longTermRent;
   const effectivePremium = ltrWarning ? totalPremium : Math.max(totalPremium, requiredPremium);
 
   // Target annual STR revenue, scaled up so net (after mgmt fee) lands at the intended margin.
@@ -640,7 +720,8 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     const mgmtFee = revenue * managementFee;
     const utilities = DEWA[unitSize][i] + AC[unitSize][i] + DU[unitSize];
     const maint = MAINTENANCE[unitSize];
-    const net = revenue - mgmtFee - utilities - maint;
+    const furnitureAmort = furnitureAmortMonthly;
+    const net = revenue - mgmtFee - utilities - maint - furnitureAmort;
 
     return {
       month,
@@ -650,6 +731,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
       managementFee: mgmtFee,
       utilities,
       maintenance: maint,
+      furnitureAmort,
       netToLandlord: net,
     };
   });
@@ -659,6 +741,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const annualManagementFee = months.reduce((s, m) => s + m.managementFee, 0);
   const annualUtilities = months.reduce((s, m) => s + m.utilities, 0);
   const annualMaintenance = months.reduce((s, m) => s + m.maintenance, 0);
+  const annualFurnitureAmort = months.reduce((s, m) => s + m.furnitureAmort, 0);
   const avgOccupancy = months.reduce((s, m) => s + m.occupancy, 0) / 12;
   const avgADR = months.reduce((s, m) => s + m.adr, 0) / 12;
 
@@ -690,6 +773,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     annualManagementFee,
     annualUtilities,
     annualMaintenance,
+    annualFurnitureAmort,
     avgOccupancy,
     avgADR,
     strVsLtrDelta: annualNetToLandlord - longTermRent,

@@ -3,7 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import GroundWorksLogo from "@/components/GroundWorksLogo";
-import LeadModal from "@/components/LeadModal";
 import { useIsMobile } from "@/lib/useIsMobile";
 
 const colors = {
@@ -116,7 +115,7 @@ const serifHeading = "'Georgia', serif";
 
 interface Tier { name: string; price: string; note: string; features: string[]; cta: string; paid?: boolean; featured?: boolean }
 
-function PriceCard({ t, onGet }: { t: Tier; onGet: () => void }) {
+function PriceCard({ t, onGet, loading }: { t: Tier; onGet: () => void; loading?: boolean }) {
   return (
     <div style={{
       background: colors.bgMain,
@@ -145,16 +144,16 @@ function PriceCard({ t, onGet }: { t: Tier; onGet: () => void }) {
           </li>
         ))}
       </ul>
-      <button onClick={onGet}
+      <button onClick={onGet} disabled={loading}
         style={{
-          width: "100%", padding: "12px", borderRadius: "12px", fontSize: "14px", fontWeight: 700, cursor: "pointer",
-          transition: "all 0.2s ease",
+          width: "100%", padding: "12px", borderRadius: "12px", fontSize: "14px", fontWeight: 700, cursor: loading ? "wait" : "pointer",
+          transition: "all 0.2s ease", opacity: loading ? 0.7 : 1,
           background: t.paid ? colors.primary : "transparent",
           color: t.paid ? "#fff" : colors.primary,
           border: t.paid ? "none" : `1.5px solid ${colors.primary}`,
           boxShadow: t.paid ? "0 8px 20px rgba(27,94,74,0.25)" : "none",
         }}>
-        {t.cta} →
+        {loading ? "Redirecting…" : `${t.cta} →`}
       </button>
     </div>
   );
@@ -163,8 +162,29 @@ function PriceCard({ t, onGet }: { t: Tier; onGet: () => void }) {
 export default function SelfManagePage() {
   const router = useRouter();
   const handleAnalyzeClick = () => router.push("/estimator");
-  const [pkg, setPkg] = React.useState<string | null>(null);
+  const [checkingOut, setCheckingOut] = React.useState<string | null>(null);
   const isMobile = useIsMobile();
+
+  async function handleCheckout(pkgName: string) {
+    setCheckingOut(pkgName);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pkg: pkgName, origin: window.location.origin }),
+      });
+      const data = await res.json();
+      if (data.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Payment unavailable right now. Please try again shortly.");
+      }
+    } catch {
+      alert("Payment unavailable right now. Please try again shortly.");
+    } finally {
+      setCheckingOut(null);
+    }
+  }
 
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh" }}>
@@ -431,7 +451,9 @@ export default function SelfManagePage() {
               { name: "Setup Session", price: "AED 1,500", note: "one-time", features: ["1:1 onboarding call", "PMS + dynamic pricing setup", "OTA listing optimization", "DET licensing guidance"], cta: "Get Started", paid: true, featured: true },
               { name: "Launch + Coaching", price: "AED 2,900", note: "one-time", features: ["Everything in Setup Session", "60-day coaching", "Listing review", "Pricing & revenue check-in"], cta: "Get Started", paid: true },
             ].map((t) => (
-              <PriceCard key={t.name} t={t} onGet={() => t.paid ? setPkg(`Self-Manage — ${t.name}`) : router.push("#blueprint")} />
+              <PriceCard key={t.name} t={t}
+                loading={checkingOut === `Self-Manage — ${t.name}`}
+                onGet={() => t.paid ? handleCheckout(`Self-Manage — ${t.name}`) : router.push("#blueprint")} />
             ))}
           </div>
 
@@ -442,7 +464,9 @@ export default function SelfManagePage() {
               { name: "Essentials Launch", price: "AED 3,500", note: "one-time", features: ["DET / DTCM permit assistance", "Multi-OTA listing creation", "Dynamic pricing + channel manager setup", "Guest-comms templates"], cta: "Get Started", paid: true },
               { name: "Premium Launch", price: "AED 5,500", note: "one-time", features: ["Everything in Essentials", "Professional photography", "Listing copywriting", "Smart-lock / access setup guidance", "30-day post-launch support"], cta: "Get Started", paid: true, featured: true },
             ].map((t) => (
-              <PriceCard key={t.name} t={t} onGet={() => setPkg(`Operations Help — ${t.name}`)} />
+              <PriceCard key={t.name} t={t}
+                loading={checkingOut === `Operations Help — ${t.name}`}
+                onGet={() => handleCheckout(`Operations Help — ${t.name}`)} />
             ))}
           </div>
 
@@ -451,10 +475,6 @@ export default function SelfManagePage() {
           </p>
         </div>
       </section>
-
-      <LeadModal open={!!pkg} target={pkg ?? ""} targetType="service"
-        context={{ recommendation: "Service", service: pkg ?? "" }}
-        onClose={() => setPkg(null)} />
 
       {/* ─── 7. FINAL CTA ─── */}
       <section style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>

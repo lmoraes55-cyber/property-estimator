@@ -279,6 +279,8 @@ function ReportContent() {
     propertyValue: params.get("propertyValue") ? Number(params.get("propertyValue")) : undefined,
     // User enters size in sqm; convert to sqft for the rent-per-sqft refinement
     sizeSqft: params.get("sizeSqm") ? Number(params.get("sizeSqm")) * 10.7639 : undefined,
+    dldKey: params.get("dldKey") ?? undefined,
+    dldArea: params.get("dldArea") ?? undefined,
   };
 
   const result: EstimatorOutput = runEstimator(input);
@@ -445,15 +447,20 @@ function ReportContent() {
                 <p className="text-2xl font-bold" style={{ color: colors.primary }}>AED {fmt(result.annualNetToLandlord)}</p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>LTR/YEAR</p>
+                <p className="text-[11px] font-semibold tracking-widest mb-0.5" style={{ color: colors.textMuted, letterSpacing: "0.08em" }}>LTR/YEAR (UNFURNISHED)</p>
                 <p className="text-2xl font-bold" style={{ color: colors.secondary }}>AED {fmt(result.longTermRent)}</p>
-                {result.ltrBasis === "dld-building" || result.ltrBasis === "dld-area" ? (
+                {result.ltrBasis === "dld-building" ? (
                   <p className="text-[10px] mt-0.5 inline-flex items-center gap-1" style={{ color: colors.primary }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="1.6" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                    DLD-verified · {result.ltrSampleSize?.toLocaleString()} contracts
+                    {result.ltrSampleSize?.toLocaleString()} DLD contracts · this building{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
+                  </p>
+                ) : result.ltrBasis === "dld-area" ? (
+                  <p className="text-[10px] mt-0.5 inline-flex items-center gap-1" style={{ color: colors.secondary }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="1.6" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    {result.ltrSampleSize?.toLocaleString()} DLD contracts · area average{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
                   </p>
                 ) : (
-                  <p className="text-[10px] mt-0.5" style={{ color: colors.textMuted }}>Source: {result.ltrSource}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: colors.textMuted }}>Estimated · {result.ltrSource}</p>
                 )}
               </div>
               <div>
@@ -492,7 +499,7 @@ function ReportContent() {
             <StatCard label="ANNUAL REVENUE (GROSS)" value={`AED ${fmt(result.annualRevenue)}`} icon="💼" />
             <StatCard label="NET TO LANDLORD" value={`AED ${fmt(result.annualNetToLandlord)}`} sub="After all deductions" icon="👤" />
             <StatCard label="MANAGEMENT FEES" value={`AED ${fmt(result.annualManagementFee)}`} sub={`${(input.managementFee * 100).toFixed(0)}% of revenue`} icon="⏰" />
-            <StatCard label="UTILITIES + MAINTENANCE" value={`AED ${fmt(result.annualUtilities + result.annualMaintenance)}`} sub="DEWA, AC, DU, upkeep" icon="🔧" />
+            <StatCard label="RUNNING COSTS" value={`AED ${fmt(result.annualUtilities + result.annualMaintenance + result.annualFurnitureAmort)}`} sub="DEWA, AC, DU, upkeep, furniture" icon="🔧" />
             {result.grossYield !== undefined && (
               <StatCard label="GROSS YIELD" value={`${result.grossYield.toFixed(2)}%`} sub="Based on property value" icon="💰" />
             )}
@@ -606,7 +613,7 @@ function ReportContent() {
             <table className="w-full">
               <thead>
                 <tr style={{ background: colors.bgSection, borderBottom: "1px solid " + colors.border }}>
-                  {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Net to Landlord"].map(h => (
+                  {["Month","Revenue","Occupancy","ADR","Mgmt Fee","Utilities","Maintenance","Furniture","Net to Landlord"].map(h => (
                     <th key={h} className="px-6 py-4 text-left font-semibold" style={{ color: colors.textMuted, fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                       {h}
                     </th>
@@ -681,6 +688,9 @@ function ReportContent() {
                       </td>
                       <td className="px-6 py-5" style={{ color: colors.textLight }}>
                         <p className="text-sm">AED {fmt(m.maintenance)}</p>
+                      </td>
+                      <td className="px-6 py-5" style={{ color: colors.textLight }}>
+                        <p className="text-sm">AED {fmt(m.furnitureAmort)}</p>
                       </td>
 
                       {/* Net To Landlord - Subtle emphasis */}

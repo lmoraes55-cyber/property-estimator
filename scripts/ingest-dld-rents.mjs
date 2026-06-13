@@ -17,8 +17,14 @@
  *        to pull it (see scripts/fetch-dld-rents.mjs once credentials exist).
  *
  * USAGE
+ *   node scripts/ingest-dld-rents.mjs <part1.csv> [part2.csv] [part3.csv] ...
+ *   # or a single file:
  *   node scripts/ingest-dld-rents.mjs <path-to-rent_contracts.csv>
- *   # or set DLD_CSV=/path/to/rent_contracts.csv
+ *   # or set DLD_CSV=/path/to/rent_contracts.csv (single file)
+ *
+ *   Multiple files are treated as PARTS of one split dataset — they are read
+ *   in sequence into a single pool. Rows are de-duplicated by contract_id, so
+ *   overlapping / cumulative snapshot parts won't double-count a contract.
  *
  * OUTPUT
  *   lib/data/building-ltr-rents.json
@@ -50,15 +56,19 @@ const OUT_PATH = path.join(ROOT, "lib", "data", "building-ltr-rents.json");
 const NOW = new Date();
 const NOW_YM = NOW.getFullYear() * 12 + NOW.getMonth(); // months since year 0
 
-const csvPath = process.argv[2] || process.env.DLD_CSV;
-if (!csvPath) {
-  console.error("Usage: node scripts/ingest-dld-rents.mjs <path-to-rent_contracts.csv>");
+// Accept one or many CSV part paths (or a single path via DLD_CSV).
+const csvPaths = process.argv.slice(2).filter(Boolean);
+if (csvPaths.length === 0 && process.env.DLD_CSV) csvPaths.push(process.env.DLD_CSV);
+if (csvPaths.length === 0) {
+  console.error("Usage: node scripts/ingest-dld-rents.mjs <part1.csv> [part2.csv] ...");
   console.error("   or: DLD_CSV=/path/to/rent_contracts.csv node scripts/ingest-dld-rents.mjs");
   process.exit(1);
 }
-if (!fs.existsSync(csvPath)) {
-  console.error(`File not found: ${csvPath}`);
-  process.exit(1);
+for (const p of csvPaths) {
+  if (!fs.existsSync(p)) {
+    console.error(`File not found: ${p}`);
+    process.exit(1);
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -194,25 +204,23 @@ function freshestStats(entries) {
   return null; // not enough data even in the widest window
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────
-async function main() {
-  const rl = readline.createInterface({ input: fs.createReadStream(csvPath), crlfDelay: Infinity });
+// Read a single CSV part into the shared groups. Returns per-file counters.
+async function ingestFile(filePath, ctx) {
+  const { buildingGroups, areaGroups, seenIds, minYM } = ctx;
+  const rl = readline.createInterface({ input: fs.createReadStream(filePath), crlfDelay: Infinity });
 
   let headers = null;
   let col = {};
   let sourceRows = 0;
   let usedRows = 0;
-  const minYM = NOW_YM - COLLECT_WINDOW;
-
-  // group key -> dated entries (so we can prefer the freshest window later)
-  const buildingGroups = new Map(); // `${norm}||${bed}` -> { displayName, area, entries:[{ym,amt}] }
-  const areaGroups = new Map();     // `${area}||${bed}`  -> entries:[{ym,amt}]
+  let dupRows = 0;
 
   for await (const line of rl) {
     if (!line.trim()) continue;
     if (!headers) {
       headers = splitCSV(line);
       col = {
+        id: findCol(headers, ["contract_id", "ejari_contract_no", "contract_no", "contract_number", "id"]),
         project: findCol(headers, ["project_name_en", "project name", "project"]),
         area: findCol(headers, ["area_name_en", "area name", "area"]),
         bedrooms: findCol(headers, ["ejari_property_sub_type_en", "property_sub_type_en", "rooms_en", "rooms"]),
@@ -224,9 +232,12 @@ async function main() {
         regType: findCol(headers, ["contract_reg_type_en", "reg_type_en", "contract_type"]),
       };
       if (col.project === -1 || col.area === -1 || col.annual === -1) {
-        console.error("Could not locate required columns. Headers found:");
+        console.error(`Could not locate required columns in ${filePath}. Headers found:`);
         console.error(headers.join(" | "));
         process.exit(1);
+      }
+      if (col.id === -1) {
+        console.warn("  ⚠ No contract_id column found — cross-part de-duplication disabled for this file.");
       }
       console.log("Column mapping:", col);
       continue;
@@ -234,6 +245,15 @@ async function main() {
 
     sourceRows++;
     const f = splitCSV(line);
+
+    // De-dup by contract_id across all parts (handles overlapping/cumulative snapshots).
+    if (col.id !== -1) {
+      const id = (f[col.id] || "").trim();
+      if (id) {
+        if (seenIds.has(id)) { dupRows++; continue; }
+        seenIds.add(id);
+      }
+    }
 
     // Residential only
     if (col.usage !== -1) {
@@ -274,7 +294,32 @@ async function main() {
     if (!areaGroups.has(aKey)) areaGroups.set(aKey, []);
     areaGroups.get(aKey).push({ ym, amt: annual, sqm, isNew });
 
-    if (sourceRows % 200000 === 0) console.log(`  …processed ${sourceRows.toLocaleString()} rows`);
+    if (sourceRows % 200000 === 0) console.log(`  …processed ${sourceRows.toLocaleString()} rows (${path.basename(filePath)})`);
+  }
+
+  return { sourceRows, usedRows, dupRows };
+}
+
+// ── Main ─────────────────────────────────────────────────────────────────
+async function main() {
+  const minYM = NOW_YM - COLLECT_WINDOW;
+
+  // group key -> dated entries (so we can prefer the freshest window later)
+  const buildingGroups = new Map(); // `${norm}||${bed}` -> { displayName, area, entries:[{ym,amt}] }
+  const areaGroups = new Map();     // `${area}||${bed}`  -> entries:[{ym,amt}]
+  const seenIds = new Set();        // contract_id de-dup across all parts
+  const ctx = { buildingGroups, areaGroups, seenIds, minYM };
+
+  let sourceRows = 0;
+  let usedRows = 0;
+  let dupRows = 0;
+  for (const filePath of csvPaths) {
+    console.log(`\n── Ingesting ${path.basename(filePath)} ──`);
+    const r = await ingestFile(filePath, ctx);
+    sourceRows += r.sourceRows;
+    usedRows += r.usedRows;
+    dupRows += r.dupRows;
+    console.log(`  ${path.basename(filePath)}: ${r.sourceRows.toLocaleString()} rows, ${r.usedRows.toLocaleString()} used, ${r.dupRows.toLocaleString()} dup`);
   }
 
   // Build output — each group uses its FRESHEST reliable window, new lets preferred.
@@ -301,8 +346,10 @@ async function main() {
   const out = {
     meta: {
       generatedAt: new Date().toISOString(),
+      sourceFiles: csvPaths.map(p => path.basename(p)),
       sourceRows,
       usedRows,
+      duplicateRowsSkipped: dupRows,
       minSamples: MIN_SAMPLES,
       collectWindow: COLLECT_WINDOW,
       ladder: LADDER,
@@ -318,7 +365,7 @@ async function main() {
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
   fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 2));
   console.log(`\n✓ Wrote ${OUT_PATH}`);
-  console.log(`  rows seen: ${sourceRows.toLocaleString()} | used: ${usedRows.toLocaleString()}`);
+  console.log(`  files: ${csvPaths.length} | rows seen: ${sourceRows.toLocaleString()} | used: ${usedRows.toLocaleString()} | dup skipped: ${dupRows.toLocaleString()}`);
   console.log(`  buildings: ${out.meta.buildingsCovered} | areas: ${out.meta.areasCovered}`);
 }
 
