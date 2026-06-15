@@ -364,7 +364,7 @@ export default function HomePage() {
           }}
         >
           <img
-            src="/locations/Marina.png"
+            src="/Locations/Marina.png"
             alt="Dubai Marina Skyline"
             style={{
               width: "100%",

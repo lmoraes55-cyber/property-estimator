@@ -82,7 +82,7 @@ export default function SelfManagePage() {
           </div>
         </div>
         <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "55vw", zIndex: 1 }}>
-          <img src="/locations/Downtown.png" alt="Dubai Property" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%)" }} />
+          <img src="/Locations/Downtown.png" alt="Dubai Property" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%)" }} />
         </div>
       </section>
 

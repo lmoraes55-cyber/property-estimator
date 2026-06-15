@@ -247,7 +247,7 @@ export default function Home() {
 
       {/* Faint Dubai skyline watermark */}
       <img
-        src="/locations/Downtown.png"
+        src="/Locations/Downtown.png"
         alt=""
         aria-hidden="true"
         style={{

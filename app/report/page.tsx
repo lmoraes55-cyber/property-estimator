@@ -155,7 +155,7 @@ function PremiumCTACard({
       {/* LEFT decorative watermark */}
       {isBronze ? (
         <img
-          src="/locations/Downtown.png"
+          src="/Locations/Downtown.png"
           alt=""
           aria-hidden="true"
           style={{
@@ -304,19 +304,19 @@ function ReportContent() {
     const areaLower = (buildingArea || "").toLowerCase();
 
     // Direct area-based mapping with exact area names from database
-    if (areaLower.includes("marina")) return "/locations/Marina.png";
-    if (areaLower.includes("downtown")) return "/locations/Downtown.png";
-    if (areaLower.includes("burj")) return "/locations/Downtown.png";
-    if (areaLower.includes("palm")) return "/locations/Palm.png";
-    if (areaLower.includes("jbr") || areaLower.includes("jumeirah beach")) return "/locations/JBR.png";
-    if (areaLower.includes("jumeirah") && !areaLower.includes("village")) return "/locations/JBR.png";
-    if (areaLower.includes("business")) return "/locations/Downtown.png";
-    if (areaLower.includes("creek")) return "/locations/Downtown.png";
-    if (areaLower.includes("emaar")) return "/locations/Marina.png";
-    if (areaLower.includes("beach")) return "/locations/Marina.png";
+    if (areaLower.includes("marina")) return "/Locations/Marina.png";
+    if (areaLower.includes("downtown")) return "/Locations/Downtown.png";
+    if (areaLower.includes("burj")) return "/Locations/Downtown.png";
+    if (areaLower.includes("palm")) return "/Locations/Palm.png";
+    if (areaLower.includes("jbr") || areaLower.includes("jumeirah beach")) return "/Locations/JBR.png";
+    if (areaLower.includes("jumeirah") && !areaLower.includes("village")) return "/Locations/JBR.png";
+    if (areaLower.includes("business")) return "/Locations/Downtown.png";
+    if (areaLower.includes("creek")) return "/Locations/Downtown.png";
+    if (areaLower.includes("emaar")) return "/Locations/Marina.png";
+    if (areaLower.includes("beach")) return "/Locations/Marina.png";
 
     // Fallback: Marina image as default
-    return "/locations/Marina.png";
+    return "/Locations/Marina.png";
   };
 
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
