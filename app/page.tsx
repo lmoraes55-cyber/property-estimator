@@ -479,19 +479,179 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* SERVICES SECTION */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section id="services" style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
-        <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+      <section id="services" style={{ padding: isMobile ? "60px 20px" : "96px 40px", background: "#F8F5EF" }}>
+        <style>{`
+          .svc-card {
+            background: #FDFBF8;
+            border-radius: 22px;
+            border: 1px solid #E8E0D0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+            padding: 40px 34px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+            cursor: default;
+          }
+          .svc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.09), 0 4px 12px rgba(0,0,0,0.06);
+            border-color: #C9A86C;
+          }
+          .svc-icon-badge {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: #F5F0E8;
+            border: 1.5px solid #C9A86C;
+            box-shadow: 0 2px 12px rgba(184,138,68,0.13);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+          }
+          .svc-divider {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 18px;
+          }
+          .svc-divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #C9A86C, transparent);
+          }
+          .svc-divider-diamond {
+            width: 6px;
+            height: 6px;
+            background: #C9A86C;
+            transform: rotate(45deg);
+            margin: 0 8px;
+            flex-shrink: 0;
+          }
+          .svc-title {
+            font-family: 'Georgia', serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: #1B5E4A;
+            margin-bottom: 14px;
+            line-height: 1.3;
+          }
+          .svc-body {
+            font-size: 13.5px;
+            color: #6B6B6B;
+            line-height: 1.7;
+            margin-bottom: 14px;
+            text-align: center;
+          }
+          .svc-label {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+            text-align: center;
+          }
+          .svc-list {
+            list-style: none;
+            margin: 0 0 14px 0;
+            padding: 0;
+            text-align: center;
+          }
+          .svc-list li {
+            font-size: 13px;
+            color: #6B6B6B;
+            line-height: 1.8;
+            position: relative;
+            padding-left: 0;
+          }
+          .svc-list li::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #B88A44;
+            margin-right: 8px;
+            vertical-align: middle;
+            position: relative;
+            top: -1px;
+          }
+          .svc-pricing {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1B5E4A;
+            margin-bottom: 20px;
+          }
+          .svc-btn-green {
+            width: 100%;
+            padding: 13px 20px;
+            border-radius: 11px;
+            border: none;
+            background: linear-gradient(135deg, #1B5E4A 0%, #0F3E33 100%);
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            box-shadow: 0 2px 8px rgba(27,94,74,0.25);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            margin-top: auto;
+          }
+          .svc-btn-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(27,94,74,0.32);
+            background: linear-gradient(135deg, #0F3E33 0%, #0A2922 100%);
+          }
+          .svc-btn-bronze {
+            width: 100%;
+            padding: 13px 20px;
+            border-radius: 11px;
+            border: none;
+            background: linear-gradient(135deg, #B88A44 0%, #8B6F3F 100%);
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            box-shadow: 0 2px 8px rgba(184,138,68,0.28);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            margin-top: auto;
+          }
+          .svc-btn-bronze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(184,138,68,0.38);
+            background: linear-gradient(135deg, #8B6F3F 0%, #6B5230 100%);
+          }
+          .svc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 26px;
+            align-items: stretch;
+          }
+          @media (max-width: 1100px) {
+            .svc-grid { grid-template-columns: repeat(2, 1fr); }
+          }
+          @media (max-width: 640px) {
+            .svc-grid { grid-template-columns: 1fr; }
+            .svc-card { padding: 32px 24px 28px; }
+          }
+        `}</style>
+
+        <div style={{ maxWidth: "1360px", margin: "0 auto" }}>
           {/* Section header */}
-          <div style={{ marginBottom: "64px" }}>
-            <div style={{ fontSize: "12px", color: colors.secondary, fontWeight: "700", letterSpacing: "0.1em", marginBottom: "12px" }}>
+          <div style={{ marginBottom: "64px", textAlign: isMobile ? "center" : "left" }}>
+            <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: "700", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "14px" }}>
               OUR SERVICES
             </div>
             <h2
               style={{
-                fontSize: "44px",
+                fontSize: isMobile ? "32px" : "44px",
                 fontFamily: "'Georgia', serif",
                 fontWeight: "700",
                 marginBottom: "16px",
+                lineHeight: 1.2,
                 background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -500,222 +660,108 @@ export default function HomePage() {
             >
               Everything You Need for Smarter Rental Decisions
             </h2>
-            <p style={{ fontSize: "16px", color: colors.textMuted, lineHeight: "1.6" }}>
+            <p style={{ fontSize: "16px", color: colors.textMuted, lineHeight: "1.65", maxWidth: "620px" }}>
               Powerful tools and expert insights to help you compare, analyze, and maximize your property's rental potential in Dubai.
             </p>
           </div>
 
           {/* Service cards grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "28px", alignItems: "stretch" }}>
-            {/* Service 1 - Rental Strategy Analyzer */}
-            <div
-              style={{
-                background: colors.bgSection,
-                borderRadius: "12px",
-                padding: "32px",
-                border: `1px solid ${colors.border}`,
-                boxShadow: colors.shadowSm,
-                transition: "all 0.3s ease",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowMd;
-                e.currentTarget.style.transform = "translateY(-4px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowSm;
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <div style={{ marginBottom: "20px" }}>
+          <div className="svc-grid">
+
+            {/* Card 1 — Rental Strategy Analyzer */}
+            <div className="svc-card">
+              <div className="svc-icon-badge">
                 <IconCalculator color={colors.primary} />
               </div>
-              <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Rental Strategy Analyzer
-              </h3>
-              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "24px", flex: 1 }}>
+              <div className="svc-divider">
+                <div className="svc-divider-line" />
+                <div className="svc-divider-diamond" />
+                <div className="svc-divider-line" />
+              </div>
+              <h3 className="svc-title">Rental Strategy Analyzer</h3>
+              <p className="svc-body" style={{ flex: 1 }}>
                 Compare short-term and long-term rental performance and identify the most suitable strategy for your property using projected revenue, yield analysis, and market data.
               </p>
-              <button
-                onClick={handleAnalyzeClick}
-                style={{
-                  color: colors.primary,
-                  background: "transparent",
-                  border: "none",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  padding: 0,
-                  textDecoration: "none",
-                  textAlign: "left",
-                }}
-              >
+              <button className="svc-btn-green" onClick={handleAnalyzeClick}>
                 Analyze My Property →
               </button>
             </div>
 
-            {/* Service 2 - Self-Manage Your Property */}
-            <div
-              style={{
-                background: colors.bgSection,
-                borderRadius: "12px",
-                padding: "32px",
-                border: `1px solid ${colors.border}`,
-                boxShadow: colors.shadowSm,
-                transition: "all 0.3s ease",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowMd;
-                e.currentTarget.style.transform = "translateY(-4px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowSm;
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <div style={{ marginBottom: "20px" }}>
+            {/* Card 2 — Self-Manage Your Property */}
+            <div className="svc-card">
+              <div className="svc-icon-badge">
                 <IconTools color={colors.secondary} />
               </div>
-              <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Self-Manage Your Property
-              </h3>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+              <div className="svc-divider">
+                <div className="svc-divider-line" />
+                <div className="svc-divider-diamond" />
+                <div className="svc-divider-line" />
+              </div>
+              <h3 className="svc-title">Self-Manage Your Property</h3>
+              <div style={{ flex: 1, width: "100%" }}>
+                <p className="svc-body">
                   Built for owners managing up to 8 units who want to maximize profitability through self-management, automation, and proven short-term rental systems.
                 </p>
-                <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
-                  Includes dedicated guidance for:
-                </div>
-                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 16px 0", paddingLeft: "18px" }}>
+                <div className="svc-label">Includes dedicated guidance for:</div>
+                <ul className="svc-list">
                   <li>Self-Management</li>
                   <li>STR Sub-Leasing</li>
                 </ul>
-                <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+                <p className="svc-body">
                   Learn how to choose the safest and most profitable route to sub-leasing in short-term rentals through proper due diligence, risk management, and financial analysis.
                 </p>
+                <div className="svc-pricing">Free guides · setup from AED 1,500</div>
               </div>
-              <p style={{ fontSize: "13px", fontWeight: 700, color: colors.primary, marginBottom: "16px" }}>
-                Free guides · setup from AED 1,500
-              </p>
-              <button
-                onClick={() => router.push("/self-manage#pricing")}
-                style={{
-                  color: colors.secondary,
-                  background: "transparent",
-                  border: "none",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  padding: 0,
-                  textAlign: "left",
-                }}
-              >
+              <button className="svc-btn-bronze" onClick={() => router.push("/self-manage#pricing")}>
                 View Self-Manage Pricing →
               </button>
             </div>
 
-            {/* Service 3 - Operational Setup */}
-            <div
-              style={{
-                background: colors.bgSection,
-                borderRadius: "12px",
-                padding: "32px",
-                border: `1px solid ${colors.border}`,
-                boxShadow: colors.shadowSm,
-                transition: "all 0.3s ease",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowMd;
-                e.currentTarget.style.transform = "translateY(-4px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowSm;
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <div style={{ marginBottom: "20px" }}>
+            {/* Card 3 — Operational Setup */}
+            <div className="svc-card">
+              <div className="svc-icon-badge">
                 <IconWorkflow color={colors.primary} />
               </div>
-              <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Operational Setup
-              </h3>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+              <div className="svc-divider">
+                <div className="svc-divider-line" />
+                <div className="svc-divider-diamond" />
+                <div className="svc-divider-line" />
+              </div>
+              <h3 className="svc-title">Operational Setup</h3>
+              <div style={{ flex: 1, width: "100%" }}>
+                <p className="svc-body">
                   Built for small and mid-sized operators looking to streamline and scale their short-term rental operations using proven strategies, operational frameworks, automation tools, and best practices.
                 </p>
-                <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
-                  Built for:
-                </div>
-                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 16px 0", paddingLeft: "18px" }}>
+                <div className="svc-label">Built for:</div>
+                <ul className="svc-list">
                   <li>Holiday home operators</li>
                   <li>Boutique operators</li>
                   <li>Property managers</li>
                 </ul>
+                <div className="svc-pricing">Done-for-you launch from AED 3,500</div>
               </div>
-              <p style={{ fontSize: "13px", fontWeight: 700, color: colors.primary, marginBottom: "16px" }}>
-                Done-for-you launch from AED 3,500
-              </p>
-              <button
-                onClick={() => router.push("/self-manage#pricing")}
-                style={{
-                  color: colors.primary,
-                  background: "transparent",
-                  border: "none",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  padding: 0,
-                  textAlign: "left",
-                }}
-              >
+              <button className="svc-btn-green" onClick={() => router.push("/self-manage#pricing")}>
                 View Operations Pricing →
               </button>
             </div>
 
-            {/* Service 4 - Investment Research */}
-            <div
-              style={{
-                background: colors.bgSection,
-                borderRadius: "12px",
-                padding: "32px",
-                border: `1px solid ${colors.border}`,
-                boxShadow: colors.shadowSm,
-                transition: "all 0.3s ease",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowMd;
-                e.currentTarget.style.transform = "translateY(-4px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = colors.shadowSm;
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <div style={{ marginBottom: "20px" }}>
+            {/* Card 4 — Investment Research */}
+            <div className="svc-card">
+              <div className="svc-icon-badge">
                 <IconGrowth color={colors.secondary} />
               </div>
-              <h3 style={{ fontSize: "18px", fontWeight: "600", color: colors.textMain, marginBottom: "12px" }}>
-                Investment Research
-              </h3>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: "1.6", marginBottom: "16px" }}>
+              <div className="svc-divider">
+                <div className="svc-divider-line" />
+                <div className="svc-divider-diamond" />
+                <div className="svc-divider-line" />
+              </div>
+              <h3 className="svc-title">Investment Research</h3>
+              <div style={{ flex: 1, width: "100%" }}>
+                <p className="svc-body">
                   Designed for property owners, investors, and real estate agents seeking reliable short-term and long-term rental estimates before purchasing a property.
                 </p>
-                <div style={{ fontSize: "13px", color: colors.textMain, fontWeight: "600", marginBottom: "8px" }}>
-                  Focus areas:
-                </div>
-                <ul style={{ fontSize: "13px", color: colors.textMuted, lineHeight: "1.7", margin: "0 0 24px 0", paddingLeft: "18px" }}>
+                <div className="svc-label">Focus areas:</div>
+                <ul className="svc-list" style={{ marginBottom: "20px" }}>
                   <li>STR projections</li>
                   <li>LTR projections</li>
                   <li>Yield analysis</li>
@@ -723,21 +769,11 @@ export default function HomePage() {
                   <li>Investment feasibility</li>
                 </ul>
               </div>
-              <button
-                style={{
-                  color: colors.secondary,
-                  background: "transparent",
-                  border: "none",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  padding: 0,
-                  textAlign: "left",
-                }}
-              >
+              <button className="svc-btn-bronze">
                 Explore Research →
               </button>
             </div>
+
           </div>
         </div>
       </section>
