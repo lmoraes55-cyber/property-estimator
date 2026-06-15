@@ -107,6 +107,65 @@ function SectionHeading({ label, title, subtitle }: { label: string; title: stri
   );
 }
 
+// ─── Subleasing Readiness Score Component ────────────────────────────────────
+
+const SUBLEASING_READINESS_ITEMS = [
+  "I have identified a prime or strong STR area to target",
+  "I understand and have modelled the break-even occupancy for my target unit",
+  "I have a minimum 5-month cash buffer to cover rent and costs",
+  "I have confirmed at least one target building permits holiday home operation",
+  "I am prepared to approach landlords professionally with a written pitch",
+  "I can commit to daily guest communication (sub-1 hour response time)",
+  "I have identified a reliable holiday home cleaning team",
+  "I understand Dubai's seasonal occupancy (winter peak / summer low)",
+  "I have reviewed the legal requirements and can obtain a DET permit",
+  "I have an exit plan (break clause or savings to absorb a loss period)",
+];
+
+function SubleasingReadinessScore({ isMobile, colors, serifHeading }: { isMobile: boolean; colors: Record<string, string>; serifHeading: string }) {
+  const [checked, setChecked] = useState<Set<number>>(new Set());
+  const toggle = (i: number) => setChecked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
+  const score = checked.size;
+  const label = score >= 9 ? "Ready to Proceed" : score >= 7 ? "Almost Ready" : score >= 5 ? "Needs More Preparation" : "Not Yet Ready";
+  const labelColor = score >= 9 ? "#2D7A4F" : score >= 7 ? "#A37020" : score >= 5 ? "#C25A1A" : "#B83232";
+  const labelBg = score >= 9 ? "#E8F5EE" : score >= 7 ? "#FEF3E2" : score >= 5 ? "#FEF0E8" : "#FDE8E8";
+  return (
+    <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+      <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>READINESS CHECK</div>
+      <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Sub-Leasing Readiness Score</h2>
+      <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>Tick every item that applies to you today. Sub-leasing without these foundations in place is how operators lose money in the first year.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "28px" }}>
+        {SUBLEASING_READINESS_ITEMS.map((item, i) => {
+          const active = checked.has(i);
+          return (
+            <div key={i} onClick={() => toggle(i)} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 18px", background: active ? "#FFFBF5" : colors.bgMain, borderRadius: "10px", border: `1.5px solid ${active ? colors.secondary : colors.border}`, cursor: "pointer", transition: "all 0.15s" }}>
+              <div style={{ width: "22px", height: "22px", borderRadius: "6px", border: `2px solid ${active ? colors.secondary : colors.border}`, background: active ? colors.secondary : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                {active && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+              </div>
+              <span style={{ fontSize: "13.5px", color: active ? colors.textMain : colors.textMuted, fontWeight: active ? 600 : 400 }}>{item}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ padding: "24px", background: labelBg, borderRadius: "14px", border: `2px solid ${labelColor}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <div style={{ fontSize: "13px", color: colors.textMuted, marginBottom: "4px" }}>Your readiness score</div>
+          <div style={{ fontSize: "38px", fontWeight: 700, color: labelColor, fontFamily: serifHeading, lineHeight: 1 }}>{score} / 10</div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: "20px", fontWeight: 700, color: labelColor }}>{label}</div>
+          <div style={{ fontSize: "12.5px", color: colors.textMuted, marginTop: "4px" }}>
+            {score >= 9 ? "You have the foundations. Proceed to sourcing your first unit." :
+             score >= 7 ? "Close — address the remaining gaps before signing a lease." :
+             score >= 5 ? "Several critical foundations are missing. Build these first." :
+             "Do not sign a lease until you can tick at least 8 of these."}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const PRICE = "AED 299";
 const BUNDLE_PRICE = "AED 399";
 
@@ -419,6 +478,241 @@ export default function STRSubleasingPage() {
                 </button>
               </div>
             </div>
+
+            {/* Safe Unit Selection Framework */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>UNIT SELECTION</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Safe Unit Selection Framework</h2>
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>The unit you choose determines whether sub-leasing works or fails. Most properties fail this checklist — and that is the point.</p>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px" }}>
+                {[
+                  { title: "Location Criteria", pass: true, items: ["Prime STR area: Dubai Marina, JBR, Downtown, Palm Jumeirah, or Emaar Beachfront", "Walking distance to beach, marina, or major tourist attractions", "Strong Airbnb supply density — means proven demand, not risk", "Building listed on Airbnb and Booking.com by existing operators — proof of concept"] },
+                  { title: "Property Criteria", pass: true, items: ["Floor 15 or above — strongly preferred. Floor 10 minimum.", "Sea view, marina view, Burj Khalifa view, or city view — standard view units rarely justify the rent", "Studio or 1BR — smaller units have lower rent obligations, fill faster, and are easier to operate", "Building permits holiday home operation (confirm in writing before signing)"] },
+                  { title: "Financial Criteria", pass: true, items: ["Rent-to-revenue gap: projected annual STR revenue must exceed annual rent by at least 35%", "Break-even occupancy below 65% — use the Risk Estimator to check before committing", "Setup cost (furnishing) recoverable within 8 months of projected net profit", "Minimum 3-month cash buffer covering rent, utilities, and cleaning if bookings are zero"] },
+                  { title: "Red Flags — Walk Away", pass: false, items: ["Standard view or ground/podium floor — almost never viable", "Rent above AED 10,000/month for a studio or AED 14,000 for a 1BR in a non-prime area", "Landlord unwilling to give written STR permission", "Building management committee has blocked holiday home permits", "Area with LTR-recommended warning (Dubai South, Furjan, Arjan, DAMAC Hills 2)"] },
+                ].map(({ title, items, pass }) => (
+                  <div key={title} style={{ padding: "20px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${pass ? colors.border : "#F5C5C5"}`, borderTop: `3px solid ${pass ? colors.primary : "#C75A5A"}` }}>
+                    <div style={{ fontSize: "13px", fontWeight: 700, color: pass ? colors.primary : "#B03030", marginBottom: "12px" }}>{title}</div>
+                    {items.map(item => (
+                      <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "flex-start" }}>
+                        {pass ? <IconCheck color={colors.primary} size={15} /> : <IconWarning size={15} />}
+                        <span style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.5 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Area & Building Risk Scoring */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>RISK SCORING</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Area & Building Risk Scoring</h2>
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>Score any target unit across five dimensions before signing a lease. A score of 15+ is required to proceed.</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
+                {[
+                  { dimension: "STR Demand Score", max: 5, desc: "Prime area (Marina/JBR/Downtown/Palm): 5 pts · Strong area (Business Bay/Creek/DIFC): 3 pts · Other: 1 pt" },
+                  { dimension: "View & Floor Score", max: 5, desc: "Floor 20+ with sea/marina/BK view: 5 pts · Floor 15–19 or city view: 3–4 pts · Below floor 10 or standard view: 1 pt" },
+                  { dimension: "Rent Pressure Score", max: 5, desc: "Break-even occupancy below 50%: 5 pts · 50–65%: 3 pts · 65–80%: 1 pt · Above 80%: 0 pts (do not proceed)" },
+                  { dimension: "Operational Ease Score", max: 3, desc: "Smart lock permitted + building reception cooperative: 3 pts · Key safe only: 2 pts · Difficult access or no STR history in building: 0 pts" },
+                  { dimension: "Exit Flexibility Score", max: 2, desc: "1-month break clause in lease: 2 pts · 3-month notice: 1 pt · No break clause: 0 pts" },
+                ].map(({ dimension, max, desc }) => (
+                  <div key={dimension} style={{ padding: "16px 20px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: colors.textMain }}>{dimension}</div>
+                      <span style={{ fontSize: "12px", fontWeight: 700, color: colors.secondary, background: "#FEF3E2", padding: "3px 10px", borderRadius: "12px" }}>max {max} pts</span>
+                    </div>
+                    <div style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.5 }}>{desc}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+                {[
+                  { range: "18–20 pts", label: "Proceed", color: "#2D7A4F", bg: "#E8F5EE" },
+                  { range: "13–17 pts", label: "Negotiate harder on rent", color: "#A37020", bg: "#FEF3E2" },
+                  { range: "Below 13", label: "Avoid", color: "#B83232", bg: "#FDE8E8" },
+                ].map(({ range, label, color, bg }) => (
+                  <div key={range} style={{ padding: "14px", background: bg, borderRadius: "10px", textAlign: "center" }}>
+                    <div style={{ fontSize: "15px", fontWeight: 700, color, fontFamily: serifHeading }}>{label}</div>
+                    <div style={{ fontSize: "11.5px", color, marginTop: "4px", opacity: 0.8 }}>{range}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Legal & Approval Requirements */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>LEGAL & COMPLIANCE</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Legal & Approval Requirements</h2>
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>Sub-leasing for STR requires landlord approval in writing and a valid DET permit. Operating without either is illegal in Dubai.</p>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
+                {[
+                  { title: "Landlord Written Approval (Mandatory)", items: ["Approval must be explicit and in writing — verbal permission has no legal standing", "The tenancy contract should include a clause permitting holiday home use", "Approval must reference 'Holiday Home operation as registered with DET'", "Keep a copy of signed approval with your permit documentation at all times", "If landlord refuses in writing, you cannot proceed — walk away"] },
+                  { title: "DET Holiday Home Permit (Mandatory)", items: ["You (the sub-lessee) apply for the DET permit in your name or your company name", "Required documents: tenancy contract, landlord written NOC, your passport/Emirates ID, property photos", "Annual permit fee: AED 370–520 depending on unit size", "Permit must be displayed in the property at all times", "Permit renewal is annual — add to your calendar immediately on approval"] },
+                  { title: "Trade Licence Considerations", items: ["Individual sub-lessees operating 1–3 units may not require a trade licence, but check with DET", "Operating as a company or managing 4+ units: a holiday home management licence is required", "Freezone trade licences (IFZA, SHAMS, KIKLABB) from ~AED 5,500/year work for holiday home activity", "Consult with a business setup advisor if you plan to scale beyond 3 units"] },
+                  { title: "Required Guest Documentation", items: ["Collect passport or Emirates ID copy from every guest on or before check-in", "Retain records for a minimum of 5 years", "A property register (guest log) should be maintained with arrival/departure dates", "Do not allow guests to check in without ID — this is a legal breach regardless of booking platform"] },
+                ].map(({ title, items }) => (
+                  <div key={title} style={{ padding: "20px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
+                    <div style={{ fontSize: "13px", fontWeight: 700, color: colors.primary, marginBottom: "12px" }}>{title}</div>
+                    {items.map(item => (
+                      <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "flex-start" }}>
+                        <IconCheck color={colors.primary} size={15} />
+                        <span style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.5 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: "16px 20px", background: "#FEF3E2", borderRadius: "10px", border: "1px solid #E8D9BC", borderLeft: `3px solid ${colors.secondary}` }}>
+                <p style={{ fontSize: "13px", color: "#7A5010", margin: 0, lineHeight: 1.6 }}><strong>Ejari (rental registration):</strong> Standard long-term tenancy contracts for 1 year must be registered with Ejari. However, if the landlord is willing, you can negotiate a commercial lease or a short-term lease with renewal options. Speak to a Dubai real estate solicitor before signing any non-standard lease arrangement.</p>
+              </div>
+            </div>
+
+            {/* Financial Model & Break-Even Logic */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>FINANCIAL MODEL</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Financial Model & Break-Even Logic</h2>
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>The entire sub-leasing model rests on one question: does STR revenue cover fixed rent plus all costs, with enough left over to make it worth your time?</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "28px" }}>
+                {[
+                  { label: "STR Gross Revenue", formula: "Nightly ADR × Occupancy % × 365 days", note: "Use the Risk Estimator for a realistic projection. Do not use optimistic numbers." },
+                  { label: "Platform Fees", formula: "~18% of gross (Airbnb + Booking.com blended)", note: "Deducted automatically by platforms before payout." },
+                  { label: "Landlord Rent", formula: "Monthly rent × 12 — fixed, paid regardless of occupancy", note: "This is your biggest cost. It does not flex with your revenue." },
+                  { label: "Utilities (DEWA, AC, Internet)", formula: "AED 600–1,200/month for 1BR in summer, AED 400–700 in winter", note: "You pay these — the landlord does not. Factor into monthly cash flow." },
+                  { label: "Cleaning Costs", formula: "AED 150–350 per turn × estimated turns per month", note: "A 1BR with 70% occupancy averages 8–12 turns per month." },
+                  { label: "Furniture Amortisation", formula: "Setup cost (AED 30–55k for 1BR) ÷ 5 years ÷ 12", note: "Spread over 5 years. You own the furniture — if you exit, you may recover some value." },
+                  { label: "Net Sub-Lessee Profit", formula: "Gross Revenue − Platform Fees − Rent − Utilities − Cleaning − Furniture Amort", note: "Must be positive across the full year — including summer low season months." },
+                ].map(({ label, formula, note }) => (
+                  <div key={label} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.2fr 1fr", gap: "12px", padding: "14px 18px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}`, alignItems: "start" }}>
+                    <div style={{ fontSize: "13px", fontWeight: 700, color: colors.textMain }}>{label}</div>
+                    <div style={{ fontSize: "12.5px", color: colors.secondary, fontFamily: "monospace", background: "#FEF3E2", padding: "4px 10px", borderRadius: "6px" }}>{formula}</div>
+                    <div style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.5 }}>{note}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: "20px", background: "#F0F8F4", borderRadius: "12px", border: "1px solid rgba(27,94,74,0.15)" }}>
+                <div style={{ fontSize: "13px", fontWeight: 700, color: colors.primary, marginBottom: "14px" }}>Cash Buffer Requirement</div>
+                <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.65, margin: "0 0 10px" }}>You must have enough cash to pay rent for 3 months even if bookings are zero. Sub-leasing operators who undercapitalise fail in the first summer low season (June–August) when occupancy drops 35–50%.</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "10px" }}>
+                  {[
+                    { label: "Minimum buffer", value: "3 months rent + utilities" },
+                    { label: "Recommended buffer", value: "5 months (covers full low season)" },
+                    { label: "Setup cost", value: "AED 30–55k for 1BR fully furnished" },
+                    { label: "Break-even target", value: "Occupancy < 65% at market ADR" },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ padding: "12px 14px", background: colors.bgSection, borderRadius: "8px", border: `1px solid ${colors.border}` }}>
+                      <div style={{ fontSize: "11.5px", color: colors.textMuted, marginBottom: "4px" }}>{label}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: colors.primary }}>{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Landlord Negotiation Framework */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>NEGOTIATION</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Landlord Negotiation Framework</h2>
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>Most landlords are open to sub-leasing if you approach it correctly. The way you present yourself determines whether they say yes or no.</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
+                {[
+                  { step: "1", title: "Position yourself as a professional operator", body: "Never say 'I want to put it on Airbnb.' Say: 'I operate a registered holiday home management business and am looking for a property to manage as a licensed DET holiday home. I will maintain the property to a premium standard, provide monthly reports, and ensure full DET compliance.' Bring a business card and permit examples if you have them." },
+                  { step: "2", title: "What to ask for in the contract", body: "Written STR permission clause in the tenancy agreement, a 1-month break clause (or 3-month at minimum), clarity on who pays for major maintenance vs minor upkeep, permission to install a smart lock, and agreement on how damage is handled beyond the security deposit." },
+                  { step: "3", title: "What to offer the landlord", body: "A premium above market rent (5–15% is typical for STR permission), guaranteed rent via post-dated cheques, a security deposit of 2 months rent, monthly property condition reports, and a commitment to a 1-year minimum term with renewal option. Landlords value certainty — offer it." },
+                  { step: "4", title: "Handle objections before they arise", body: "'What if guests damage the property?' → Security deposit plus your professional cleaning standards. 'Is this legal?' → Show them the DET permit process and explain you apply in your name. 'What about building rules?' → Confirm building eligibility before approaching the landlord, so you can say 'I have already confirmed the building permits this activity.'" },
+                  { step: "5", title: "Contract wording to include", body: "The lease should state: 'The tenant is permitted to operate the property as a holiday home registered with the Dubai Department of Economy and Tourism (DET). The tenant will maintain a valid DET permit at all times and comply with all applicable regulations.' Have your lawyer review the full lease before signing." },
+                ].map(({ step, title, body }) => (
+                  <div key={step} style={{ display: "flex", gap: "18px", padding: "20px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
+                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: colors.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, flexShrink: 0, marginTop: "2px" }}>{step}</div>
+                    <div>
+                      <div style={{ fontSize: "14px", fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{title}</div>
+                      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.65, margin: 0 }}>{body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 10-Step Setup Roadmap */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>SETUP ROADMAP</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "24px" }}>10-Step Sub-Leasing Setup Roadmap</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                {[
+                  { n: 1, title: "Identify target area and verify STR demand", body: "Research active listings in your target community on Airbnb and Booking.com. Count listings, check review scores, estimate occupancy from availability calendars. Confirm demand before searching for units." },
+                  { n: 2, title: "Run the Risk Estimator before viewing any unit", body: "Use the GroundWorks Sub-Leasing Risk Estimator. Input the building, unit size, floor, view type, and market rent. Only proceed to viewing if break-even occupancy is below 65%." },
+                  { n: 3, title: "Verify building eligibility for holiday homes", body: "Contact building management directly. Ask: 'Does this building permit operation as a DET-registered holiday home?' Get the answer in writing. Skip this step and you may sign a lease on a unit you cannot legally operate." },
+                  { n: 4, title: "Approach the landlord with a professional pitch", body: "Use the Landlord Negotiation Framework above. Position yourself as a compliant, professional operator. Have your business details, references, and post-dated cheque offer ready." },
+                  { n: 5, title: "Agree lease terms and sign with STR clause", body: "Negotiate the STR permission clause, break option, and rent premium. Have a solicitor review the lease if rent exceeds AED 8,000/month or the term is longer than 12 months." },
+                  { n: 6, title: "Apply for DET Holiday Home Permit", body: "Submit through the DET portal with: signed tenancy agreement, landlord NOC, your ID, and property photos. Budget 3–7 working days for approval. Do not furnish or list the unit until the permit is issued." },
+                  { n: 7, title: "Furnish and equip to STR standard", body: "Budget AED 30,000–55,000 for a 1BR. Prioritise: quality linen (3 sets per bed), reliable smart lock, strong WiFi, fully equipped kitchen, and premium photography. Photography before furniture delivery is a wasted trip." },
+                  { n: 8, title: "Professional photography and listing creation", body: "Hire a specialist holiday home photographer (not a standard real estate photographer). Create listings on Airbnb, Booking.com, and Vrbo simultaneously. Complete 100% of the listing — incomplete profiles rank lower." },
+                  { n: 9, title: "Set up operations and pricing before first booking", body: "Configure Pricelabs with your base rate and seasonal rules. Build your message template library. Confirm cleaning team and turnaround schedule. Install smart lock and test it before guest arrival." },
+                  { n: 10, title: "Launch and review performance weekly", body: "Track occupancy, ADR, and net profit weekly for the first 3 months. Adjust pricing weekly based on forward demand. Respond to every review publicly. Re-evaluate the unit at the 3-month mark against your original break-even projection." },
+                ].map(({ n, title, body }) => (
+                  <div key={n} style={{ display: "flex", gap: "18px", padding: "20px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
+                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: colors.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, flexShrink: 0, marginTop: "2px" }}>{n}</div>
+                    <div>
+                      <div style={{ fontSize: "15px", fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{title}</div>
+                      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.65, margin: 0 }}>{body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Operating Requirements */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>ONGOING OPERATIONS</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Operating Requirements</h2>
+              <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "24px" }}>Sub-leasing is an active business — not a passive income stream. These are the non-negotiable operating requirements once you are live.</p>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px" }}>
+                {[
+                  { title: "Guest Communication", items: ["Respond to all messages within 1 hour — Airbnb rankings depend on it", "Automate: booking confirmation, pre-arrival instructions, checkout reminder, review request", "Be available by phone on check-in day — things go wrong and guests need a live contact", "Handle complaints immediately and with empathy — one bad review can destroy your ranking"] },
+                  { title: "Cleaning & Linen", items: ["Same-day turnarounds are standard — cleaning team must be reliable and fast", "3 sets of linen per bed: one in use, one clean on standby, one at laundry", "Post-checkout inspection after every clean — photograph any damage immediately", "Restock consumables (shampoo, soap, coffee, dishwasher tablets) every 2–3 turns"] },
+                  { title: "Pricing Management", items: ["Review and adjust pricing every Monday morning for the next 30 days", "Summer (Jun–Sep): lower rates aggressively to drive occupancy — cash flow is better than empty nights", "Winter (Nov–Mar): raise rates early — demand spikes and late adjustments leave money behind", "Events (World Cup, New Year, Expo-era runs): activate demand, add minimum stay and raise base rate"] },
+                  { title: "Monthly Cash Flow Tracking", items: ["Track gross revenue, cleaning costs, utilities, rent, and net income per month", "Compare monthly net to your break-even projection — if you're below break-even 2 months running, investigate", "Pay rent on time every month — landlord trust is your primary business continuity risk", "Set aside 10–15% of monthly gross revenue as a maintenance and replacement reserve"] },
+                ].map(({ title, items }) => (
+                  <div key={title} style={{ padding: "20px 24px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: colors.textMain, marginBottom: "12px", paddingBottom: "10px", borderBottom: `1px solid ${colors.border}` }}>{title}</div>
+                    {items.map(item => (
+                      <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "flex-start" }}>
+                        <IconCheck color={colors.secondary} size={15} />
+                        <span style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.55 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Common Mistakes */}
+            <div style={{ background: colors.bgSection, borderRadius: "18px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
+              <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>AVOID THESE</div>
+              <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "24px" }}>Common Mistakes & Red Flags</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                {[
+                  { mistake: "Signing a lease without written STR permission", fix: "Verbal agreements are worthless in a dispute. Get written approval in the lease contract before signing anything." },
+                  { mistake: "Choosing a low-floor or standard-view unit to save on rent", fix: "The rent saving is eaten by lower nightly rates and lower occupancy. High floor + premium view is not optional in sub-leasing — it is the product." },
+                  { mistake: "Underestimating summer cash flow pressure", fix: "June–August occupancy in Dubai drops 30–50%. You still pay full rent. Model your P&L for a worst-case 45% occupancy month before committing to any lease." },
+                  { mistake: "Operating without a DET permit", fix: "Fines up to AED 50,000 and permit blacklisting. Apply before furnishing and never list until the permit is confirmed." },
+                  { mistake: "Using optimistic ADR assumptions to make the numbers work", fix: "Use the Risk Estimator's realistic figures. If the model only works with an ADR above what comparable listings in your building are achieving — the model does not work." },
+                  { mistake: "No break clause in the lease", fix: "A 12-month lease with no break clause locks you into paying rent even if the unit is losing money. Always negotiate a 1–3 month break option." },
+                  { mistake: "Contracting a non-specialist cleaning team", fix: "STR turnarounds are different from regular cleaning. A specialist team knows the checklist, the timing, and what guests photograph. Regular cleaners miss items that lead to 3-star reviews." },
+                  { mistake: "Scaling too fast before proving unit one", fix: "Many sub-lessees sign 2–3 leases before their first unit is profitable. Prove the model on unit one for 3 months before signing a second lease." },
+                  { mistake: "Neglecting DET permit renewal", fix: "Permits expire annually. Set a calendar reminder 45 days before expiry. Operating on an expired permit is the same as operating without one." },
+                  { mistake: "Treating the landlord relationship as purely transactional", fix: "Your landlord is your biggest risk — they can refuse to renew or make your operation difficult. Communicate monthly, pay on time, report any issues proactively, and treat the relationship as a long-term partnership." },
+                ].map(({ mistake, fix }, i) => (
+                  <div key={i} style={{ padding: "18px 22px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}`, borderLeft: "3px solid #C75A5A" }}>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#B03030", marginBottom: "8px" }}>✕ {mistake}</div>
+                    <div style={{ fontSize: "13px", color: "#1B5E4A", lineHeight: 1.55, padding: "10px 14px", background: "#F0F8F4", borderRadius: "8px" }}><strong>Fix:</strong> {fix}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Readiness Score */}
+            <SubleasingReadinessScore isMobile={isMobile} colors={colors} serifHeading={serifHeading} />
 
           </div>
         </section>
