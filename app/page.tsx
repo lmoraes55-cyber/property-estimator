@@ -781,27 +781,103 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* WHY GROUNDWORKS — TRUST / DIFFERENTIATION */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section style={{ padding: isMobile ? "52px 20px" : "80px 40px", background: colors.bgSection }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <section style={{ padding: isMobile ? "64px 20px" : "96px 40px", background: colors.bgSection }}>
+        <style>{`
+          .why-card {
+            background: #FDFBF8;
+            border: 1px solid #E8E0D0;
+            border-radius: 22px;
+            padding: 32px 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+          }
+          .why-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 36px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.05);
+            border-color: #C9A86C;
+          }
+          .why-icon-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: #F5F0E8;
+            border: 1px solid #DDD0B8;
+            box-shadow: 0 2px 8px rgba(184,138,68,0.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-shrink: 0;
+          }
+          .why-card-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #D4BFA0, transparent);
+            margin-bottom: 16px;
+            width: 100%;
+          }
+          .why-card-title {
+            font-family: 'Georgia', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1B1B1B;
+            margin-bottom: 10px;
+            line-height: 1.3;
+          }
+          .why-card-body {
+            font-size: 13.5px;
+            color: #6B6B6B;
+            line-height: 1.7;
+          }
+          .why-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 52px;
+            align-items: stretch;
+          }
+          .cmp-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.055);
+          }
+          .cmp-row:last-child { border-bottom: none; }
+          @media (max-width: 1100px) {
+            .why-grid { grid-template-columns: repeat(2, 1fr); }
+          }
+          @media (max-width: 640px) {
+            .why-grid { grid-template-columns: 1fr; }
+            .why-card { padding: 26px 22px; }
+          }
+        `}</style>
+
+        <div style={{ maxWidth: "1360px", margin: "0 auto" }}>
           {/* Header */}
-          <div style={{ marginBottom: "48px", maxWidth: "760px" }}>
-            <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondary, marginBottom: "14px" }}>
+          <div style={{ marginBottom: "56px", maxWidth: "780px" }}>
+            <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: "16px" }}>
               Why GroundWorks
             </p>
             <h2 style={{
-              fontFamily: "'Georgia', serif", fontSize: "38px", lineHeight: 1.15, fontWeight: 700, marginBottom: "16px",
+              fontFamily: "'Georgia', serif",
+              fontSize: isMobile ? "30px" : "40px",
+              lineHeight: 1.18,
+              fontWeight: 700,
+              marginBottom: "20px",
               background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 55%, ${colors.secondary} 100%)`,
               WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
             }}>
               Real data and real connections — not a generic guess
             </h2>
-            <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.7 }}>
+            <p style={{ fontSize: "15.5px", color: colors.textMuted, lineHeight: 1.75, maxWidth: "680px" }}>
               Anyone can ask an AI &ldquo;what could my Dubai apartment earn?&rdquo; and get a confident-sounding number. GroundWorks gives you something an AI can&rsquo;t: figures grounded in millions of real registered contracts, a model tuned to how Dubai short-term rentals actually perform, and a direct line to vetted operators and leasing agents.
             </p>
           </div>
 
           {/* Differentiator cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", marginBottom: "48px" }}>
+          <div className="why-grid">
             {[
               {
                 title: "Grounded in real DLD data",
@@ -828,30 +904,35 @@ export default function HomePage() {
                 accent: colors.secondary,
               },
             ].map((c) => (
-              <div key={c.title} style={{
-                background: "#FFFFFF", border: `1px solid ${colors.border}`, borderRadius: "20px",
-                padding: "26px 24px", boxShadow: colors.shadowSm,
-              }}>
-                <div style={{
-                  width: "44px", height: "44px", borderRadius: "12px", background: `${c.accent}12`,
-                  display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px",
-                }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">{c.icon}</svg>
+              <div key={c.title} className="why-card">
+                <div className="why-icon-badge">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">{c.icon}</svg>
                 </div>
-                <h3 style={{ fontSize: "16px", fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>{c.title}</h3>
-                <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6 }}>{c.body}</p>
+                <div className="why-card-divider" />
+                <h3 className="why-card-title">{c.title}</h3>
+                <p className="why-card-body">{c.body}</p>
               </div>
             ))}
           </div>
 
           {/* Just-ask-AI comparison */}
           <div style={{
-            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0",
-            border: `1px solid ${colors.border}`, borderRadius: "24px", overflow: "hidden", background: "#FFFFFF",
-            boxShadow: colors.shadowSm,
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            border: "1px solid #E8E0D0",
+            borderRadius: "24px",
+            overflow: "hidden",
+            background: "#FDFBF8",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
           }}>
-            <div style={{ padding: "30px 28px", borderRight: `1px solid ${colors.border}` }}>
-              <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8E8E8E", marginBottom: "14px" }}>
+            {/* Left — Just asking an AI */}
+            <div style={{
+              padding: isMobile ? "32px 24px" : "40px 36px",
+              borderRight: isMobile ? "none" : "1px solid #E8E0D0",
+              borderBottom: isMobile ? "1px solid #E8E0D0" : "none",
+              background: "#F8F5F0",
+            }}>
+              <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: "#9A8A78", marginBottom: "24px" }}>
                 Just asking an AI
               </p>
               {[
@@ -860,14 +941,22 @@ export default function HomePage() {
                 "Different answer every time you ask",
                 "No view on operators, agents, or next steps",
               ].map((t) => (
-                <div key={t} style={{ display: "flex", gap: "10px", alignItems: "flex-start", marginBottom: "10px" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "2px" }}><path d="M7 7l10 10M17 7L7 17" stroke={"#8E8E8E"} strokeWidth="1.6" strokeLinecap="round" /></svg>
-                  <span style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.5 }}>{t}</span>
+                <div key={t} className="cmp-row">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}>
+                    <circle cx="12" cy="12" r="9.5" stroke="#C0B09A" strokeWidth="1.2" />
+                    <path d="M8 8l8 8M16 8l-8 8" stroke="#C0B09A" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  <span style={{ fontSize: "14px", color: "#7A6E64", lineHeight: 1.6 }}>{t}</span>
                 </div>
               ))}
             </div>
-            <div style={{ padding: "30px 28px", background: `${colors.primary}06` }}>
-              <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.primary, marginBottom: "14px" }}>
+
+            {/* Right — With GroundWorks */}
+            <div style={{
+              padding: isMobile ? "32px 24px" : "40px 36px",
+              background: "#FDFCFA",
+            }}>
+              <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: colors.primary, marginBottom: "24px" }}>
                 With GroundWorks
               </p>
               {[
@@ -876,9 +965,12 @@ export default function HomePage() {
                 "Consistent, defensible projections you can act on",
                 "Matched operators & leasing agents, with an introduction",
               ].map((t) => (
-                <div key={t} style={{ display: "flex", gap: "10px", alignItems: "flex-start", marginBottom: "10px" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "2px" }}><circle cx="12" cy="12" r="9.5" stroke={colors.primary} strokeWidth="1.2" opacity="0.35" /><path d="M8 12.2l2.6 2.6L16 9.4" stroke={colors.primary} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  <span style={{ fontSize: "13.5px", color: colors.textMain, lineHeight: 1.5 }}>{t}</span>
+                <div key={t} className="cmp-row">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}>
+                    <circle cx="12" cy="12" r="9.5" stroke={colors.primary} strokeWidth="1.2" opacity="0.4" />
+                    <path d="M7.5 12.3l2.8 2.8L16.5 9" stroke={colors.primary} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span style={{ fontSize: "14px", color: colors.textMain, lineHeight: 1.6, fontWeight: 500 }}>{t}</span>
                 </div>
               ))}
             </div>
