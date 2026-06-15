@@ -218,8 +218,8 @@ export default function HomePage() {
                     {[
                       { label: "Rental Strategy Analyzer", action: handleAnalyzeClick },
                       { label: "Self-Manage Your Property", action: handleSelfManageClick },
+                      { label: "STR Sub-Leasing", action: () => router.push("/self-manage/str-subleasing") },
                       { label: "Operational Setup", action: () => router.push("/#services") },
-                      { label: "Investment Research", action: () => router.push("/#services") },
                     ].map((item) => (
                       <button
                         key={item.label}
