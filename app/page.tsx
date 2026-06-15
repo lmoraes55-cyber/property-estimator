@@ -625,21 +625,17 @@ export default function HomePage() {
             background: linear-gradient(135deg, #8B6F3F 0%, #6B5230 100%);
           }
           .svc-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 26px;
-            justify-content: center;
             align-items: stretch;
           }
-          .svc-grid .svc-card {
-            flex: 0 0 calc(33.333% - 18px);
-            max-width: calc(33.333% - 18px);
-          }
           @media (max-width: 1100px) {
-            .svc-grid .svc-card { flex: 0 0 calc(50% - 13px); max-width: calc(50% - 13px); }
+            .svc-grid { grid-template-columns: repeat(2, 1fr); }
           }
           @media (max-width: 640px) {
-            .svc-grid .svc-card { flex: 0 0 100%; max-width: 100%; padding: 32px 24px 28px; }
+            .svc-grid { grid-template-columns: 1fr; }
+            .svc-card { padding: 32px 24px 28px; }
           }
         `}</style>
 
@@ -669,7 +665,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Service cards grid — 5 cards, 3+2 layout */}
+          {/* Service cards grid — 4 cards */}
           <div className="svc-grid">
 
             {/* Card 1 — Rental Strategy Analyzer */}
@@ -685,7 +681,7 @@ export default function HomePage() {
               <h3 className="svc-title">Rental Strategy Analyzer</h3>
               <div style={{ flex: 1, width: "100%" }}>
                 <p className="svc-body">
-                  For property owners and agents. Compare short-term and long-term rental performance and identify the most profitable strategy for any Dubai property using real DLD data, yield analysis, and STR projections.
+                  For property owners and agents. Compare short-term and long-term rental performance and identify the most profitable strategy using real DLD data, yield analysis, and STR projections.
                 </p>
                 <div className="svc-label">Built for:</div>
                 <ul className="svc-list">
@@ -699,7 +695,7 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Card 2 — Self-Manage · Under 8 Units */}
+            {/* Card 2 — Self-Manage */}
             <div className="svc-card">
               <div className="svc-icon-badge">
                 <IconTools color={colors.secondary} />
@@ -709,56 +705,27 @@ export default function HomePage() {
                 <div className="svc-divider-diamond" />
                 <div className="svc-divider-line" />
               </div>
-              <h3 className="svc-title">Self-Manage — Up to 8 Units</h3>
+              <h3 className="svc-title">Self-Manage Your Property</h3>
               <div style={{ flex: 1, width: "100%" }}>
                 <p className="svc-body">
-                  For individual owners managing 1–8 properties who want to run short-term rentals themselves — without paying a management company. We give you the playbook, tools, and setup support to do it right.
+                  Run your own short-term rentals without paying a management company. We provide the playbook, tools, and setup support — whether you own a single unit or a growing portfolio.
                 </p>
-                <div className="svc-label">What's included:</div>
+                <div className="svc-label">Two tracks available:</div>
                 <ul className="svc-list">
-                  <li>Holiday home permit guidance</li>
-                  <li>Operational setup playbook</li>
-                  <li>Pricing & channel strategy</li>
+                  <li>Up to 8 units — owner playbook</li>
+                  <li>8+ units — portfolio systems & automation</li>
                 </ul>
                 <div className="svc-pricing">Free guides · setup from AED 1,500</div>
               </div>
               <button className="svc-btn-bronze" onClick={() => router.push("/self-manage/owners")}>
-                View Owner Playbook →
+                View Self-Manage Playbook →
               </button>
             </div>
 
-            {/* Card 3 — Self-Manage · 8+ Units */}
+            {/* Card 3 — STR Sub-Leasing */}
             <div className="svc-card">
               <div className="svc-icon-badge">
-                <IconWorkflow color={colors.primary} />
-              </div>
-              <div className="svc-divider">
-                <div className="svc-divider-line" />
-                <div className="svc-divider-diamond" />
-                <div className="svc-divider-line" />
-              </div>
-              <h3 className="svc-title">Self-Manage — 8+ Units</h3>
-              <div style={{ flex: 1, width: "100%" }}>
-                <p className="svc-body">
-                  For owners scaling beyond 8 units who need systems, automation, and operational frameworks to manage a growing portfolio professionally — without the cost of a full management company.
-                </p>
-                <div className="svc-label">What's included:</div>
-                <ul className="svc-list">
-                  <li>Portfolio operations framework</li>
-                  <li>PMS & automation setup</li>
-                  <li>Team & process structure</li>
-                </ul>
-                <div className="svc-pricing">Setup from AED 3,500</div>
-              </div>
-              <button className="svc-btn-green" onClick={() => router.push("/self-manage/owners")}>
-                View Portfolio Playbook →
-              </button>
-            </div>
-
-            {/* Card 4 — STR Sub-Leasing */}
-            <div className="svc-card">
-              <div className="svc-icon-badge">
-                <IconGrowth color={colors.secondary} />
+                <IconGrowth color={colors.primary} />
               </div>
               <div className="svc-divider">
                 <div className="svc-divider-line" />
@@ -768,7 +735,7 @@ export default function HomePage() {
               <h3 className="svc-title">STR Sub-Leasing</h3>
               <div style={{ flex: 1, width: "100%" }}>
                 <p className="svc-body">
-                  For entrepreneurs looking to lease properties from landlords and operate them as short-term rentals. We model the risk, identify the right buildings, and give you the framework to sub-lease profitably and legally.
+                  For entrepreneurs leasing properties from landlords and operating them as short-term rentals. We model the risk, identify the right buildings, and give you the framework to sub-lease profitably and legally.
                 </p>
                 <div className="svc-label">What's included:</div>
                 <ul className="svc-list">
@@ -783,10 +750,10 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Card 5 — Operational Setup */}
+            {/* Card 4 — Operational Setup */}
             <div className="svc-card">
               <div className="svc-icon-badge">
-                <IconCalculator color={colors.primary} />
+                <IconWorkflow color={colors.secondary} />
               </div>
               <div className="svc-divider">
                 <div className="svc-divider-line" />
