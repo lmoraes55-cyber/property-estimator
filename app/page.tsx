@@ -625,17 +625,21 @@ export default function HomePage() {
             background: linear-gradient(135deg, #8B6F3F 0%, #6B5230 100%);
           }
           .svc-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
+            flex-wrap: wrap;
             gap: 26px;
+            justify-content: center;
             align-items: stretch;
           }
+          .svc-grid .svc-card {
+            flex: 0 0 calc(33.333% - 18px);
+            max-width: calc(33.333% - 18px);
+          }
           @media (max-width: 1100px) {
-            .svc-grid { grid-template-columns: repeat(2, 1fr); }
+            .svc-grid .svc-card { flex: 0 0 calc(50% - 13px); max-width: calc(50% - 13px); }
           }
           @media (max-width: 640px) {
-            .svc-grid { grid-template-columns: 1fr; }
-            .svc-card { padding: 32px 24px 28px; }
+            .svc-grid .svc-card { flex: 0 0 100%; max-width: 100%; padding: 32px 24px 28px; }
           }
         `}</style>
 
@@ -665,7 +669,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Service cards grid */}
+          {/* Service cards grid — 5 cards, 3+2 layout */}
           <div className="svc-grid">
 
             {/* Card 1 — Rental Strategy Analyzer */}
@@ -679,15 +683,23 @@ export default function HomePage() {
                 <div className="svc-divider-line" />
               </div>
               <h3 className="svc-title">Rental Strategy Analyzer</h3>
-              <p className="svc-body" style={{ flex: 1 }}>
-                Compare short-term and long-term rental performance and identify the most suitable strategy for your property using projected revenue, yield analysis, and market data.
-              </p>
+              <div style={{ flex: 1, width: "100%" }}>
+                <p className="svc-body">
+                  For property owners and agents. Compare short-term and long-term rental performance and identify the most profitable strategy for any Dubai property using real DLD data, yield analysis, and STR projections.
+                </p>
+                <div className="svc-label">Built for:</div>
+                <ul className="svc-list">
+                  <li>Property owners</li>
+                  <li>Real estate agents</li>
+                  <li>Investors & buyers</li>
+                </ul>
+              </div>
               <button className="svc-btn-green" onClick={handleAnalyzeClick}>
                 Analyze My Property →
               </button>
             </div>
 
-            {/* Card 2 — Self-Manage Your Property */}
+            {/* Card 2 — Self-Manage · Under 8 Units */}
             <div className="svc-card">
               <div className="svc-icon-badge">
                 <IconTools color={colors.secondary} />
@@ -697,27 +709,25 @@ export default function HomePage() {
                 <div className="svc-divider-diamond" />
                 <div className="svc-divider-line" />
               </div>
-              <h3 className="svc-title">Self-Manage Your Property</h3>
+              <h3 className="svc-title">Self-Manage — Up to 8 Units</h3>
               <div style={{ flex: 1, width: "100%" }}>
                 <p className="svc-body">
-                  Built for owners managing up to 8 units who want to maximize profitability through self-management, automation, and proven short-term rental systems.
+                  For individual owners managing 1–8 properties who want to run short-term rentals themselves — without paying a management company. We give you the playbook, tools, and setup support to do it right.
                 </p>
-                <div className="svc-label">Includes dedicated guidance for:</div>
+                <div className="svc-label">What's included:</div>
                 <ul className="svc-list">
-                  <li>Self-Management</li>
-                  <li>STR Sub-Leasing</li>
+                  <li>Holiday home permit guidance</li>
+                  <li>Operational setup playbook</li>
+                  <li>Pricing & channel strategy</li>
                 </ul>
-                <p className="svc-body">
-                  Learn how to choose the safest and most profitable route to sub-leasing in short-term rentals through proper due diligence, risk management, and financial analysis.
-                </p>
                 <div className="svc-pricing">Free guides · setup from AED 1,500</div>
               </div>
-              <button className="svc-btn-bronze" onClick={() => router.push("/self-manage#pricing")}>
-                View Self-Manage Pricing →
+              <button className="svc-btn-bronze" onClick={() => router.push("/self-manage/owners")}>
+                View Owner Playbook →
               </button>
             </div>
 
-            {/* Card 3 — Operational Setup */}
+            {/* Card 3 — Self-Manage · 8+ Units */}
             <div className="svc-card">
               <div className="svc-icon-badge">
                 <IconWorkflow color={colors.primary} />
@@ -727,10 +737,66 @@ export default function HomePage() {
                 <div className="svc-divider-diamond" />
                 <div className="svc-divider-line" />
               </div>
+              <h3 className="svc-title">Self-Manage — 8+ Units</h3>
+              <div style={{ flex: 1, width: "100%" }}>
+                <p className="svc-body">
+                  For owners scaling beyond 8 units who need systems, automation, and operational frameworks to manage a growing portfolio professionally — without the cost of a full management company.
+                </p>
+                <div className="svc-label">What's included:</div>
+                <ul className="svc-list">
+                  <li>Portfolio operations framework</li>
+                  <li>PMS & automation setup</li>
+                  <li>Team & process structure</li>
+                </ul>
+                <div className="svc-pricing">Setup from AED 3,500</div>
+              </div>
+              <button className="svc-btn-green" onClick={() => router.push("/self-manage/owners")}>
+                View Portfolio Playbook →
+              </button>
+            </div>
+
+            {/* Card 4 — STR Sub-Leasing */}
+            <div className="svc-card">
+              <div className="svc-icon-badge">
+                <IconGrowth color={colors.secondary} />
+              </div>
+              <div className="svc-divider">
+                <div className="svc-divider-line" />
+                <div className="svc-divider-diamond" />
+                <div className="svc-divider-line" />
+              </div>
+              <h3 className="svc-title">STR Sub-Leasing</h3>
+              <div style={{ flex: 1, width: "100%" }}>
+                <p className="svc-body">
+                  For entrepreneurs looking to lease properties from landlords and operate them as short-term rentals. We model the risk, identify the right buildings, and give you the framework to sub-lease profitably and legally.
+                </p>
+                <div className="svc-label">What's included:</div>
+                <ul className="svc-list">
+                  <li>Break-even & risk modelling</li>
+                  <li>Building & area selection</li>
+                  <li>Landlord negotiation framework</li>
+                </ul>
+                <div className="svc-pricing">Free risk estimator · guidance from AED 1,500</div>
+              </div>
+              <button className="svc-btn-bronze" onClick={() => router.push("/self-manage/str-subleasing")}>
+                View Sub-Leasing Guide →
+              </button>
+            </div>
+
+            {/* Card 5 — Operational Setup */}
+            <div className="svc-card">
+              <div className="svc-icon-badge">
+                <IconCalculator color={colors.primary} />
+              </div>
+              <div className="svc-divider">
+                <div className="svc-divider-line" />
+                <div className="svc-divider-diamond" />
+                <div className="svc-divider-line" />
+              </div>
               <h3 className="svc-title">Operational Setup</h3>
               <div style={{ flex: 1, width: "100%" }}>
                 <p className="svc-body">
-                  Built for small and mid-sized operators looking to streamline and scale their short-term rental operations using proven strategies, operational frameworks, automation tools, and best practices.
+                  For small and mid-sized operators looking to streamline and scale their short-term rental operations using proven strategies, operational frameworks, automation tools, and best practices.
                 </p>
                 <div className="svc-label">Built for:</div>
                 <ul className="svc-list">
@@ -742,35 +808,6 @@ export default function HomePage() {
               </div>
               <button className="svc-btn-green" onClick={() => router.push("/self-manage#pricing")}>
                 View Operations Pricing →
-              </button>
-            </div>
-
-            {/* Card 4 — Investment Research */}
-            <div className="svc-card">
-              <div className="svc-icon-badge">
-                <IconGrowth color={colors.secondary} />
-              </div>
-              <div className="svc-divider">
-                <div className="svc-divider-line" />
-                <div className="svc-divider-diamond" />
-                <div className="svc-divider-line" />
-              </div>
-              <h3 className="svc-title">Investment Research</h3>
-              <div style={{ flex: 1, width: "100%" }}>
-                <p className="svc-body">
-                  Designed for property owners, investors, and real estate agents seeking reliable short-term and long-term rental estimates before purchasing a property.
-                </p>
-                <div className="svc-label">Focus areas:</div>
-                <ul className="svc-list" style={{ marginBottom: "20px" }}>
-                  <li>STR projections</li>
-                  <li>LTR projections</li>
-                  <li>Yield analysis</li>
-                  <li>Area intelligence</li>
-                  <li>Investment feasibility</li>
-                </ul>
-              </div>
-              <button className="svc-btn-bronze">
-                Explore Research →
               </button>
             </div>
 
