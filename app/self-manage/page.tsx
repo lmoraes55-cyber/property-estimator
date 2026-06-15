@@ -89,29 +89,29 @@ export default function SelfManagePage() {
       {/* ─── CHOOSE YOUR PATH ─── */}
       <section id="paths" style={{ padding: isMobile ? "52px 20px" : "80px 40px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <SectionHeading label="GET STARTED" title="Choose Your Path" subtitle="Select the route that matches your goals. Each playbook is a structured, practical guide built for Dubai." />
+          <SectionHeading label="GET STARTED" title="Choose Your Track" subtitle="Select the path that matches your portfolio size. Each playbook is a structured, practical guide built for Dubai property owners." />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "28px" }}>
             <PlaybookCard
               icon={<IconOwner color={colors.primary} />}
-              eyebrow="PROPERTY OWNERS"
-              title="Self-Management Playbook"
-              description="For owners with 1–8 units who want to reduce management fees, maintain full control, and operate STR professionally from day one."
+              eyebrow="UP TO 8 UNITS"
+              title="Self-Manage — Small Portfolio"
+              description="For owners with 1–8 units who want to reduce management fees, maintain full control, and operate STR professionally from day one — without an agency."
               price="AED 199"
               accent={colors.primary}
               includes={["8-step setup roadmap", "DET permit requirements", "Operational systems", "Technology stack guide", "Financial tracking model", "Weekly workflow", "Common mistakes", "Readiness score"]}
-              cta="Explore Self-Management"
+              cta="View Small Portfolio Playbook"
               href="/self-manage/owners"
             />
             <PlaybookCard
               icon={<IconSubLease color={colors.secondary} />}
-              eyebrow="ENTREPRENEURS"
-              title="STR Sub-Leasing Playbook"
-              description="For entrepreneurs who want to build a short-term rental business without owning property. Unit sourcing, landlord approvals, break-even logic, and risk control."
-              price="AED 299"
+              eyebrow="8+ UNITS"
+              title="Self-Manage — Growing Portfolio"
+              description="For owners scaling beyond 8 units who need professional systems, automation, and operational frameworks to manage a growing portfolio without the cost of a full management company."
+              price="AED 499"
               accent={colors.secondary}
-              includes={["Unit selection framework", "Area risk scoring", "Legal & approval checklist", "Break-even model", "Landlord negotiation guide", "10-step launch roadmap", "Operating requirements", "Common red flags"]}
-              cta="Explore STR Sub-Leasing"
-              href="/self-manage/str-subleasing"
+              includes={["Portfolio operations framework", "PMS & automation setup", "Team & process structure", "Multi-unit pricing strategy", "Financial reporting system", "Scaling roadmap", "Common scaling mistakes", "Portfolio readiness score"]}
+              cta="View Portfolio Playbook"
+              href="/self-manage/owners"
             />
           </div>
         </div>
