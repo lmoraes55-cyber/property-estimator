@@ -394,15 +394,32 @@ export default function STRSubleasingPage() {
       {/* ─── FULL CONTENT (when access granted) ─── */}
       {hasAccess && (
         <section style={{ padding: isMobile ? "0 20px 72px" : "0 40px 80px" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-            <div style={{ padding: "24px 28px", background: "#F0F8F4", borderRadius: "14px", border: "1px solid rgba(27,94,74,0.2)", marginBottom: "40px", display: "flex", alignItems: "center", gap: "14px" }}>
-              <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke={colors.primary} strokeWidth="1.2" opacity="0.4" /><path d="M6.5 10L9 12.5L13.5 7.5" stroke={colors.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              <div>
-                <div style={{ fontSize: "14px", fontWeight: 700, color: colors.primary }}>Full playbook access is active.</div>
-                <div style={{ fontSize: "13px", color: colors.textMuted }}>All sections, frameworks, and the readiness score are available below.</div>
+          <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "24px" }}>
+
+            {/* Risk Estimator card */}
+            <div style={{ background: colors.bgSection, borderRadius: "16px", border: `1.5px solid ${colors.secondary}`, boxShadow: "0 4px 20px rgba(184,138,68,0.10)", overflow: "hidden" }}>
+              <div style={{ background: `linear-gradient(135deg, ${colors.primary}0C 0%, ${colors.secondary}0E 100%)`, padding: "28px 32px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.secondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h3M13 11h3M8 15h3M13 15h3" /></svg>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: colors.secondary, letterSpacing: "0.12em" }}>FREE TOOL</span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Risk Estimator — Is This Unit Viable?</h3>
+                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.65, marginBottom: "20px" }}>Enter any building, unit size, floor, view, and the rent your landlord is asking. Get an instant break-even occupancy, risk score (Low → Very High), and monthly P&amp;L forecast.</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "20px" }}>
+                  {["Break-even occupancy", "Risk level (Low → Very High)", "Annual net profit", "Monthly cash flow table", "Property viability check"].map(f => (
+                    <div key={f} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.7)", border: `1px solid ${colors.border}`, borderRadius: "20px", padding: "4px 12px" }}>
+                      <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4 10L8 14L16 6" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: colors.textMain }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => router.push("/self-manage/str-subleasing/estimator")}
+                  style={{ padding: "13px 28px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: 700, cursor: "pointer", border: "none", boxShadow: "0 4px 16px rgba(184,138,68,0.25)" }}>
+                  Open Risk Estimator →
+                </button>
               </div>
             </div>
-            <p style={{ fontSize: "15px", color: colors.textMuted, textAlign: "center" }}>Full playbook content renders here when connected to payment and access verification.</p>
+
           </div>
         </section>
       )}
