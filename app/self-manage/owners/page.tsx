@@ -124,7 +124,7 @@ const PRODUCTS: Record<string, Product> = {
 export default function OwnersPage() {
   const router = useRouter();
   const isMobile = useIsMobile();
-  const [hasAccess, setHasAccess] = useState(false);
+  const [hasAccess, setHasAccess] = useState(true);
   const [modal, setModal] = useState<Product | null>(null);
 
   function openCheckout(key: keyof typeof PRODUCTS) {
