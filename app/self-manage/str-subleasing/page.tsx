@@ -341,7 +341,29 @@ export default function STRSubleasingPage() {
               <h2 style={{ fontSize: isMobile ? "26px" : "32px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "10px" }}>Unlock the Complete Framework</h2>
               <p style={{ fontSize: "15px", color: colors.textMuted, maxWidth: "520px", margin: "0 auto" }}>The following sections are included in the full STR Sub-Leasing Playbook.</p>
             </div>
-            <LockedSection title="Minimum-Risk Unit & Area Estimator" price={PRICE} onUnlock={() => openCheckout("subleasing")} contents={["Area demand scoring", "Rent-to-revenue ratio check", "Break-even occupancy calculator", "Risk level output", "Proceed / Negotiate / Avoid recommendation"]} />
+            {/* Live estimator — free tool, no paywall */}
+            <div style={{ background: colors.bgSection, borderRadius: "16px", border: `1.5px solid ${colors.secondary}`, boxShadow: "0 4px 20px rgba(184,138,68,0.10)", overflow: "hidden" }}>
+              <div style={{ background: `linear-gradient(135deg, ${colors.primary}0C 0%, ${colors.secondary}0E 100%)`, padding: "28px 32px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.secondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h3M13 11h3M8 15h3M13 15h3" /></svg>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: colors.secondary, letterSpacing: "0.12em" }}>FREE TOOL</span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Risk Estimator — Is This Unit Viable?</h3>
+                <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.65, marginBottom: "20px" }}>Enter any building, unit size, floor, view, and the rent your landlord is asking. Get an instant break-even occupancy, risk score (Low → Very High), and monthly P&amp;L forecast.</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "20px" }}>
+                  {["Break-even occupancy", "Risk level (Low → Very High)", "Annual net profit", "Monthly cash flow table", "Property viability check"].map(f => (
+                    <div key={f} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.7)", border: `1px solid ${colors.border}`, borderRadius: "20px", padding: "4px 12px" }}>
+                      <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4 10L8 14L16 6" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: colors.textMain }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => router.push("/self-manage/str-subleasing/estimator")}
+                  style={{ padding: "13px 28px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: 700, cursor: "pointer", border: "none", boxShadow: "0 4px 16px rgba(184,138,68,0.25)" }}>
+                  Open Risk Estimator →
+                </button>
+              </div>
+            </div>
             <LockedSection title="Safe Unit Selection Framework" price={PRICE} onUnlock={() => openCheckout("subleasing")} contents={["Rent-to-revenue gap analysis", "Building demand criteria", "Unit type guidelines", "Access & guest experience check", "Furnishing cost threshold", "Exit flexibility requirement"]} />
             <LockedSection title="Area & Building Risk Scoring" price={PRICE} onUnlock={() => openCheckout("subleasing")} contents={["STR demand score method", "Rent pressure score", "Occupancy stability check", "Guest appeal factors", "Operational ease scoring", "Downside risk calculation"]} />
             <LockedSection title="Legal & Approval Requirements" price={PRICE} onUnlock={() => openCheckout("subleasing")} contents={["Written approval checklist", "DET permit process", "Required documents list", "Ejari and contract wording", "Trade licence considerations", "Compliance maintenance"]} />
