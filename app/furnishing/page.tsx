@@ -360,12 +360,6 @@ function FurnishingContent() {
             <AssetIntelLogo size={32} />
           </div>
           <div style={{ width: 1, height: 24, background: C.border, flexShrink: 0 }} />
-          {/* Back */}
-          <button onClick={() => router.back()} style={{ fontSize: 12, padding: "7px 14px", borderRadius: 10, border: `1px solid #D8D4CC`, background: "#FFF", color: C.green, cursor: "pointer", fontWeight: 600, flexShrink: 0, display: "flex", alignItems: "center", gap: 5 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            Back to property
-          </button>
-          <div style={{ width: 1, height: 24, background: C.border, flexShrink: 0 }} />
           {/* Property context */}
           <div style={{ flexShrink: 0 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: "#2A2A2A", lineHeight: 1.2, margin: 0 }}>{displayName}</p>

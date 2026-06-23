@@ -180,17 +180,12 @@ function OperatorsContent() {
       {/* Slim header */}
       <div style={{ position: "sticky", top: 0, zIndex: 200, padding: "12px 16px" }}>
         <div style={{
-          maxWidth: 1280, margin: "0 auto",
+          maxWidth: 1152, margin: "0 auto",
           background: "#FAFAF7F2", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
           border: "1px solid #E3DED6", borderRadius: 24,
           boxShadow: "0 2px 4px rgba(0,0,0,0.03), 0 8px 28px rgba(27,94,74,0.09)",
           display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 12,
         }}>
-          <button onClick={handleBack}
-            style={{ fontSize: 12, padding: "7px 14px", borderRadius: 10, border: "1px solid #D8D4CC", background: "#FFF", color: "#1B5E4A", cursor: "pointer", fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" }}>
-            ← Back to Report
-          </button>
-          <div style={{ width: 1, height: 24, background: "#E6E1D8", flexShrink: 0 }} />
           <div style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
             <AssetIntelLogo size={32} />
           </div>

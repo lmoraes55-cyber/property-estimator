@@ -2,17 +2,17 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import GroundWorksLogo from "@/components/GroundWorksLogo";
+import AssetIntelLogo from "@/components/AssetIntelLogo";
 import { getOperatorProfile, OperatorProfile, ScoreItem } from "@/lib/operator-profiles";
 
 const colors = {
   primary: "#1B5E4A",
   secondary: "#B88A44",
-  bgMain: "#FAFAF8",
-  bgSection: "#FFFFFF",
+  bgMain: "#F8F4EE",
+  bgSection: "#FDFBF7",
   textMain: "#1A1A1A",
   textMuted: "#6B6B6B",
-  border: "#E0DDD8",
+  border: "#E6E1D8",
   shadowSm: "0 1px 2px rgba(0, 0, 0, 0.05)",
   shadowMd: "0 4px 6px rgba(0, 0, 0, 0.1)",
   shadowLg: "0 20px 25px rgba(0, 0, 0, 0.15)",
@@ -124,28 +124,52 @@ export default function OperatorProfilePage() {
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh" }}>
       {/* ─── HEADER ─── */}
-      <header style={{ background: colors.bgSection, borderBottom: `1px solid ${colors.border}`, position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "16px 40px", display: "flex", alignItems: "center", gap: "60px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }} onClick={() => router.push("/")}>
-            <GroundWorksLogo size={40} />
-            <div>
-              <div style={{ fontSize: "18px", fontWeight: "bold", color: colors.textMain }}>Ground<span style={{ color: colors.primary }}>Works</span></div>
-              <div style={{ fontSize: "10px", color: colors.textMuted, letterSpacing: "0.1em" }}>RENTAL INTELLIGENCE</div>
-            </div>
+      <div style={{ position: "sticky", top: 0, zIndex: 200, padding: "12px 16px" }}>
+        <div style={{
+          maxWidth: 1200, margin: "0 auto",
+          background: "#FAFAF7F2", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
+          border: "1px solid #E3DED6", borderRadius: 24,
+          boxShadow: "0 2px 4px rgba(0,0,0,0.03), 0 8px 28px rgba(27,94,74,0.09)",
+          display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 12,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", flexShrink: 0 }} onClick={() => router.push("/")}>
+            <AssetIntelLogo size={32} />
           </div>
-          <nav style={{ display: "flex", gap: "40px", flex: 1 }}>
-            <a onClick={() => router.push("/")} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: 500 }}>Home</a>
-            <a onClick={() => router.push("/operators")} style={{ cursor: "pointer", color: colors.primary, fontSize: "15px", fontWeight: 600 }}>Operators</a>
-            <a onClick={handleAnalyzeClick} style={{ cursor: "pointer", color: colors.textMuted, fontSize: "15px", fontWeight: 500 }}>Analyzer</a>
+          <div style={{ width: 1, height: 24, background: "#E6E1D8", flexShrink: 0 }} />
+          <nav className="op-nav-links" style={{ display: "flex", gap: 24, flex: 1 }}>
+            <a onClick={() => router.push("/")} style={{ cursor: "pointer", color: "#6B6B6B", fontSize: 14, fontWeight: 500 }}>Home</a>
+            <a onClick={() => router.push("/operators")} style={{ cursor: "pointer", color: colors.primary, fontSize: 14, fontWeight: 600 }}>Operators</a>
+            <a onClick={handleAnalyzeClick} style={{ cursor: "pointer", color: "#6B6B6B", fontSize: 14, fontWeight: 500 }}>Analyzer</a>
           </nav>
+          <button onClick={handleAnalyzeClick}
+            style={{ fontSize: 12, padding: "7px 18px", borderRadius: 999, background: "linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 100%)", color: "#FFF", border: "none", cursor: "pointer", fontWeight: 700, boxShadow: "0 4px 12px rgba(27,94,74,0.25)", flexShrink: 0 }}>
+            Analyze Property
+          </button>
         </div>
-      </header>
+      </div>
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 40px" }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .op-hero-card { grid-template-columns: 1fr !important; gap: 24px !important; padding: 24px !important; }
+          .op-scores-row { flex-direction: column !important; gap: 12px !important; }
+          .op-grid-4 { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+          .op-grid-5 { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+          .op-grid-2 { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .op-two-col { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .op-contract-row { grid-template-columns: 1fr !important; }
+          .op-section-pad { padding: 0 0 40px !important; }
+          .op-main-pad { padding: 0 16px !important; }
+          .op-nav-links { display: none !important; }
+          .op-hero-h1 { font-size: 26px !important; }
+          .op-hero-section { padding: 32px 0 !important; }
+        }
+      `}</style>
+
+      <div className="op-main-pad" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 40px" }}>
 
         {/* ─── 1. HERO ─── */}
-        <section style={{ padding: "64px 0" }}>
-          <div style={{ background: colors.bgSection, borderRadius: "20px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowMd, padding: "48px", display: "grid", gridTemplateColumns: "1fr auto", gap: "48px", alignItems: "center" }}>
+        <section className="op-hero-section" style={{ padding: "64px 0" }}>
+          <div className="op-hero-card" style={{ background: colors.bgSection, borderRadius: "20px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowMd, padding: "48px", display: "grid", gridTemplateColumns: "1fr auto", gap: "48px", alignItems: "center" }}>
             {/* Left: identity */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "24px" }}>
@@ -154,11 +178,11 @@ export default function OperatorProfilePage() {
                 </div>
                 <div>
                   <div style={{ fontSize: "12px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.1em", marginBottom: "6px" }}>OPERATOR PROFILE</div>
-                  <h1 style={{ fontSize: "38px", fontFamily: serif, fontWeight: 700, color: colors.textMain, lineHeight: 1.1 }}>{operator.name}</h1>
+                  <h1 style={{ fontSize: "clamp(22px,4vw,38px)", fontFamily: serif, fontWeight: 700, color: colors.textMain, lineHeight: 1.1 }}>{operator.name}</h1>
                 </div>
               </div>
               {/* Sub-scores */}
-              <div style={{ display: "flex", gap: "20px", marginTop: "8px" }}>
+              <div className="op-scores-row" style={{ display: "flex", gap: "20px", marginTop: "8px" }}>
                 <div style={{ flex: 1, background: colors.bgMain, border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "20px" }}>
                   <div style={{ fontSize: "12px", color: colors.textMuted, fontWeight: 600, marginBottom: "8px" }}>OWNER SCORE</div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: "4px", marginBottom: "10px" }}>
@@ -181,9 +205,9 @@ export default function OperatorProfilePage() {
                 </div>
               </div>
             </div>
-            {/* Right: GW Score ring */}
+            {/* Right: AssetIntel Score ring */}
             <div style={{ textAlign: "center", paddingLeft: "32px", borderLeft: `1px solid ${colors.border}` }}>
-              <div style={{ fontSize: "12px", color: colors.textMuted, fontWeight: 700, letterSpacing: "0.1em", marginBottom: "16px" }}>GW SCORE™</div>
+              <div style={{ fontSize: "12px", color: colors.textMuted, fontWeight: 700, letterSpacing: "0.1em", marginBottom: "16px" }}>ASSETINTEL SCORE™</div>
               <ScoreRing value={operator.gwScore} sublabel={operator.gwScoreLabel} accent={colors.primary} />
             </div>
           </div>
@@ -191,7 +215,7 @@ export default function OperatorProfilePage() {
 
         {/* ─── 2. ASSESSMENT ─── */}
         <section style={{ padding: "32px 0 64px 0" }}>
-          <SectionHeading label="ANALYSIS" title="GroundWorks Assessment" />
+          <SectionHeading label="ANALYSIS" title="AssetIntel Assessment" />
           <div style={{ background: colors.bgSection, borderRadius: "16px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "40px", borderLeft: `4px solid ${colors.secondary}` }}>
             <p style={{ fontSize: "17px", color: colors.textMain, lineHeight: 1.7 }}>{operator.assessment}</p>
           </div>
@@ -200,7 +224,7 @@ export default function OperatorProfilePage() {
         {/* ─── 3. QUICK FACTS ─── */}
         <section style={{ padding: "0 0 64px 0" }}>
           <SectionHeading label="OVERVIEW" title="Quick Facts" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+          <div className="op-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
             {operator.quickFacts.map((f) => (
               <div key={f.label} style={{ background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "24px" }}>
                 <div style={{ fontSize: "12px", color: colors.textMuted, fontWeight: 600, letterSpacing: "0.04em", marginBottom: "10px" }}>{f.label.toUpperCase()}</div>
@@ -222,12 +246,12 @@ export default function OperatorProfilePage() {
 
         {/* ─── 5. SCORE BREAKDOWN ─── */}
         <section style={{ padding: "0 0 64px 0" }}>
-          <SectionHeading label="METHODOLOGY" title="How We Calculated The Score" subtitle="Every GW Score™ is built from independent owner and guest signals weighted across the metrics below." />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+          <SectionHeading label="METHODOLOGY" title="How We Calculated The Score" subtitle="Every AssetIntel Score™ is built from independent owner and guest signals weighted across the metrics below." />
+          <div className="op-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
             {/* Owner */}
             <div style={{ background: colors.bgSection, borderRadius: "16px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "36px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
-                <h3 style={{ fontSize: "20px", fontFamily: serif, fontWeight: 700, color: colors.textMain }}>GW Owner Score™</h3>
+                <h3 style={{ fontSize: "20px", fontFamily: serif, fontWeight: 700, color: colors.textMain }}>AssetIntel Owner Score™</h3>
                 <div style={{ fontSize: "32px", fontWeight: 700, fontFamily: serif, color: colors.primary }}>{operator.ownerScore}</div>
               </div>
               {operator.ownerScoreBreakdown.map((it) => <ScoreBar key={it.label} item={it} accent={colors.primary} />)}
@@ -235,7 +259,7 @@ export default function OperatorProfilePage() {
             {/* Guest */}
             <div style={{ background: colors.bgSection, borderRadius: "16px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "36px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
-                <h3 style={{ fontSize: "20px", fontFamily: serif, fontWeight: 700, color: colors.textMain }}>GW Guest Score™</h3>
+                <h3 style={{ fontSize: "20px", fontFamily: serif, fontWeight: 700, color: colors.textMain }}>AssetIntel Guest Score™</h3>
                 <div style={{ fontSize: "32px", fontWeight: 700, fontFamily: serif, color: colors.secondary }}>{operator.guestScore}</div>
               </div>
               {operator.guestScoreBreakdown.map((it) => <ScoreBar key={it.label} item={it} accent={colors.secondary} />)}
@@ -257,7 +281,7 @@ export default function OperatorProfilePage() {
         </section>
 
         {/* ─── 7 & 8. STRENGTHS + CONSIDERATIONS ─── */}
-        <section style={{ padding: "0 0 64px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+        <section className="op-two-col" style={{ padding: "0 0 64px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
           <div>
             <SectionHeading title="What They Do Well" />
             <div style={{ background: colors.bgSection, borderRadius: "16px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "36px" }}>
@@ -285,7 +309,7 @@ export default function OperatorProfilePage() {
         {/* ─── 9. COMMUNITIES ─── */}
         <section style={{ padding: "0 0 64px 0" }}>
           <SectionHeading label="GEOGRAPHY" title="Communities They Perform Best In" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "20px" }}>
+          <div className="op-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "20px" }}>
             {operator.communities.map((c) => (
               <div key={c.area} style={{ background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "24px" }}>
                 <div style={{ marginBottom: "14px" }}><IconLocationPin color={colors.primary} /></div>
@@ -318,12 +342,12 @@ export default function OperatorProfilePage() {
         {/* ─── 11. COMPARE ─── */}
         <section style={{ padding: "0 0 64px 0" }}>
           <SectionHeading label="BENCHMARK" title="Compare With Other Operators" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+          <div className="op-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
             {operator.compareWith.map((c) => (
               <div key={c.slug} style={{ background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm, padding: "28px", display: "flex", flexDirection: "column" }}>
                 <div style={{ fontSize: "16px", fontWeight: 600, color: colors.textMain, marginBottom: "20px", minHeight: "44px" }}>{c.name}</div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                  <span style={{ fontSize: "13px", color: colors.textMuted }}>GW Score</span>
+                  <span style={{ fontSize: "13px", color: colors.textMuted }}>AssetIntel Score</span>
                   <span style={{ fontSize: "15px", fontWeight: 700, color: colors.primary }}>{c.gwScore}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
@@ -360,10 +384,10 @@ export default function OperatorProfilePage() {
       <footer style={{ background: colors.bgSection, borderTop: `1px solid ${colors.border}`, padding: "40px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <GroundWorksLogo size={32} />
-            <span style={{ fontSize: "14px", color: colors.textMuted }}>GroundWorks — Dubai Rental Intelligence</span>
+            <AssetIntelLogo size={32} />
+            <span style={{ fontSize: "14px", color: colors.textMuted }}>AssetIntel — Dubai Property Intelligence</span>
           </div>
-          <div style={{ fontSize: "13px", color: colors.textMuted }}>© {new Date().getFullYear()} GroundWorks. All rights reserved.</div>
+          <div style={{ fontSize: "13px", color: colors.textMuted }}>© {new Date().getFullYear()} AssetIntel. All rights reserved.</div>
         </div>
       </footer>
     </div>
