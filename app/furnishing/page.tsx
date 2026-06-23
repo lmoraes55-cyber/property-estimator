@@ -77,8 +77,8 @@ function FurnishingContent() {
     setShowModal(true);
   };
 
-  const openQuoteModal = (pkgName: string) => {
-    setQuoteForm(f => ({ ...f, property: displayName, pkg: pkgName }));
+  const openQuoteModal = (pkgName: string, prefillPath?: string) => {
+    setQuoteForm(f => ({ ...f, property: displayName, pkg: pkgName, ...(prefillPath ? { path: prefillPath } : {}) }));
     setShowQuoteModal(true);
   };
 
@@ -552,9 +552,19 @@ function FurnishingContent() {
             {/* ── INTERIOR DESIGN FIRMS TAB ── */}
             {activeTab === "3rdparty" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text, margin: "0 0 4px", fontFamily: "'Georgia', serif" }}>Interior Design Firms</h2>
-                  <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Top firms specializing in DET-compliant holiday home furnishing. All handle end-to-end: design, sourcing, installation, and compliance handover.</p>
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                  <div>
+                    <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px", fontFamily: "'Georgia', serif", ...gradStyle }}>Interior Design Support</h2>
+                    <p style={{ fontSize: 13, color: C.muted, margin: 0, maxWidth: 560 }}>Work with selected interior design firms to create a guest-ready furnishing plan tailored to your property, budget, and STR positioning.</p>
+                  </div>
+                  <button onClick={() => openQuoteModal("", "Interior Design Firm")} style={{
+                    flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
+                    padding: "11px 20px", background: C.green, color: "#fff",
+                    border: "none", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                    boxShadow: "0 4px 14px rgba(27,94,74,0.22)", whiteSpace: "nowrap",
+                  }}>
+                    Request Interior Design Quote →
+                  </button>
                 </div>
                 {FURNISHING_COMPANIES.map((company, idx) => (
                   <div key={company.id} style={{
@@ -597,9 +607,19 @@ function FurnishingContent() {
             {/* ── OPERATOR FURNISHED TAB ── */}
             {activeTab === "operator" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text, margin: "0 0 4px", fontFamily: "'Georgia', serif" }}>Operator-Provided Furnishing</h2>
-                  <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Your chosen operator provides fully DET-compliant furnishing as part of their service. The easiest path — they handle everything from design to handover.</p>
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                  <div>
+                    <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px", fontFamily: "'Georgia', serif", ...gradStyle }}>Operator-Handled Furnishing</h2>
+                    <p style={{ fontSize: 13, color: C.muted, margin: 0, maxWidth: 560 }}>Let the operator guide the furnishing requirements based on their guest standards, linen policy, photography setup, and go-live process.</p>
+                  </div>
+                  <button onClick={() => openQuoteModal("", "Operator Furnished")} style={{
+                    flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
+                    padding: "11px 20px", background: C.green, color: "#fff",
+                    border: "none", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                    boxShadow: "0 4px 14px rgba(27,94,74,0.22)", whiteSpace: "nowrap",
+                  }}>
+                    Request Operator Furnishing Guidance →
+                  </button>
                 </div>
                 <div style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 20, padding: 24 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: C.green, marginBottom: 16 }}>How It Works</p>
@@ -610,26 +630,17 @@ function FurnishingContent() {
                     "Operators provide: design options, DET compliance guarantee, timeline, and pricing",
                     "Choose the best fit and hand over furnishing before your property goes live",
                   ].map((step, i) => (
-                    <div key={i} style={{ display: "flex", gap: 14, marginBottom: 14, alignItems: "flex-start" }}>
+                    <div key={i} style={{ display: "flex", gap: 14, marginBottom: i < 4 ? 14 : 0, alignItems: "flex-start" }}>
                       <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#EEF5F1", color: C.green, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</div>
                       <p style={{ fontSize: 13, color: "#555", lineHeight: 1.55, paddingTop: 3, margin: 0 }}>{step}</p>
                     </div>
                   ))}
                 </div>
-                <div style={{ display: "flex", gap: 12 }}>
-                  <button onClick={() => router.back()} style={{ padding: "11px 22px", background: "transparent", color: C.green, border: `1.5px solid rgba(27,94,74,0.25)`, borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                    Back to Operators
-                  </button>
-                  <button onClick={openGuidanceModal} style={{ padding: "11px 22px", background: C.green, color: "#fff", border: "none", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 14px rgba(27,94,74,0.22)" }}>
-                    Ask a Furnishing Expert
-                  </button>
-                </div>
               </div>
             )}
 
-          {/* ── DET COMPLIANCE CHECKLIST (full-width) ─────── */}
-          <div style={{ background: "#FFFEFA", border: "1px solid rgba(35,93,72,0.10)", borderRadius: 24, overflow: "hidden", boxShadow: "0 8px 32px rgba(20,48,38,0.06), 0 2px 8px rgba(20,48,38,0.03)" }}>
+          {/* ── DET COMPLIANCE CHECKLIST — DIY tab only ─────── */}
+          {activeTab === "self" && <div style={{ background: "#FFFEFA", border: "1px solid rgba(35,93,72,0.10)", borderRadius: 24, overflow: "hidden", boxShadow: "0 8px 32px rgba(20,48,38,0.06), 0 2px 8px rgba(20,48,38,0.03)" }}>
             <div style={{ padding: "28px 32px 20px" }}>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.gold, textTransform: "uppercase", margin: "0 0 6px" }}>DET Compliance Checklist</p>
               <p style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px", fontFamily: "'Georgia', serif", ...gradStyle }}>DIY Furnishing Checklist</p>
@@ -704,7 +715,7 @@ function FurnishingContent() {
                 </p>
               </div>
             </div>
-          </div>
+          </div>}
 
           {/* ── WHAT EVERY OWNER SHOULD KNOW (full-width) ── */}
           <div style={{ background: "#FFFEFA", border: "1px solid rgba(35,93,72,0.10)", borderRadius: 24, padding: "28px 32px", boxShadow: "0 8px 32px rgba(20,48,38,0.06), 0 2px 8px rgba(20,48,38,0.03)" }}>
