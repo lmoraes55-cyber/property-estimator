@@ -356,12 +356,8 @@ function FurnishingContent() {
           display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 14,
         }}>
           {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
+          <div style={{ flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
             <AssetIntelLogo size={32} />
-            <div style={{ lineHeight: 1 }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#2A2A2A", letterSpacing: "-0.01em", margin: 0 }}>Asset<span style={{ color: C.green }}>Intel</span></p>
-              <p style={{ fontSize: 9, color: C.subtle, letterSpacing: "0.13em", textTransform: "uppercase", marginTop: 2, margin: 0 }}>Property Intelligence</p>
-            </div>
           </div>
           <div style={{ width: 1, height: 24, background: C.border, flexShrink: 0 }} />
           {/* Back */}
