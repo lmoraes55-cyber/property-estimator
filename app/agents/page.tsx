@@ -6,12 +6,12 @@ import { rankAgents, RealEstateAgent, BOUTIQUE_AGENTS } from "@/lib/agents";
 import { BUILDING_DIRECTORY, getLTRMarketRent, fmt } from "@/lib/estimator";
 import type { UnitSize, UnitType } from "@/lib/estimator";
 import { colors } from "@/lib/colors";
-import GroundWorksLogo from "@/components/GroundWorksLogo";
+import AssetIntelLogo from "@/components/AssetIntelLogo";
 import LeadModal from "@/components/LeadModal";
 
 type RankedAgent = RealEstateAgent & { matchScore: number; matchReasons: string[] };
 
-// Derive GW Landlord & Leasing scores from existing fields (display only — no logic change)
+// Derive AssetIntel Landlord & Leasing scores from existing fields (display only — no logic change)
 function agentScores(a: RealEstateAgent) {
   const landlord = Math.max(60, Math.min(99, Math.round((a.googleRating / 5) * 100 * 0.7 + (a.propertyFinderRating / 5) * 100 * 0.3)));
   const leasing = Math.max(60, Math.min(99, Math.round(98 - Math.max(0, a.avgDaysToLet - 12) * 1.4 + Math.min(a.transactionsLastYear / 400, 6))));
@@ -76,23 +76,31 @@ function AgentsContent() {
     <div className="min-h-screen" style={{ background: colors.bgMain }}>
 
       {/* Slim header */}
-      <header className="sticky top-0 z-50" style={{ background: colors.bgSection, borderBottom: `1px solid ${colors.border}` }}>
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-5">
+      <div style={{ position: "sticky", top: 0, zIndex: 200, padding: "12px 16px" }}>
+        <div style={{
+          maxWidth: 1280, margin: "0 auto",
+          background: "#FAFAF7F2", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
+          border: "1px solid #E3DED6", borderRadius: 24,
+          boxShadow: "0 2px 4px rgba(0,0,0,0.03), 0 8px 28px rgba(27,94,74,0.09)",
+          display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 12,
+        }}>
           <button onClick={handleBack}
-            className="text-xs px-3 py-1.5 rounded-lg font-medium transition hover:opacity-80"
-            style={{ background: colors.bgMain, border: `1px solid ${colors.border}`, color: colors.primary }}>
+            style={{ fontSize: 12, padding: "7px 14px", borderRadius: 10, border: "1px solid #D8D4CC", background: "#FFF", color: "#1B5E4A", cursor: "pointer", fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" }}>
             ← Back to Report
           </button>
+          <div style={{ width: 1, height: 24, background: "#E6E1D8", flexShrink: 0 }} />
           <div className="flex items-center gap-2" style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
-            <GroundWorksLogo size={32} />
-            <span className="text-base font-bold" style={{ color: colors.textMain }}>Ground<span style={{ color: colors.primary }}>Works</span></span>
+            <AssetIntelLogo size={32} />
+            <div style={{ lineHeight: 1 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "#2A2A2A", letterSpacing: "-0.01em" }}>Asset<span style={{ color: colors.primary }}>Intel</span></p>
+              <p style={{ fontSize: 9, color: "#888", letterSpacing: "0.13em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence</p>
+            </div>
           </div>
-          <span className="ml-auto text-xs px-3 py-1 rounded-full font-medium"
-            style={{ background: `${colors.primary}14`, color: colors.primary, border: `1px solid ${colors.primary}33` }}>
+          <span style={{ marginLeft: "auto", fontSize: 11, padding: "4px 12px", borderRadius: 999, fontWeight: 600, background: "rgba(27,94,74,0.08)", color: "#1B5E4A", border: "1px solid rgba(27,94,74,0.16)" }}>
             Long-Term Rental
           </span>
         </div>
-      </header>
+      </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
 
@@ -248,10 +256,10 @@ function AgentsContent() {
           </div>
         )}
 
-        {/* 6. HOW GROUNDWORKS RANKS AGENTS */}
+        {/* 6. HOW ASSETINTEL RANKS AGENTS */}
         <div className="rounded-3xl px-7 py-7" style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm }}>
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_1fr] gap-6 items-start">
-            <h3 className="text-lg font-bold md:pr-6 md:border-r" style={{ color: colors.textMain, fontFamily: "'Georgia', serif", borderColor: colors.border }}>How GroundWorks Ranks Leasing Agents</h3>
+            <h3 className="text-lg font-bold md:pr-6 md:border-r" style={{ color: colors.textMain, fontFamily: "'Georgia', serif", borderColor: colors.border }}>How AssetIntel Ranks Leasing Agents</h3>
             {[
               { t: "Landlord Score", d: "Communication, landlord support, transparency, tenant quality, and the leasing process.", icon: (
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke={colors.primary} strokeWidth="1.3"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" stroke={colors.primary} strokeWidth="1.3" strokeLinecap="round"/></svg>
@@ -277,8 +285,8 @@ function AgentsContent() {
         {/* Footer note */}
         <div className="text-center pb-10 space-y-2">
           <div className="flex items-center justify-center gap-1">
-            <span className="text-sm font-bold" style={{ color: colors.textLight }}>Ground</span>
-            <span className="text-sm font-bold" style={{ color: "#C9A84C66" }}>Works</span>
+            <span className="text-sm font-bold" style={{ color: colors.textLight }}>Asset</span>
+            <span className="text-sm font-bold" style={{ color: "#C9A84C66" }}>Intel</span>
           </div>
           <p className="text-xs max-w-2xl mx-auto" style={{ color: colors.textLight }}>
             Agent ratings sourced from Google, Property Finder and Bayut. Match scores based on community coverage, transaction volume, and review ratings. Data updated quarterly.
