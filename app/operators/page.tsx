@@ -191,12 +191,8 @@ function OperatorsContent() {
             ← Back to Report
           </button>
           <div style={{ width: 1, height: 24, background: "#E6E1D8", flexShrink: 0 }} />
-          <div className="flex items-center gap-2" style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
+          <div style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
             <AssetIntelLogo size={32} />
-            <div style={{ lineHeight: 1 }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#2A2A2A", letterSpacing: "-0.01em" }}>Asset<span style={{ color: colors.primary }}>Intel</span></p>
-              <p style={{ fontSize: 9, color: "#888", letterSpacing: "0.13em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence</p>
-            </div>
           </div>
           <span style={{ marginLeft: "auto", fontSize: 11, padding: "4px 12px", borderRadius: 999, fontWeight: 600, background: "rgba(184,138,68,0.10)", color: "#B88A44", border: "1px solid rgba(184,138,68,0.22)" }}>
             {input.unitSize} · {input.unitType}
