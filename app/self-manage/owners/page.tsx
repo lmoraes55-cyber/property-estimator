@@ -48,9 +48,6 @@ const IconSOP = ({ color = C.secondary }) => (
 const IconShield = ({ color = C.primary }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L4 7v5c0 5 3.6 9.5 8 10.5C16.4 21.5 20 17 20 12V7L12 3Z" stroke={color} strokeWidth="1.4" strokeLinejoin="round" /></svg>
 );
-const IconSupport = ({ color = C.primary }) => (
-  <svg width="32" height="32" viewBox="0 0 32 32" {...sk(color)}><circle cx="16" cy="16" r="12" /><path d="M12 13c0-2.2 1.8-4 4-4s4 1.8 4 4c0 2-1.4 3.5-3 4v2" /><circle cx="16" cy="23" r="1" fill={color} stroke="none" /></svg>
-);
 const IconInfo = ({ color = C.secondary }) => (
   <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke={color} strokeWidth="1.4" /><path d="M10 9v5" stroke={color} strokeWidth="1.6" strokeLinecap="round" /><circle cx="10" cy="6.5" r="0.8" fill={color} /></svg>
 );
@@ -851,19 +848,6 @@ function TemplateModal({ template, isMobile, onClose }: { template: GuestTemplat
   );
 }
 
-// ─── Readiness items ──────────────────────────────────────────────────────────
-const READINESS = [
-  "I can register and manage DET permit requirements",
-  "I can set up OTA listings correctly",
-  "I can manage or connect a PMS",
-  "I have a reliable cleaning team",
-  "I have maintenance support",
-  "I can manage guest communication quickly",
-  "I can review pricing weekly",
-  "I have SOPs and templates ready",
-  "I can track revenue, costs, and net income monthly",
-  "I can handle guest issues and escalations",
-];
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function OwnersPage() {
@@ -881,10 +865,6 @@ export default function OwnersPage() {
   // Accordions — keyed by section+id string
   const [open, setOpen] = useState<Set<string>>(new Set());
   const toggle = (id: string) => setOpen(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  // Readiness checklist
-  const [checked, setChecked] = useState<Set<number>>(new Set());
-  const toggleCheck = (i: number) => setChecked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const score = checked.size;
 
   async function handleCheckout(product: Product) {
     try {
@@ -941,7 +921,7 @@ export default function OwnersPage() {
             </div>
             <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
               <a href="#step-1" style={{ padding: "14px 28px", background: C.primary, color: "#fff", borderRadius: "10px", fontSize: "15px", fontWeight: 700, textDecoration: "none", boxShadow: "0 6px 20px rgba(27,94,74,0.22)" }}>Start The 6-Step Setup</a>
-              <a href="#account-manager" style={{ padding: "14px 22px", background: "transparent", color: C.secondary, border: `2px solid ${C.secondary}`, borderRadius: "10px", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>Speak To An Account Manager</a>
+              <button onClick={() => setShowLead(true)} style={{ padding: "14px 22px", background: "transparent", color: C.secondary, border: `2px solid ${C.secondary}`, borderRadius: "10px", fontSize: "15px", fontWeight: 600, cursor: "pointer" }}>Speak To An Account Manager</button>
             </div>
           </div>
           {/* Hero summary card */}
@@ -1308,60 +1288,6 @@ export default function OwnersPage() {
                 Request STR Vendor Contacts
               </button>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── READINESS CHECKLIST ─── */}
-      <section style={{ padding: secPad }}>
-        <div style={{ maxWidth: "860px", margin: "0 auto" }}>
-          <SH label="SELF-ASSESSMENT" title="Are You Ready To Self-Manage?" />
-          <div style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, padding: isMobile ? "28px 22px" : "40px 48px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "28px" }}>
-              {READINESS.map((item, i) => {
-                const active = checked.has(i);
-                return (
-                  <div key={i} onClick={() => toggleCheck(i)} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 16px", background: active ? "#F0F8F4" : C.bgMain, borderRadius: "10px", border: `1.5px solid ${active ? C.primary : C.border}`, cursor: "pointer", transition: "all 0.15s" }}>
-                    <div style={{ width: "20px", height: "20px", borderRadius: "5px", border: `2px solid ${active ? C.primary : C.border}`, background: active ? C.primary : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      {active && <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5L4.5 8L9 3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                    </div>
-                    <span style={{ fontSize: "13.5px", color: active ? C.textMain : C.textMuted, fontWeight: active ? 600 : 400 }}>{item}</span>
-                  </div>
-                );
-              })}
-            </div>
-            {(() => {
-              const label = score >= 8 ? "Strong candidate for self-management." : score >= 4 ? "Self-management is possible, but setup gaps need to be fixed." : "Use an operator or request setup support before going live.";
-              const color = score >= 8 ? "#2D7A4F" : score >= 4 ? "#A37020" : "#B03030";
-              const bg = score >= 8 ? "#E8F5EE" : score >= 4 ? "#FEF3E2" : "#FDE8E8";
-              return (
-                <div style={{ padding: "22px 26px", background: bg, borderRadius: "14px", border: `2px solid ${color}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-                  <div style={{ fontSize: "38px", fontWeight: 700, color, fontFamily: SF }}>{score} / 10</div>
-                  <div style={{ fontSize: "14px", color, fontWeight: 600, maxWidth: "340px" }}>{label}</div>
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── ACCOUNT MANAGER CTA ─── */}
-      <section id="account-manager" style={{ padding: secPad, background: C.bgSection, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: "860px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}><IconSupport color={C.primary} /></div>
-          <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "14px" }}>ACCOUNT MANAGER SETUP SUPPORT</div>
-          <h2 style={{ fontSize: isMobile ? "26px" : "34px", fontFamily: SF, fontWeight: 700, color: C.textMain, marginBottom: "16px", lineHeight: 1.2 }}>Want AssetIntel To Help Set This Up?</h2>
-          <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, marginBottom: "12px", maxWidth: "560px", margin: "0 auto 12px" }}>
-            Our account manager can help with the full setup or only the parts you need — from DET portal and OTA listings to PMS, operations teams, pricing tools, and SOP templates.
-          </p>
-          <p style={{ fontSize: "14px", color: C.textMuted, marginBottom: "32px" }}>Custom guidance and setup pricing discussed with an account manager.</p>
-          <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-            <button onClick={() => setShowLead(true)} style={{ padding: "14px 30px", background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, color: "#fff", border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 20px rgba(27,94,74,0.22)" }}>
-              Speak To An Account Manager
-            </button>
-            <button onClick={() => setShowLead(true)} style={{ padding: "14px 26px", background: "transparent", color: C.secondary, border: `2px solid ${C.secondary}`, borderRadius: "10px", fontSize: "15px", fontWeight: 600, cursor: "pointer" }}>
-              Request Partial Setup Support
-            </button>
           </div>
         </div>
       </section>
