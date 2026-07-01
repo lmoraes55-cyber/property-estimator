@@ -1,15 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  runEstimator,
   getLTRMarketRent,
-  VIEW_PREMIUMS,
   BUILDING_DIRECTORY,
   type UnitSize,
   type ViewType,
-  type FurnishedStatus,
 } from "@/lib/estimator";
 import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
 import { getDLDBuildingList, type DLDBuildingEntry } from "@/lib/building-rents";
@@ -20,9 +17,9 @@ import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 const C = {
   primary: "#1B5E4A",
   bronze: "#B88A44",
-  bg: "#FAFAF8",
+  bg: "#F8F4EE",
   surface: "#FFFFFF",
-  border: "#E0DDD8",
+  border: "#E6E1D8",
   text: "#1A1A1A",
   muted: "#6B6B6B",
   risk: {
@@ -40,7 +37,7 @@ const stk = (c: string, w = 1.4) => ({
   strokeLinecap: "round" as const, strokeLinejoin: "round" as const,
 });
 
-// ─── Subleasing-eligible unit sizes (apartments only, max 3BR) ───────────────
+// ─── Subleasing-eligible unit sizes ──────────────────────────────────────────
 
 const SUBLEASING_SIZES: { label: UnitSize; display: string }[] = [
   { label: "STU", display: "Studio" },
@@ -59,24 +56,19 @@ const VIEWS: ViewType[] = [
   "Standard View",
 ];
 
-// ─── Area classification for sub-leasing suitability ────────────────────────
+// ─── Furnishing quality ───────────────────────────────────────────────────────
 
-const PRIME_AREAS = [
-  "dubai marina", "marina", "jumeirah beach residence", "jbr",
-  "downtown dubai", "downtown", "palm jumeirah", "palm",
-  "bluewaters", "emaar beachfront", "dubai harbour",
-];
-const STRONG_AREAS = [
-  "business bay", "dubai creek harbour", "creek harbour",
-  "difc", "city walk", "dubai hills", "jumeirah village circle", "jvc",
-];
+type FurnishingQuality = "Basic" | "Standard" | "Premium" | "Luxury";
 
-function getAreaTier(building: string, community?: string): "prime" | "strong" | "other" {
-  const hay = [building, community ?? ""].join(" ").toLowerCase();
-  if (PRIME_AREAS.some(a => hay.includes(a))) return "prime";
-  if (STRONG_AREAS.some(a => hay.includes(a))) return "strong";
-  return "other";
-}
+const FURNISHING_CONFIG: Record<FurnishingQuality, {
+  revMult: number; display: string; tip: string;
+  tier: "pass" | "warn" | "fail"; color: string; bg: string;
+}> = {
+  Basic:    { revMult: 0.82, display: "Basic",             tip: "Minimal or dated furniture — not hotel-grade", tier: "fail", color: "#B83232", bg: "#FDE8E8" },
+  Standard: { revMult: 0.93, display: "Standard",          tip: "Decent but not styled to STR standard — needs improvement", tier: "warn", color: "#C25A1A", bg: "#FEF0E8" },
+  Premium:  { revMult: 1.00, display: "Premium",           tip: "Hotel-style staging, quality linens, clean aesthetic", tier: "pass", color: "#2D7A4F", bg: "#E8F5EE" },
+  Luxury:   { revMult: 1.10, display: "Luxury / Designer", tip: "Designer furniture, high-end finishes, strong listing photography", tier: "pass", color: "#1B5E4A", bg: "#D0EDE0" },
+};
 
 function getViewTier(view: ViewType): "premium" | "good" | "weak" {
   if (["Sea View", "Burj Khalifa View", "Full Marina View"].includes(view)) return "premium";
@@ -84,108 +76,28 @@ function getViewTier(view: ViewType): "premium" | "good" | "weak" {
   return "weak";
 }
 
-function getFloorTier(floor: number): "high" | "mid" | "low" {
-  if (floor >= 20) return "high";
-  if (floor >= 10) return "mid";
-  return "low";
-}
-
-// ─── Risk calculation ────────────────────────────────────────────────────────
-
-type RiskLevel = "Low" | "Medium" | "High" | "Very High";
-
-function getRiskLevel(breakEvenOcc: number): RiskLevel {
-  if (breakEvenOcc < 0.50) return "Low";
-  if (breakEvenOcc < 0.65) return "Medium";
-  if (breakEvenOcc < 0.80) return "High";
-  return "Very High";
-}
-
-const RISK_COLOR: Record<RiskLevel, string> = {
-  "Low": C.risk.low,
-  "Medium": C.risk.medium,
-  "High": C.risk.high,
-  "Very High": C.risk.vhigh,
-};
-
-const RISK_BG: Record<RiskLevel, string> = {
-  "Low": "#E8F5EE",
-  "Medium": "#FEF3E2",
-  "High": "#FEF0E8",
-  "Very High": "#FDE8E8",
-};
-
-const RISK_DESC: Record<RiskLevel, string> = {
-  "Low": "Break-even is well within realistic occupancy. You have meaningful buffer for slow months.",
-  "Medium": "Achievable but requires consistent performance. One or two weak months can be absorbed.",
-  "High": "Leaves little room for error. Vacancy in low season can quickly turn the unit unprofitable.",
-  "Very High": "The rent you pay the landlord consumes most of your STR upside. Avoid unless you have confirmed demand.",
-};
-
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
-const IconCheck = ({ color = C.primary }: { color?: string }) => (
-  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <circle cx="10" cy="10" r="8.5" stroke={color} strokeWidth="1.2" opacity="0.3" />
-    <path d="M6.5 10L9 12.5L13.5 7.5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+const IconBed = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" {...stk(color, 1.3)}>
+    <path d="M3 17v-4a2 2 0 012-2h14a2 2 0 012 2v4" />
+    <path d="M3 17v2M21 17v2M3 13h18" />
+    <path d="M7 11V9a1 1 0 011-1h3v3" />
   </svg>
 );
 
-const IconWarn = ({ color = C.risk.high }: { color?: string }) => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path d="M12 3L22 20H2L12 3Z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
-    <path d="M12 10V14" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-    <circle cx="12" cy="17.5" r="0.8" fill={color} />
-  </svg>
-);
-
-const IconX = ({ color = C.risk.vhigh }: { color?: string }) => (
-  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <circle cx="10" cy="10" r="8.5" stroke={color} strokeWidth="1.2" opacity="0.3" />
-    <path d="M7 7L13 13M13 7L7 13" stroke={color} strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-const IconFloor = ({ color }: { color: string }) => (
+const IconSofa = ({ color }: { color: string }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" {...stk(color)}>
-    <rect x="4" y="3" width="16" height="18" rx="1.5" />
-    <path d="M4 8h16M4 13h16M4 18h16" />
-    <path d="M9 3v5M15 3v5" />
+    <rect x="3" y="10" width="18" height="7" rx="2" />
+    <path d="M5 10V8a2 2 0 012-2h10a2 2 0 012 2v2" />
+    <path d="M3 14v3M21 14v3M6 17v2M18 17v2" />
   </svg>
 );
 
-const IconView = ({ color }: { color: string }) => (
-  <svg width="20" height="20" viewBox="0 0 24 24" {...stk(color)}>
-    <path d="M12 5C7 5 3 12 3 12s4 7 9 7 9-7 9-7-4-7-9-7z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-const IconArea = ({ color }: { color: string }) => (
-  <svg width="20" height="20" viewBox="0 0 24 24" {...stk(color)}>
-    <path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z" />
-    <circle cx="12" cy="10" r="2.5" />
-  </svg>
-);
-
-const IconUnit = ({ color }: { color: string }) => (
-  <svg width="20" height="20" viewBox="0 0 24 24" {...stk(color)}>
-    <rect x="6" y="3" width="12" height="18" rx="1" />
-    <path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" />
-  </svg>
-);
-
-const IconRisk = ({ color }: { color: string }) => (
-  <svg width="20" height="20" viewBox="0 0 24 24" {...stk(color)}>
+const IconShield = ({ color }: { color: string }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" {...stk(color, 1.6)}>
     <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" />
-    <path d="M12 9v4M12 16.5v.5" />
-  </svg>
-);
-
-const IconCalc = ({ color }: { color: string }) => (
-  <svg width="20" height="20" viewBox="0 0 24 24" {...stk(color)}>
-    <rect x="4" y="3" width="16" height="18" rx="2" />
-    <path d="M8 7h8M8 11h3M13 11h3M8 15h3M13 15h3M8 19h3M13 19h3" />
+    <path d="M9 12l2 2 4-4" />
   </svg>
 );
 
@@ -205,65 +117,68 @@ interface SublForm {
   unitSize: UnitSize | "";
   floor: string;
   view: ViewType | "";
-  monthlyRent: string;         // AED/month paid to landlord
+  furnishingQuality: FurnishingQuality;
+  monthlyRent: string;
   managementFeeMode: "self" | "operator";
-  managementFeeCustom: string; // % when operator selected
+  managementFeeCustom: string;
 }
 
-// ─── Result ──────────────────────────────────────────────────────────────────
+// ─── Advisory panel items ─────────────────────────────────────────────────────
 
-interface SublResult {
-  annualSTRRevenue: number;
-  annualNetBeforeRent: number;   // after mgmt + utilities + maintenance + furniture
-  annualLandlordRent: number;
-  annualNetProfit: number;
-  avgOccupancy: number;
-  avgADR: number;
-  breakEvenOcc: number;
-  riskLevel: RiskLevel;
-  annualUtilities: number;
-  annualMaintenance: number;
-  annualFurniture: number;
-  annualMgmtFee: number;
-  ltrMarketRent: number;
-  ltrSource: string;
-  community: string;
-  // Eligibility
-  floorTier: "high" | "mid" | "low";
-  viewTier: "premium" | "good" | "weak";
-  areaTier: "prime" | "strong" | "other";
-  unitTier: "ideal" | "good" | "marginal";
-  // Monthly breakdown
-  months: { month: string; revenue: number; landlordRent: number; netProfit: number; occupancy: number; adr: number }[];
-}
+const ADVISORY_ITEMS = [
+  { text: "Can the unit cover fixed rent every month?" },
+  { text: "What occupancy is needed to break even?" },
+  { text: "How much cash buffer is required for low season?" },
+  { text: "Is the risk level acceptable before signing?" },
+  { text: "Should you proceed, negotiate, or avoid?" },
+];
 
-// ─── Main page ───────────────────────────────────────────────────────────────
+// ─── Inner component (uses useSearchParams) ───────────────────────────────────
 
-export default function SubleasingEstimatorPage() {
+function SubleasingEstimatorInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const buildingRef = useRef<HTMLDivElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
 
   const [buildingSearch, setBuildingSearch] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [result, setResult] = useState<SublResult | null>(null);
+  const [calculating, setCalculating] = useState(false);
   const [ltrHint, setLtrHint] = useState<{ rent: number; source: string } | null>(null);
 
-  const [form, setForm] = useState<SublForm>({
-    buildingName: "",
-    dldKey: "",
-    dldArea: "",
-    unitSize: "",
-    floor: "",
-    view: "",
-    monthlyRent: "",
-    managementFeeMode: "operator",
-    managementFeeCustom: "20",
+  // Pre-populate from URL params (when returning from result via "Edit Inputs")
+  const [form, setForm] = useState<SublForm>(() => {
+    const b = searchParams.get("b") ?? "";
+    const sz = (searchParams.get("sz") ?? "") as UnitSize | "";
+    const fl = searchParams.get("fl") ?? "";
+    const vw = (searchParams.get("vw") ?? "") as ViewType | "";
+    const fq = (searchParams.get("fq") as FurnishingQuality) ?? "Premium";
+    const mr = searchParams.get("mr") ?? "";
+    const mm = (searchParams.get("mm") ?? "operator") as "self" | "operator";
+    const mf = searchParams.get("mf") ?? "20";
+    return {
+      buildingName: b,
+      dldKey: searchParams.get("dk") ?? "",
+      dldArea: searchParams.get("da") ?? "",
+      unitSize: sz,
+      floor: fl,
+      view: vw,
+      furnishingQuality: fq,
+      monthlyRent: mr,
+      managementFeeMode: mm,
+      managementFeeCustom: mf,
+    };
   });
+
+  // Restore building search field when pre-populated
+  useEffect(() => {
+    if (form.buildingName && !buildingSearch) {
+      setBuildingSearch(form.buildingName);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const set = (k: keyof SublForm, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  // Close suggestions on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (buildingRef.current && !buildingRef.current.contains(e.target as Node)) {
@@ -274,7 +189,6 @@ export default function SubleasingEstimatorPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Pre-fill monthly rent from LTR market data when building + size are set
   useEffect(() => {
     if (!form.buildingName || !form.unitSize) { setLtrHint(null); return; }
     const ltr = getLTRMarketRent(form.buildingName, form.unitSize as UnitSize, undefined, form.dldKey || undefined, form.dldArea || undefined);
@@ -286,7 +200,6 @@ export default function SubleasingEstimatorPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.buildingName, form.unitSize]);
 
-  // Autocomplete
   const q = buildingSearch.toLowerCase();
   const filteredDLD: DLDBuildingEntry[] = q.length >= 2
     ? DLD_BUILDINGS.filter(b => b.displayName.toLowerCase().includes(q)).slice(0, 8)
@@ -309,524 +222,625 @@ export default function SubleasingEstimatorPage() {
 
   const mgmtFee = form.managementFeeMode === "self" ? 0
     : (Number(form.managementFeeCustom) || 20) / 100;
+  void mgmtFee;
 
-  const canCalculate = form.buildingName && form.unitSize && form.floor &&
-    Number(form.floor) >= 1 && form.view && form.monthlyRent && Number(form.monthlyRent) > 0;
+  const canCalculate = !!(form.buildingName && form.unitSize && form.floor &&
+    Number(form.floor) >= 1 && form.view && form.monthlyRent && Number(form.monthlyRent) > 0);
 
   function handleCalculate() {
-    if (!canCalculate) return;
-    const floor = Number(form.floor);
-    const unitSize = form.unitSize as UnitSize;
-    const annualLandlordRent = Number(form.monthlyRent) * 12;
-
-    const est = runEstimator({
-      propertyName: `${form.buildingName} · ${unitSize}`,
-      buildingName: form.buildingName,
-      unitSize,
-      unitType: "Apartment",
-      floor,
-      view: form.view as ViewType,
-      furnished: "Unfurnished" as FurnishedStatus, // sub-lessor furnishes the unit
-      managementFee: mgmtFee,
-      occStrategy: "LOCCHP",
-      dldKey: form.dldKey || undefined,
-      dldArea: form.dldArea || undefined,
+    if (!canCalculate || calculating) return;
+    setCalculating(true);
+    const params = new URLSearchParams({
+      b: form.buildingName,
+      sz: form.unitSize,
+      fl: form.floor,
+      vw: form.view,
+      fq: form.furnishingQuality,
+      mr: form.monthlyRent,
+      mm: form.managementFeeMode,
+      mf: form.managementFeeCustom,
+      cm: communityDisplay,
     });
-
-    const annualNetBeforeRent = est.annualNetToLandlord;
-    const annualNetProfit = annualNetBeforeRent - annualLandlordRent;
-
-    // Break-even occupancy: the OCC at which subleasingNet = 0
-    // Net(x) = (Revenue - MgmtFee) × (x/avgOcc) - FixedCosts = LandlordRent
-    // x_be = avgOcc × (LandlordRent + FixedCosts) / (Revenue - MgmtFee)
-    const annualFixedCosts = est.annualUtilities + est.annualMaintenance + est.annualFurnitureAmort;
-    const annualNetMinusMgmt = est.annualRevenue - est.annualManagementFee; // revenue after mgmt fee
-    const breakEvenOcc = est.avgOccupancy * (annualLandlordRent + annualFixedCosts) / annualNetMinusMgmt;
-
-    const riskLevel = getRiskLevel(breakEvenOcc);
-
-    const floorTier = getFloorTier(floor);
-    const viewTier = getViewTier(form.view as ViewType);
-    const areaTier = getAreaTier(form.buildingName, communityDisplay);
-    const unitTier = unitSize === "STU" || unitSize === "1BR" ? "ideal"
-      : unitSize === "2BR" ? "good"
-      : "marginal";
-
-    const ltrMarket = getLTRMarketRent(form.buildingName, unitSize, undefined, form.dldKey || undefined, form.dldArea || undefined);
-    const monthlyRentNum = Number(form.monthlyRent);
-
-    const months = est.months.map(m => ({
-      month: m.month,
-      revenue: m.revenue,
-      landlordRent: monthlyRentNum,
-      netProfit: m.netToLandlord - monthlyRentNum,
-      occupancy: m.occupancy,
-      adr: m.adr,
-    }));
-
-    setResult({
-      annualSTRRevenue: est.annualRevenue,
-      annualNetBeforeRent,
-      annualLandlordRent,
-      annualNetProfit,
-      avgOccupancy: est.avgOccupancy,
-      avgADR: est.avgADR,
-      breakEvenOcc,
-      riskLevel,
-      annualUtilities: est.annualUtilities,
-      annualMaintenance: est.annualMaintenance,
-      annualFurniture: est.annualFurnitureAmort,
-      annualMgmtFee: est.annualManagementFee,
-      ltrMarketRent: ltrMarket.rent / 12,
-      ltrSource: ltrMarket.source,
-      community: communityDisplay,
-      floorTier,
-      viewTier,
-      areaTier,
-      unitTier,
-      months,
-    });
-
-    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    if (form.dldKey) params.set("dk", form.dldKey);
+    if (form.dldArea) params.set("da", form.dldArea);
+    router.push(`/self-manage/str-subleasing/estimator/result?${params.toString()}`);
   }
 
   const fmt = (n: number) => Math.round(n).toLocaleString();
-  const pct = (n: number) => `${Math.round(n * 100)}%`;
+
+  // Section completion for progress
+  const sec1Done = !!(form.buildingName && form.unitSize);
+  const sec2Done = !!(form.floor && Number(form.floor) >= 1 && form.view);
+  const sec3Done = !!(form.monthlyRent && Number(form.monthlyRent) > 0);
+  const completedSections = [sec1Done, sec2Done, sec3Done].filter(Boolean).length;
+  const progressPct = (completedSections / 3) * 100;
 
   return (
-    <main style={{ minHeight: "100vh", background: C.bg, fontFamily: "system-ui, sans-serif" }}>
+    <main style={{
+      minHeight: "100vh",
+      fontFamily: "system-ui, sans-serif",
+      background: C.bg,
+    }}>
 
-      {/* Nav bar */}
-      <div style={{ borderBottom: `1px solid ${C.border}`, background: C.surface, padding: "16px 24px", display: "flex", alignItems: "center", gap: "12px" }}>
-        <button onClick={() => router.push("/self-manage/str-subleasing")}
-          style={{ display: "flex", alignItems: "center", gap: "6px", background: "none", border: "none", cursor: "pointer", color: C.primary, fontSize: "13px", fontWeight: 600, padding: 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" {...stk(C.primary)}>
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" />
-          </svg>
-          STR Sub-Leasing
-        </button>
-        <span style={{ color: C.border, fontSize: "14px" }}>›</span>
-        <span style={{ fontSize: "13px", color: C.muted }}>Risk Estimator</span>
-      </div>
+      {/* ─── HERO SECTION (image contained here only) ─── */}
+      <div style={{ position: "relative", overflow: "hidden", isolation: "isolate" }}>
 
-      {/* Hero */}
-      <div style={{ background: `linear-gradient(135deg, ${C.primary}08 0%, ${C.bronze}0A 100%)`, borderBottom: `1px solid ${C.border}`, padding: "48px 24px 40px" }}>
-        <div style={{ maxWidth: "760px", margin: "0 auto" }}>
-          <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", color: C.bronze, marginBottom: "12px" }}>STR SUB-LEASING RISK ESTIMATOR</div>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 5vw, 38px)", fontWeight: 700, color: C.text, marginBottom: "14px", lineHeight: 1.2 }}>
-            Is This Unit Viable to Sub-Lease?
+        {/* Dubai skyline watermark — scoped inside hero */}
+        <img
+          src="/Locations/Marina.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute", top: 0, right: 0,
+            width: "60%", height: "100%",
+            objectFit: "cover", objectPosition: "center top",
+            opacity: 0.22,
+            filter: "contrast(1.04) saturate(0.85)",
+            pointerEvents: "none", zIndex: 0,
+          }}
+        />
+        {/* Overlay: left fade + bottom fade blended as a single cream gradient layer */}
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: `
+            linear-gradient(to right, ${C.bg} 0%, ${C.bg} 35%, rgba(250,250,248,0.85) 52%, rgba(250,250,248,0.3) 68%, transparent 82%),
+            linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(250,250,248,0.6) 78%, ${C.bg} 100%)
+          `,
+        }} />
+
+        {/* Hero content */}
+        <div style={{ position: "relative", zIndex: 2, maxWidth: "1280px", margin: "0 auto", padding: "52px 24px 52px" }}>
+          <button
+            onClick={() => router.push("/self-manage/str-subleasing")}
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: C.surface, border: `1px solid ${C.border}`, color: C.primary, fontSize: "12px", fontWeight: 600, padding: "6px 14px", borderRadius: "8px", cursor: "pointer", marginBottom: "28px" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke={C.primary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            STR Sub-Leasing
+          </button>
+
+          <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "14px" }}>
+            STR SUB-LEASING RISK ESTIMATOR
+          </div>
+          <h1 style={{
+            fontFamily: serif,
+            fontSize: "clamp(30px, 5vw, 48px)",
+            fontWeight: 700,
+            lineHeight: 1.12,
+            marginBottom: "16px",
+            maxWidth: "620px",
+            background: `linear-gradient(135deg, ${C.primary} 0%, ${C.bronze} 100%)`,
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>
+            Check The Unit Before You Sign The Lease
           </h1>
-          <p style={{ fontSize: "15px", color: C.muted, lineHeight: 1.7, maxWidth: "580px", marginBottom: "24px" }}>
-            Sub-leasing only works when your STR revenue meaningfully exceeds the rent you pay the landlord.
-            Enter the unit details and negotiated rent to see your break-even, risk score, and projected profit.
+          <p style={{ fontSize: "15px", color: C.muted, lineHeight: 1.7, maxWidth: "560px", marginBottom: "28px" }}>
+            Estimate whether a sub-leased unit can cover fixed rent, survive low season, and produce realistic profit before committing to the landlord.
           </p>
+
+          {/* Trust chips */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             {[
-              { label: "Apartments Only · STU–3BR", ok: true },
-              { label: "Mid/High Floor Required", ok: true },
-              { label: "Premium View Required", ok: true },
-              { label: "Risk Score Included", ok: true },
-            ].map(({ label, ok }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "5px 12px" }}>
-                {ok && <IconCheck color={C.primary} />}
+              { label: "Break-even occupancy", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 18l5-5 4 3 7-8" stroke={C.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg> },
+              { label: "Risk score included", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={C.bronze} strokeWidth="1.8" strokeLinejoin="round" /></svg> },
+              { label: "Apartments only", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="6" y="3" width="12" height="18" rx="1" stroke={C.primary} strokeWidth="1.6" /></svg> },
+              { label: "Studio to 3BR", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17v-4a2 2 0 012-2h14a2 2 0 012 2v4" stroke={C.primary} strokeWidth="1.6" strokeLinecap="round" /><path d="M3 13h18" stroke={C.primary} strokeWidth="1.4" strokeLinecap="round" /></svg> },
+            ].map(({ label, icon }) => (
+              <div key={label} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "5px 12px 5px 10px" }}>
+                {icon}
                 <span style={{ fontSize: "12px", fontWeight: 600, color: C.text }}>{label}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
+      {/* ─── END HERO — image does not extend past this point ─── */}
 
-      {/* Form */}
-      <div style={{ maxWidth: "760px", margin: "0 auto", padding: "36px 24px" }}>
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "clamp(24px, 4vw, 40px)", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+      {/* ─── ESTIMATOR CONTENT SECTION — clean background, no image ─── */}
+      <div style={{ background: C.bg, position: "relative", zIndex: 3 }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "40px 24px 80px" }}>
 
-          {/* Building */}
-          <div style={{ marginBottom: "28px" }}>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: C.text, letterSpacing: "0.06em", marginBottom: "8px" }}>
-              BUILDING / DEVELOPMENT
-            </label>
-            <div ref={buildingRef} style={{ position: "relative" }}>
-              <input
-                value={buildingSearch}
-                onChange={e => {
-                  setBuildingSearch(e.target.value);
-                  setShowSuggestions(true);
-                  if (!e.target.value) { set("buildingName", ""); set("dldKey", ""); set("dldArea", ""); }
-                }}
-                onFocus={() => setShowSuggestions(true)}
-                placeholder="Search by building name…"
-                style={{ width: "100%", padding: "13px 16px", border: `1.5px solid ${form.buildingName ? C.primary : C.border}`, borderRadius: "10px", fontSize: "14px", color: C.text, background: C.bg, outline: "none", boxSizing: "border-box" }}
-              />
-              {form.buildingName && (
-                <div style={{ marginTop: "6px", fontSize: "12px", color: C.muted }}>
-                  {communityDisplay && <span style={{ color: C.primary, fontWeight: 600 }}>{communityDisplay}</span>}
-                  {ltrHint && <span style={{ marginLeft: communityDisplay ? "6px" : 0 }}>· LTR market: AED {fmt(ltrHint.rent)}/mo ({ltrHint.source})</span>}
-                </div>
-              )}
-              {showSuggestions && (filteredDLD.length > 0 || filteredCurated.length > 0) && (
-                <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50, maxHeight: "260px", overflowY: "auto" }}>
-                  {filteredDLD.length > 0 && (
-                    <>
-                      <div style={{ padding: "8px 14px 4px", fontSize: "10px", fontWeight: 700, color: C.muted, letterSpacing: "0.1em" }}>DLD VERIFIED</div>
-                      {filteredDLD.map(b => (
-                        <div key={b.key} onClick={() => { set("buildingName", b.displayName); set("dldKey", b.key); set("dldArea", b.dldArea); setBuildingSearch(b.displayName); setShowSuggestions(false); set("monthlyRent", ""); }}
-                          style={{ padding: "10px 14px", cursor: "pointer", fontSize: "13px", color: C.text, borderBottom: `1px solid ${C.border}` }}
-                          onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
-                          onMouseLeave={e => (e.currentTarget.style.background = C.surface)}>
-                          <div style={{ fontWeight: 600 }}>{b.displayName}</div>
-                          <div style={{ fontSize: "11px", color: C.muted }}>{DLD_AREA_TO_COMMUNITY[b.dldArea] ?? b.dldArea}</div>
+        {/* ─── Two-column layout ─── */}
+        <div style={{ display: "flex", gap: "24px", alignItems: "flex-start" }}>
+
+          {/* ─── Form card ─── */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: "28px",
+              boxShadow: "0 1px 2px rgba(0,0,0,.04), 0 12px 32px rgba(0,0,0,.07), 0 24px 48px rgba(0,0,0,.04)",
+              overflow: "hidden",
+            }}>
+
+              {/* Progress bar */}
+              <div style={{ height: "3px", background: C.border }}>
+                <div style={{ height: "100%", width: `${progressPct}%`, background: `linear-gradient(90deg, ${C.primary}, ${C.bronze})`, transition: "width 0.5s ease" }} />
+              </div>
+
+              <div style={{ padding: "clamp(28px, 5vw, 44px)" }}>
+
+                {/* ── SECTION 1: Property Details ── */}
+                <div style={{ marginBottom: "36px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: sec1Done ? C.primary : C.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {sec1Done
+                        ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2L5 8.5L9.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        : <span style={{ fontSize: "10px", fontWeight: 700, color: C.surface }}>1</span>}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: C.primary, marginBottom: "1px" }}>SECTION 1 OF 3</div>
+                      <div style={{ fontSize: "18px", fontWeight: 700, color: C.bronze, fontFamily: serif }}>Property Details</div>
+                    </div>
+                  </div>
+
+                  {/* Building autocomplete */}
+                  <div style={{ marginBottom: "24px" }}>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "8px" }}>BUILDING / DEVELOPMENT</label>
+                    <div ref={buildingRef} style={{ position: "relative" }}>
+                      <input
+                        value={buildingSearch}
+                        onChange={e => {
+                          setBuildingSearch(e.target.value);
+                          setShowSuggestions(true);
+                          if (!e.target.value) { set("buildingName", ""); set("dldKey", ""); set("dldArea", ""); }
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        placeholder="Search by building name…"
+                        style={{
+                          width: "100%", padding: "14px 18px",
+                          border: `1.5px solid ${form.buildingName ? C.bronze : C.border}`,
+                          borderRadius: "14px", fontSize: "14px", color: C.text,
+                          background: C.bg, outline: "none", boxSizing: "border-box",
+                          boxShadow: form.buildingName ? `0 0 0 3px ${C.bronze}18` : "none",
+                          transition: "all 0.15s",
+                        }}
+                      />
+                      {form.buildingName && (
+                        <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "12px", fontWeight: 600, color: C.primary, padding: "3px 10px", background: `${C.primary}0D`, borderRadius: "20px", border: `1px solid ${C.primary}30` }}>
+                            {form.buildingName}
+                          </span>
+                          {communityDisplay && <span style={{ fontSize: "12px", color: C.muted }}>{communityDisplay}</span>}
+                          {ltrHint && <span style={{ fontSize: "12px", color: C.muted }}>· LTR market: AED {fmt(ltrHint.rent)}/mo</span>}
                         </div>
-                      ))}
-                    </>
-                  )}
-                  {filteredCurated.map(b => (
-                    <div key={b} onClick={() => { set("buildingName", b); set("dldKey", ""); set("dldArea", ""); setBuildingSearch(b); setShowSuggestions(false); set("monthlyRent", ""); }}
-                      style={{ padding: "10px 14px", cursor: "pointer", fontSize: "13px", color: C.text, borderBottom: `1px solid ${C.border}` }}
-                      onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
-                      onMouseLeave={e => (e.currentTarget.style.background = C.surface)}>
-                      {b}
+                      )}
+                      {showSuggestions && (filteredDLD.length > 0 || filteredCurated.length > 0) && (
+                        <div style={{
+                          position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
+                          background: C.surface, border: `1px solid ${C.border}`, borderRadius: "16px",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.14)", zIndex: 50, maxHeight: "280px", overflowY: "auto",
+                        }}>
+                          {filteredDLD.length > 0 && (
+                            <>
+                              <div style={{ padding: "10px 16px 4px", fontSize: "10px", fontWeight: 700, color: C.muted, letterSpacing: "0.1em" }}>DLD VERIFIED</div>
+                              {filteredDLD.map(b => (
+                                <div key={b.key}
+                                  onClick={() => { set("buildingName", b.displayName); set("dldKey", b.key); set("dldArea", b.dldArea); setBuildingSearch(b.displayName); setShowSuggestions(false); set("monthlyRent", ""); }}
+                                  style={{ padding: "11px 16px", cursor: "pointer", borderBottom: `1px solid ${C.border}` }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
+                                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                                  <div style={{ fontSize: "13px", fontWeight: 600, color: C.text }}>{b.displayName}</div>
+                                  <div style={{ fontSize: "11px", color: C.muted }}>{DLD_AREA_TO_COMMUNITY[b.dldArea] ?? b.dldArea}</div>
+                                </div>
+                              ))}
+                            </>
+                          )}
+                          {filteredCurated.map(b => (
+                            <div key={b}
+                              onClick={() => { set("buildingName", b); set("dldKey", ""); set("dldArea", ""); setBuildingSearch(b); setShowSuggestions(false); set("monthlyRent", ""); }}
+                              style={{ padding: "11px 16px", cursor: "pointer", fontSize: "13px", color: C.text, borderBottom: `1px solid ${C.border}` }}
+                              onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
+                              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                              {b}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+                  </div>
 
-          {/* Unit size */}
-          <div style={{ marginBottom: "28px" }}>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: C.text, letterSpacing: "0.06em", marginBottom: "8px" }}>
-              UNIT SIZE
-            </label>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
-              {SUBLEASING_SIZES.map(({ label, display }) => {
-                const active = form.unitSize === label;
-                return (
-                  <button key={label} onClick={() => { set("unitSize", label); set("monthlyRent", ""); }}
-                    style={{ padding: "11px 8px", borderRadius: "10px", border: `1.5px solid ${active ? C.primary : C.border}`, background: active ? `${C.primary}0F` : C.bg, color: active ? C.primary : C.text, fontSize: "13px", fontWeight: active ? 700 : 500, cursor: "pointer", transition: "all 0.15s" }}>
-                    {display}
-                  </button>
-                );
-              })}
-            </div>
-            <p style={{ fontSize: "11.5px", color: C.muted, marginTop: "6px" }}>Sub-leasing works best with Studio and 1BR — smaller units are easier to fill and have lower rent obligations.</p>
-          </div>
-
-          {/* Floor + View row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "20px", marginBottom: "28px" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: C.text, letterSpacing: "0.06em", marginBottom: "8px" }}>
-                FLOOR NUMBER
-              </label>
-              <input
-                type="number" min="1" max="120"
-                value={form.floor}
-                onChange={e => set("floor", e.target.value)}
-                placeholder="e.g. 22"
-                style={{ width: "100%", padding: "13px 14px", border: `1.5px solid ${form.floor ? (Number(form.floor) >= 10 ? C.primary : C.risk.high) : C.border}`, borderRadius: "10px", fontSize: "14px", color: C.text, background: C.bg, outline: "none", boxSizing: "border-box" }}
-              />
-              {form.floor && Number(form.floor) < 10 && (
-                <p style={{ fontSize: "11.5px", color: C.risk.high, marginTop: "5px" }}>
-                  Floor {form.floor} is below the recommended minimum of 10 for sub-leasing.
-                </p>
-              )}
-              {form.floor && Number(form.floor) >= 10 && Number(form.floor) < 20 && (
-                <p style={{ fontSize: "11.5px", color: C.risk.medium, marginTop: "5px" }}>Mid floor — acceptable. Floor 20+ is stronger.</p>
-              )}
-              {form.floor && Number(form.floor) >= 20 && (
-                <p style={{ fontSize: "11.5px", color: C.risk.low, marginTop: "5px" }}>High floor — excellent for STR pricing.</p>
-              )}
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: C.text, letterSpacing: "0.06em", marginBottom: "8px" }}>
-                VIEW
-              </label>
-              <select
-                value={form.view}
-                onChange={e => set("view", e.target.value)}
-                style={{ width: "100%", padding: "13px 14px", border: `1.5px solid ${form.view ? (getViewTier(form.view as ViewType) === "weak" ? C.risk.high : C.primary) : C.border}`, borderRadius: "10px", fontSize: "14px", color: form.view ? C.text : C.muted, background: C.bg, outline: "none", boxSizing: "border-box", cursor: "pointer" }}>
-                <option value="">Select view…</option>
-                {VIEWS.map(v => <option key={v} value={v}>{v}</option>)}
-              </select>
-              {form.view && getViewTier(form.view as ViewType) === "weak" && (
-                <p style={{ fontSize: "11.5px", color: C.risk.high, marginTop: "5px" }}>
-                  Standard/garden views significantly limit your achievable nightly rate.
-                </p>
-              )}
-              {form.view && getViewTier(form.view as ViewType) === "premium" && (
-                <p style={{ fontSize: "11.5px", color: C.risk.low, marginTop: "5px" }}>Premium view — commands a strong nightly rate premium.</p>
-              )}
-            </div>
-          </div>
-
-          {/* Monthly rent */}
-          <div style={{ marginBottom: "28px" }}>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: C.text, letterSpacing: "0.06em", marginBottom: "8px" }}>
-              MONTHLY RENT TO LANDLORD (AED)
-            </label>
-            <input
-              type="number"
-              value={form.monthlyRent}
-              onChange={e => set("monthlyRent", e.target.value)}
-              placeholder="e.g. 8500"
-              style={{ width: "100%", padding: "13px 16px", border: `1.5px solid ${form.monthlyRent ? C.primary : C.border}`, borderRadius: "10px", fontSize: "14px", color: C.text, background: C.bg, outline: "none", boxSizing: "border-box" }}
-            />
-            {ltrHint && (
-              <div style={{ marginTop: "8px", padding: "10px 14px", background: "#F5F0E8", borderRadius: "8px", border: "1px solid #E8D9BC" }}>
-                <p style={{ fontSize: "12px", color: C.muted, margin: 0 }}>
-                  Market LTR: <strong style={{ color: C.text }}>AED {fmt(ltrHint.rent)}/mo</strong> · {ltrHint.source}.
-                  {" "}Landlords sub-leasing for STR typically charge 5–15% above market. Adjust accordingly.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Management model */}
-          <div style={{ marginBottom: "32px" }}>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: C.text, letterSpacing: "0.06em", marginBottom: "8px" }}>
-              MANAGEMENT MODEL
-            </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              {[
-                { mode: "self" as const, label: "Self-Managed", sub: "You handle operations · 0% fee" },
-                { mode: "operator" as const, label: "With Operator", sub: "15–25% management fee" },
-              ].map(({ mode, label, sub }) => {
-                const active = form.managementFeeMode === mode;
-                return (
-                  <button key={mode} onClick={() => set("managementFeeMode", mode)}
-                    style={{ padding: "14px", borderRadius: "10px", border: `1.5px solid ${active ? C.primary : C.border}`, background: active ? `${C.primary}0F` : C.bg, textAlign: "left", cursor: "pointer" }}>
-                    <div style={{ fontSize: "13px", fontWeight: 700, color: active ? C.primary : C.text, marginBottom: "3px" }}>{label}</div>
-                    <div style={{ fontSize: "11.5px", color: C.muted }}>{sub}</div>
-                  </button>
-                );
-              })}
-            </div>
-            {form.managementFeeMode === "operator" && (
-              <div style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
-                <label style={{ fontSize: "12px", color: C.muted, whiteSpace: "nowrap" }}>Operator fee:</label>
-                <input
-                  type="number" min="10" max="30"
-                  value={form.managementFeeCustom}
-                  onChange={e => set("managementFeeCustom", e.target.value)}
-                  style={{ width: "80px", padding: "8px 12px", border: `1.5px solid ${C.border}`, borderRadius: "8px", fontSize: "13px", color: C.text, background: C.bg, outline: "none" }}
-                />
-                <span style={{ fontSize: "12px", color: C.muted }}>% of revenue</span>
-              </div>
-            )}
-          </div>
-
-          {/* Calculate button */}
-          <button
-            onClick={handleCalculate}
-            disabled={!canCalculate}
-            style={{ width: "100%", padding: "16px", background: canCalculate ? C.primary : C.border, color: "#fff", borderRadius: "12px", fontSize: "15px", fontWeight: 700, cursor: canCalculate ? "pointer" : "not-allowed", border: "none", transition: "all 0.2s" }}>
-            Calculate Risk &amp; Profit →
-          </button>
-        </div>
-
-        {/* ─── Results ──────────────────────────────────────────────────────── */}
-        {result && (
-          <div ref={resultsRef} style={{ marginTop: "36px" }}>
-
-            {/* Property Viability */}
-            <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "28px 32px", marginBottom: "20px" }}>
-              <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "16px" }}>PROPERTY VIABILITY CHECK</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px" }}>
-                {[
-                  {
-                    Icon: IconFloor,
-                    label: "Floor Level",
-                    value: `Floor ${form.floor}`,
-                    pass: result.floorTier === "high" ? "pass" : result.floorTier === "mid" ? "warn" : "fail",
-                    note: result.floorTier === "high" ? "High floor — premium pricing" : result.floorTier === "mid" ? "Mid floor — acceptable" : "Low floor — avoid for sub-leasing",
-                  },
-                  {
-                    Icon: IconView,
-                    label: "View Quality",
-                    value: form.view,
-                    pass: result.viewTier === "premium" ? "pass" : result.viewTier === "good" ? "warn" : "fail",
-                    note: result.viewTier === "premium" ? "Premium view — strong nightly rate" : result.viewTier === "good" ? "Good view — adequate" : "Weak view — limits STR rates",
-                  },
-                  {
-                    Icon: IconArea,
-                    label: "Area Demand",
-                    value: result.community || form.buildingName,
-                    pass: result.areaTier === "prime" ? "pass" : result.areaTier === "strong" ? "warn" : "fail",
-                    note: result.areaTier === "prime" ? "Prime STR area — high demand" : result.areaTier === "strong" ? "Strong area — good demand" : "Weak area — low STR demand",
-                  },
-                  {
-                    Icon: IconUnit,
-                    label: "Unit Size",
-                    value: form.unitSize,
-                    pass: result.unitTier === "ideal" ? "pass" : result.unitTier === "good" ? "warn" : "fail",
-                    note: result.unitTier === "ideal" ? "Ideal size for sub-leasing" : result.unitTier === "good" ? "Workable — good liquidity" : "Larger units are harder to fill",
-                  },
-                ].map(({ Icon, label, value, pass, note }) => {
-                  const color = pass === "pass" ? C.risk.low : pass === "warn" ? C.risk.medium : C.risk.vhigh;
-                  const bg = pass === "pass" ? "#E8F5EE" : pass === "warn" ? "#FEF3E2" : "#FDE8E8";
-                  return (
-                    <div key={label} style={{ background: bg, borderRadius: "12px", padding: "16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                        <Icon color={color} />
-                        <span style={{ fontSize: "11px", fontWeight: 700, color, letterSpacing: "0.06em" }}>{label.toUpperCase()}</span>
-                      </div>
-                      <div style={{ fontSize: "13px", fontWeight: 700, color: C.text, marginBottom: "4px", wordBreak: "break-word" }}>{value}</div>
-                      <div style={{ fontSize: "11.5px", color: C.muted, lineHeight: 1.4 }}>{note}</div>
-                      <div style={{ marginTop: "10px" }}>
-                        {pass === "pass" ? <IconCheck color={color} /> : pass === "warn" ? <IconWarn color={color} /> : <IconX color={color} />}
-                      </div>
+                  {/* Unit size — premium cards */}
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "10px" }}>UNIT SIZE</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: "10px" }}>
+                      {SUBLEASING_SIZES.map(({ label, display }) => {
+                        const active = form.unitSize === label;
+                        return (
+                          <button key={label}
+                            onClick={() => { set("unitSize", label); set("monthlyRent", ""); }}
+                            style={{
+                              position: "relative", padding: "14px 8px 12px",
+                              borderRadius: "14px",
+                              border: `1.5px solid ${active ? C.primary : C.border}`,
+                              background: active ? `${C.primary}0D` : C.bg,
+                              cursor: "pointer", textAlign: "center",
+                              boxShadow: active ? `0 4px 14px ${C.primary}1A` : "none",
+                              transition: "all 0.15s",
+                            }}>
+                            {active && (
+                              <span style={{ position: "absolute", top: "7px", right: "7px", width: "16px", height: "16px", borderRadius: "50%", background: C.primary, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2L5 8.5L9.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                              </span>
+                            )}
+                            <div style={{ marginBottom: "6px", display: "flex", justifyContent: "center" }}>
+                              <IconBed color={active ? C.primary : C.muted} />
+                            </div>
+                            <div style={{ fontSize: "12px", fontWeight: active ? 700 : 500, color: active ? C.primary : C.text, lineHeight: 1.3 }}>{display}</div>
+                          </button>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                    <div style={{ marginTop: "10px", padding: "10px 14px", background: `${C.primary}08`, borderRadius: "10px", border: `1px solid ${C.primary}18` }}>
+                      <p style={{ fontSize: "12px", color: C.primary, margin: 0, lineHeight: 1.55 }}>
+                        Studio and 1BR are optimal for sub-leasing — lower rent obligations, faster to fill, simpler to operate.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ height: "1px", background: `linear-gradient(to right, transparent, ${C.border}, transparent)`, marginBottom: "36px" }} />
+
+                {/* ── SECTION 2: Location & Unit Quality ── */}
+                <div style={{ marginBottom: "36px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: sec2Done ? C.primary : C.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {sec2Done
+                        ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2L5 8.5L9.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        : <span style={{ fontSize: "10px", fontWeight: 700, color: C.surface }}>2</span>}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: C.primary, marginBottom: "1px" }}>SECTION 2 OF 3</div>
+                      <div style={{ fontSize: "18px", fontWeight: 700, color: C.bronze, fontFamily: serif }}>Location & Unit Quality</div>
+                    </div>
+                  </div>
+
+                  {/* Floor */}
+                  <div style={{ marginBottom: "24px" }}>
+                    <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "8px" }}>
+                      <span>FLOOR NUMBER</span>
+                      {form.floor && (
+                        <span style={{ fontSize: "11px", fontWeight: 600, color: Number(form.floor) >= 20 ? C.risk.low : Number(form.floor) >= 10 ? C.risk.medium : C.risk.high }}>
+                          {Number(form.floor) >= 20 ? "High floor — excellent" : Number(form.floor) >= 10 ? "Mid floor — acceptable" : "Low floor — risky"}
+                        </span>
+                      )}
+                    </label>
+                    <input
+                      type="number" min="1" max="120"
+                      value={form.floor}
+                      onChange={e => set("floor", e.target.value)}
+                      placeholder="e.g. 22"
+                      style={{
+                        width: "100%", padding: "14px 18px",
+                        border: `1.5px solid ${form.floor ? (Number(form.floor) >= 10 ? `${C.bronze}88` : C.risk.high) : C.border}`,
+                        borderRadius: "14px", fontSize: "14px", color: C.text,
+                        background: C.bg, outline: "none", boxSizing: "border-box",
+                        boxShadow: form.floor && Number(form.floor) >= 10 ? `0 0 0 3px ${C.bronze}14` : "none",
+                        transition: "all 0.15s",
+                      }}
+                    />
+                    {form.floor && Number(form.floor) < 10 && (
+                      <p style={{ fontSize: "12px", color: C.risk.high, marginTop: "6px", padding: "8px 12px", background: "#FEF0E8", borderRadius: "8px" }}>
+                        Floor {form.floor} is below the recommended minimum of 10 for sub-leasing.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* View */}
+                  <div style={{ marginBottom: "24px" }}>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "10px" }}>PROPERTY VIEW</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                      {VIEWS.map(v => {
+                        const active = form.view === v;
+                        const tier = getViewTier(v as ViewType);
+                        return (
+                          <button key={v}
+                            onClick={() => set("view", v)}
+                            style={{
+                              padding: "12px 16px",
+                              borderRadius: "18px",
+                              cursor: "pointer",
+                              textAlign: "left",
+                              fontSize: "13px",
+                              transition: "all 0.15s",
+                              fontWeight: active ? 700 : 400,
+                              color: active && tier !== "weak" ? "#FFF" : active ? C.text : C.muted,
+                              ...(active && tier !== "weak"
+                                ? { background: "linear-gradient(135deg, #B8893F 0%, #C69A4A 45%, #A9782F 100%)", border: "1px solid rgba(151,104,43,0.45)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(120,80,30,0.18)" }
+                                : active
+                                ? { background: "#FEF0E8", border: `1.5px solid ${C.risk.high}`, boxShadow: "none" }
+                                : { background: "rgba(255,254,250,0.9)", border: "1px solid rgba(35,93,72,0.12)", boxShadow: "none" }),
+                            }}>
+                            {v}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {form.view && getViewTier(form.view as ViewType) === "weak" && (
+                      <div style={{ marginTop: "8px", padding: "8px 12px", background: "#FEF0E8", borderRadius: "8px", border: "1px solid #F0C5A0", fontSize: "12px", color: C.risk.high }}>
+                        Standard/garden views significantly limit your achievable nightly rate.
+                      </div>
+                    )}
+                    {form.view && getViewTier(form.view as ViewType) === "premium" && (
+                      <div style={{ marginTop: "8px", padding: "8px 12px", background: "#E8F5EE", borderRadius: "8px", border: "1px solid #B8DEC8", fontSize: "12px", color: C.risk.low }}>
+                        Premium view — commands a strong nightly rate premium.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Furnishing Quality */}
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "6px" }}>FURNISHING QUALITY</label>
+                    <p style={{ fontSize: "12px", color: C.muted, marginBottom: "12px", lineHeight: 1.5 }}>
+                      STR sub-leasing works best when the unit is furnished to a hotel-style standard. Weak furnishing reduces ADR, booking conversion, and reviews.
+                    </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                      {(["Basic", "Standard", "Premium", "Luxury"] as FurnishingQuality[]).map(q => {
+                        const cfg = FURNISHING_CONFIG[q];
+                        const active = form.furnishingQuality === q;
+                        const accent = cfg.tier === "fail" ? C.risk.vhigh : cfg.tier === "warn" ? C.risk.high : C.primary;
+                        return (
+                          <button key={q}
+                            onClick={() => set("furnishingQuality", q)}
+                            style={{
+                              padding: "14px 14px 12px",
+                              borderRadius: "14px",
+                              border: `1.5px solid ${active ? accent : C.border}`,
+                              background: active ? cfg.bg : C.bg,
+                              textAlign: "left", cursor: "pointer",
+                              boxShadow: active ? `0 4px 14px ${accent}18` : "none",
+                              transition: "all 0.15s",
+                            }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                              <IconSofa color={active ? accent : C.muted} />
+                              <span style={{ fontSize: "13px", fontWeight: 700, color: active ? accent : C.text }}>{cfg.display}</span>
+                            </div>
+                            <div style={{ fontSize: "11px", color: C.muted, lineHeight: 1.4 }}>{cfg.tip}</div>
+                            {active && (
+                              <div style={{ marginTop: "8px", display: "inline-block", fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em",
+                                color: cfg.tier === "pass" ? C.risk.low : cfg.tier === "warn" ? C.risk.medium : C.risk.vhigh,
+                                background: cfg.tier === "pass" ? "#E8F5EE" : cfg.tier === "warn" ? "#FEF0E8" : "#FDE8E8",
+                                padding: "3px 8px", borderRadius: "20px" }}>
+                                {cfg.tier === "pass" ? "PASS" : cfg.tier === "warn" ? "WARN" : "FAIL"}
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {form.furnishingQuality === "Basic" && (
+                      <div style={{ marginTop: "10px", padding: "10px 14px", background: "#FDE8E8", borderRadius: "10px", border: "1px solid #F0C0C0", fontSize: "12px", color: C.risk.vhigh, lineHeight: 1.55 }}>
+                        Basic furnishing will significantly reduce ADR and cap the final recommendation at Negotiate. Upgrade furnishing or negotiate the rent lower before signing.
+                      </div>
+                    )}
+                    {form.furnishingQuality === "Standard" && (
+                      <div style={{ marginTop: "10px", padding: "10px 14px", background: "#FEF0E8", borderRadius: "10px", border: "1px solid #F0C5A0", fontSize: "12px", color: C.risk.high, lineHeight: 1.55 }}>
+                        Standard furnishing reduces ADR. Upgrade key areas — living room, bedroom, lighting, linens, photography — before launch.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ height: "1px", background: `linear-gradient(to right, transparent, ${C.border}, transparent)`, marginBottom: "36px" }} />
+
+                {/* ── SECTION 3: Lease & Cost Assumptions ── */}
+                <div style={{ marginBottom: "36px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: sec3Done ? C.primary : C.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {sec3Done
+                        ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2L5 8.5L9.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        : <span style={{ fontSize: "10px", fontWeight: 700, color: C.surface }}>3</span>}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: C.primary, marginBottom: "1px" }}>SECTION 3 OF 3</div>
+                      <div style={{ fontSize: "18px", fontWeight: 700, color: C.bronze, fontFamily: serif }}>Lease & Cost Assumptions</div>
+                    </div>
+                  </div>
+
+                  {/* Monthly rent */}
+                  <div style={{ marginBottom: "24px" }}>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "8px" }}>
+                      MONTHLY RENT TO LANDLORD (AED)
+                    </label>
+                    <input
+                      type="number"
+                      value={form.monthlyRent}
+                      onChange={e => set("monthlyRent", e.target.value)}
+                      placeholder="e.g. 8,500"
+                      style={{
+                        width: "100%", padding: "14px 18px",
+                        border: `1.5px solid ${form.monthlyRent ? `${C.bronze}88` : C.border}`,
+                        borderRadius: "14px", fontSize: "14px", color: C.text,
+                        background: C.bg, outline: "none", boxSizing: "border-box",
+                        boxShadow: form.monthlyRent ? `0 0 0 3px ${C.bronze}14` : "none",
+                        transition: "all 0.15s",
+                      }}
+                    />
+                    {ltrHint && (
+                      <div style={{ marginTop: "10px", padding: "12px 16px", background: "#F5F0E8", borderRadius: "10px", border: "1px solid #E8D9BC" }}>
+                        <p style={{ fontSize: "12.5px", color: C.muted, margin: 0 }}>
+                          Market LTR: <strong style={{ color: C.text }}>AED {fmt(ltrHint.rent)}/mo</strong> · {ltrHint.source}.{" "}
+                          Landlords charging for STR use typically ask 5–15% above LTR. Adjust accordingly.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Management model */}
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", color: C.muted, marginBottom: "10px" }}>
+                      MANAGEMENT MODEL
+                    </label>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {[
+                        { mode: "self" as const, label: "Self-Managed", sub: "You handle operations", fee: "0% fee", accent: C.primary },
+                        { mode: "operator" as const, label: "With Operator", sub: "15–25% management fee", fee: "Paid operator", accent: C.bronze },
+                      ].map(({ mode, label, sub, fee, accent }) => {
+                        const active = form.managementFeeMode === mode;
+                        return (
+                          <button key={mode}
+                            onClick={() => set("managementFeeMode", mode)}
+                            style={{
+                              padding: "18px 16px",
+                              borderRadius: "14px",
+                              border: `1.5px solid ${active ? accent : C.border}`,
+                              background: active ? `${accent}0D` : C.bg,
+                              textAlign: "left", cursor: "pointer",
+                              boxShadow: active ? `0 4px 14px ${accent}18` : "none",
+                              transition: "all 0.15s",
+                            }}>
+                            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: active ? accent : C.border, marginBottom: "10px" }} />
+                            <div style={{ fontSize: "14px", fontWeight: 700, color: active ? accent : C.text, marginBottom: "3px" }}>{label}</div>
+                            <div style={{ fontSize: "12px", color: C.muted, marginBottom: "2px" }}>{sub}</div>
+                            <div style={{ fontSize: "11px", fontWeight: 600, color: active ? accent : C.muted }}>{fee}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {form.managementFeeMode === "operator" && (
+                      <div style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", background: `${C.bronze}08`, borderRadius: "10px", border: `1px solid ${C.bronze}25` }}>
+                        <label style={{ fontSize: "12px", color: C.muted, whiteSpace: "nowrap", fontWeight: 600 }}>Operator fee:</label>
+                        <input
+                          type="number" min="10" max="30"
+                          value={form.managementFeeCustom}
+                          onChange={e => set("managementFeeCustom", e.target.value)}
+                          style={{ width: "70px", padding: "8px 12px", border: `1.5px solid ${C.border}`, borderRadius: "8px", fontSize: "14px", fontWeight: 700, color: C.text, background: C.surface, outline: "none", textAlign: "center" }}
+                        />
+                        <span style={{ fontSize: "13px", color: C.muted }}>% of revenue</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── CTA ── */}
+                <button
+                  onClick={handleCalculate}
+                  disabled={!canCalculate || calculating}
+                  style={{
+                    width: "100%", padding: "18px",
+                    background: canCalculate && !calculating
+                      ? `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`
+                      : C.border,
+                    color: "#fff",
+                    borderRadius: "14px", fontSize: "16px", fontWeight: 700,
+                    cursor: canCalculate && !calculating ? "pointer" : "not-allowed",
+                    border: "none",
+                    boxShadow: canCalculate && !calculating ? `0 6px 22px ${C.primary}30` : "none",
+                    transition: "all 0.2s",
+                    letterSpacing: "0.02em",
+                  }}>
+                  {calculating ? "Calculating Risk…" : "Calculate Risk & Profit →"}
+                </button>
+
+                {/* Advisory note */}
+                <div style={{ marginTop: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  <IconShield color={C.muted} />
+                  <span style={{ fontSize: "12px", color: C.muted }}>Your data is used only to calculate this sub-leasing risk estimate.</span>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Risk Scorecard */}
-            <div style={{ background: C.surface, border: `2px solid ${RISK_COLOR[result.riskLevel]}`, borderRadius: "20px", padding: "28px 32px", marginBottom: "20px" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
-                <div>
-                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "8px" }}>RISK ASSESSMENT</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <IconRisk color={RISK_COLOR[result.riskLevel]} />
-                    <h2 style={{ fontFamily: serif, fontSize: "28px", fontWeight: 700, color: RISK_COLOR[result.riskLevel], margin: 0 }}>
-                      {result.riskLevel} Risk
-                    </h2>
-                  </div>
-                </div>
-                <div style={{ background: RISK_BG[result.riskLevel], borderRadius: "14px", padding: "16px 22px", textAlign: "center", minWidth: "160px" }}>
-                  <div style={{ fontSize: "11px", color: C.muted, fontWeight: 600, marginBottom: "4px" }}>BREAK-EVEN OCCUPANCY</div>
-                  <div style={{ fontSize: "36px", fontWeight: 700, color: RISK_COLOR[result.riskLevel], fontFamily: serif }}>
-                    {pct(result.breakEvenOcc)}
-                  </div>
-                  <div style={{ fontSize: "11px", color: C.muted }}>Realistic avg: {pct(result.avgOccupancy)}</div>
-                </div>
-              </div>
+          {/* ─── Right advisory panel ─── */}
+          <div style={{
+            width: "300px", flexShrink: 0,
+            display: "flex", flexDirection: "column", gap: "16px",
+            position: "sticky", top: "24px",
+          }} className="estimator-panel-lg">
 
-              {/* Break-even bar */}
-              <div style={{ marginBottom: "16px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: C.muted, marginBottom: "6px" }}>
-                  <span>0%</span>
-                  <span>50%</span>
-                  <span>65%</span>
-                  <span>80%</span>
-                  <span>100%</span>
-                </div>
-                <div style={{ position: "relative", height: "10px", background: C.border, borderRadius: "5px", overflow: "hidden" }}>
-                  {/* Zone bands */}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #2D7A4F22 0%, #2D7A4F22 50%, #A3702022 50%, #A3702022 65%, #C25A1A22 65%, #C25A1A22 80%, #B8323222 80%, #B8323222 100%)" }} />
-                  {/* Break-even marker */}
-                  <div style={{ position: "absolute", top: 0, bottom: 0, left: `${Math.min(result.breakEvenOcc * 100, 100)}%`, width: "3px", background: RISK_COLOR[result.riskLevel], transform: "translateX(-50%)", borderRadius: "2px" }} />
-                  {/* Realistic OCC marker */}
-                  <div style={{ position: "absolute", top: "-2px", bottom: "-2px", left: `${Math.min(result.avgOccupancy * 100, 100)}%`, width: "3px", background: C.primary, transform: "translateX(-50%)", borderRadius: "2px" }} />
-                </div>
-                <div style={{ display: "flex", gap: "16px", marginTop: "8px", flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: C.muted }}>
-                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: RISK_COLOR[result.riskLevel] }} />
-                    Break-even at {pct(result.breakEvenOcc)}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: C.muted }}>
-                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: C.primary }} />
-                    Projected occupancy {pct(result.avgOccupancy)}
-                  </div>
-                </div>
-              </div>
+            <style>{`
+              @media (max-width: 900px) { .estimator-panel-lg { display: none !important; } }
+            `}</style>
 
-              <p style={{ fontSize: "13.5px", color: C.text, lineHeight: 1.7, margin: 0, padding: "14px 18px", background: RISK_BG[result.riskLevel], borderRadius: "10px" }}>
-                {RISK_DESC[result.riskLevel]}
+            <div style={{
+              background: `linear-gradient(160deg, ${C.primary}08 0%, ${C.bronze}0A 100%)`,
+              border: `1px solid ${C.primary}20`,
+              borderRadius: "20px",
+              padding: "28px 26px",
+            }}>
+              <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "12px" }}>RISK ESTIMATOR</div>
+              <h3 style={{ fontFamily: serif, fontSize: "17px", fontWeight: 700, color: C.text, marginBottom: "10px", lineHeight: 1.35 }}>What This Estimator Checks</h3>
+              <p style={{ fontSize: "13px", color: C.muted, lineHeight: 1.65, marginBottom: "20px" }}>
+                Before signing a lease, AssetIntel analyses whether the unit&apos;s economics work in your favour.
               </p>
-            </div>
-
-            {/* P&L Summary */}
-            <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "28px 32px", marginBottom: "20px" }}>
-              <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "20px" }}>ANNUAL P&amp;L FORECAST</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginBottom: "24px" }}>
-                {[
-                  { label: "STR Gross Revenue", value: `AED ${fmt(result.annualSTRRevenue)}`, sub: `Avg ADR: AED ${fmt(result.avgADR)}/night`, color: C.primary },
-                  { label: "Landlord Rent (annual)", value: `− AED ${fmt(result.annualLandlordRent)}`, sub: `AED ${fmt(result.annualLandlordRent / 12)}/month fixed`, color: C.risk.high },
-                  { label: "Operator Fee", value: `− AED ${fmt(result.annualMgmtFee)}`, sub: form.managementFeeMode === "self" ? "Self-managed" : `${form.managementFeeCustom}% of revenue`, color: C.muted },
-                  { label: "Utilities & Costs", value: `− AED ${fmt(result.annualUtilities + result.annualMaintenance + result.annualFurniture)}`, sub: "DEWA, AC, maintenance, furnishing", color: C.muted },
-                ].map(({ label, value, sub, color }) => (
-                  <div key={label} style={{ padding: "16px", background: C.bg, borderRadius: "12px", border: `1px solid ${C.border}` }}>
-                    <div style={{ fontSize: "11.5px", color: C.muted, marginBottom: "6px" }}>{label}</div>
-                    <div style={{ fontSize: "18px", fontWeight: 700, color, fontFamily: serif, marginBottom: "3px" }}>{value}</div>
-                    <div style={{ fontSize: "11px", color: C.muted }}>{sub}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {ADVISORY_ITEMS.map(({ text }) => (
+                  <div key={text} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                    <div style={{ marginTop: "2px", flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="8.5" stroke={C.primary} strokeWidth="1.2" opacity="0.3" />
+                        <path d="M6.5 10L9 12.5L13.5 7.5" stroke={C.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <span style={{ fontSize: "13px", color: C.text, lineHeight: 1.55 }}>{text}</span>
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Net profit */}
-              <div style={{ borderTop: `2px solid ${result.annualNetProfit >= 0 ? C.risk.low : C.risk.vhigh}`, paddingTop: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-                <div>
-                  <div style={{ fontSize: "12px", color: C.muted, marginBottom: "4px" }}>Estimated Annual Net Profit</div>
-                  <div style={{ fontFamily: serif, fontSize: "32px", fontWeight: 700, color: result.annualNetProfit >= 0 ? C.risk.low : C.risk.vhigh }}>
-                    {result.annualNetProfit >= 0 ? "+" : ""}AED {fmt(result.annualNetProfit)}
+            <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "24px 22px" }}>
+              <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: C.muted, marginBottom: "12px" }}>KEY THRESHOLDS</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {[
+                  { label: "Low risk", range: "Break-even below 50%", color: C.risk.low, bg: "#E8F5EE" },
+                  { label: "Medium risk", range: "Break-even 50–65%", color: C.risk.medium, bg: "#FEF3E2" },
+                  { label: "High risk", range: "Break-even 65–80%", color: C.risk.high, bg: "#FEF0E8" },
+                  { label: "Very High risk", range: "Break-even above 80%", color: C.risk.vhigh, bg: "#FDE8E8" },
+                ].map(({ label, range, color, bg }) => (
+                  <div key={label} style={{ padding: "10px 12px", background: bg, borderRadius: "8px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color }}>{label}</span>
+                    <span style={{ fontSize: "11px", color: C.muted, textAlign: "right" }}>{range}</span>
                   </div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "12px", color: C.muted, marginBottom: "4px" }}>vs. Landlord Rent Paid</div>
-                  <div style={{ fontFamily: serif, fontSize: "20px", fontWeight: 700, color: C.text }}>
-                    {result.annualNetProfit >= 0
-                      ? `+${Math.round((result.annualNetProfit / result.annualLandlordRent) * 100)}% margin`
-                      : `${Math.round((result.annualNetProfit / result.annualLandlordRent) * 100)}% shortfall`}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* Monthly table */}
-            <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", overflow: "hidden" }}>
-              <div style={{ padding: "22px 28px", borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze }}>MONTHLY CASH FLOW</div>
-              </div>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                  <thead>
-                    <tr style={{ background: C.bg }}>
-                      {["Month", "STR Revenue", "Landlord Rent", "Occupancy", "Avg Rate/Night", "Net Profit"].map(h => (
-                        <th key={h} style={{ padding: "10px 16px", textAlign: h === "Month" ? "left" : "right", fontSize: "11px", fontWeight: 700, color: C.muted, letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.months.map((m, i) => (
-                      <tr key={m.month} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.surface : C.bg }}>
-                        <td style={{ padding: "10px 16px", fontWeight: 600, color: C.text }}>{m.month}</td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", color: C.primary }}>AED {fmt(m.revenue)}</td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", color: C.risk.high }}>− AED {fmt(m.landlordRent)}</td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", color: C.text }}>{pct(m.occupancy)}</td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", color: C.text }}>AED {fmt(m.adr)}</td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", fontWeight: 700, color: m.netProfit >= 0 ? C.risk.low : C.risk.vhigh }}>
-                          {m.netProfit >= 0 ? "+" : ""}AED {fmt(m.netProfit)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ padding: "14px 28px", borderTop: `1px solid ${C.border}`, fontSize: "11.5px", color: C.muted, lineHeight: 1.6 }}>
-                Monthly net profit is after landlord rent, management fee, DEWA, AC, internet, maintenance, and furniture amortisation.
-                Revenue follows Dubai STR seasonal patterns (winter peak, summer low).
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div style={{ marginTop: "28px", padding: "28px 32px", background: `linear-gradient(135deg, ${C.primary}0C 0%, ${C.bronze}0E 100%)`, border: `1px solid ${C.border}`, borderRadius: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-              <div>
-                <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 700, color: C.text, marginBottom: "6px" }}>
-                  Want a structured plan to execute?
-                </div>
-                <p style={{ fontSize: "13.5px", color: C.muted, margin: 0 }}>
-                  The Sub-Leasing Playbook covers landlord negotiation, DET compliance, setup roadmap, and operating systems.
-                </p>
-              </div>
-              <button onClick={() => router.push("/self-manage/str-subleasing")}
-                style={{ padding: "13px 24px", background: C.bronze, color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: 700, cursor: "pointer", border: "none", whiteSpace: "nowrap" }}>
-                View Playbook →
+            <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "20px 22px" }}>
+              <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: C.muted, marginBottom: "10px" }}>NEED HELP?</div>
+              <p style={{ fontSize: "12.5px", color: C.muted, lineHeight: 1.6, marginBottom: "14px" }}>
+                Not sure which unit to run? The sub-leasing playbook covers area selection and unit screening.
+              </p>
+              <button
+                onClick={() => router.push("/self-manage/str-subleasing")}
+                style={{ width: "100%", padding: "10px", background: "transparent", border: `1.5px solid ${C.primary}`, color: C.primary, borderRadius: "10px", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
+                View STR Playbook →
               </button>
             </div>
-
           </div>
-        )}
-      </div>
+        </div>
+
+        {/* ─── Why This Matters section ─── */}
+        <div style={{ marginTop: "52px", maxWidth: "860px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", color: C.bronze, marginBottom: "12px" }}>CONTEXT</div>
+          <h2 style={{ fontFamily: serif, fontSize: "26px", fontWeight: 700, color: C.text, marginBottom: "28px" }}>Why This Matters Before Signing</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
+            {[
+              { title: "Fixed Rent Risk", body: "Your rent is fixed every month even when STR demand drops in summer or during slower booking periods." },
+              { title: "Low Season Survival", body: "The unit must survive June–August when occupancy falls 30–50%. You still pay full landlord rent regardless." },
+              { title: "Proceed / Negotiate / Avoid", body: "AssetIntel gives you a clear recommendation based on your break-even occupancy and risk score." },
+            ].map(({ title, body }) => (
+              <div key={title} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "22px 20px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.bronze, marginBottom: "12px" }} />
+                <h3 style={{ fontFamily: serif, fontSize: "15px", fontWeight: 700, color: C.text, marginBottom: "8px" }}>{title}</h3>
+                <p style={{ fontSize: "13px", color: C.muted, lineHeight: 1.65, margin: 0 }}>{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        </div>{/* end inner max-width container */}
+      </div>{/* end ESTIMATOR CONTENT SECTION */}
     </main>
+  );
+}
+
+// ─── Main page export with Suspense boundary ──────────────────────────────────
+
+export default function SubleasingEstimatorPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F8F4EE" }} />}>
+      <SubleasingEstimatorInner />
+    </Suspense>
   );
 }

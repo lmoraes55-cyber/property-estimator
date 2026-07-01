@@ -737,11 +737,11 @@ function ReportContent() {
 
           {/* Background image — blended right side */}
           <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-            <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "52%", backgroundImage: `url("${heroImage}")`, backgroundSize: "cover", backgroundPosition: "center right", opacity: 0.28 }} />
+            <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "58%", backgroundImage: `url("${heroImage}")`, backgroundSize: "cover", backgroundPosition: "center right", opacity: 0.72 }} />
             {/* Left ivory fade */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #FAFAF6 0%, #FAFAF6 38%, rgba(250,250,246,0.93) 52%, rgba(250,250,246,0.55) 68%, rgba(250,250,246,0.15) 84%, transparent 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #FAFAF6 0%, #FAFAF6 32%, rgba(250,250,246,0.85) 46%, rgba(250,250,246,0.3) 62%, transparent 80%)" }} />
             {/* Bottom fade */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(250,250,246,0.65) 80%, #FAFAF6 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(250,250,246,0.5) 80%, #FAFAF6 100%)" }} />
             {/* Warm glow centre-right */}
             <div style={{ position: "absolute", top: "-20%", right: "10%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(184,138,68,0.06) 0%, transparent 70%)" }} />
           </div>

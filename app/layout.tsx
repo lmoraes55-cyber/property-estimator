@@ -13,8 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GroundWorks | Dubai Property Rental Estimator",
-  description: "Estimate your Dubai property's short-term rental income potential with GroundWorks.",
+  title: "AssetIntel | Dubai Property Intelligence, Rental Strategy & STR Setup Advisory",
+  description: "Property Intelligence. Smarter Decisions. AssetIntel helps Dubai property owners maximize rental income with data-driven STR and LTR strategy.",
+  icons: {
+    icon: [
+      { url: "/brand/assetintel-favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/assetintel-favicon-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/brand/assetintel-favicon-128.png", sizes: "128x128", type: "image/png" },
+    ],
+    apple: { url: "/brand/assetintel-favicon-256.png", sizes: "256x256", type: "image/png" },
+  },
 };
 
 export default function RootLayout({

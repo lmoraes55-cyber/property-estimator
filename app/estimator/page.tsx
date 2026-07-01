@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  UnitSize, UnitType, ViewType, FurnishedStatus,
+  UnitSize, UnitType, ViewType, FurnishedStatus, PropertyCondition,
   VIEW_PREMIUMS, BUILDING_DIRECTORY, getLTRWarning, LTRAreaWarning,
 } from "@/lib/estimator";
 import { BUILDINGS_DATABASE, getAllAreas } from "@/lib/buildings-data";
@@ -147,6 +147,18 @@ const ADVISORY = [
   },
 ];
 
+// Premium option button styles — selected and unselected
+const OPT_SELECTED = {
+  background: "linear-gradient(135deg, #B8893F 0%, #C69A4A 45%, #A9782F 100%)",
+  border: "1px solid rgba(151,104,43,0.45)",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(120,80,30,0.18)",
+} as const;
+const OPT_UNSELECTED = {
+  background: "rgba(255,254,250,0.9)",
+  border: "1px solid rgba(35,93,72,0.12)",
+  boxShadow: "none",
+} as const;
+
 export default function Home() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -169,6 +181,7 @@ export default function Home() {
     sizeUnit: "sqft" as "sqm" | "sqft", // user's chosen input unit
     dldKey: "",   // exact DLD dataset key (set when selected from DLD autocomplete)
     dldArea: "",  // DLD administrative area
+    propertyCondition: "Standard" as PropertyCondition,
   });
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
@@ -202,7 +215,14 @@ export default function Home() {
 
   const canNext = () => {
     if (step === 0) return form.buildingName && form.unitSize && form.unitType;
-    if (step === 1) return form.floor && Number(form.floor) >= 1 && form.view && form.furnished;
+    if (step === 1) {
+      const maxFloors = buildingInfo && "maxFloors" in buildingInfo ? (buildingInfo as { maxFloors?: number }).maxFloors : undefined;
+      const floorNum = Number(form.floor);
+      const floorOk = form.floor && floorNum >= 1
+        && (!maxFloors || floorNum <= maxFloors)
+        && (!!maxFloors || floorNum <= 80);
+      return floorOk && form.view && form.furnished;
+    }
     if (step === 2) return true;
     return true;
   };
@@ -224,6 +244,7 @@ export default function Home() {
     } : {}),
     ...(form.dldKey ? { dldKey: form.dldKey } : {}),
     ...(form.dldArea ? { dldArea: form.dldArea } : {}),
+    ...(form.propertyCondition !== "Standard" ? { propertyCondition: form.propertyCondition } : {}),
   });
 
   const handleGenerate = () => {
@@ -240,77 +261,75 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-16 animate-fade-in relative overflow-hidden"
-      style={{
-        background: `radial-gradient(ellipse 800px 600px at 80% 0%, ${colors.secondary}0E 0%, transparent 55%), radial-gradient(ellipse 700px 500px at 10% 10%, ${colors.primary}08 0%, transparent 55%), linear-gradient(180deg, ${colors.bgMain} 0%, ${colors.bgSection} 100%)`
-      }}>
+    <main className="min-h-screen animate-fade-in" style={{ background: colors.bgMain }}>
 
-      {/* Faint Dubai skyline watermark */}
-      <img
-        src="/Locations/Downtown.png"
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: "46%",
-          height: "auto",
-          maxHeight: "85%",
-          objectFit: "cover",
-          opacity: 0.22,
-          filter: "contrast(1.08) saturate(1.05)",
-          pointerEvents: "none",
-          zIndex: 0,
-          maskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.6) 75%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.6) 75%, transparent 100%)",
-        }}
-      />
+      {/* ── HERO SECTION — image contained here only ── */}
+      <section style={{ position: "relative", overflow: "hidden", isolation: "isolate" }}>
 
-      {/* Service-page Hero */}
-      <div className="w-full max-w-6xl mb-10 animate-slide-up px-2 relative z-10" style={{ animationDelay: "0.1s" }}>
-        <button onClick={() => router.push("/")}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg mb-5 transition hover:opacity-80"
-          style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, color: colors.primary }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 10v9h5v-5h2v5h5v-9" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Back to Home
-        </button>
-        <div className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
-          Rental Strategy Analyzer
+        {/* Downtown skyline — blended background layer */}
+        <div aria-hidden="true" style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "58vw", zIndex: 0, pointerEvents: "none" }}>
+          <img
+            src="/Locations/Downtown.png"
+            alt=""
+            style={{
+              width: "100%", height: "100%", objectFit: "cover", objectPosition: "center",
+              display: "block",
+              maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.5) 32%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%)",
+            }}
+          />
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight"
-          style={{
-            fontFamily: "'Georgia', serif",
-            maxWidth: "640px",
-            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>
-          Compare STR vs LTR Returns Before You Decide
-        </h1>
-        <p className="text-base mb-8" style={{ color: colors.textMuted, lineHeight: "1.7", maxWidth: "560px" }}>
-          Enter your property details to estimate short-term and long-term rental performance, compare potential yields, and identify the most suitable rental strategy.
-        </p>
 
-        {/* Capability row */}
-        <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
-          {[
-            { label: "STR Forecast", Icon: CapCalendar, color: colors.primary },
-            { label: "LTR Forecast", Icon: CapBuilding, color: colors.primary },
-            { label: "Yield Comparison", Icon: CapPie, color: colors.secondary },
-            { label: "Operator Recommendations", Icon: CapUsers, color: colors.primary },
-          ].map(({ label, Icon, color }) => (
-            <div key={label} className="flex items-center gap-2.5">
-              <Icon color={color} />
-              <span className="text-sm font-semibold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{label}</span>
-            </div>
-          ))}
+        {/* Hero content */}
+        <div className="animate-slide-up" style={{ position: "relative", zIndex: 2, maxWidth: "1152px", margin: "0 auto", padding: "52px 24px 52px" }}>
+          <button onClick={() => router.push("/")}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg mb-5 transition hover:opacity-80"
+            style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, color: colors.primary }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7M6 10v9h5v-5h2v5h5v-9" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Back to Home
+          </button>
+          <div className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
+            Rental Strategy Analyzer
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight"
+            style={{
+              fontFamily: "'Georgia', serif",
+              maxWidth: "640px",
+              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+            Compare STR vs LTR Returns Before You Decide
+          </h1>
+          <p className="text-base mb-8" style={{ color: colors.textMuted, lineHeight: "1.7", maxWidth: "560px" }}>
+            Enter your property details to estimate short-term and long-term rental performance, compare potential yields, and identify the most suitable rental strategy.
+          </p>
+
+          {/* Capability row */}
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
+            {[
+              { label: "STR Forecast", Icon: CapCalendar, color: colors.primary },
+              { label: "LTR Forecast", Icon: CapBuilding, color: colors.primary },
+              { label: "Yield Comparison", Icon: CapPie, color: colors.secondary },
+              { label: "Operator Recommendations", Icon: CapUsers, color: colors.primary },
+            ].map(({ label, Icon, color }) => (
+              <div key={label} className="flex items-center gap-2.5">
+                <Icon color={color} />
+                <span className="text-sm font-semibold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
+      {/* ── END HERO — image does not extend below this point ── */}
+
+      {/* ── CARDS SECTION — clean background, no image ── */}
+      <section className="lg:-mt-10" style={{ background: colors.bgMain, position: "relative", zIndex: 3 }}>
+        <div style={{ maxWidth: "1152px", margin: "0 auto", padding: "16px 24px 80px" }}>
 
       {/* Two-column layout: Analyzer card + Advisory panel */}
-      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6 items-start relative z-10">
+      <div className="w-full flex flex-col lg:flex-row gap-6 items-start">
 
       {/* Card */}
       <div className="w-full lg:flex-1 rounded-3xl overflow-hidden animate-slide-up" style={{
@@ -469,31 +488,57 @@ export default function Home() {
               </div>
 
               {/* Floor number */}
-              <div>
-                <label className="block text-xs font-medium mb-2 tracking-wider" style={{ color: colors.textMuted }}>
-                  FLOOR NUMBER
-                  {form.floor && (
-                    <span className="ml-2 font-normal" style={{ color: colors.primary }}>
-                      {Number(form.floor) >= 40 ? "+18% ADR premium" :
-                       Number(form.floor) >= 30 ? "+12% ADR premium" :
-                       Number(form.floor) >= 20 ? "+8% ADR premium" :
-                       Number(form.floor) >= 10 ? "+4% ADR premium" :
-                       Number(form.floor) >= 5  ? "+2% ADR premium" : "No floor premium"}
-                    </span>
-                  )}
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={1} max={200}
-                    className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition"
-                    style={{ background: colors.bgMain, border: `1px solid ${form.floor ? "#C9A84C55" : colors.border}`, color: colors.textMain }}
-                    placeholder="e.g. 15"
-                    value={form.floor}
-                    onChange={e => set("floor", e.target.value)}
-                  />
-                </div>
-              </div>
+              {(() => {
+                const maxFloors = buildingInfo && "maxFloors" in buildingInfo ? (buildingInfo as { maxFloors?: number }).maxFloors : undefined;
+                const floorNum = Number(form.floor);
+                // Hard error: we know this building's exact height and floor exceeds it
+                const floorExceeds = !!maxFloors && floorNum > maxFloors;
+                // Soft warning: unknown building, floor seems unrealistically high
+                const floorSuspect = !maxFloors && floorNum > 80;
+                const borderColor = floorExceeds ? "#DC2626" : floorSuspect ? "#D97706" : form.floor ? "#C9A84C55" : colors.border;
+                return (
+                  <div>
+                    <label className="block text-xs font-medium mb-2 tracking-wider" style={{ color: colors.textMuted }}>
+                      FLOOR NUMBER
+                      {form.floor && !floorExceeds && !floorSuspect && (
+                        <span className="ml-2 font-normal" style={{ color: colors.primary }}>
+                          {floorNum >= 40 ? "+18% ADR premium" :
+                           floorNum >= 30 ? "+12% ADR premium" :
+                           floorNum >= 20 ? "+8% ADR premium" :
+                           floorNum >= 10 ? "+4% ADR premium" :
+                           floorNum >= 5  ? "+2% ADR premium" : "No floor premium"}
+                        </span>
+                      )}
+                      {maxFloors && (
+                        <span className="ml-2 font-normal" style={{ color: colors.textMuted }}>
+                          (max {maxFloors})
+                        </span>
+                      )}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min={1} max={maxFloors ?? 200}
+                        className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition"
+                        style={{ background: colors.bgMain, border: `1px solid ${borderColor}`, color: colors.textMain }}
+                        placeholder="e.g. 15"
+                        value={form.floor}
+                        onChange={e => set("floor", e.target.value)}
+                      />
+                    </div>
+                    {floorExceeds && (
+                      <p className="mt-1.5 text-xs" style={{ color: "#DC2626" }}>
+                        {form.buildingName} has {maxFloors} floors. Please enter a valid floor number.
+                      </p>
+                    )}
+                    {floorSuspect && (
+                      <p className="mt-1.5 text-xs" style={{ color: "#D97706" }}>
+                        Floor {floorNum} seems high — most Dubai residential buildings have fewer than 80 floors. Please double-check.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Optional unit size for rent-per-sqft refinement */}
               <div>
@@ -535,18 +580,21 @@ export default function Home() {
               <div>
                 <label className="block text-xs font-medium mb-3 tracking-wider" style={{ color: colors.textMuted }}>PROPERTY VIEW</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {VIEWS.map(v => (
-                    <button key={v}
-                      onClick={() => set("view", v)}
-                      className="px-4 py-3 rounded-xl transition-all text-left text-sm font-medium"
-                      style={{
-                        background: form.view === v ? colors.secondary : colors.bgMain,
-                        border: `1px solid ${form.view === v ? colors.secondary : colors.border}`,
-                        color: form.view === v ? "#FFF" : colors.textMain,
-                      }}>
-                      {v}
-                    </button>
-                  ))}
+                  {VIEWS.map(v => {
+                    const sel = form.view === v;
+                    return (
+                      <button key={v}
+                        onClick={() => set("view", v)}
+                        className="px-4 py-3 rounded-[18px] transition-all text-left text-sm"
+                        style={{
+                          ...(sel ? OPT_SELECTED : OPT_UNSELECTED),
+                          fontWeight: sel ? 700 : 500,
+                          color: sel ? "#FFF" : colors.textMain,
+                        }}>
+                        {v}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -554,26 +602,52 @@ export default function Home() {
               <div>
                 <label className="block text-xs font-medium mb-3 tracking-wider" style={{ color: colors.textMuted }}>FURNISHING STATUS</label>
                 <div className="grid grid-cols-2 gap-3">
-                  {(["Furnished", "Unfurnished"] as FurnishedStatus[]).map(f => (
-                    <button key={f}
-                      onClick={() => set("furnished", f)}
-                      className="py-4 rounded-xl transition-all text-left px-4"
-                      style={{
-                        background: form.furnished === f ? colors.secondary : colors.bgMain,
-                        border: `1px solid ${form.furnished === f ? colors.secondary : colors.border}`,
-                      }}>
-                      <p className="text-sm font-semibold" style={{ color: form.furnished === f ? "#FFF" : colors.textLight }}>{f}</p>
-                      <p className="text-xs mt-0.5" style={{ color: form.furnished === f ? "#FFFFFF99" : colors.textLight }}>
-                        {f === "Furnished" ? "Ready for short-term rental" : "Furnishing package required"}
-                      </p>
-                    </button>
-                  ))}
+                  {(["Furnished", "Unfurnished"] as FurnishedStatus[]).map(f => {
+                    const sel = form.furnished === f;
+                    return (
+                      <button key={f}
+                        onClick={() => set("furnished", f)}
+                        className="py-4 rounded-[18px] transition-all text-left px-4"
+                        style={{ ...(sel ? OPT_SELECTED : OPT_UNSELECTED) }}>
+                        <p className="text-sm" style={{ fontWeight: 700, color: sel ? "#FFF" : colors.textLight }}>{f}</p>
+                        <p className="text-xs mt-0.5" style={{ color: sel ? "rgba(255,255,255,0.78)" : colors.textLight }}>
+                          {f === "Furnished" ? "Ready for short-term rental" : "Furnishing package required"}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
                 {form.furnished === "Unfurnished" && (
                   <p className="text-xs mt-2 px-1" style={{ color: colors.primary }}>
                     We will suggest furnishing packages tailored to your property in the next section.
                   </p>
                 )}
+              </div>
+
+              {/* Property Condition */}
+              <div>
+                <label className="block text-xs font-medium mb-1 tracking-wider" style={{ color: colors.textMuted }}>PROPERTY CONDITION</label>
+                <p className="text-xs mb-3" style={{ color: colors.textLight }}>Select this only if the property has upgraded flooring, kitchen, bathrooms, or a noticeably improved interior finish.</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {(["Standard", "Lightly Upgraded", "Fully Upgraded", "Premium Renovated"] as PropertyCondition[]).map(c => {
+                    const desc: Record<PropertyCondition, string> = {
+                      "Standard": "Original fit-out",
+                      "Lightly Upgraded": "Minor improvements",
+                      "Fully Upgraded": "Kitchen, baths, flooring",
+                      "Premium Renovated": "Full luxury finish",
+                    };
+                    const selected = form.propertyCondition === c;
+                    return (
+                      <button key={c}
+                        onClick={() => set("propertyCondition", c)}
+                        className="py-3 rounded-[18px] transition-all text-left px-4"
+                        style={{ ...(selected ? OPT_SELECTED : OPT_UNSELECTED) }}>
+                        <p className="text-sm" style={{ fontWeight: 700, color: selected ? "#FFF" : colors.textLight }}>{c}</p>
+                        <p className="text-xs mt-0.5" style={{ color: selected ? "rgba(255,255,255,0.78)" : colors.textLight }}>{desc[c]}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -883,6 +957,9 @@ export default function Home() {
           </div>
         </div>
       )}
+
+        </div>{/* end inner max-width container */}
+      </section>{/* end CARDS SECTION */}
     </main>
   );
 }

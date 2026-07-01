@@ -193,7 +193,7 @@ export function getLTRWarning(buildingName: string, unitSize?: UnitSize): LTRAre
 // ── LTR Market Data ────────────────────────────────────────────────────────
 // Annual long-term rent benchmarks by community + unit size
 // Source: Property Finder / Bayut / DXB Interact market data (updated periodically)
-// These replace the manual owner input — GroundWorks sets this value internally.
+// These replace the manual owner input — AssetIntel sets this value internally.
 
 export const LTR_MARKET_RENTS: Record<string, Partial<Record<UnitSize, number>>> = {
   "Downtown Dubai": {
@@ -396,74 +396,76 @@ export interface BuildingInfo {
   community: string;
   area: string;
   tier: "ultra-luxury" | "luxury" | "mid";
+  completionYear?: number;
+  serviceChargePsf?: number;
+  maxFloors?: number;
 }
 
 export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   // Downtown / Burj Khalifa area — South Ridge
-  "South Ridge 1":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
-  "South Ridge 2":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
-  "South Ridge 3":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
-  "South Ridge 4":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
-  "South Ridge 5":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid" },
-  "Burj Khalifa":          { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
-  "Address Boulevard":     { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
-  "The Address Residences": { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
-  "Vida Residences":       { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury" },
-  "Act One Act Two":       { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury" },
-  "29 Boulevard":          { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury" },
-  "Burj Vista":            { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury" },
-  "Forte":                 { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury" },
-  "IL Primo":              { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
-  "St Regis Residences":   { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury" },
+  "South Ridge 1":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid",          completionYear: 2009, serviceChargePsf: 17, maxFloors: 23 },
+  "South Ridge 2":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid",          completionYear: 2009, serviceChargePsf: 17, maxFloors: 23 },
+  "South Ridge 3":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid",          completionYear: 2009, serviceChargePsf: 17, maxFloors: 23 },
+  "South Ridge 4":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid",          completionYear: 2009, serviceChargePsf: 17, maxFloors: 23 },
+  "South Ridge 5":         { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid",          completionYear: 2009, serviceChargePsf: 17, maxFloors: 23 },
+  "Burj Khalifa":          { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury", completionYear: 2010, serviceChargePsf: 28, maxFloors: 163 },
+  "Address Boulevard":     { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury", completionYear: 2018, serviceChargePsf: 27, maxFloors: 72 },
+  "The Address Residences": { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury",completionYear: 2018, serviceChargePsf: 27, maxFloors: 64 },
+  "Vida Residences":       { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury",       completionYear: 2018, serviceChargePsf: 28, maxFloors: 56 },
+  "Act One Act Two":       { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury",       completionYear: 2017, serviceChargePsf: 24, maxFloors: 66 },
+  "29 Boulevard":          { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury",       completionYear: 2013, serviceChargePsf: 19, maxFloors: 45 },
+  "Burj Vista":            { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury",       completionYear: 2017, serviceChargePsf: 16, maxFloors: 65 },
+  "Forte":                 { community: "Downtown Dubai", area: "Downtown Dubai", tier: "luxury",       completionYear: 2022, serviceChargePsf: 24, maxFloors: 64 },
+  "IL Primo":              { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury", completionYear: 2022, serviceChargePsf: 30, maxFloors: 77 },
+  "St Regis Residences":   { community: "Downtown Dubai", area: "Downtown Dubai", tier: "ultra-luxury", completionYear: 2022, serviceChargePsf: 30, maxFloors: 66 },
   // Marina
-  "Marina Gate":           { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury" },
-  "Marina Pinnacle":       { community: "Dubai Marina", area: "Dubai Marina", tier: "mid" },
-  "Cayan Tower":           { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury" },
-  "Princess Tower":        { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury" },
-  "Torch Tower":           { community: "Dubai Marina", area: "Dubai Marina", tier: "mid" },
-  "Sulafa Tower":          { community: "Dubai Marina", area: "Dubai Marina", tier: "mid" },
-  "Silverene":             { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury" },
-  "Studio One":            { community: "Dubai Marina", area: "Dubai Marina", tier: "mid" },
+  "Marina Gate":           { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury",  completionYear: 2020, serviceChargePsf: 19, maxFloors: 65 },
+  "Marina Pinnacle":       { community: "Dubai Marina", area: "Dubai Marina", tier: "mid",     completionYear: 2011, serviceChargePsf: 16, maxFloors: 48 },
+  "Cayan Tower":           { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury",  completionYear: 2013, serviceChargePsf: 22, maxFloors: 75 },
+  "Princess Tower":        { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury",  completionYear: 2012, serviceChargePsf: 16, maxFloors: 101 },
+  "Torch Tower":           { community: "Dubai Marina", area: "Dubai Marina", tier: "mid",     completionYear: 2011, serviceChargePsf: 21, maxFloors: 79 },
+  "Sulafa Tower":          { community: "Dubai Marina", area: "Dubai Marina", tier: "mid",     completionYear: 2010, serviceChargePsf: 18, maxFloors: 75 },
+  "Silverene":             { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury",  completionYear: 2011, serviceChargePsf: 24, maxFloors: 38 },
+  "Studio One":            { community: "Dubai Marina", area: "Dubai Marina", tier: "mid",     completionYear: 2019, serviceChargePsf: 14, maxFloors: 30 },
   // JBR
-  "Sadaf":                 { community: "JBR", area: "JBR", tier: "mid" },
-  "Rimal":                 { community: "JBR", area: "JBR", tier: "mid" },
-  "Bahar":                 { community: "JBR", area: "JBR", tier: "mid" },
-  "Murjan":                { community: "JBR", area: "JBR", tier: "mid" },
-  "The Walk":              { community: "JBR", area: "JBR", tier: "luxury" },
-  "Five JBR":              { community: "JBR", area: "JBR", tier: "luxury" },
+  "Sadaf":                 { community: "JBR", area: "JBR", tier: "mid",     completionYear: 2009, serviceChargePsf: 17, maxFloors: 38 },
+  "Rimal":                 { community: "JBR", area: "JBR", tier: "mid",     completionYear: 2009, serviceChargePsf: 17, maxFloors: 39 },
+  "Bahar":                 { community: "JBR", area: "JBR", tier: "mid",     completionYear: 2010, serviceChargePsf: 15, maxFloors: 40 },
+  "Murjan":                { community: "JBR", area: "JBR", tier: "mid",     completionYear: 2009, serviceChargePsf: 17, maxFloors: 36 },
+  "The Walk":              { community: "JBR", area: "JBR", tier: "luxury",  completionYear: 2015, serviceChargePsf: 20, maxFloors: 32 },
+  "Five JBR":              { community: "JBR", area: "JBR", tier: "luxury",  completionYear: 2016, serviceChargePsf: 22, maxFloors: 24 },
   // Palm Jumeirah
-  "Atlantis The Royal Residences": { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "ultra-luxury" },
-  "One Palm":              { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "ultra-luxury" },
-  "Palm Beach Towers":     { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury" },
-  "Tiara Residences":      { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury" },
-  "Shoreline Apartments":  { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "mid" },
-  "Garden Homes":          { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury" },
+  "Atlantis The Royal Residences": { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "ultra-luxury", completionYear: 2022, serviceChargePsf: 42, maxFloors: 44 },
+  "One Palm":              { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "ultra-luxury", completionYear: 2021, serviceChargePsf: 52, maxFloors: 24 },
+  "Palm Beach Towers":     { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2022, serviceChargePsf: 25, maxFloors: 52 },
+  "Tiara Residences":      { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2011, serviceChargePsf: 20, maxFloors: 38 },
+  "Shoreline Apartments":  { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "mid",          completionYear: 2008, serviceChargePsf: 18, maxFloors: 13 },
+  "Garden Homes":          { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2008, serviceChargePsf: 18, maxFloors: 2 },
   // Business Bay
-  "Damac Towers":          { community: "Business Bay", area: "Business Bay", tier: "luxury" },
-  "Executive Bay":         { community: "Business Bay", area: "Business Bay", tier: "mid" },
-  "Aykon City":            { community: "Business Bay", area: "Business Bay", tier: "luxury" },
-  "DAMAC Maison":          { community: "Business Bay", area: "Business Bay", tier: "luxury" },
-  "Paramount Tower":       { community: "Business Bay", area: "Business Bay", tier: "luxury" },
+  "Damac Towers":          { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2018, serviceChargePsf: 30, maxFloors: 63 },
+  "Executive Bay":         { community: "Business Bay", area: "Business Bay", tier: "mid",     completionYear: 2014, serviceChargePsf: 26, maxFloors: 62 },
+  "Aykon City":            { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2021, serviceChargePsf: 20, maxFloors: 79 },
+  "DAMAC Maison":          { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2017, serviceChargePsf: 22, maxFloors: 52 },
+  "Paramount Tower":       { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2018, serviceChargePsf: 28, maxFloors: 64 },
   // DIFC
-  "Index Tower":           { community: "DIFC", area: "DIFC", tier: "luxury" },
-  "Liberty House":         { community: "DIFC", area: "DIFC", tier: "luxury" },
-  // Other
+  "Index Tower":           { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2011, serviceChargePsf: 25, maxFloors: 80 },
+  "Liberty House":         { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2009, serviceChargePsf: 22, maxFloors: 38 },
   // LTR-recommended zones
-  "Aurum Villas":          { community: "Furjan", area: "Furjan", tier: "mid" },
-  "Masakin Al Furjan":     { community: "Furjan", area: "Furjan", tier: "mid" },
-  "Quortaj":               { community: "Furjan", area: "Furjan", tier: "mid" },
-  "Celestia":              { community: "Dubai South", area: "Dubai South", tier: "mid" },
-  "The Pulse":             { community: "Dubai South", area: "Dubai South", tier: "mid" },
-  "Miraclz":               { community: "Arjan", area: "Arjan", tier: "mid" },
-  "Binghatti Stars":       { community: "Arjan", area: "Arjan", tier: "mid" },
-  "Artesia":               { community: "DAMAC Hills", area: "DAMAC Hills", tier: "mid" },
+  "Aurum Villas":          { community: "Furjan", area: "Furjan", tier: "mid",           completionYear: 2016, serviceChargePsf: 15, maxFloors: 4 },
+  "Masakin Al Furjan":     { community: "Furjan", area: "Furjan", tier: "mid",           completionYear: 2015, serviceChargePsf: 15, maxFloors: 6 },
+  "Quortaj":               { community: "Furjan", area: "Furjan", tier: "mid",           completionYear: 2015, serviceChargePsf: 14, maxFloors: 4 },
+  "Celestia":              { community: "Dubai South", area: "Dubai South", tier: "mid", completionYear: 2019, serviceChargePsf: 13, maxFloors: 21 },
+  "The Pulse":             { community: "Dubai South", area: "Dubai South", tier: "mid", completionYear: 2019, serviceChargePsf: 13, maxFloors: 18 },
+  "Miraclz":               { community: "Arjan", area: "Arjan", tier: "mid",             completionYear: 2018, serviceChargePsf: 11, maxFloors: 22 },
+  "Binghatti Stars":       { community: "Arjan", area: "Arjan", tier: "mid",             completionYear: 2019, serviceChargePsf: 11, maxFloors: 20 },
+  "Artesia":               { community: "DAMAC Hills", area: "DAMAC Hills", tier: "mid", completionYear: 2019, serviceChargePsf: 14, maxFloors: 12 },
   "Akoya":                 { community: "DAMAC Hills 2", area: "DAMAC Hills 2", tier: "mid" },
-  "Luma 22":               { community: "JVC", area: "Jumeirah Village Circle", tier: "mid" },
-  "Creek Gate":            { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury" },
-  "The Grand":             { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury" },
-  "Emaar Beachfront":      { community: "Emaar Beachfront", area: "Dubai Harbour", tier: "luxury" },
-  "Beach Vista":           { community: "Emaar Beachfront", area: "Dubai Harbour", tier: "luxury" },
-  "Palace Beach Residence":{ community: "Emaar Beachfront", area: "Dubai Harbour", tier: "ultra-luxury" },
+  "Luma 22":               { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2023, serviceChargePsf: 13, maxFloors: 19 },
+  "Creek Gate":            { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury",       completionYear: 2021, serviceChargePsf: 20, maxFloors: 45 },
+  "The Grand":             { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury",       completionYear: 2020, serviceChargePsf: 20, maxFloors: 69 },
+  "Emaar Beachfront":      { community: "Emaar Beachfront", area: "Dubai Harbour", tier: "luxury",       completionYear: 2021, serviceChargePsf: 22, maxFloors: 26 },
+  "Beach Vista":           { community: "Emaar Beachfront", area: "Dubai Harbour", tier: "luxury",       completionYear: 2021, serviceChargePsf: 22, maxFloors: 26 },
+  "Palace Beach Residence":{ community: "Emaar Beachfront", area: "Dubai Harbour", tier: "ultra-luxury", completionYear: 2022, serviceChargePsf: 28, maxFloors: 25 },
 };
 
 // Monthly AC (district cooling / chiller) costs by unit size
@@ -595,6 +597,15 @@ const DIST_VILLA     = [0.070,0.069,0.070,0.082,0.088,0.097,0.098,0.097,0.091,0.
 
 export type FurnishedStatus = "Furnished" | "Unfurnished";
 
+export type PropertyCondition = "Standard" | "Lightly Upgraded" | "Fully Upgraded" | "Premium Renovated";
+
+export const CONDITION_PREMIUMS: Record<PropertyCondition, { str: number; ltr: number }> = {
+  "Standard":          { str: 0.00, ltr: 0.00 },
+  "Lightly Upgraded":  { str: 0.02, ltr: 0.01 },
+  "Fully Upgraded":    { str: 0.04, ltr: 0.02 },
+  "Premium Renovated": { str: 0.06, ltr: 0.03 },
+};
+
 export interface EstimatorInput {
   propertyName: string;
   buildingName: string;
@@ -612,6 +623,14 @@ export interface EstimatorInput {
   premium?: number;           // fraction, default 0.15
   // longTermRent is now derived from market data — not a user input
   longTermRentOverride?: number;
+  // SUBLEASE_RISK: skip forced minimum STR premium so the deal can naturally fail
+  mode?: "SUBLEASE_RISK";
+  // Building-level occupancy adjustment from sublease-str-demand.ts (fraction, e.g. 0.03)
+  buildingOccAdj?: number;
+  // Furnishing quality revenue multiplier: Basic=0.82, Standard=0.93, Premium=1.0, Luxury=1.10
+  furnishingRevenueMult?: number;
+  // Interior upgrade condition (owner estimator only)
+  propertyCondition?: PropertyCondition;
 }
 
 export interface MonthlyRow {
@@ -658,6 +677,9 @@ export interface EstimatorOutput {
   netYield?: number;
   suggestLongTerm: boolean;      // true if LT rent < 40k and in outskirt area
   months: MonthlyRow[];
+  propertyCondition: PropertyCondition;
+  conditionStrPremium: number;
+  conditionLtrPremium: number;
 }
 
 export function runEstimator(input: EstimatorInput): EstimatorOutput {
@@ -686,7 +708,8 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     unitSize === "2BR" ? 0.6 :
     unitSize === "3BR" ? 0.45 :
     0.35; // 4BR+ apartments and villas — hardest to fill
-  const occQualityAdj = rawOccAdj >= 0 ? rawOccAdj * occUpsideFactor : Math.max(-0.03, rawOccAdj);
+  const buildingOccAdj = input.buildingOccAdj ?? 0;
+  const occQualityAdj = (rawOccAdj >= 0 ? rawOccAdj * occUpsideFactor : Math.max(-0.03, rawOccAdj)) + buildingOccAdj;
   const occRates = getOccRates(unitSize, occQualityAdj);
 
   // For LTR-recommended areas, eliminate the base premium and reduce occupancy
@@ -700,7 +723,13 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     ? { tier: "standard" as const, revenuePremium: 0, occUplift: 0, lowSeasonOccUplift: 0 }
     : getSTRDemand(buildingName, unitSize);
 
-  const totalPremium = basePremium + vPremium + fPremium + tPremium + strDemand.revenuePremium;
+  // Property condition premiums (owner estimator only; ignored in SUBLEASE_RISK mode)
+  const condition = input.propertyCondition ?? "Standard";
+  const condPremiums = CONDITION_PREMIUMS[condition];
+  const conditionStrPremium = input.mode === "SUBLEASE_RISK" ? 0 : Math.min(condPremiums.str, 0.06);
+  const conditionLtrPremium = input.mode === "SUBLEASE_RISK" ? 0 : Math.min(condPremiums.ltr, 0.03);
+
+  const totalPremium = basePremium + vPremium + fPremium + tPremium + strDemand.revenuePremium + conditionStrPremium;
 
   // Low season = Jun, Jul, Aug, Sep (indices 0–3 in MONTHS)
   const isLowSeason = (i: number) => i <= 3;
@@ -717,7 +746,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // Derive LTR from market data unless overridden internally
   const ltrMarket = getLTRMarketRent(buildingName, unitSize, input.sizeSqft, input.dldKey, input.dldArea);
   const { rent: marketRent, source: ltrSource } = ltrMarket;
-  const longTermRent = longTermRentOverride ?? marketRent;
+  const longTermRent = (longTermRentOverride ?? marketRent) * (1 + conditionLtrPremium);
 
   // Annual owner-paid running costs (in STR the OWNER pays these; in LTR the tenant does).
   const annualUtilEst = MONTHS.reduce((s, _m, i) => s + DEWA[unitSize][i] + AC[unitSize][i] + DU[unitSize], 0);
@@ -734,12 +763,18 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   //   required premium = minAdvantage + (utilities + maintenance) / LTR
   // Premium properties whose natural premium already exceeds this keep their higher value.
   // LTR-recommended areas are exempt (there STR is intentionally not advantaged).
-  const MIN_STR_NET_ADVANTAGE = 0.18; // STR net ≥ 18% above LTR (realistic, achievable margin)
+  // SUBLEASE_RISK mode: do not force a minimum premium — let the deal fail naturally.
+  // Owner estimator mode: floor the premium so STR net is always ≥ 18% above LTR.
+  const MIN_STR_NET_ADVANTAGE = 0.18;
   const requiredPremium = MIN_STR_NET_ADVANTAGE + (annualUtilEst + annualMaintEst + furnitureAmortAnnual) / longTermRent;
-  const effectivePremium = ltrWarning ? totalPremium : Math.max(totalPremium, requiredPremium);
+  const effectivePremium = (input.mode === "SUBLEASE_RISK" || ltrWarning)
+    ? totalPremium
+    : Math.max(totalPremium, requiredPremium);
 
-  // Target annual STR revenue, scaled up so net (after mgmt fee) lands at the intended margin.
-  const targetRevenue = (longTermRent * (1 + effectivePremium)) / (1 - managementFee);
+  // Target annual STR revenue. In SUBLEASE_RISK mode a furnishing multiplier scales this
+  // down so Basic/Standard furnishing naturally reduces ADR and increases break-even occupancy.
+  const furnishingMult = input.furnishingRevenueMult ?? 1;
+  const targetRevenue = ((longTermRent * (1 + effectivePremium)) / (1 - managementFee)) * furnishingMult;
 
   const months: MonthlyRow[] = MONTHS.map((month, i) => {
     const revenue = targetRevenue * dist[i];
@@ -811,6 +846,9 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
     netYield: propertyValue ? (annualNetToLandlord / propertyValue) * 100 : undefined,
     suggestLongTerm,
     months,
+    propertyCondition: condition,
+    conditionStrPremium,
+    conditionLtrPremium,
   };
 }
 

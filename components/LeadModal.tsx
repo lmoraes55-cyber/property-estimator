@@ -8,7 +8,7 @@ interface LeadModalProps {
   target: string;        // operator/agent name, or service/package name
   targetType: "operator" | "agent" | "service";
   property?: string;     // building / unit context
-  context?: Record<string, string | number | undefined>; // property + GW estimate snapshot
+  context?: Record<string, string | number | undefined>; // property + AssetIntel estimate snapshot
   onClose: () => void;
   onSuccess?: () => void; // called after a successful submit (e.g. proceed to contact)
 }

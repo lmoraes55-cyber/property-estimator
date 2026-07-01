@@ -6,10 +6,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 const colors = {
   primary: "#1B5E4A",
   secondary: "#B88A44",
-  bgMain: "#FAFAF8",
+  bgMain: "#F8F4EE",
   textMain: "#1A1A1A",
   textMuted: "#6B6B6B",
-  border: "#E0DDD8",
+  border: "#E6E1D8",
 };
 
 function PaySuccessContent() {
@@ -19,7 +19,7 @@ function PaySuccessContent() {
 
   return (
     <div style={{ minHeight: "100vh", background: colors.bgMain, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
-      <div style={{ maxWidth: 480, width: "100%", background: "#fff", borderRadius: 16, border: `1px solid ${colors.border}`, padding: "48px 40px", textAlign: "center", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }}>
+      <div style={{ maxWidth: 480, width: "100%", background: "#fff", borderRadius: 16, border: `1px solid ${colors.border}`, padding: "clamp(28px,5vw,48px) clamp(20px,4vw,40px)", textAlign: "center", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }}>
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#E8F5F0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <path d="M8 16L13 21L24 11" stroke={colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -29,7 +29,7 @@ function PaySuccessContent() {
           Payment Confirmed
         </h1>
         <p style={{ fontSize: 15, color: colors.textMuted, margin: "0 0 24px", lineHeight: 1.6 }}>
-          Thank you — your GroundWorks session is booked. We&apos;ll reach out within 24 hours to schedule.
+          Thank you — your AssetIntel session is booked. We&apos;ll reach out within 24 hours to schedule.
         </p>
         {ref && (
           <div style={{ background: "#F4F9F7", border: `1px solid ${colors.border}`, borderRadius: 8, padding: "12px 20px", margin: "0 0 32px" }}>

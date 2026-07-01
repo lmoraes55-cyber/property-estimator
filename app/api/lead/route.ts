@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic"; // never cache lead submissions
 
-// Generate a GroundWorks lead reference, e.g. GW-2406-7F3K
+// Generate an AssetIntel lead reference, e.g. AI-2406-7F3K
 function makeRef(): string {
   const d = new Date();
   const yymm = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, "0")}`;
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `GW-${yymm}-${rand}`;
+  return `AI-${yymm}-${rand}`;
 }
 
 const str = (v: unknown) => (v == null ? "" : String(v).trim());
@@ -31,13 +31,13 @@ export async function POST(request: Request) {
 
   const ref = makeRef();
 
-  // A "GroundWorks Lead" — a qualified owner with full property + analysis context,
-  // delivered to the matched operator/agent under the GroundWorks brand.
+  // A "AssetIntel Lead" — a qualified owner with full property + analysis context,
+  // delivered to the matched operator/agent under the AssetIntel brand.
   const lead = {
     ref,
     status: "New",
     submittedAt: new Date().toISOString(),
-    source: "groundworks.ae",
+    source: "assetintel.ae",
     // Owner
     name, phone, email,
     // Who they want to reach
@@ -51,18 +51,23 @@ export async function POST(request: Request) {
     floor: str(b.floor),
     view: str(b.view),
     furnished: str(b.furnished),
-    // GroundWorks analysis snapshot (what makes the lead qualified)
+    // AssetIntel analysis snapshot (what makes the lead qualified)
     recommendation: str(b.recommendation), // STR | LTR
     strNetPerYear: str(b.strNetPerYear),
     ltrPerYear: str(b.ltrPerYear),
     occupancy: str(b.occupancy),
     adr: str(b.adr),
+    // Growing portfolio / service enquiry fields
+    numberOfUnits: str(b.units),
+    portfolioStatus: str(b.status),
+    supportNeeded: str(b.support),
+    notes: str(b.message),
   };
 
   const isService = lead.targetType === "service";
 
   // Always log — leads appear in Vercel runtime logs even before a webhook is wired.
-  console.log(isService ? "[GW-SERVICE-LEAD]" : "[GW-LEAD]", JSON.stringify(lead));
+  console.log(isService ? "[AI-SERVICE-LEAD]" : "[AI-LEAD]", JSON.stringify(lead));
 
   // Route to the right destination sheet:
   //  - Service enquiries (self-manage / operations)  -> LEAD_WEBHOOK_URL_SERVICES
@@ -80,7 +85,7 @@ export async function POST(request: Request) {
         body: JSON.stringify(lead),
       });
     } catch (e) {
-      console.error("[GW-LEAD] webhook forward failed:", (e as Error).message);
+      console.error("[AI-LEAD] webhook forward failed:", (e as Error).message);
     }
   }
 

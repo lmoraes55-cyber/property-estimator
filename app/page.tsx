@@ -1,18 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import GroundWorksLogo from "@/components/GroundWorksLogo";
 import { useIsMobile } from "@/lib/useIsMobile";
+import { STATS } from "@/data/dubai-2026-handovers";
+import SiteNav from "@/components/SiteNav";
 
 const colors = {
   primary: "#1B5E4A",      // Forest green
   secondary: "#B88A44",    // Bronze/muted gold
-  bgMain: "#FAFAF8",       // Warm off-white/cream
-  bgSection: "#FFFFFF",    // White for cards
+  bgMain: "#F8F4EE",       // Warm off-white/cream
+  bgSection: "#FDFBF7",    // White for cards
   textMain: "#1A1A1A",     // Deep black
   textMuted: "#6B6B6B",    // Muted gray
-  border: "#E0DDD8",       // Soft border
+  border: "#E6E1D8",       // Soft border
   shadowSm: "0 1px 2px rgba(0, 0, 0, 0.05)",
   shadowMd: "0 4px 6px rgba(0, 0, 0, 0.1)",
   shadowLg: "0 20px 25px rgba(0, 0, 0, 0.15)",
@@ -113,8 +114,14 @@ const IconGrowth = ({ color = colors.secondary }) => (
 
 export default function HomePage() {
   const router = useRouter();
-  const [servicesOpen, setServicesOpen] = React.useState(false);
   const isMobile = useIsMobile();
+  const [showOpsModal, setShowOpsModal] = useState(false);
+  const [opsForm, setOpsForm] = useState({
+    name: "", email: "", phone: "", company: "",
+    portfolioSize: "", serviceNeeded: "", stage: "", message: "",
+  });
+  const [opsSubmitted, setOpsSubmitted] = useState(false);
+  const [opsSubmitting, setOpsSubmitting] = useState(false);
 
   const handleAnalyzeClick = () => {
     router.push("/estimator");
@@ -124,146 +131,23 @@ export default function HomePage() {
     router.push("/self-manage");
   };
 
+  const handleOpsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOpsSubmitting(true);
+    try {
+      await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...opsForm, source: "Operational Setup Enquiry" }),
+      });
+    } catch {}
+    setOpsSubmitting(false);
+    setOpsSubmitted(true);
+  };
+
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh" }}>
-      {/* ─────────────────────────────────────────────────────────────────────── */}
-      {/* HEADER / NAVIGATION */}
-      {/* ─────────────────────────────────────────────────────────────────────── */}
-      <header
-        style={{
-          background: colors.bgSection,
-          borderBottom: `1px solid ${colors.border}`,
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div
-          style={{
-            padding: isMobile ? "14px 20px" : "16px 40px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: isMobile ? "space-between" : "flex-start",
-            gap: isMobile ? "12px" : "60px",
-          }}
-        >
-          {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "fit-content" }}>
-            <GroundWorksLogo size={40} />
-            <div>
-              <div style={{ fontSize: "18px", fontWeight: "bold", color: colors.textMain }}>
-                Ground<span style={{ color: colors.primary }}>Works</span>
-              </div>
-              <div style={{ fontSize: "10px", color: colors.textMuted, letterSpacing: "0.1em" }}>
-                RENTAL INTELLIGENCE
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation (hidden on mobile to avoid overflow) + mobile Analyze button */}
-          {isMobile && (
-            <button onClick={handleAnalyzeClick}
-              style={{ padding: "9px 16px", background: colors.primary, color: "#fff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
-              Analyze
-            </button>
-          )}
-          <nav style={{ display: isMobile ? "none" : "flex", gap: "40px", flex: 1 }}>
-            <a href="#home" style={{ textDecoration: "none", color: colors.textMain, fontSize: "15px", fontWeight: "500" }}>
-              Home
-            </a>
-
-            {/* Services dropdown */}
-            <div
-              style={{ position: "relative" }}
-              onMouseEnter={() => setServicesOpen(true)}
-              onMouseLeave={() => setServicesOpen(false)}
-            >
-              <a
-                href="#services"
-                style={{
-                  textDecoration: "none",
-                  color: colors.textMuted,
-                  fontSize: "15px",
-                  fontWeight: "500",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                }}
-              >
-                Services
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ marginTop: "2px" }}>
-                  <path d="M2 3.5L5 6.5L8 3.5" stroke={colors.textMuted} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
-              {servicesOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: "-16px",
-                    paddingTop: "14px",
-                    zIndex: 200,
-                  }}
-                >
-                  <div
-                    style={{
-                      background: colors.bgSection,
-                      borderRadius: "12px",
-                      border: `1px solid ${colors.border}`,
-                      boxShadow: colors.shadowLg,
-                      padding: "8px",
-                      minWidth: "240px",
-                    }}
-                  >
-                    {[
-                      { label: "Rental Strategy Analyzer", action: handleAnalyzeClick },
-                      { label: "Self-Manage Your Property", action: handleSelfManageClick },
-                      { label: "STR Sub-Leasing", action: () => router.push("/self-manage/str-subleasing") },
-                      { label: "Operational Setup", action: () => router.push("/#services") },
-                    ].map((item) => (
-                      <button
-                        key={item.label}
-                        onClick={item.action}
-                        style={{
-                          display: "block",
-                          width: "100%",
-                          textAlign: "left",
-                          background: "transparent",
-                          border: "none",
-                          padding: "12px 14px",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          color: colors.textMain,
-                          cursor: "pointer",
-                          borderRadius: "8px",
-                          transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = colors.bgMain;
-                          e.currentTarget.style.color = colors.primary;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.color = colors.textMain;
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <a href="#insights" style={{ textDecoration: "none", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>
-              Insights
-            </a>
-            <a href="#contact" style={{ textDecoration: "none", color: colors.textMuted, fontSize: "15px", fontWeight: "500" }}>
-              Contact
-            </a>
-          </nav>
-        </div>
-      </header>
+      <SiteNav active="home" />
 
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* HERO SECTION - SIMPLIFIED STRUCTURE */}
@@ -273,7 +157,7 @@ export default function HomePage() {
         style={{
           position: "relative",
           minHeight: isMobile ? "auto" : "760px",
-          background: colors.bgMain,
+          background: `radial-gradient(ellipse 700px 500px at 15% 40%, rgba(27,94,74,0.06) 0%, transparent 65%), radial-gradient(ellipse 600px 400px at 80% 10%, rgba(184,138,68,0.07) 0%, transparent 60%), #F8F4EE`,
           overflow: "hidden",
         }}
       >
@@ -321,32 +205,80 @@ export default function HomePage() {
             </p>
 
             {/* CTA Buttons */}
-            <div style={{ display: "flex", gap: "16px", flexDirection: isMobile ? "column" : "row" }}>
+            <div style={{ display: "flex", gap: "14px", flexDirection: isMobile ? "column" : "row", marginBottom: "32px" }}>
               <button
                 onClick={handleAnalyzeClick}
                 style={{
-                  padding: "14px 32px",
-                  background: colors.primary,
+                  padding: "15px 30px",
+                  background: `linear-gradient(135deg, ${colors.primary} 0%, #0F3E33 100%)`,
                   color: "#FFFFFF",
                   border: "none",
-                  borderRadius: "8px",
+                  borderRadius: "12px",
                   fontSize: "15px",
                   fontWeight: "600",
                   cursor: "pointer",
-                  transition: "all 0.3s ease",
+                  boxShadow: "0 4px 16px rgba(27,94,74,0.28)",
+                  transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = colors.shadowMd;
+                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(27,94,74,0.36)";
                   e.currentTarget.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(27,94,74,0.28)";
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                Analyze My Property
+                Find My Best Rental Strategy →
               </button>
+              <button
+                onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}
+                style={{
+                  padding: "15px 26px",
+                  background: "transparent",
+                  color: colors.primary,
+                  border: `1.5px solid rgba(27,94,74,0.35)`,
+                  borderRadius: "12px",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `rgba(27,94,74,0.06)`;
+                  e.currentTarget.style.borderColor = `rgba(27,94,74,0.6)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = `rgba(27,94,74,0.35)`;
+                }}
+              >
+                Explore Advisory Services
+              </button>
+            </div>
 
+            {/* Hero trust chips */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {[
+                "Dubai property intelligence",
+                "STR vs LTR strategy",
+                "Operator & setup advisory",
+                "2026 handover insights",
+              ].map(label => (
+                <span key={label} style={{
+                  display: "inline-flex", alignItems: "center", gap: "5px",
+                  padding: "5px 12px",
+                  background: "rgba(27,94,74,0.07)",
+                  border: "1px solid rgba(27,94,74,0.18)",
+                  borderRadius: "20px",
+                  fontSize: "12px", fontWeight: 600, color: colors.primary,
+                }}>
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6.2L4.5 8.5L10 3.5" stroke={colors.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {label}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -384,7 +316,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* TRUST BAR */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section style={{ padding: isMobile ? "32px 20px" : "48px 40px" }}>
+      <section style={{ padding: isMobile ? "32px 20px" : "48px 40px", background: "#F5F2EC" }}>
         <style>{`
           .gw-trust-grid {
             display: grid;
@@ -479,7 +411,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────────────── */}
       {/* SERVICES SECTION */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      <section id="services" style={{ padding: isMobile ? "60px 20px" : "96px 40px", background: "#F8F5EF" }}>
+      <section id="services" style={{ padding: isMobile ? "60px 20px" : "96px 40px", background: "#F8F4EE" }}>
         <style>{`
           .svc-card {
             background: #FDFBF8;
@@ -584,20 +516,29 @@ export default function HomePage() {
             color: #1B5E4A;
             margin-bottom: 20px;
           }
-          .svc-btn-green {
+          .svc-btn-green, .svc-btn-bronze {
             width: 100%;
-            padding: 13px 20px;
+            min-height: 56px;
+            padding: 0 20px;
             border-radius: 11px;
             border: none;
-            background: linear-gradient(135deg, #1B5E4A 0%, #0F3E33 100%);
             color: #FFFFFF;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             letter-spacing: 0.01em;
-            box-shadow: 0 2px 8px rgba(27,94,74,0.25);
             transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
             margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+          .svc-btn-green {
+            background: linear-gradient(135deg, #1B5E4A 0%, #0F3E33 100%);
+            box-shadow: 0 2px 8px rgba(27,94,74,0.25);
           }
           .svc-btn-green:hover {
             transform: translateY(-2px);
@@ -605,19 +546,8 @@ export default function HomePage() {
             background: linear-gradient(135deg, #0F3E33 0%, #0A2922 100%);
           }
           .svc-btn-bronze {
-            width: 100%;
-            padding: 13px 20px;
-            border-radius: 11px;
-            border: none;
             background: linear-gradient(135deg, #B88A44 0%, #8B6F3F 100%);
-            color: #FFFFFF;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            letter-spacing: 0.01em;
             box-shadow: 0 2px 8px rgba(184,138,68,0.28);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-            margin-top: auto;
           }
           .svc-btn-bronze:hover {
             transform: translateY(-2px);
@@ -771,10 +701,10 @@ export default function HomePage() {
                   <li>Boutique operators</li>
                   <li>Property managers</li>
                 </ul>
-                <div className="svc-pricing">Done-for-you launch from AED 3,500</div>
+                <div className="svc-pricing">Pricing discussed after reviewing your setup requirements</div>
               </div>
-              <button className="svc-btn-green" onClick={() => router.push("/self-manage#pricing")}>
-                View Operations Pricing →
+              <button className="svc-btn-green" onClick={() => setShowOpsModal(true)}>
+                Contact Us →
               </button>
             </div>
 
@@ -783,7 +713,107 @@ export default function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────────────── */}
-      {/* WHY GROUNDWORKS — TRUST / DIFFERENTIATION */}
+      {/* 2026 HANDOVER INTELLIGENCE TEASER */}
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+      <section style={{ padding: isMobile ? "60px 20px" : "88px 40px", background: "#F5F2EC" }}>
+        <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
+          {/* Eyebrow */}
+          <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: colors.secondary, marginBottom: "14px", textAlign: "center" }}>
+            2026 Handover Intelligence
+          </p>
+
+          {/* Headline */}
+          <h2 style={{
+            fontFamily: "'Georgia', serif",
+            fontSize: isMobile ? "26px" : "38px",
+            fontWeight: 700, lineHeight: 1.2,
+            background: `linear-gradient(135deg, ${colors.primary} 0%, #4A8A6A 45%, ${colors.secondary} 100%)`,
+            WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
+            textAlign: "center", marginBottom: "14px",
+          }}>
+            Properties Handing Over in 2026 —{isMobile ? " " : <br />}
+            Should You STR or LTR?
+          </h2>
+
+          <p style={{ fontSize: isMobile ? "14px" : "15px", color: "#666", lineHeight: 1.7, textAlign: "center", maxWidth: "560px", margin: "0 auto 36px" }}>
+            AssetIntel tracks upcoming Dubai handovers and helps owners understand whether short-term rental, long-term rental, self-management, or operator management may be the stronger route.
+          </p>
+
+          {/* Stat cards */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px", marginBottom: "36px" }}>
+            {[
+              {
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+                value: `${STATS.total}+`,
+                label: "2026 handover projects tracked",
+                sub: "Across Dubai's key growth areas",
+              },
+              {
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>,
+                value: "STR / LTR",
+                label: "Strategy screening for each project",
+                sub: "Based on area, tier, and demand profile",
+              },
+              {
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>,
+                value: "Free",
+                label: "Operator & setup guidance available",
+                sub: "Request a handover strategy review",
+              },
+            ].map(card => (
+              <div key={card.label} style={{
+                background: "#FFFFFF",
+                border: "1px solid #E0DDD8",
+                borderRadius: "20px",
+                padding: "24px 22px",
+                boxShadow: "0 2px 8px rgba(27,94,74,0.05)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "#EEF5F1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {card.icon}
+                </div>
+                <p style={{ fontSize: "22px", fontWeight: 700, color: colors.primary }}>{card.value}</p>
+                <div>
+                  <p style={{ fontSize: "13px", fontWeight: 600, color: "#1A1A1A", marginBottom: "3px" }}>{card.label}</p>
+                  <p style={{ fontSize: "12px", color: "#888" }}>{card.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={() => router.push("/investment-research/2026-handovers")}
+              style={{
+                padding: "13px 28px", borderRadius: "999px",
+                background: `linear-gradient(135deg, ${colors.primary} 0%, #2D7A5E 100%)`,
+                color: "#FFF", fontSize: "14px", fontWeight: 700,
+                border: "none", cursor: "pointer",
+                boxShadow: "0 8px 20px rgba(27,94,74,0.25)",
+              }}
+            >
+              Explore 2026 Handovers
+            </button>
+            <button
+              onClick={() => router.push("/estimator")}
+              style={{
+                padding: "13px 28px", borderRadius: "999px",
+                background: "transparent",
+                border: `1.5px solid rgba(27,94,74,0.3)`,
+                color: colors.primary, fontSize: "14px", fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              Analyze My Property
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+      {/* WHY ASSETINTEL — TRUST / DIFFERENTIATION */}
       {/* ─────────────────────────────────────────────────────────────────────── */}
       <section style={{ padding: isMobile ? "64px 20px" : "96px 40px", background: colors.bgSection }}>
         <style>{`
@@ -862,7 +892,7 @@ export default function HomePage() {
           {/* Header */}
           <div style={{ marginBottom: "56px", maxWidth: "780px" }}>
             <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: "16px" }}>
-              Why GroundWorks
+              Why AssetIntel
             </p>
             <h2 style={{
               fontFamily: "'Georgia', serif",
@@ -876,7 +906,7 @@ export default function HomePage() {
               Real data and real connections — not a generic guess
             </h2>
             <p style={{ fontSize: "15.5px", color: colors.textMuted, lineHeight: 1.75, maxWidth: "680px" }}>
-              Anyone can ask an AI &ldquo;what could my Dubai apartment earn?&rdquo; and get a confident-sounding number. GroundWorks gives you something an AI can&rsquo;t: figures grounded in millions of real registered contracts, a model tuned to how Dubai short-term rentals actually perform, and a direct line to vetted operators and leasing agents.
+              Anyone can ask an AI &ldquo;what could my Dubai apartment earn?&rdquo; and get a confident-sounding number. AssetIntel gives you something an AI can&rsquo;t: figures grounded in millions of real registered contracts, a model tuned to how Dubai short-term rentals actually perform, and a direct line to vetted operators and leasing agents.
             </p>
           </div>
 
@@ -934,7 +964,7 @@ export default function HomePage() {
               padding: isMobile ? "32px 24px" : "40px 36px",
               borderRight: isMobile ? "none" : "1px solid #E8E0D0",
               borderBottom: isMobile ? "1px solid #E8E0D0" : "none",
-              background: "#F8F5F0",
+              background: "#F8F4EE",
             }}>
               <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: "#9A8A78", marginBottom: "24px" }}>
                 Just asking an AI
@@ -955,13 +985,13 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Right — With GroundWorks */}
+            {/* Right — With AssetIntel */}
             <div style={{
               padding: isMobile ? "32px 24px" : "40px 36px",
               background: "#FDFCFA",
             }}>
               <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: colors.primary, marginBottom: "24px" }}>
-                With GroundWorks
+                With AssetIntel
               </p>
               {[
                 "Figures from real registered Dubai contracts",
@@ -981,6 +1011,210 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+      {/* FOOTER */}
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+      <footer style={{ background: "#1B5E4A", color: "#fff" }}>
+        {/* Independence note bar */}
+        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", padding: isMobile ? "20px 20px" : "20px 40px" }}>
+          <div style={{ maxWidth: "1360px", margin: "0 auto", display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3zM9 12l2 2 4-4" stroke="rgba(255,255,255,0.65)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.65)", textAlign: "center" }}>
+              AssetIntel is not a broker or operator. We provide data-led rental intelligence, strategy guidance, and setup advisory.
+            </span>
+          </div>
+        </div>
+
+        {/* Main footer */}
+        <div style={{ maxWidth: "1360px", margin: "0 auto", padding: isMobile ? "48px 20px 36px" : "64px 40px 48px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? "40px" : "48px" }}>
+
+          {/* Brand column */}
+          <div>
+            <div style={{ marginBottom: "18px" }}>
+              <div style={{ fontSize: "20px", fontFamily: "'Georgia', serif", fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>AssetIntel</div>
+              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: "3px" }}>Property Intelligence. Smarter Decisions.</div>
+            </div>
+            <p style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.6)", lineHeight: 1.75, maxWidth: "320px" }}>
+              AssetIntel helps Dubai property owners, investors, and operators make smarter rental, investment, and STR setup decisions through data-led intelligence and advisory support.
+            </p>
+            <a href="mailto:hello@assetintel.ae" style={{ display: "inline-flex", alignItems: "center", gap: "7px", marginTop: "20px", fontSize: "13px", color: "#B88A44", fontWeight: 600, textDecoration: "none" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B88A44" strokeWidth="1.6" strokeLinecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 4l10 9 10-9"/></svg>
+              hello@assetintel.ae
+            </a>
+          </div>
+
+          {/* Services */}
+          <div>
+            <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: "18px" }}>Services</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {[
+                { label: "Rental Strategy Analyzer", href: "/estimator" },
+                { label: "Self-Manage Playbook", href: "/self-manage/owners" },
+                { label: "STR Sub-Leasing", href: "/self-manage/str-subleasing" },
+                { label: "STR Risk Estimator", href: "/self-manage/str-subleasing/estimator" },
+                { label: "Operational Setup", href: "/#services" },
+              ].map(({ label, href }) => (
+                <a key={label} href={href} style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.65)", textDecoration: "none", transition: "color 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+                >{label}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* Insights */}
+          <div>
+            <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: "18px" }}>Insights</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {[
+                { label: "2026 Handover Watchlist", href: "/investment-research/2026-handovers" },
+                { label: "Operator Recommendations", href: "/operators" },
+                { label: "Agent Recommendations", href: "/agents" },
+                { label: "Furnishing Calculator", href: "/furnishing" },
+              ].map(({ label, href }) => (
+                <a key={label} href={href} style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.65)", textDecoration: "none", transition: "color 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+                >{label}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: "18px" }}>Contact</div>
+            <button
+              onClick={handleAnalyzeClick}
+              style={{ display: "block", width: "100%", padding: "13px 16px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", color: "#fff", fontSize: "13.5px", fontWeight: 600, cursor: "pointer", textAlign: "center", marginBottom: "12px", transition: "background 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.15)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")}
+            >
+              Analyze My Property
+            </button>
+            <button
+              onClick={() => router.push("/self-manage")}
+              style={{ display: "block", width: "100%", padding: "13px 16px", background: "#B88A44", border: "none", borderRadius: "10px", color: "#fff", fontSize: "13.5px", fontWeight: 600, cursor: "pointer", textAlign: "center", transition: "background 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#9A7238")}
+              onMouseLeave={e => (e.currentTarget.style.background = "#B88A44")}
+            >
+              Speak to an Advisor
+            </button>
+          </div>
+
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: isMobile ? "20px 20px" : "20px 40px" }}>
+          <div style={{ maxWidth: "1360px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>© {new Date().getFullYear()} AssetIntel. All rights reserved. · assetintel.ae</span>
+            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>Dubai Property Intelligence & STR Advisory</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── Operational Setup Enquiry Modal ── */}
+      {showOpsModal && (
+        <div
+          onClick={() => { if (!opsSubmitting) { setShowOpsModal(false); setOpsSubmitted(false); setOpsForm({ name:"",email:"",phone:"",company:"",portfolioSize:"",serviceNeeded:"",stage:"",message:"" }); } }}
+          style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(20,30,25,0.55)", backdropFilter:"blur(4px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background:"#FDFBF7", borderRadius:"20px", boxShadow:"0 32px 80px rgba(20,48,38,0.22), 0 8px 24px rgba(20,48,38,0.12)", width:"100%", maxWidth:"560px", maxHeight:"90vh", overflowY:"auto", padding: isMobile ? "28px 20px" : "40px 36px", position:"relative" }}
+          >
+            {/* Close */}
+            <button
+              onClick={() => { setShowOpsModal(false); setOpsSubmitted(false); setOpsForm({ name:"",email:"",phone:"",company:"",portfolioSize:"",serviceNeeded:"",stage:"",message:"" }); }}
+              style={{ position:"absolute", top:"16px", right:"16px", background:"none", border:"none", cursor:"pointer", color:colors.textMuted, fontSize:"22px", lineHeight:1, padding:"4px 8px" }}
+              aria-label="Close"
+            >×</button>
+
+            {/* Accent bar */}
+            <div style={{ height:"3px", background:`linear-gradient(90deg,${colors.primary},rgba(27,94,74,0.18))`, borderRadius:"2px", marginBottom:"24px" }} />
+
+            {opsSubmitted ? (
+              <div style={{ textAlign:"center", padding:"20px 0 8px" }}>
+                <div style={{ width:"52px", height:"52px", borderRadius:"50%", background:"#EEF5F1", border:`1.5px solid rgba(27,94,74,0.18)`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 18px" }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <p style={{ fontSize:"17px", fontWeight:700, color:colors.primary, marginBottom:"10px" }}>Enquiry Received</p>
+                <p style={{ fontSize:"14px", color:colors.textMuted, lineHeight:1.6 }}>
+                  Thank you — your operational setup enquiry has been received. AssetIntel will review your details and contact you to discuss the right setup approach.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleOpsSubmit}>
+                <p style={{ fontSize:"20px", fontWeight:800, color:colors.primary, marginBottom:"6px" }}>Operational Setup Enquiry</p>
+                <p style={{ fontSize:"13px", color:colors.textMuted, lineHeight:1.55, marginBottom:"24px" }}>
+                  Tell us about your STR operation and AssetIntel will review how we can support your setup, systems, team structure, and operational workflows.
+                </p>
+
+                {/* Field styles shared */}
+                {[
+                  { label:"Full Name", key:"name", type:"text", placeholder:"Your full name", required:true },
+                  { label:"Email", key:"email", type:"email", placeholder:"your@email.com", required:true },
+                  { label:"Phone / WhatsApp", key:"phone", type:"tel", placeholder:"+971 50 000 0000", required:false },
+                  { label:"Company Name (if any)", key:"company", type:"text", placeholder:"Your company or brand", required:false },
+                ].map(f => (
+                  <div key={f.key} style={{ marginBottom:"16px" }}>
+                    <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"6px" }}>{f.label}{f.required && <span style={{ color:colors.secondary }}> *</span>}</label>
+                    <input
+                      type={f.type}
+                      required={f.required}
+                      placeholder={f.placeholder}
+                      value={(opsForm as any)[f.key]}
+                      onChange={e => setOpsForm(p => ({ ...p, [f.key]: e.target.value }))}
+                      style={{ width:"100%", boxSizing:"border-box", padding:"10px 14px", borderRadius:"10px", border:`1.5px solid ${colors.border}`, background:"#FBF9F5", fontSize:"14px", color:colors.textMain, outline:"none", fontFamily:"inherit" }}
+                    />
+                  </div>
+                ))}
+
+                {[
+                  { label:"Current Portfolio Size", key:"portfolioSize", required:true, options:["Not started yet","1–5 units","6–10 units","11–20 units","21+ units"] },
+                  { label:"Service Needed", key:"serviceNeeded", required:true, options:["STR company setup","PMS and automation setup","Housekeeping / maintenance workflow setup","Guest communication setup","SOPs and team structure","Full operational setup","Not sure yet"] },
+                  { label:"Current Stage", key:"stage", required:true, options:["Planning to start","Already operating","Scaling existing portfolio","Fixing operational issues"] },
+                ].map(f => (
+                  <div key={f.key} style={{ marginBottom:"16px" }}>
+                    <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"6px" }}>{f.label}<span style={{ color:colors.secondary }}> *</span></label>
+                    <select
+                      required={f.required}
+                      value={(opsForm as any)[f.key]}
+                      onChange={e => setOpsForm(p => ({ ...p, [f.key]: e.target.value }))}
+                      style={{ width:"100%", boxSizing:"border-box", padding:"10px 14px", borderRadius:"10px", border:`1.5px solid ${colors.border}`, background:"#FBF9F5", fontSize:"14px", color:(opsForm as any)[f.key] ? colors.textMain : colors.textMuted, outline:"none", fontFamily:"inherit", appearance:"none" }}
+                    >
+                      <option value="" disabled>Select an option</option>
+                      {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                ))}
+
+                <div style={{ marginBottom:"24px" }}>
+                  <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"6px" }}>Message / Notes</label>
+                  <textarea
+                    rows={4}
+                    placeholder="Any additional context about your setup or what you need help with..."
+                    value={opsForm.message}
+                    onChange={e => setOpsForm(p => ({ ...p, message: e.target.value }))}
+                    style={{ width:"100%", boxSizing:"border-box", padding:"10px 14px", borderRadius:"10px", border:`1.5px solid ${colors.border}`, background:"#FBF9F5", fontSize:"14px", color:colors.textMain, outline:"none", fontFamily:"inherit", resize:"vertical" }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={opsSubmitting}
+                  style={{ width:"100%", padding:"14px", borderRadius:"12px", background:colors.primary, color:"#fff", fontSize:"14px", fontWeight:700, letterSpacing:"0.06em", border:"none", cursor:opsSubmitting ? "not-allowed" : "pointer", opacity:opsSubmitting ? 0.7 : 1 }}
+                >
+                  {opsSubmitting ? "Submitting..." : "Submit Enquiry"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

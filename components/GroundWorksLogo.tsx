@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { colors } from "@/lib/colors";
 
-export default function GroundWorksLogo({ size = 64 }: { size?: number }) {
+export default function AssetIntelLogo({ size = 64 }: { size?: number }) {
   return (
     <Image
-      src="/groundworks-logo.png"
-      alt="GroundWorks Logo"
+      src="/brand/assetintel-logo.svg"
+      alt="AssetIntel Logo"
       width={size}
       height={size}
       priority

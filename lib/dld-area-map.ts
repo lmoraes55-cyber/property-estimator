@@ -40,7 +40,9 @@ export const DLD_AREA_TO_COMMUNITY: Record<string, string> = {
   "Al Safouh Second":                 "Al Sufouh",
 
   // JVC / Arjan / Al Barsha South
-  "Al Barsha South Fourth":           "Arjan",
+  // Al Barsha South Fourth = JVC (Jumeirah Village Circle)
+  // Al Barsha South Third  = Arjan (separate community to the north-east)
+  "Al Barsha South Fourth":           "JVC",
   "Al Barshaa South Third":           "Arjan",
   "Al Barshaa South Second":          "JVC",
   "Al Barsha South Fifth":            "JVC",

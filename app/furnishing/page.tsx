@@ -27,6 +27,26 @@ const gradStyle: React.CSSProperties = {
   color: "transparent",
 };
 
+// ── Quote logic ─────────────────────────────────────────────
+function getSetupFee(raw: string): number {
+  const u = (raw ?? "").toUpperCase().replace(/\s+/g, "");
+  if (u === "STU" || u.includes("STUDIO")) return 1500;
+  if (u.startsWith("1") || u === "1BED" || u === "1BEDROOM") return 2000;
+  if (u.startsWith("2") || u === "2BED" || u === "2BEDROOM") return 2500;
+  if (u.startsWith("3") || u === "3BED" || u === "3BEDROOM") return 3000;
+  if (u.startsWith("4") || u === "4BED" || u === "4BEDROOM") return 4000;
+  if (!isNaN(parseInt(u.replace(/\D/g, ""))) && parseInt(u.replace(/\D/g, "")) >= 5) return 5000;
+  return 2000;
+}
+
+const PKG_PRICES: Record<string, { lo: number; hi: number }> = {
+  ESSENTIAL: { lo: 12900, hi: 15900 },
+  SIGNATURE: { lo: 17900, hi: 22900 },
+  LUXE: { lo: 27900, hi: 34900 },
+};
+
+const fmt = (n: number) => `AED ${n.toLocaleString()}`;
+
 // Maps sidebar checklist names → DET_INVENTORY_CHECKLIST category substrings
 const DET_MAP: Record<string, string> = {
   "Living Room": "Living Room",
@@ -84,6 +104,13 @@ function FurnishingContent() {
 
   const handleQuoteSubmit = async () => {
     setQuoteSubmitting(true);
+    const pkgPrices = PKG_PRICES[quoteForm.pkg];
+    const setupFee = getSetupFee(rawUnit);
+    const totalLo = pkgPrices ? pkgPrices.lo + setupFee : null;
+    const totalHi = pkgPrices ? pkgPrices.hi + setupFee : null;
+    const quoteSummary = quoteForm.pkg
+      ? `Package: ${quoteForm.pkg} (${fmt(pkgPrices!.lo)}–${fmt(pkgPrices!.hi)}) | Setup Fee: ${fmt(setupFee)} | Total: ${fmt(totalLo!)}–${fmt(totalHi!)} | Path: ${quoteForm.path}${quoteForm.message ? " | Notes: " + quoteForm.message : ""}`
+      : `Path: ${quoteForm.path}${quoteForm.message ? " | Notes: " + quoteForm.message : ""}`;
     try {
       await fetch("/api/lead", {
         method: "POST",
@@ -95,7 +122,7 @@ function FurnishingContent() {
           phone: quoteForm.phone,
           property: quoteForm.property || displayName,
           unitSize: rawUnit,
-          message: `Package: ${quoteForm.pkg} | Path: ${quoteForm.path} | Budget: ${quoteForm.budget}${quoteForm.message ? " | Notes: " + quoteForm.message : ""}`,
+          message: quoteSummary,
         }),
       });
     } catch { /* silent */ }
@@ -168,6 +195,12 @@ function FurnishingContent() {
     { t: "Photography & Styling", s: "Boost bookings with better photos", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> },
     { t: "Maintenance Tips", s: "Keep your home 5-star ready", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> },
   ];
+
+  // ── Quote breakdown (reactive to quoteForm.pkg) ─────────
+  const quotePkgPrices = PKG_PRICES[quoteForm.pkg];
+  const quoteSetupFee = getSetupFee(rawUnit);
+  const quoteTotalLo = quotePkgPrices ? quotePkgPrices.lo + quoteSetupFee : null;
+  const quoteTotalHi = quotePkgPrices ? quotePkgPrices.hi + quoteSetupFee : null;
 
   // Inspiration strip: crop different rooms from the collage
   const inspirationImgs = [
@@ -267,67 +300,118 @@ function FurnishingContent() {
             {!quoteSubmitted ? (
               <>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.gold, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel · Furnishing</p>
-                <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4, fontFamily: "'Georgia', serif", ...gradStyle }}>Furnishing Quote Request</h2>
-                <p style={{ fontSize: 13, color: C.muted, marginBottom: 20, lineHeight: 1.6 }}>Tell us about your property and the furnishing package you are interested in. AssetIntel will review your requirements and guide you on the next step.</p>
-                {[
-                  { label: "Full Name", key: "name", type: "text", ph: "Your full name" },
-                  { label: "Email", key: "email", type: "email", ph: "your@email.com" },
-                  { label: "Phone / WhatsApp", key: "phone", type: "tel", ph: "+971 50 000 0000" },
-                  { label: "Building / Property Name", key: "property", type: "text", ph: displayName || "e.g. Marina Gate" },
-                ].map(f => (
-                  <div key={f.key} style={{ marginBottom: 12 }}>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>{f.label}</label>
-                    <input
-                      type={f.type}
-                      value={quoteForm[f.key as keyof typeof quoteForm]}
-                      onChange={e => setQuoteForm(p => ({ ...p, [f.key]: e.target.value }))}
-                      placeholder={f.ph}
-                      style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none", boxSizing: "border-box" }}
-                    />
+                <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, fontFamily: "'Georgia', serif", ...gradStyle }}>Furnishing Quote Request</h2>
+
+                {/* ── Price breakdown panel ── */}
+                <div style={{ background: `linear-gradient(135deg, ${C.green} 0%, ${C.greenDark} 100%)`, borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                    <div>
+                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>Furniture Package</p>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>
+                        {quotePkgPrices ? `${fmt(quotePkgPrices.lo)} – ${fmt(quotePkgPrices.hi)}` : "Select a package below"}
+                      </p>
+                    </div>
+                    {quoteForm.pkg && (
+                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: C.gold, background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.35)", borderRadius: 20, padding: "3px 10px" }}>
+                        {quoteForm.pkg}
+                      </span>
+                    )}
                   </div>
-                ))}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Unit Size</label>
-                    <input type="text" value={unitLabel} readOnly style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: "#F5F2ED", outline: "none", boxSizing: "border-box", color: C.muted }} />
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 10, marginBottom: 10 }}>
+                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>AssetIntel Setup & Coordination Fee</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", margin: 0 }}>{fmt(quoteSetupFee)}</p>
+                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", margin: 0 }}>Based on {unitLabel} unit size</p>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Selected Package</label>
-                    <select value={quoteForm.pkg} onChange={e => setQuoteForm(p => ({ ...p, pkg: e.target.value }))}
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.18)", paddingTop: 12 }}>
+                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>Estimated Total</p>
+                    <p style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.01em" }}>
+                      {quoteTotalLo && quoteTotalHi ? `${fmt(quoteTotalLo)} – ${fmt(quoteTotalHi)}` : "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* ── What AssetIntel Coordinates ── */}
+                <div style={{ background: "#F2EFE9", borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: C.text, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.08em" }}>What AssetIntel Coordinates</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 12px" }}>
+                    {[
+                      "Furniture package guidance",
+                      "Delivery coordination",
+                      "Building move-in permit guidance",
+                      "Supplier coordination",
+                      "STR design & styling support",
+                      "Setup planning with STR designer",
+                      "Guest-ready checklist review",
+                      "Operator & DET readiness guidance",
+                    ].map(item => (
+                      <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2 }}><polyline points="20 6 9 17 4 12"/></svg>
+                        <span style={{ fontSize: 11, color: "#555", lineHeight: 1.45 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: `1px solid ${C.borderLight}`, paddingTop: 16, marginBottom: 14 }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: C.text, margin: "0 0 12px" }}>Your details</p>
+                  {[
+                    { label: "Full Name", key: "name", type: "text", ph: "Your full name" },
+                    { label: "Email", key: "email", type: "email", ph: "your@email.com" },
+                    { label: "Phone / WhatsApp", key: "phone", type: "tel", ph: "+971 50 000 0000" },
+                    { label: "Building / Property Name", key: "property", type: "text", ph: displayName || "e.g. Marina Gate" },
+                  ].map(f => (
+                    <div key={f.key} style={{ marginBottom: 10 }}>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>{f.label}</label>
+                      <input
+                        type={f.type}
+                        value={quoteForm[f.key as keyof typeof quoteForm]}
+                        onChange={e => setQuoteForm(p => ({ ...p, [f.key]: e.target.value }))}
+                        placeholder={f.ph}
+                        style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none", boxSizing: "border-box" }}
+                      />
+                    </div>
+                  ))}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Unit Size</label>
+                      <input type="text" value={unitLabel} readOnly style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: "#F5F2ED", outline: "none", boxSizing: "border-box", color: C.muted }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Selected Package</label>
+                      <select value={quoteForm.pkg} onChange={e => setQuoteForm(p => ({ ...p, pkg: e.target.value }))}
+                        style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none" }}>
+                        <option value="">Select package</option>
+                        {["ESSENTIAL", "SIGNATURE", "LUXE"].map(o => <option key={o} value={o}>{o.charAt(0) + o.slice(1).toLowerCase()}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Preferred Furnishing Path</label>
+                    <select value={quoteForm.path} onChange={e => setQuoteForm(p => ({ ...p, path: e.target.value }))}
                       style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none" }}>
-                      <option value="">Select package</option>
-                      {["ESSENTIAL", "SIGNATURE", "LUXE"].map(o => <option key={o} value={o}>{o.charAt(0) + o.slice(1).toLowerCase()}</option>)}
+                      <option value="">Select path</option>
+                      {["Self Furnish", "Interior Design Firm", "Operator Furnished", "Not sure yet"].map(o => <option key={o}>{o}</option>)}
                     </select>
                   </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Message / Notes</label>
+                    <textarea value={quoteForm.message} onChange={e => setQuoteForm(p => ({ ...p, message: e.target.value }))}
+                      placeholder="Any specific requirements, timeline, or questions..."
+                      rows={2}
+                      style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
+                    />
+                  </div>
                 </div>
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Preferred Furnishing Path</label>
-                  <select value={quoteForm.path} onChange={e => setQuoteForm(p => ({ ...p, path: e.target.value }))}
-                    style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none" }}>
-                    <option value="">Select path</option>
-                    {["Self Furnish", "Interior Design Firm", "Operator Furnished", "Not sure yet"].map(o => <option key={o}>{o}</option>)}
-                  </select>
-                </div>
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Budget Range</label>
-                  <select value={quoteForm.budget} onChange={e => setQuoteForm(p => ({ ...p, budget: e.target.value }))}
-                    style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none" }}>
-                    <option value="">Select budget</option>
-                    {["AED 10k–15k", "AED 15k–25k", "AED 25k–40k", "AED 40k+", "Not sure yet"].map(o => <option key={o}>{o}</option>)}
-                  </select>
-                </div>
-                <div style={{ marginBottom: 20 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#555", display: "block", marginBottom: 4 }}>Message / Notes</label>
-                  <textarea value={quoteForm.message} onChange={e => setQuoteForm(p => ({ ...p, message: e.target.value }))}
-                    placeholder="Any specific requirements, timeline, or questions..."
-                    rows={3}
-                    style={{ width: "100%", padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 10, fontSize: 13, background: C.ivory, outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
-                  />
-                </div>
+
                 <button onClick={handleQuoteSubmit} disabled={quoteSubmitting}
-                  style={{ width: "100%", padding: 13, background: C.green, color: "#fff", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(27,94,74,0.25)" }}>
+                  style={{ width: "100%", padding: 13, background: C.green, color: "#fff", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(27,94,74,0.25)", marginBottom: 12 }}>
                   {quoteSubmitting ? "Submitting…" : "Submit Quote Request"}
                 </button>
+                <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, margin: 0, textAlign: "center" }}>
+                  This is an estimated quote. Final pricing may vary based on property size, building delivery rules, selected items, supplier availability, and final site requirements. AssetIntel does not guarantee final supplier pricing until the package and scope are confirmed.
+                </p>
               </>
             ) : (
               <div style={{ textAlign: "center", padding: "20px 0" }}>

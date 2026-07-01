@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Hexagon icon mark -->
+  <polygon points="100,18 178,62 178,138 100,182 22,138 22,62" fill="#1B5E4A"/>
+  <!-- AI letters -->
+  <text x="100" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#B88A44">AI</text>
+</svg>

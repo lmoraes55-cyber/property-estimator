@@ -14,7 +14,7 @@ function makeRef(): string {
   const d = new Date();
   const yymm = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, "0")}`;
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `GW-${yymm}-${rand}`;
+  return `AI-${yymm}-${rand}`;
 }
 
 const str = (v: unknown) => (v == null ? "" : String(v).trim());
@@ -39,12 +39,12 @@ export async function POST(request: Request) {
   const testMode = process.env.TELR_TEST_MODE === "0" ? 0 : 1; // default to test
 
   if (!storeId || !authKey) {
-    console.error("[GW-CHECKOUT] TELR_STORE_ID or TELR_AUTH_KEY not set");
+    console.error("[AI-CHECKOUT] TELR_STORE_ID or TELR_AUTH_KEY not set");
     return NextResponse.json({ ok: false, error: "Payment not configured" }, { status: 503 });
   }
 
   const ref = makeRef();
-  const origin = str(b.origin) || "https://groundworks.ae";
+  const origin = str(b.origin) || "https://assetintel.ae";
 
   const payload = {
     method: "create",
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       test: testMode,
       amount: amount.toFixed(2),
       currency: "AED",
-      description: `GroundWorks — ${pkg}`,
+      description: `AssetIntel — ${pkg}`,
     },
     return: {
       authorised: `${origin}/pay/success?ref=${ref}`,
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     },
   };
 
-  console.log("[GW-CHECKOUT]", JSON.stringify({ ref, pkg, amount, testMode }));
+  console.log("[AI-CHECKOUT]", JSON.stringify({ ref, pkg, amount, testMode }));
 
   let telrRes: Response;
   try {
@@ -75,14 +75,14 @@ export async function POST(request: Request) {
       body: JSON.stringify(payload),
     });
   } catch (e) {
-    console.error("[GW-CHECKOUT] Telr network error:", (e as Error).message);
+    console.error("[AI-CHECKOUT] Telr network error:", (e as Error).message);
     return NextResponse.json({ ok: false, error: "Payment gateway unreachable" }, { status: 502 });
   }
 
   const data = await telrRes.json().catch(() => null);
 
   if (!data?.order?.url) {
-    console.error("[GW-CHECKOUT] Telr error response:", JSON.stringify(data));
+    console.error("[AI-CHECKOUT] Telr error response:", JSON.stringify(data));
     return NextResponse.json({ ok: false, error: "Payment gateway error" }, { status: 502 });
   }
 
