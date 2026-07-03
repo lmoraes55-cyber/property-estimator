@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
 import SiteNav from "@/components/SiteNav";
+import type { DLDDeveloperResult } from "@/app/api/dld-developer/route";
 import {
   HANDOVER_PROJECTS,
   UNIQUE_AREAS,
@@ -39,6 +40,62 @@ function TierBadge({ tier }: { tier: HandoverProject["strAreaTier"] }) {
 function PriorityDot({ priority }: { priority: string }) {
   const col = priority === "High" ? "#1B5E4A" : priority === "Medium" ? "#B88A44" : "#9A9A9A";
   return <span style={{ width: 7, height: 7, borderRadius: "50%", background: col, display: "inline-block", marginRight: 5 }} />;
+}
+
+// DLD developer verification badge — fetches live from DDA via our server-side proxy
+function DeveloperBadge({ developerName }: { developerName: string }) {
+  const [data, setData] = useState<DLDDeveloperResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/dld-developer?name=${encodeURIComponent(developerName)}`)
+      .then(r => r.json())
+      .then(d => { if (!cancelled) setData(d); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [developerName]);
+
+  if (loading) {
+    return (
+      <span style={{ fontSize: 11, color: "#AAA", display: "inline-flex", alignItems: "center", gap: 5 }}>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" opacity="0.3"/><path d="M12 3a9 9 0 0 1 9 9"/>
+        </svg>
+        Checking DLD…
+      </span>
+    );
+  }
+
+  if (data?.matched) {
+    const since = data.registrationYear;
+    const num = data.developerNumber;
+    return (
+      <span style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        fontSize: 10.5, fontWeight: 700, color: "#1B5E4A",
+        background: "#EEF5F1", border: "1px solid rgba(27,94,74,0.20)",
+        borderRadius: 20, padding: "3px 10px",
+      }}>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>
+        </svg>
+        DLD Registered{since ? ` since ${since}` : ""}{num ? ` · #${num}` : ""}
+      </span>
+    );
+  }
+
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5,
+      fontSize: 10.5, color: "#8B6914",
+      background: "#FFF8EC", border: "1px solid #C9A84C40",
+      borderRadius: 20, padding: "3px 10px",
+    }}>
+      DLD record not found
+    </span>
+  );
 }
 
 // Expanded project detail view
@@ -108,7 +165,6 @@ function ProjectDetail({ project, onClose }: { project: HandoverProject; onClose
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", marginBottom: 24 }}>
           {[
             { label: "Area", value: project.area },
-            { label: "Developer", value: project.developer },
             { label: "Property Type", value: project.propertyType },
             { label: "Expected Handover", value: project.expectedHandover },
             ...(project.launchPrice ? [{ label: "Launch Price", value: `AED ${project.launchPrice}` }] : []),
@@ -118,6 +174,15 @@ function ProjectDetail({ project, onClose }: { project: HandoverProject; onClose
               <p style={{ fontSize: 14, fontWeight: 600, color: colors.textMain ?? "#1A1A1A" }}>{value}</p>
             </div>
           ))}
+        </div>
+
+        {/* Developer row with live DLD verification */}
+        <div style={{ marginBottom: 20, padding: "14px 16px", background: "#FAFAF8", border: "1px solid #E8E4DE", borderRadius: 12 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, color: "#9A9A9A", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>Developer</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: colors.textMain ?? "#1A1A1A", margin: 0 }}>{project.developer}</p>
+            <DeveloperBadge developerName={project.developer} />
+          </div>
         </div>
 
         {/* AssetIntel view */}

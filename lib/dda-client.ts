@@ -48,8 +48,10 @@ export interface DDAQueryOptions {
   dataset: string;
   page?: number;
   pageSize?: number;
-  /** column=value pairs sent as individual query params (most reliable filter method) */
+  /** Exact-match filters: column=value (values are single-quoted so spaces are safe) */
   filters?: Record<string, string>;
+  /** LIKE filters: column LIKE 'pattern' (caller provides the pattern including % wildcards) */
+  likeFilters?: Record<string, string>;
   columns?: string[];
   orderBy?: string;
   orderDir?: "asc" | "desc";
@@ -68,10 +70,16 @@ export async function ddaQuery<T = Record<string, unknown>>(
   if (opts.orderBy)  url.searchParams.set("order_by",  opts.orderBy);
   if (opts.orderDir) url.searchParams.set("order_dir", opts.orderDir);
 
-  // Append each filter as `filter=column_name=value` (DDA syntax)
+  // Exact-match: filter=col='value' — single quotes required when value contains spaces
   if (opts.filters) {
     for (const [col, val] of Object.entries(opts.filters)) {
-      url.searchParams.append("filter", `${col}=${val}`);
+      url.searchParams.append("filter", `${col}='${val}'`);
+    }
+  }
+  // LIKE: filter=col LIKE 'pattern'
+  if (opts.likeFilters) {
+    for (const [col, val] of Object.entries(opts.likeFilters)) {
+      url.searchParams.append("filter", `${col} LIKE '${val}'`);
     }
   }
 
@@ -183,6 +191,76 @@ export function computeLTRStats(contracts: DLDRentContract[]): LTRStat | null {
   };
 }
 
+/**
+ * Generate DLD name variants to try in sequence.
+ * DLD stores names in ALL CAPS. Common mismatches:
+ *   - BLVD ↔ BOULEVARD
+ *   - "AT NAME" prefix added/missing in DLD
+ *   - Trailing number stripped from group search
+ */
+function buildDLDVariants(displayName: string): string[] {
+  const upper = displayName.toUpperCase().trim();
+  const variants = new Set<string>();
+
+  variants.add(upper);
+
+  // Abbreviation: BOULEVARD ↔ BLVD
+  const withBlvd = upper.replace(/\bBOULEVARD\b/g, "BLVD");
+  const withBoulevard = upper.replace(/\bBLVD\b/g, "BOULEVARD");
+  if (withBlvd !== upper) variants.add(withBlvd);
+  if (withBoulevard !== upper) variants.add(withBoulevard);
+
+  // "AT <NAME>" — DLD sometimes prefixes with AT
+  variants.add(`AT ${upper}`);
+
+  // Strip "BY <DEVELOPER>" suffix DLD may not store
+  const withoutBy = upper.replace(/\s+BY\s+\S+.*$/, "").trim();
+  if (withoutBy !== upper && withoutBy.length >= 4) variants.add(withoutBy);
+
+  // Strip trailing single token (phase number, letter) for group match
+  const withoutSuffix = upper.replace(/\s+\S+$/, "").trim();
+  if (withoutSuffix !== upper && withoutSuffix.length >= 5) variants.add(withoutSuffix);
+
+  return [...variants];
+}
+
+async function fetchContractsForName(
+  dldName: string,
+  columns: string[],
+  cutoffStr: string,
+  pageSize: number,
+  maxRecords: number
+): Promise<DLDRentContract[]> {
+  const allContracts: DLDRentContract[] = [];
+  let page = 1;
+
+  while (allContracts.length < maxRecords) {
+    const { results } = await ddaQuery<DLDRentContract>({
+      entity:      "dld",
+      dataset:     "dld_rent_contracts-open-api",
+      page,
+      pageSize,
+      columns,
+      likeFilters: { project_name_en: `${dldName}%` },
+      orderBy:     "contract_start_date",
+      orderDir:    "desc",
+    });
+
+    if (!results.length) break;
+
+    const recent = results.filter(c =>
+      c.contract_start_date >= cutoffStr &&
+      (c.property_usage_en?.toLowerCase().includes("resid") ?? true)
+    );
+    allContracts.push(...recent);
+
+    if (results.length < pageSize) break;
+    page++;
+  }
+
+  return allContracts;
+}
+
 /** Fetch all rent contracts for a project name, optionally filtered by date window. */
 export async function fetchProjectContracts(
   projectName: string,
@@ -190,7 +268,6 @@ export async function fetchProjectContracts(
 ): Promise<DLDRentContract[]> {
   const { monthsBack = 24, maxRecords = 2000 } = options;
 
-  // Cut-off date: contracts starting within the last N months
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - monthsBack);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
@@ -202,36 +279,14 @@ export async function fetchProjectContracts(
     "property_usage_en", "contract_start_date", "contract_end_date", "is_free_hold",
   ];
 
-  const allContracts: DLDRentContract[] = [];
-  const pageSize = 1000;
-  let page = 1;
-
-  while (allContracts.length < maxRecords) {
-    const { results } = await ddaQuery<DLDRentContract>({
-      entity:   "dld",
-      dataset:  "dld_rent_contracts-open-api",
-      page,
-      pageSize,
-      columns:  columns as string[],
-      filters:  { project_name_en: projectName },
-      orderBy:  "contract_start_date",
-      orderDir: "desc",
-    });
-
-    if (!results.length) break;
-
-    // Filter recency and residential usage client-side
-    const recent = results.filter(c =>
-      c.contract_start_date >= cutoffStr &&
-      (c.property_usage_en?.toLowerCase().includes("resid") ?? true)
+  // Try each name variant in order; return as soon as we find contracts
+  const variants = buildDLDVariants(projectName);
+  for (const variant of variants) {
+    const contracts = await fetchContractsForName(
+      variant, columns as string[], cutoffStr, 1000, maxRecords
     );
-
-    allContracts.push(...recent);
-
-    // If we got a full page, there may be more — but stop at maxRecords
-    if (results.length < pageSize) break;
-    page++;
+    if (contracts.length > 0) return contracts;
   }
 
-  return allContracts;
+  return [];
 }
