@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 /**
- * BUILD DLD NAME MAP
- * ==================
- * Samples the DDA Ejari rent-contracts dataset to collect all distinct
- * project_name_en values, then fuzzy-matches them against the 1,426 building
- * keys in building-ltr-rents.json. Writes lib/data/dld-name-map.json.
+ * BUILD DLD NAME MAP — local aggregator
+ * =====================================
+ * Calls /api/dld-buildings-probe in 8-page chunks until new names stop
+ * appearing (convergence), then fuzzy-matches the DLD project names against
+ * our 1,426 building keys.
+ *
+ * Writes lib/data/dld-name-map.json
  *
  * Usage:
- *   node --env-file=.env.local scripts/build-dld-name-map.mjs
+ *   node scripts/build-dld-name-map.mjs [--host https://assetintel.ae] [--maxChunks 30]
  */
 
 import fs from "node:fs";
@@ -17,55 +19,15 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
-const BASE = (process.env.DDA_BASE_URL ?? "").trim();
-const APP_ID = (process.env.DDA_APP_IDENTIFIER ?? "").trim();
-const CLIENT_ID = (process.env.DDA_CLIENT_ID ?? "").trim();
-const CLIENT_SECRET = (process.env.DDA_CLIENT_SECRET ?? "").trim();
+const args = Object.fromEntries(
+  process.argv.slice(2).map((a, i, arr) => a.startsWith("--") ? [a.slice(2), arr[i + 1] ?? true] : [])
+);
+const HOST           = args.host       ?? "https://assetintel.ae";
+const MAX_CHUNKS     = parseInt(args.maxChunks ?? "60", 10);
+const PAGES_PER_CHUNK = 8;
+const STALL_AFTER    = 4;   // stop if 4 consecutive chunks add 0 new names
+const OUT_PATH       = path.join(ROOT, "lib/data/dld-name-map.json");
 
-if (!BASE || !APP_ID || !CLIENT_ID || !CLIENT_SECRET) {
-  console.error("Missing DDA env vars. Run: node --env-file=.env.local scripts/build-dld-name-map.mjs");
-  process.exit(1);
-}
-
-// ── OAuth token ────────────────────────────────────────────────────────────
-let cachedToken = null;
-let tokenExpiresAt = 0;
-
-async function getToken() {
-  if (cachedToken && Date.now() < tokenExpiresAt) return cachedToken;
-  const res = await fetch(`${BASE}/secure/ssis/dubaiai/gatewaytoken/1.0.0/getAccessToken`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "x-DDA-SecurityApplicationIdentifier": APP_ID,
-    },
-    body: new URLSearchParams({ grant_type: "client_credentials", client_id: CLIENT_ID, client_secret: CLIENT_SECRET }).toString(),
-  });
-  if (!res.ok) throw new Error(`Token fetch failed: ${res.status}`);
-  const data = await res.json();
-  cachedToken = data.access_token;
-  tokenExpiresAt = Date.now() + ((data.expires_in ?? 3600) - 300) * 1000;
-  return cachedToken;
-}
-
-// ── DDA query ──────────────────────────────────────────────────────────────
-async function ddaQuery(dataset, params) {
-  const token = await getToken();
-  const url = new URL(`${BASE}/open/dld/${dataset}`);
-  for (const [k, v] of Object.entries(params)) {
-    if (Array.isArray(v)) v.forEach(vi => url.searchParams.append(k, vi));
-    else url.searchParams.set(k, String(v));
-  }
-  const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`DDA error ${res.status}: ${body.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  return json.results ?? json.data ?? json.records ?? [];
-}
-
-// ── Name normaliser (mirrors building-rents.ts + ingest-dld-rents.mjs) ──────
 function normalize(name) {
   return String(name ?? "")
     .toLowerCase()
@@ -86,7 +48,6 @@ function canon(s) {
     .trim();
 }
 
-// Word-overlap score: fraction of our tokens found in DLD name
 function wordOverlap(a, b) {
   const ta = new Set(a.split(" ").filter(t => t.length > 2));
   const tb = new Set(b.split(" ").filter(t => t.length > 2));
@@ -96,132 +57,122 @@ function wordOverlap(a, b) {
   return hits / ta.size;
 }
 
-// ── Fetch all distinct DLD project names via letter sampling ────────────────
-async function fetchAllDLDNames() {
-  const seen = new Set();
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-  // Also sample a few numeric/special prefix names
-  const prefixes = [...letters, "0", "1", "2", "3", "4", "5"];
-
-  let total = 0;
-  for (const prefix of prefixes) {
-    try {
-      const rows = await ddaQuery("dld_rent_contracts-open-api", {
-        column: "project_name_en",
-        filter: `project_name_en LIKE '${prefix}%'`,
-        pageSize: 1000,
-        page: 1,
-        order_by: "project_name_en",
-        order_dir: "asc",
-      });
-      for (const row of rows) {
-        const name = row.project_name_en;
-        if (name && !seen.has(name)) seen.add(name);
-      }
-      total += rows.length;
-      process.stdout.write(`  ${prefix}: ${rows.length} rows, ${seen.size} unique names so far\r`);
-      // Small delay to avoid rate limiting
-      await new Promise(r => setTimeout(r, 120));
-    } catch (err) {
-      console.warn(`\n  Skipped prefix '${prefix}': ${err.message}`);
-    }
-  }
-
-  console.log(`\nFetched ${total} total records → ${seen.size} distinct project names`);
-  return [...seen];
+async function fetchChunk(startPage) {
+  const url = `${HOST}/api/dld-buildings-probe?startPage=${startPage}&maxPages=${PAGES_PER_CHUNK}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(25_000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
 async function main() {
-  console.log("Loading building list...");
-  const buildingData = JSON.parse(
-    fs.readFileSync(path.join(ROOT, "lib/data/building-ltr-rents.json"), "utf-8")
-  );
-  const ourKeys = Object.keys(buildingData.buildings); // normalized keys
+  console.log(`Host: ${HOST}\nFetching in chunks of ${PAGES_PER_CHUNK} pages (stops after ${STALL_AFTER} empty chunks)\n`);
 
-  console.log(`Building list: ${ourKeys.length} buildings`);
-  console.log("Sampling DLD project names (this takes ~30-40s)...");
+  const allDLDNames = new Set();
+  let nextStart = 1;
+  let chunk = 0;
+  let emptyChunks = 0;
 
-  const dldNames = await fetchAllDLDNames();
+  while (nextStart !== null && chunk < MAX_CHUNKS) {
+    chunk++;
+    process.stdout.write(`  Chunk ${chunk} (pages ${nextStart}–${nextStart + PAGES_PER_CHUNK - 1})… `);
+    try {
+      const data = await fetchChunk(nextStart);
+      const before = allDLDNames.size;
+      data.names.forEach(n => allDLDNames.add(n));
+      const added = allDLDNames.size - before;
+      process.stdout.write(`+${added} names (total ${allDLDNames.size})\n`);
 
-  // Build lookup: normalized DLD name → original DLD names (may be many variants)
-  const normToDLD = new Map();
-  for (const dldName of dldNames) {
-    const n = normalize(dldName);
-    const c = canon(n);
-    const key = c || n;
-    if (!key) continue;
-    const arr = normToDLD.get(key) ?? [];
-    if (!arr.includes(dldName)) arr.push(dldName);
-    normToDLD.set(key, arr);
+      if (added === 0) { emptyChunks++; } else { emptyChunks = 0; }
+      if (emptyChunks >= STALL_AFTER) { console.log(`\n  Converged after ${STALL_AFTER} empty chunks. Stopping.`); break; }
+
+      nextStart = data.done ? null : data.nextStart;
+    } catch (err) {
+      console.error(`\n  Error: ${err.message}`);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 300));
   }
 
-  console.log(`Built DLD name index with ${normToDLD.size} distinct normalized forms`);
+  const dldNames = [...allDLDNames];
+  console.log(`\nTotal distinct DLD names: ${dldNames.length}`);
 
-  // Match each of our building keys to a DLD name
-  const mapping = {};     // ourKey → best DLD name (for LIKE prefix)
+  // Build normalized index
+  const normIndex = new Map();
+  for (const name of dldNames) {
+    const key = canon(normalize(name));
+    if (!key) continue;
+    const arr = normIndex.get(key) ?? [];
+    arr.push(name);
+    normIndex.set(key, arr);
+  }
+
+  // Load our buildings
+  const buildingData = JSON.parse(fs.readFileSync(path.join(ROOT, "lib/data/building-ltr-rents.json"), "utf-8"));
+  const ourKeys = Object.keys(buildingData.buildings);
+  console.log(`Matching ${ourKeys.length} buildings…`);
+
+  const mapping = {};
   const unmatched = [];
+  const methodCounts = {};
 
   for (const ourKey of ourKeys) {
     const c = canon(ourKey);
     const key = c || ourKey;
+    const bump = m => { methodCounts[m] = (methodCounts[m] ?? 0) + 1; };
 
-    // 1. Exact canonical match
-    if (normToDLD.has(key)) {
-      const dldMatches = normToDLD.get(key);
-      // Use the shortest match as the prefix (covers most variants)
-      mapping[ourKey] = dldMatches.sort((a, b) => a.length - b.length)[0];
-      continue;
+    // 1. Exact
+    if (normIndex.has(key)) {
+      mapping[ourKey] = normIndex.get(key).sort((a, b) => a.length - b.length)[0];
+      bump("exact"); continue;
     }
 
-    // 2. Containment: DLD name starts with our key (e.g. "marina gate" → "MARINA GATE 1")
-    let bestScore = 0;
-    let bestDLD = null;
-    for (const [normKey, dldArr] of normToDLD) {
-      // DLD name contains our key as prefix
+    // 2. Prefix/containment
+    let bestScore = 0, bestDLD = null, bestMethod = "";
+    for (const [normKey, dldArr] of normIndex) {
+      let score = 0, method = "";
       if (normKey.startsWith(key + " ") || normKey === key) {
-        const score = 0.9 + 0.1 * (key.length / normKey.length); // prefer tighter match
-        if (score > bestScore) { bestScore = score; bestDLD = dldArr[0]; }
+        score = 0.9 + 0.05 * (key.length / Math.max(normKey.length, 1));
+        method = "prefix";
+      } else if (key.startsWith(normKey + " ") && normKey.length >= 5) {
+        score = 0.75 * (normKey.length / Math.max(key.length, 1));
+        method = "prefix-rev";
       }
-      // Our key contains DLD key (DLD is shorter, more general)
-      else if (key.startsWith(normKey + " ") && normKey.length >= 5) {
-        const score = 0.7 * (normKey.length / key.length);
-        if (score > bestScore) { bestScore = score; bestDLD = dldArr[0]; }
-      }
+      if (score > bestScore) { bestScore = score; bestDLD = dldArr.sort((a,b)=>a.length-b.length)[0]; bestMethod = method; }
     }
-    if (bestDLD && bestScore >= 0.6) { mapping[ourKey] = bestDLD; continue; }
+    if (bestDLD && bestScore >= 0.6) { mapping[ourKey] = bestDLD; bump(bestMethod); continue; }
 
-    // 3. Word-overlap fuzzy match (last resort)
-    for (const [normKey, dldArr] of normToDLD) {
-      const score = wordOverlap(key, normKey);
-      if (score > bestScore) { bestScore = score; bestDLD = dldArr[0]; }
+    // 3. Word-overlap
+    for (const [normKey, dldArr] of normIndex) {
+      const score = wordOverlap(key, normKey) * 0.85;
+      if (score > bestScore) { bestScore = score; bestDLD = dldArr[0]; bestMethod = "word-overlap"; }
     }
-    if (bestDLD && bestScore >= 0.75) { mapping[ourKey] = bestDLD; continue; }
+    if (bestDLD && bestScore >= 0.7) { mapping[ourKey] = bestDLD; bump("word-overlap"); continue; }
 
     unmatched.push(ourKey);
   }
 
-  const matchRate = (((ourKeys.length - unmatched.length) / ourKeys.length) * 100).toFixed(1);
-  console.log(`\nMatched: ${ourKeys.length - unmatched.length}/${ourKeys.length} buildings (${matchRate}%)`);
-  console.log(`Unmatched: ${unmatched.length} buildings`);
-  if (unmatched.length <= 30) {
-    console.log("Unmatched list:", unmatched.slice(0, 30).join(", "));
-  }
+  const matchedCount = Object.keys(mapping).length;
+  console.log(`\nMatched: ${matchedCount}/${ourKeys.length} (${((matchedCount / ourKeys.length) * 100).toFixed(1)}%)`);
+  console.log("By method:", methodCounts);
 
-  // Save the mapping
-  const outPath = path.join(ROOT, "lib/data/dld-name-map.json");
-  fs.writeFileSync(outPath, JSON.stringify({
+  const checks = ["marina gate", "creek horizon", "address boulevard", "burj vista", "downtown views 1", "index", "la mer", "one palm", "the palm tower", "burj khalifa"];
+  console.log("\nSpot checks:");
+  for (const k of checks) console.log(`  ${k.padEnd(35)} → ${mapping[k] ?? "(unmatched)"}`);
+
+  console.log("\nFirst 20 unmatched:", unmatched.slice(0, 20).join(", "));
+
+  const output = {
     _meta: {
       generated: new Date().toISOString(),
-      totalBuildings: ourKeys.length,
-      matched: ourKeys.length - unmatched.length,
-      unmatched: unmatched.length,
       dldDistinctNames: dldNames.length,
+      ourBuildings: ourKeys.length,
+      matched: matchedCount,
+      unmatched: unmatched.length,
+      matchRate: `${((matchedCount / ourKeys.length) * 100).toFixed(1)}%`,
     },
-    mapping,  // ourNormalizedKey → canonical DLD project_name_en prefix
-  }, null, 2));
-
+    mapping,
+  };
+  fs.writeFileSync(OUT_PATH, JSON.stringify(output, null, 2));
   console.log(`\nWritten: lib/data/dld-name-map.json`);
 }
 
