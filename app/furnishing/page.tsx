@@ -1,11 +1,12 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import React from "react";
 import { FURNISHING_COMPANIES, DET_INVENTORY_CHECKLIST } from "@/lib/furnishing";
 import { colors } from "@/lib/colors";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
+import { createClient } from "@/lib/supabase/client";
 
 const C = {
   green: "#1B5E4A",
@@ -76,6 +77,47 @@ function FurnishingContent() {
   const [quoteForm, setQuoteForm] = useState({
     name: "", email: "", phone: "", property: "", pkg: "", path: "", budget: "", message: "",
   });
+
+  // Signed-in profile — lets us email a quote straight away instead of asking for a form.
+  const [account, setAccount] = useState<{ email: string; name: string; phone: string } | null>(null);
+  const [accountLoaded, setAccountLoaded] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<Record<string, "idle" | "sending" | "sent" | "error">>({});
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) { setAccountLoaded(true); return; }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("first_name,last_name,phone,whatsapp")
+        .eq("id", user.id)
+        .single();
+      const name = profile ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim() : "";
+      setAccount({ email: user.email, name, phone: profile?.phone || profile?.whatsapp || "" });
+      setAccountLoaded(true);
+    }
+    load();
+  }, []);
+
+  const emailQuote = async (pkgName: string) => {
+    if (!account) return;
+    setEmailStatus(s => ({ ...s, [pkgName]: "sending" }));
+    try {
+      const res = await fetch("/api/send-furnishing-quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: account.email, name: account.name, phone: account.phone,
+          property: displayName, unitSize: rawUnit, pkg: pkgName,
+        }),
+      });
+      const json = await res.json();
+      setEmailStatus(s => ({ ...s, [pkgName]: json.ok ? "sent" : "error" }));
+    } catch {
+      setEmailStatus(s => ({ ...s, [pkgName]: "error" }));
+    }
+  };
 
   const propertyName = params.get("propertyName") ?? "";
   const buildingName = params.get("buildingName") ?? propertyName;
@@ -607,16 +649,53 @@ function FurnishingContent() {
                             <span key={t} style={{ fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 20, background: "#EEF5F1", color: C.green }}>{t}</span>
                           ))}
                         </div>
-                        <button onClick={() => openQuoteModal(pkg.name)} style={{
-                          marginTop: "auto", width: "100%", padding: "10px",
-                          background: pkg.highlight ? C.green : "transparent",
-                          color: pkg.highlight ? "#fff" : C.green,
-                          border: pkg.highlight ? "none" : `1.5px solid ${C.green}`,
-                          borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer",
-                          boxShadow: pkg.highlight ? "0 4px 12px rgba(27,94,74,0.2)" : "none",
-                        }}>
-                          Request a Quote →
-                        </button>
+                        {(() => {
+                          const status = emailStatus[pkg.name] ?? "idle";
+                          const canEmail = accountLoaded && !!account;
+                          if (!accountLoaded) {
+                            return (
+                              <button disabled style={{
+                                marginTop: "auto", width: "100%", padding: "10px",
+                                background: "transparent", color: C.muted, border: `1.5px solid ${C.border}`,
+                                borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "default",
+                              }}>
+                                Loading…
+                              </button>
+                            );
+                          }
+                          if (canEmail) {
+                            return (
+                              <button
+                                onClick={() => status !== "sending" && emailQuote(pkg.name)}
+                                disabled={status === "sending"}
+                                style={{
+                                  marginTop: "auto", width: "100%", padding: "10px",
+                                  background: status === "sent" ? "#EEF5F1" : pkg.highlight ? C.green : "transparent",
+                                  color: status === "sent" ? C.green : pkg.highlight ? "#fff" : C.green,
+                                  border: status === "sent" ? `1.5px solid ${C.green}` : pkg.highlight ? "none" : `1.5px solid ${C.green}`,
+                                  borderRadius: 10, fontSize: 13, fontWeight: 600,
+                                  cursor: status === "sending" ? "default" : "pointer",
+                                  boxShadow: pkg.highlight && status !== "sent" ? "0 4px 12px rgba(27,94,74,0.2)" : "none",
+                                  opacity: status === "sending" ? 0.7 : 1,
+                                }}
+                              >
+                                {status === "sending" ? "Sending…" : status === "sent" ? "✓ Sent to " + account!.email : status === "error" ? "Couldn't send — try again" : "Email Me This Quote →"}
+                              </button>
+                            );
+                          }
+                          return (
+                            <button onClick={() => openQuoteModal(pkg.name)} style={{
+                              marginTop: "auto", width: "100%", padding: "10px",
+                              background: pkg.highlight ? C.green : "transparent",
+                              color: pkg.highlight ? "#fff" : C.green,
+                              border: pkg.highlight ? "none" : `1.5px solid ${C.green}`,
+                              borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                              boxShadow: pkg.highlight ? "0 4px 12px rgba(27,94,74,0.2)" : "none",
+                            }}>
+                              Request a Quote →
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   ))}
