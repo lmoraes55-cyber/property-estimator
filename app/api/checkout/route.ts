@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "node:crypto";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +12,19 @@ const PRICES: Record<string, number> = {
   "Operations Help — Premium Launch": 5500,
 };
 
+// Return URLs are built from server config only. This used to read `origin` from
+// the request body, which let anyone craft a checkout whose post-payment redirect
+// pointed at their own "success" page — the customer paid us for real, then landed
+// on the attacker's screen. Set SITE_ORIGIN to http://localhost:3000 for local dev.
+const SITE_ORIGIN = (process.env.SITE_ORIGIN || "https://assetintel.ae").replace(/\/+$/, "");
+
+// `ref` is the cart id shown to the customer and our reconciliation key, so a
+// collision would fail the unique constraint on orders.ref and lose a checkout.
+// 6 hex chars from a CSPRNG rather than 4 from Math.random.
 function makeRef(): string {
   const d = new Date();
   const yymm = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, "0")}`;
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const rand = randomBytes(3).toString("hex").toUpperCase();
   return `AI-${yymm}-${rand}`;
 }
 
@@ -44,7 +55,36 @@ export async function POST(request: Request) {
   }
 
   const ref = makeRef();
-  const origin = str(b.origin) || "https://assetintel.ae";
+  const origin = SITE_ORIGIN;
+
+  // Record the attempt before handing the customer to Telr. If we crash or the
+  // gateway call fails after this point, the row is still here to reconcile
+  // against — a payment we have no record of is worse than an unused row.
+  //
+  // Deliberately fails closed: no order record, no checkout. createServiceClient
+  // throws when SUPABASE_SERVICE_ROLE_KEY is unset, so catch it and report 503
+  // rather than surfacing an unhandled 500.
+  let supabase: ReturnType<typeof createServiceClient>;
+  try {
+    supabase = createServiceClient();
+  } catch (e) {
+    console.error("[AI-CHECKOUT] order storage unavailable:", (e as Error).message);
+    return NextResponse.json({ ok: false, error: "Payment not configured" }, { status: 503 });
+  }
+
+  const { error: insertError } = await supabase.from("orders").insert({
+    ref,
+    package: pkg,
+    amount,
+    currency: "AED",
+    status: "created",
+    test_mode: testMode === 1,
+  });
+
+  if (insertError) {
+    console.error("[AI-CHECKOUT] could not record order:", insertError.message);
+    return NextResponse.json({ ok: false, error: "Could not start checkout" }, { status: 500 });
+  }
 
   const payload = {
     method: "create",
@@ -76,6 +116,7 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     console.error("[AI-CHECKOUT] Telr network error:", (e as Error).message);
+    await supabase.from("orders").update({ status: "failed", updated_at: new Date().toISOString() }).eq("ref", ref);
     return NextResponse.json({ ok: false, error: "Payment gateway unreachable" }, { status: 502 });
   }
 
@@ -83,7 +124,17 @@ export async function POST(request: Request) {
 
   if (!data?.order?.url) {
     console.error("[AI-CHECKOUT] Telr error response:", JSON.stringify(data));
+    await supabase.from("orders").update({ status: "failed", updated_at: new Date().toISOString() }).eq("ref", ref);
     return NextResponse.json({ ok: false, error: "Payment gateway error" }, { status: 502 });
+  }
+
+  // Telr's own reference is what the order-check call keys on, so it has to be
+  // stored now — without it a completed payment can't be verified later.
+  if (data.order.ref) {
+    await supabase
+      .from("orders")
+      .update({ telr_ref: String(data.order.ref), updated_at: new Date().toISOString() })
+      .eq("ref", ref);
   }
 
   return NextResponse.json({ ok: true, ref, url: data.order.url });
