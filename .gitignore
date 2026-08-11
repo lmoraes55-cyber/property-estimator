@@ -42,3 +42,9 @@ next-env.d.ts
 
 # DLD raw data dumps (large, not for git)
 data/raw/
+
+# agent worktrees (contain full node_modules)
+.claude/worktrees/
+
+# local scratch work (mockups, experiments)
+scratch/
