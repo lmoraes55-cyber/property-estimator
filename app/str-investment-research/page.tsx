@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
+import ConsultationBanner from "@/components/home/ConsultationBanner";
 
 // ── DESIGN TOKENS ─────────────────────────────────────────────────────────────
 
@@ -785,6 +786,8 @@ export default function STRInvestmentResearchPage() {
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+      <ConsultationBanner />
+
       <footer style={{ background: C.green, padding: "28px 24px" }}>
         <div style={{ maxWidth: 1152, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div style={{ filter: "brightness(0) invert(1)", opacity: 0.9 }}>
