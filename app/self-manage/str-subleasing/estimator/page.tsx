@@ -47,12 +47,11 @@ const SUBLEASING_SIZES: { label: UnitSize; display: string }[] = [
 ];
 
 const VIEWS: ViewType[] = [
-  "Burj Khalifa View",
+  "Burj / Downtown Skyline",
+  "Marina / Waterfront",
   "Sea View",
-  "Full Marina View",
-  "City View",
-  "Pool View",
-  "Garden / Park View",
+  "Golf / Park View",
+  "Community View",
   "Standard View",
 ];
 
@@ -71,8 +70,8 @@ const FURNISHING_CONFIG: Record<FurnishingQuality, {
 };
 
 function getViewTier(view: ViewType): "premium" | "good" | "weak" {
-  if (["Sea View", "Burj Khalifa View", "Full Marina View"].includes(view)) return "premium";
-  if (["City View", "Pool View"].includes(view)) return "good";
+  if (["Sea View", "Burj / Downtown Skyline", "Marina / Waterfront"].includes(view)) return "premium";
+  if (["Community View"].includes(view)) return "good";
   return "weak";
 }
 
@@ -227,7 +226,7 @@ function SubleasingEstimatorInner() {
   const canCalculate = !!(form.buildingName && form.unitSize && form.floor &&
     Number(form.floor) >= 1 && form.view && form.monthlyRent && Number(form.monthlyRent) > 0);
 
-  function handleCalculate() {
+  async function handleCalculate() {
     if (!canCalculate || calculating) return;
     setCalculating(true);
     const params = new URLSearchParams({
@@ -243,6 +242,23 @@ function SubleasingEstimatorInner() {
     });
     if (form.dldKey) params.set("dk", form.dldKey);
     if (form.dldArea) params.set("da", form.dldArea);
+
+    // Pre-fetch live DLD LTR rent — wait up to 1s so the result page can show
+    // live data immediately without any static-then-live flash.
+    try {
+      const project = form.dldKey || form.buildingName;
+      const qs = new URLSearchParams({ project, bedrooms: form.unitSize });
+      if (form.dldArea) qs.set("area", form.dldArea);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1000);
+      const res = await fetch(`/api/ltr-rents?${qs}`, { signal: controller.signal });
+      clearTimeout(timer);
+      const data = await res.json();
+      if (data?.stat?.median && (data.source === "dda-live" || data.source === "dda-live-cached")) {
+        params.set("lr", String(Math.round(data.stat.median)));
+      }
+    } catch { /* timeout or network — result page spinner handles it */ }
+
     router.push(`/self-manage/str-subleasing/estimator/result?${params.toString()}`);
   }
 
@@ -429,7 +445,7 @@ function SubleasingEstimatorInner() {
                           )}
                           {filteredCurated.map(b => (
                             <div key={b}
-                              onClick={() => { set("buildingName", b); set("dldKey", ""); set("dldArea", ""); setBuildingSearch(b); setShowSuggestions(false); set("monthlyRent", ""); }}
+                              onClick={() => { const rec = BUILDINGS_DATABASE[b]; set("buildingName", b); set("dldKey", rec?.dldKey ?? ""); set("dldArea", rec?.dldArea ?? ""); setBuildingSearch(b); setShowSuggestions(false); set("monthlyRent", ""); }}
                               style={{ padding: "11px 16px", cursor: "pointer", fontSize: "13px", color: C.text, borderBottom: `1px solid ${C.border}` }}
                               onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
                               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
@@ -730,7 +746,13 @@ function SubleasingEstimatorInner() {
                     transition: "all 0.2s",
                     letterSpacing: "0.02em",
                   }}>
-                  {calculating ? "Calculating Risk…" : "Calculate Risk & Profit →"}
+                  {calculating
+                    ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                        <span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                        Fetching live rental data…
+                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                      </span>
+                    : "Calculate Risk & Profit →"}
                 </button>
 
                 {/* Advisory note */}

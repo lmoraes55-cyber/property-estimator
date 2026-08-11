@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   runEstimator,
@@ -73,8 +73,8 @@ const RISK_DESC:  Record<RiskLevel, string> = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getViewTier(view: ViewType): "premium" | "good" | "weak" {
-  if (["Sea View", "Burj Khalifa View", "Full Marina View"].includes(view)) return "premium";
-  if (["City View", "Pool View"].includes(view)) return "good";
+  if (["Sea View", "Burj / Downtown Skyline", "Marina / Waterfront"].includes(view)) return "premium";
+  if (["Community View"].includes(view)) return "good";
   return "weak";
 }
 
@@ -175,6 +175,157 @@ const IconRisk = ({ color }: { color: string }) => (
   </svg>
 );
 
+// ─── ADR benchmarks by area (AED/night, annual average, Premium furnishing baseline) ──
+// These are the primary revenue driver — STR ADR is independent of LTR market rent.
+// View and floor premiums are applied multiplicatively on top.
+const AREA_ADR: Record<string, Partial<Record<UnitSize, number>>> = {
+  // Annual average ADR (blends summer monthly-stay low rates + winter peak).
+  // Calibrated to 2026 market data: Marina blended avg ~AED 867 all-sizes (AirROI).
+  // Ranges: Palm AED 1,200–1,800, Downtown AED 800–1,100, Marina/JBR AED 700–950 (all-sizes).
+  "Dubai Marina":             { "STU": 380, "1BR": 560, "2BR": 800,  "3BR": 1160 },
+  "Jumeirah Beach Residence": { "STU": 420, "1BR": 620, "2BR": 900,  "3BR": 1320 },
+  "JBR":                      { "STU": 420, "1BR": 620, "2BR": 900,  "3BR": 1320 },
+  "Downtown Dubai":           { "STU": 430, "1BR": 680, "2BR": 980,  "3BR": 1450 },
+  "Palm Jumeirah":            { "STU": 560, "1BR": 800, "2BR": 1200, "3BR": 1800 },
+  "Bluewaters":               { "STU": 510, "1BR": 720, "2BR": 1060, "3BR": 1550 },
+  "Bluewater Island":         { "STU": 510, "1BR": 720, "2BR": 1060, "3BR": 1550 },
+  "Emaar Beachfront":         { "STU": 470, "1BR": 680, "2BR": 980,  "3BR": 1440 },
+  "Dubai Harbour":            { "STU": 450, "1BR": 640, "2BR": 920,  "3BR": 1340 },
+  "Business Bay":             { "STU": 300, "1BR": 430, "2BR": 630,  "3BR": 920  },
+  "DIFC":                     { "STU": 350, "1BR": 490, "2BR": 710,  "3BR": 1040 },
+  "Dubai Creek Harbour":      { "STU": 320, "1BR": 450, "2BR": 650,  "3BR": 960  },
+  "Creek Harbour":            { "STU": 320, "1BR": 450, "2BR": 650,  "3BR": 960  },
+  "City Walk":                { "STU": 350, "1BR": 500, "2BR": 730,  "3BR": 1070 },
+  // Selective / emerging areas
+  "JVC":                      { "STU": 210, "1BR": 280, "2BR": 410,  "3BR": 600  },
+  "Jumeirah Village Circle":  { "STU": 210, "1BR": 280, "2BR": 410,  "3BR": 600  },
+  "JLT":                      { "STU": 250, "1BR": 340, "2BR": 500,  "3BR": 730  },
+  "Jumeirah Lake Towers":     { "STU": 250, "1BR": 340, "2BR": 500,  "3BR": 730  },
+  "Dubai Hills":              { "STU": 220, "1BR": 300, "2BR": 450,  "3BR": 660  },
+  "Dubai Hills Estate":       { "STU": 220, "1BR": 300, "2BR": 450,  "3BR": 660  },
+  "Meydan":                   { "STU": 230, "1BR": 310, "2BR": 470,  "3BR": 690  },
+  "Arjan":                    { "STU": 190, "1BR": 250, "2BR": 370,  "3BR": 540  },
+  "Al Furjan":                { "STU": 180, "1BR": 240, "2BR": 350,  "3BR": 510  },
+  "Furjan":                   { "STU": 180, "1BR": 240, "2BR": 350,  "3BR": 510  },
+  "Sobha Hartland":           { "STU": 260, "1BR": 360, "2BR": 520,  "3BR": 770  },
+  "Mohammed Bin Rashid City": { "STU": 260, "1BR": 360, "2BR": 520,  "3BR": 770  },
+  "MBR City":                 { "STU": 260, "1BR": 360, "2BR": 520,  "3BR": 770  },
+  "Jumeirah":                 { "STU": 320, "1BR": 450, "2BR": 650,  "3BR": 960  },
+  "Al Barsha":                { "STU": 180, "1BR": 240, "2BR": 350,  "3BR": 510  },
+  "Dubai Sports City":        { "STU": 180, "1BR": 240, "2BR": 350,  "3BR": 510  },
+  "Sports City":              { "STU": 180, "1BR": 240, "2BR": 350,  "3BR": 510  },
+};
+const ADR_FALLBACK: Partial<Record<UnitSize, number>> = {
+  "STU": 250, "1BR": 340, "2BR": 490, "3BR": 720,
+  "4BR APT": 1000, "5BR APT": 1300,
+};
+
+// Building-level ADR multiplier on top of area base rate.
+// Premium amenities (infinity pool, top gym, branded) push ADR above the area median.
+// Older buildings in prime locations pull it below — location still drives occupancy,
+// but guests pay less per night for an aging building unless the unit itself is upgraded
+// (that's captured separately via the furnishing multiplier).
+const BUILDING_ADR_MOD: Record<string, number> = {
+  // ── Branded / hotel-grade (major amenity premium) ──────────────────────────
+  "Address Beach Residences":           1.32,
+  "Address Dubai Marina":               1.25,
+  "Address Fountain Views":             1.32,
+  "Address Residences Dubai Opera":     1.28,
+  "Address Harbour Point":              1.25,
+  "The Palm Tower":                     1.28,
+  "Jumeirah Living Marina Gate":        1.22,
+  "Vida Residences Dubai Marina":       1.20,
+  "Bluewaters Residences":              1.22,
+  "DAMAC Towers by Paramount":          1.20,
+  "DAMAC Maison Prive":                 1.15,
+  "Seven Palm":                         1.22,
+  "Palace Residences":                  1.22,
+  "City Walk Residences":               1.15,
+  // ── Modern buildings with premium amenities (infinity pool / large gym) ────
+  "Marina Gate 1":                      1.16,
+  "Marina Gate 2":                      1.16,
+  "Sparkle Tower 1":                    1.10,
+  "Sparkle Tower 2":                    1.10,
+  "Tiara Residences":                   1.18,
+  "Oceana Residences":                  1.15,
+  "Studio One Tower":                   1.08,
+  "Burj Vista 1":                       1.12,
+  "Burj Vista 2":                       1.12,
+  "Forte 1":                            1.10,
+  "Forte 2":                            1.10,
+  "Downtown Views II":                  1.10,
+  "Boulevard Heights":                  1.10,
+  "Burj Royale":                        1.08,
+  "Index Tower":                        1.12,
+  "Central Park Towers":                1.10,
+  "Creek Edge":                         1.08,
+  // ── Older JBR buildings — good beach access, older amenity stock ───────────
+  // Location drives occupancy; ADR is below area median unless unit is upgraded.
+  "Rimal 1":  0.90, "Rimal 2":  0.90, "Rimal 3":  0.90,
+  "Rimal 4":  0.90, "Rimal 5":  0.90, "Rimal 6":  0.90,
+  "Sadaf 1":  0.92, "Sadaf 2":  0.92, "Sadaf 3":  0.92,
+  "Sadaf 4":  0.92, "Sadaf 5":  0.92, "Sadaf 6":  0.92, "Sadaf 7":  0.92,
+  "Bahar 1":  0.90, "Bahar 2":  0.90, "Bahar 3":  0.90,
+  "Bahar 4":  0.90, "Bahar 5":  0.90, "Bahar 6":  0.90,
+  "Murjan 1": 0.87, "Murjan 2": 0.87, "Murjan 3": 0.87,
+  "Murjan 4": 0.87, "Murjan 5": 0.87, "Murjan 6": 0.87, "Murjan 7": 0.87,
+  "Shams 1":  0.84, "Shams 2":  0.84, "Shams 3":  0.84, "Shams 4":  0.84,
+  // ── Older Marina buildings — metro/marina walk connectivity offsets age ────
+  "Marina Diamond 1": 0.86, "Marina Diamond 2": 0.86, "Marina Diamond 3": 0.86,
+  "Marina Diamond 4": 0.86, "Marina Diamond 5": 0.86, "Marina Diamond 6": 0.86,
+  "Silverene Tower A": 1.05, "Silverene Tower B": 1.05,
+  // ── Older Palm buildings — beach access but showing age ───────────────────
+  "Shoreline Apartments": 0.88,
+  "Golden Mile":          0.84,
+  // ── DIFC buildings — wide spread driven by building vintage and unit size ─
+  // Index Tower is already listed above (1.12).
+  // Limestone House: large apartments, established luxury address in DIFC Gate District
+  "Limestone House":          1.15,
+  // Burj Daman: mixed-use, Grosvenor House management, solid corporate demand
+  "Burj Daman":               1.08,
+  // Central Park Residences: modern amenities, DIFC park-facing units
+  "Central Park Residences":  1.05,
+  // Liberty House: converted office tower, smaller studios, below-area ADR
+  "Liberty House":            0.90,
+  // Sky Gardens: 2009, compact units, weaker amenity stack vs. newer DIFC towers
+  "Sky Gardens":              0.88,
+  // Park Towers: oldest DIFC residential (2006), limited amenities, budget-tier STR
+  "Park Towers A": 0.82,
+  "Park Towers B": 0.84,
+  // ── JVC / selective mid-tier ──────────────────────────────────────────────
+  "Belgravia":     1.05,
+  "Bloom Towers":  0.95,
+};
+
+const ADR_VIEW_PREMIUM: Partial<Record<ViewType, number>> = {
+  "Sea View": 0.25, "Burj / Downtown Skyline": 0.25,
+  "Marina / Waterfront": 0.20, "Community View": 0.10,
+  "Golf / Park View": 0.05,
+};
+function adrFloorMult(floor: number): number {
+  if (floor >= 36) return 1.15;
+  if (floor >= 21) return 1.10;
+  if (floor >= 11) return 1.06;
+  if (floor >= 6)  return 1.03;
+  return 1.00;
+}
+function getMarketADR(
+  buildingName: string, community: string, dldArea: string | undefined,
+  unitSize: UnitSize, view: ViewType, floor: number,
+): number {
+  const hay = [buildingName, community, dldArea ?? ""].join(" ");
+  let base = ADR_FALLBACK[unitSize] ?? 350;
+  for (const [area, rates] of Object.entries(AREA_ADR)) {
+    if (hay.toLowerCase().includes(area.toLowerCase())) {
+      base = rates[unitSize] ?? base;
+      break;
+    }
+  }
+  const buildingMod = BUILDING_ADR_MOD[buildingName] ?? 1.0;
+  const viewMult    = 1 + (ADR_VIEW_PREMIUM[view] ?? 0);
+  return Math.round(base * buildingMod * viewMult * adrFloorMult(floor));
+}
+
 // ─── Result types ─────────────────────────────────────────────────────────────
 
 interface SublResult {
@@ -191,6 +342,8 @@ interface SublResult {
   annualFurniture: number;
   annualMgmtFee: number;
   ltrMarketRent: number;
+  marketADR: number;
+  effectiveADR: number;
   community: string;
   floorTier: "high" | "mid" | "low";
   viewTier: "premium" | "good" | "weak";
@@ -227,9 +380,11 @@ function computeResult(params: {
   furnishingQuality: FurnishingQuality; monthlyRent: number;
   mgmtFee: number; communityDisplay: string;
   mgmtFeeMode: "self" | "operator"; mgmtFeeCustom: number;
+  longTermRentOverride?: number;
 }): Calc {
   const { buildingName, dldKey, dldArea, unitSize, floor, view, furnishingQuality,
-          monthlyRent, mgmtFee, communityDisplay, mgmtFeeMode, mgmtFeeCustom } = params;
+          monthlyRent, mgmtFee, communityDisplay, mgmtFeeMode, mgmtFeeCustom,
+          longTermRentOverride } = params;
   const annualLandlordRent = monthlyRent * 12;
   const furnishingCfg = FURNISHING_CONFIG[furnishingQuality];
 
@@ -258,13 +413,25 @@ function computeResult(params: {
     mode: "SUBLEASE_RISK",
     buildingOccAdj,
     furnishingRevenueMult: furnishingCfg.revMult,
+    longTermRentOverride,
   });
 
-  const annualNetBeforeRent = est.annualNetToLandlord;
-  const annualNetProfit = annualNetBeforeRent - annualLandlordRent;
-  const annualFixedCosts = est.annualUtilities + est.annualMaintenance + est.annualFurnitureAmort;
-  const annualNetMinusMgmt = est.annualRevenue - est.annualManagementFee;
-  const breakEvenOcc = est.avgOccupancy * (annualLandlordRent + annualFixedCosts) / annualNetMinusMgmt;
+  // ── ADR-based revenue (STR ADR is independent of LTR market rent) ──────────
+  const marketADR   = getMarketADR(buildingName, communityDisplay, dldArea, unitSize, view, floor);
+  const effectiveADR = Math.round(marketADR * furnishingCfg.revMult);
+  // Annual gross revenue = effective ADR × days/year × avg occupancy
+  const annualRevenue      = effectiveADR * 365 * est.avgOccupancy;
+  const annualManagementFee = annualRevenue * mgmtFee;
+  const annualFixedCosts   = est.annualUtilities + est.annualMaintenance + est.annualFurnitureAmort;
+  const annualNetBeforeRent = annualRevenue - annualManagementFee - annualFixedCosts;
+  const annualNetProfit     = annualNetBeforeRent - annualLandlordRent;
+  const annualNetMinusMgmt  = annualRevenue - annualManagementFee;
+  const breakEvenOcc = annualNetMinusMgmt > 0
+    ? est.avgOccupancy * (annualLandlordRent + annualFixedCosts) / annualNetMinusMgmt
+    : 1;
+
+  // Scale monthly rows to match ADR-based annual revenue
+  const revenueScale = est.annualRevenue > 0 ? annualRevenue / est.annualRevenue : 1;
 
   const floorTier = getFloorTier(floor);
   const viewTier  = getViewTier(view);
@@ -280,52 +447,67 @@ function computeResult(params: {
   if (areaSuitability === "not_recommended") {
     riskLevel = bumpRisk(riskLevel);
   } else if (areaSuitability === "caution") {
-    const signals = viewTier === "weak" || unitSize === "2BR" || unitSize === "3BR" || breakEvenOcc > 0.65 || furnishingQuality === "Basic" || furnishingQuality === "Standard";
-    if (signals) riskLevel = bumpRisk(riskLevel);
+    // Bump only when ≥2 concurrent weak signals (avoid penalising common setups once each)
+    const weakSignals = [
+      viewTier === "weak",
+      unitSize === "2BR" || unitSize === "3BR",
+      breakEvenOcc > 0.65,
+      furnishingQuality === "Basic",
+    ].filter(Boolean).length;
+    if (weakSignals >= 2 || (weakSignals >= 1 && breakEvenOcc > 0.60)) {
+      riskLevel = bumpRisk(riskLevel);
+    }
   }
+  // Basic furnishing gets one additional bump (material ADR reduction)
   if (furnishingQuality === "Basic") riskLevel = bumpRisk(riskLevel);
-  if (furnishingQuality === "Standard" && areaSuitability === "caution") riskLevel = bumpRisk(riskLevel);
-  if (viewTier === "weak" && (furnishingQuality === "Basic" || furnishingQuality === "Standard")) riskLevel = bumpRisk(riskLevel);
 
   // Stage 6: Hard stops
   const isHardAvoid =
-    (areaSuitability === "not_recommended" && breakEvenOcc > 0.65) ||
-    (areaSuitability === "not_recommended" && (unitSize === "2BR" || unitSize === "3BR")) ||
-    (furnishingQuality === "Basic" && viewTier === "weak") ||
+    (areaSuitability === "not_recommended" && breakEvenOcc > 0.72) ||
+    (areaSuitability === "not_recommended" && unitSize === "3BR") ||
+    (furnishingQuality === "Basic" && viewTier === "weak" && areaSuitability !== "eligible") ||
     (furnishingQuality === "Basic" && areaSuitability === "not_recommended") ||
-    (viewTier === "weak" && areaSuitability === "not_recommended") ||
-    (viewTier === "weak" && (unitSize === "2BR" || unitSize === "3BR") && breakEvenOcc > 0.55);
+    (viewTier === "weak" && areaSuitability === "not_recommended" && breakEvenOcc > 0.70) ||
+    (viewTier === "weak" && unitSize === "3BR" && breakEvenOcc > 0.65);
 
   const furnishingCap: Recommendation | undefined = furnishingQuality === "Basic" ? "Negotiate" : undefined;
   const recommendation = getRecommendation(riskLevel, areaSuitability, isHardAvoid, furnishingCap);
 
   const ltrMarket = getLTRMarketRent(buildingName, unitSize, undefined, dldKey, dldArea);
+  const effectiveLtrMonthly = longTermRentOverride ? longTermRentOverride / 12 : ltrMarket.rent / 12;
 
-  const months = est.months.map(m => ({
-    month: m.month,
-    revenue: m.revenue,
-    landlordRent: monthlyRent,
-    netProfit: m.netToLandlord - monthlyRent,
-    occupancy: m.occupancy,
-    adr: m.adr,
-  }));
+  const months = est.months.map(m => {
+    const rev  = m.revenue * revenueScale;
+    const mgmt = rev * mgmtFee;
+    const costs = m.utilities + m.maintenance + m.furnitureAmort;
+    return {
+      month: m.month,
+      revenue: rev,
+      landlordRent: monthlyRent,
+      netProfit: rev - mgmt - costs - monthlyRent,
+      occupancy: m.occupancy,
+      adr: m.adr * revenueScale,
+    };
+  });
 
   return {
     type: "result",
     result: {
-      annualSTRRevenue: est.annualRevenue,
+      annualSTRRevenue: annualRevenue,
       annualNetBeforeRent,
       annualLandlordRent,
       annualNetProfit,
       avgOccupancy: est.avgOccupancy,
-      avgADR: est.avgADR,
+      avgADR: Math.round(est.avgADR * revenueScale),
+      marketADR,
+      effectiveADR,
       breakEvenOcc,
       riskLevel,
       annualUtilities: est.annualUtilities,
       annualMaintenance: est.annualMaintenance,
       annualFurniture: est.annualFurnitureAmort,
-      annualMgmtFee: est.annualManagementFee,
-      ltrMarketRent: ltrMarket.rent / 12,
+      annualMgmtFee: annualManagementFee,
+      ltrMarketRent: effectiveLtrMonthly,
       community: communityDisplay,
       floorTier, viewTier, areaTier, unitTier,
       months,
@@ -356,22 +538,72 @@ function ResultInner() {
   const mgmtMode        = (searchParams.get("mm") ?? "operator") as "self" | "operator";
   const mgmtFeeStr      = searchParams.get("mf") ?? "20";
   const community       = searchParams.get("cm") ?? "";
+  // lr = pre-fetched live LTR rent (passed by estimator form page to avoid result-page lag)
+  const lrStr           = searchParams.get("lr") ?? "";
 
   const floor       = Number(floorStr);
   const monthlyRent = Number(monthlyRentStr);
   const mgmtFeeCustom = Number(mgmtFeeStr) || 20;
   const mgmtFee     = mgmtMode === "self" ? 0 : mgmtFeeCustom / 100;
+  const prefetchedLtr = Number(lrStr) || 0;
 
   const hasRequiredParams = !!(buildingName && unitSize && floor >= 1 && view && monthlyRent > 0);
 
-  const calc = useMemo<Calc | null>(() => {
+  const baseParams = { buildingName, dldKey, dldArea, unitSize, floor, view, furnishingQuality: fq, monthlyRent, mgmtFee, communityDisplay: community, mgmtFeeMode: mgmtMode, mgmtFeeCustom };
+
+  const staticCalc = useMemo<Calc | null>(() => {
     if (!hasRequiredParams) return null;
     try {
-      return computeResult({ buildingName, dldKey, dldArea, unitSize, floor, view, furnishingQuality: fq, monthlyRent, mgmtFee, communityDisplay: community, mgmtFeeMode: mgmtMode, mgmtFeeCustom });
-    } catch {
-      return null;
+      // If a pre-fetched live LTR value was passed via URL, use it immediately.
+      const override = prefetchedLtr > 0 ? prefetchedLtr : undefined;
+      return computeResult({ ...baseParams, longTermRentOverride: override });
+    } catch { return null; }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildingName, dldKey, dldArea, unitSize, floor, view, fq, monthlyRent, mgmtFee, community, mgmtMode, mgmtFeeCustom, hasRequiredParams, prefetchedLtr]);
+
+  const [mounted, setMounted] = useState(false);
+  const [calc, setCalc] = useState<Calc | null>(null);
+  const [ltrSource, setLtrSource] = useState<"static" | "dda-live">("static");
+  const [ltrLoading, setLtrLoading] = useState(true);
+
+  // Ensure we never render content before client hydration — eliminates SSR mismatch
+  useEffect(() => { setMounted(true); }, []);
+
+  // If a pre-fetched LTR value was in the URL, we already have live data — skip the fetch.
+  // Otherwise fetch live DLD data and update once it resolves.
+  useEffect(() => {
+    setCalc(staticCalc);
+    setLtrSource(prefetchedLtr > 0 ? "dda-live" : "static");
+
+    if (!hasRequiredParams || prefetchedLtr > 0) {
+      setLtrLoading(false);
+      return;
     }
-  }, [buildingName, dldKey, dldArea, unitSize, floor, view, fq, monthlyRent, mgmtFee, community, mgmtMode, mgmtFeeCustom, hasRequiredParams]);
+
+    setLtrLoading(true);
+    const project = dldKey || buildingName;
+    const qs = new URLSearchParams({ project, bedrooms: unitSize });
+    if (dldArea) qs.set("area", dldArea);
+
+    let cancelled = false;
+    fetch(`/api/ltr-rents?${qs}`)
+      .then(r => r.json())
+      .then((data: { stat: { median: number } | null; source: string }) => {
+        if (cancelled) return;
+        if (data?.stat?.median && (data.source === "dda-live" || data.source === "dda-live-cached")) {
+          try {
+            const enriched = computeResult({ ...baseParams, longTermRentOverride: data.stat.median });
+            setCalc(enriched);
+            setLtrSource("dda-live");
+          } catch { /* ignore */ }
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLtrLoading(false); });
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasRequiredParams, prefetchedLtr, buildingName, dldKey, dldArea, unitSize, floor, view, fq, monthlyRent, mgmtFee, community, mgmtMode, mgmtFeeCustom]);
 
   const fmt = (n: number) => Math.round(n).toLocaleString();
   const pct = (n: number) => `${Math.round(n * 100)}%`;
@@ -391,7 +623,192 @@ function ResultInner() {
   if (community) backParams.set("cm", community);
   const editUrl = `/self-manage/str-subleasing/estimator?${backParams.toString()}`;
 
+  // ── Report email state ──
+  const [reportEmail, setReportEmail] = useState("");
+  const [reportSending, setReportSending] = useState(false);
+  const [reportSent, setReportSent] = useState(false);
+  const [reportError, setReportError] = useState("");
+
+  async function sendReport() {
+    if (!reportEmail || !calc || calc.type !== "result") return;
+    setReportSending(true);
+    setReportError("");
+    try {
+      const { jsPDF } = await import("jspdf");
+      const r = calc.result;
+      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const W = doc.internal.pageSize.getWidth();
+      const margin = 48;
+      let y = 0;
+
+      // Header band
+      doc.setFillColor(27, 94, 74);
+      doc.rect(0, 0, W, 90, "F");
+      doc.setTextColor(184, 138, 68);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.text("ASSETINTEL · STR SUB-LEASING RISK REPORT", margin, 30);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.text(`${buildingName}${unitSize ? ` · ${unitSize}` : ""}`, margin, 56);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Floor ${floor} · ${view} · ${fq} furnished · Generated ${new Date().toLocaleDateString("en-AE")}`, margin, 76);
+      y = 110;
+
+      // Key metrics grid
+      doc.setTextColor(27, 27, 27);
+      const metrics = [
+        ["Verdict", r.recommendation],
+        ["Risk Level", r.riskLevel],
+        ["Annual Net Profit", `AED ${Math.round(r.annualNetProfit).toLocaleString()}`],
+        ["Market ADR", `AED ${r.marketADR?.toLocaleString() ?? "—"}/night`],
+        ["Avg Occupancy", `${Math.round(r.avgOccupancy * 100)}%`],
+        ["Break-Even Occupancy", `${Math.round(r.breakEvenOcc * 100)}%`],
+      ];
+      const colW = (W - margin * 2) / 2;
+      metrics.forEach(([label, value], i) => {
+        const x = margin + (i % 2) * (colW + 8);
+        if (i % 2 === 0) {
+          doc.setFillColor(248, 244, 238);
+          doc.roundedRect(x, y, colW - 4, 52, 6, 6, "F");
+          doc.roundedRect(x + colW + 4, y, colW - 4, 52, 6, 6, "F");
+        }
+        doc.setFontSize(7.5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(107, 107, 107);
+        doc.text(label.toUpperCase(), x + 12, y + 18);
+        doc.setFontSize(13);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(27, 27, 27);
+        doc.text(String(value), x + 12, y + 38);
+        if (i % 2 === 1) y += 60;
+      });
+      y += 60 + 20;
+
+      // Monthly cash flow table
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(184, 138, 68);
+      doc.text("MONTHLY CASH FLOW", margin, y);
+      y += 14;
+
+      const colHeaders = ["Month", "STR Revenue", "Landlord Rent", "Occupancy", "ADR/Night", "Net Profit"];
+      const colWidths = [64, 88, 88, 72, 72, 88];
+      const tableW = colWidths.reduce((a, b) => a + b, 0);
+      const tableX = (W - tableW) / 2;
+
+      doc.setFillColor(248, 244, 238);
+      doc.rect(tableX, y, tableW, 18, "F");
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(107, 107, 107);
+      let cx = tableX + 6;
+      colHeaders.forEach((h, i) => { doc.text(h, cx, y + 12); cx += colWidths[i]; });
+      y += 18;
+
+      r.months.forEach((m, idx) => {
+        doc.setFillColor(idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 244, idx % 2 === 0 ? 255 : 238);
+        doc.rect(tableX, y, tableW, 17, "F");
+        doc.setFont("helvetica", idx % 2 === 0 ? "normal" : "normal");
+        doc.setFontSize(7.5);
+        const net = m.netProfit;
+        const cells = [
+          { text: m.month, color: [27, 27, 27] as [number, number, number] },
+          { text: `AED ${Math.round(m.revenue).toLocaleString()}`, color: [27, 94, 74] as [number, number, number] },
+          { text: `AED ${Math.round(m.landlordRent).toLocaleString()}`, color: [194, 90, 26] as [number, number, number] },
+          { text: `${Math.round(m.occupancy * 100)}%`, color: [27, 27, 27] as [number, number, number] },
+          { text: `AED ${Math.round(m.adr).toLocaleString()}`, color: [27, 27, 27] as [number, number, number] },
+          { text: `${net >= 0 ? "+" : ""}AED ${Math.round(net).toLocaleString()}`, color: (net >= 0 ? [45, 122, 79] : [184, 50, 50]) as [number, number, number] },
+        ];
+        cx = tableX + 6;
+        cells.forEach((cell, i) => {
+          doc.setTextColor(...cell.color);
+          doc.text(cell.text, cx, y + 11);
+          cx += colWidths[i];
+        });
+        y += 17;
+      });
+      y += 20;
+
+      // Operator matching note
+      doc.setFillColor(27, 94, 74, 0.06);
+      doc.setDrawColor(27, 94, 74, 0.2);
+      doc.roundedRect(margin, y, W - margin * 2, 60, 8, 8, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(184, 138, 68);
+      doc.text("OPERATOR MATCHING", margin + 14, y + 16);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(27, 27, 27);
+      doc.text(
+        "Based on this analysis, AssetIntel will match you with 2–3 vetted STR operators that specialise in your",
+        margin + 14, y + 30
+      );
+      doc.text("area. You'll receive their fees, strengths, and coverage — no commitment required.", margin + 14, y + 42);
+      y += 76;
+
+      // Disclaimer
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
+      const disclaimer = "This report is generated by AssetIntel and is for indicative purposes only. Actual STR performance depends on management quality, market conditions, and DET regulatory approval.";
+      const lines = doc.splitTextToSize(disclaimer, W - margin * 2);
+      doc.text(lines, margin, y);
+
+      const pdfBase64 = doc.output("datauristring");
+
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: reportEmail,
+          pdfBase64,
+          summary: {
+            building: buildingName,
+            unitSize,
+            recommendation: r.recommendation,
+            strNetPerYear: Math.round(r.annualNetProfit).toLocaleString(),
+            adr: r.marketADR?.toLocaleString() ?? "",
+            occupancy: `${Math.round(r.avgOccupancy * 100)}%`,
+            riskLevel: r.riskLevel,
+            breakEvenOcc: `${Math.round(r.breakEvenOcc * 100)}%`,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setReportSent(true);
+      } else {
+        setReportError("Something went wrong. Please try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      setReportError("Failed to generate report. Please try again.");
+    } finally {
+      setReportSending(false);
+    }
+  }
+
+  // ── Block all rendering until client has mounted — prevents any SSR flash ──
+  if (!mounted) {
+    return <main style={{ minHeight: "100vh", background: C.bg }} />;
+  }
+
   // ── Empty / invalid state ──
+  if (ltrLoading && hasRequiredParams) {
+    return (
+      <main style={{ minHeight: "100vh", background: C.bg, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", padding: "40px 24px" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "50%", border: `3px solid ${C.primary}20`, borderTopColor: C.primary, animation: "spin 0.8s linear infinite", margin: "0 auto 20px" }} />
+          <p style={{ fontSize: "14px", color: C.muted, fontWeight: 500 }}>Fetching live DLD data…</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      </main>
+    );
+  }
+
   if (!hasRequiredParams || !calc) {
     return (
       <main style={{ minHeight: "100vh", background: C.bg, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -523,6 +940,11 @@ function ResultInner() {
             {[r.unitSize, `Floor ${r.floor}`, r.view, FURNISHING_CONFIG[r.furnishingQuality].display + " Furnishing", `AED ${fmt(r.monthlyRent)}/mo rent`].map(chip => (
               <span key={chip} style={{ fontSize: "12px", fontWeight: 600, color: C.muted, background: C.surface, border: `1px solid ${C.border}`, padding: "4px 12px", borderRadius: "20px" }}>{chip}</span>
             ))}
+            {ltrSource === "dda-live" && (
+              <span style={{ fontSize: "11px", fontWeight: 700, color: C.primary, background: "#E8F5EE", border: `1px solid ${C.primary}40`, padding: "4px 12px", borderRadius: "20px", letterSpacing: "0.04em" }}>
+                Live DLD · LTR
+              </span>
+            )}
           </div>
 
           {/* Recommendation badge */}
@@ -540,13 +962,21 @@ function ResultInner() {
         </div>
 
         {/* ── Key Metrics ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", marginBottom: "28px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px", marginBottom: "28px" }}>
           {[
             {
               label: "Annual Net Profit",
               value: `${r.annualNetProfit >= 0 ? "+" : ""}AED ${fmt(r.annualNetProfit)}`,
               color: r.annualNetProfit >= 0 ? C.risk.low : C.risk.vhigh,
               note: r.annualNetProfit >= 0 ? `${Math.round((r.annualNetProfit / r.annualLandlordRent) * 100)}% margin on rent paid` : "Shortfall — deal needs renegotiation",
+            },
+            {
+              label: "Market ADR",
+              value: `AED ${fmt(r.marketADR)}/night`,
+              color: C.bronze,
+              note: r.effectiveADR < r.marketADR
+                ? `Effective AED ${fmt(r.effectiveADR)}/night with ${r.furnishingQuality.toLowerCase()} furnishing`
+                : `Avg rate/night for this area, view & floor`,
             },
             {
               label: "Break-even Occupancy",
@@ -569,7 +999,7 @@ function ResultInner() {
           ].map(({ label, value, color, note }) => (
             <div key={label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
               <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", color: C.muted, marginBottom: "8px" }}>{label.toUpperCase()}</div>
-              <div style={{ fontFamily: serif, fontSize: "24px", fontWeight: 700, color, marginBottom: "4px" }}>{value}</div>
+              <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color, marginBottom: "4px" }}>{value}</div>
               <div style={{ fontSize: "11px", color: C.muted, lineHeight: 1.4 }}>{note}</div>
             </div>
           ))}
@@ -838,7 +1268,7 @@ function ResultInner() {
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "22px" }}>ANNUAL P&amp;L FORECAST</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
             {[
-              { label: "STR Gross Revenue", value: `AED ${fmt(r.annualSTRRevenue)}`, sub: `Avg ADR: AED ${fmt(r.avgADR)}/night`, color: C.primary },
+              { label: "STR Gross Revenue", value: `AED ${fmt(r.annualSTRRevenue)}`, sub: `Avg effective ADR: AED ${fmt(r.effectiveADR)}/night · market AED ${fmt(r.marketADR)}/night`, color: C.primary },
               { label: "Landlord Rent (annual)", value: `− AED ${fmt(r.annualLandlordRent)}`, sub: `AED ${fmt(r.monthlyRent)}/month fixed`, color: C.risk.high },
               { label: "Operator Fee", value: `− AED ${fmt(r.annualMgmtFee)}`, sub: r.mgmtFeeMode === "self" ? "Self-managed" : `${r.mgmtFeeCustom}% of revenue`, color: C.muted },
               { label: "Utilities & Costs", value: `− AED ${fmt(r.annualUtilities + r.annualMaintenance + r.annualFurniture)}`, sub: "DEWA, AC, maintenance, furnishing", color: C.muted },
@@ -902,6 +1332,62 @@ function ResultInner() {
             Monthly net profit is after landlord rent, management fee, DEWA, AC, internet, maintenance, and furniture amortisation.
             Revenue follows Dubai STR seasonal patterns (winter peak, summer low).
           </div>
+        </div>
+
+        {/* ── Email Report CTA ── */}
+        <div style={{
+          padding: "36px 40px",
+          background: `linear-gradient(135deg, ${C.primary}0A 0%, ${C.bronze}08 100%)`,
+          border: `1.5px solid ${C.primary}25`, borderRadius: "24px",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: "28px",
+        }}>
+          {reportSent ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#E8F5EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#2D7A4F" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </div>
+              <div>
+                <p style={{ margin: "0 0 4px", fontSize: "16px", fontWeight: 700, color: C.primary }}>Report sent!</p>
+                <p style={{ margin: 0, fontSize: "13px", color: C.muted }}>Check your inbox at <strong>{reportEmail}</strong>. Our team will follow up with operator matches.</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "10px" }}>GET YOUR REPORT + OPERATOR MATCHES</div>
+              <h2 style={{ fontFamily: serif, fontSize: "20px", fontWeight: 700, color: C.text, margin: "0 0 8px" }}>
+                Receive this report by email
+              </h2>
+              <p style={{ fontSize: "13.5px", color: C.muted, lineHeight: 1.65, margin: "0 0 24px", maxWidth: "520px" }}>
+                We'll send you the full PDF report and match you with 2–3 vetted STR operators that fit your property — no commitment required.
+              </p>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={reportEmail}
+                  onChange={e => setReportEmail(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && sendReport()}
+                  style={{
+                    flex: "1 1 220px", padding: "13px 16px", border: `1.5px solid ${C.border}`,
+                    borderRadius: "10px", fontSize: "14px", outline: "none",
+                    background: C.surface, color: C.text, fontFamily: "system-ui, sans-serif",
+                  }}
+                />
+                <button
+                  onClick={sendReport}
+                  disabled={reportSending || !reportEmail}
+                  style={{
+                    padding: "13px 24px", background: reportSending ? C.muted : `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`,
+                    color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: 700,
+                    cursor: reportSending || !reportEmail ? "not-allowed" : "pointer", border: "none",
+                    boxShadow: "0 4px 14px rgba(27,94,74,0.25)", whiteSpace: "nowrap", opacity: !reportEmail ? 0.6 : 1,
+                  }}>
+                  {reportSending ? "Sending…" : "Send Me the Report →"}
+                </button>
+              </div>
+              {reportError && <p style={{ margin: "10px 0 0", fontSize: "12px", color: C.risk.vhigh }}>{reportError}</p>}
+            </>
+          )}
         </div>
 
         {/* ── CTA ── */}

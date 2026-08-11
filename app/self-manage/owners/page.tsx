@@ -787,7 +787,7 @@ function TemplateModal({ template, isMobile, onClose }: { template: GuestTemplat
         <div style={{ padding: isMobile ? "24px 22px 18px" : "30px 36px 22px", borderBottom: "1px solid #E6E1D8", position: "relative" }}>
           <button onClick={onClose} style={{ position: "absolute", top: "18px", right: "18px", background: "none", border: "none", cursor: "pointer", color: "#6B6B6B", fontSize: "20px", lineHeight: 1, padding: "4px 8px" }}>×</button>
           <div style={{ fontSize: "10px", fontWeight: 700, color: "#B88A44", letterSpacing: "0.14em", marginBottom: "10px" }}>GUEST COMMUNICATION TEMPLATE</div>
-          <h2 style={{ fontSize: isMobile ? "19px" : "22px", fontFamily: "'Georgia', serif", fontWeight: 700, color: "#1A1A1A", marginBottom: "14px", paddingRight: "32px" }}>{template.title}</h2>
+          <h2 style={{ fontSize: isMobile ? "19px" : "22px", fontFamily: "'Georgia', serif", fontWeight: 700, color: "#1B5E4A", marginBottom: "14px", paddingRight: "32px" }}>{template.title}</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", background: "#F0F8F4", borderRadius: "999px", border: "1px solid #1B5E4A20" }}>
               <span style={{ fontSize: "10px", fontWeight: 700, color: "#1B5E4A", letterSpacing: "0.08em" }}>BEST USED FOR</span>
@@ -946,348 +946,321 @@ export default function OwnersPage() {
         </div>
       </section>
 
-      {/* ─── 6-STEP OVERVIEW ─── */}
-      <section style={{ padding: secPad }}>
+      {/* ─── SECTION 1: QUICK OVERVIEW ─── */}
+      <section style={{ background: C.bgSection, borderBottom: `1px solid ${C.border}`, padding: secPad }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <SH label="THE FRAMEWORK" title="The 6-Step Self-Management System" subtitle="Self-management works only when compliance, listings, systems, teams, pricing, and standards are properly set up." />
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "18px" }}>
+          <div style={{ marginBottom: "44px" }}>
+            <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>OWNER SETUP OVERVIEW</div>
+            <h2 style={{ fontSize: isMobile ? "26px" : "34px", fontFamily: SF, fontWeight: 700, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>What You Need To Self-Manage Successfully</h2>
+            <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "680px", margin: 0 }}>Self-managing a Dubai short-term rental means handling licensing, listings, software, pricing, housekeeping, maintenance, guest communication, and monthly performance tracking.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px" }}>
             {[
-              { n: 1, icon: <IconDET color={C.primary} />, title: "DET Portal Setup", desc: "Register with DET, apply for permits, and manage guest check-in/check-out obligations.", href: "#step-1" },
-              { n: 2, icon: <IconOTA color={C.secondary} />, title: "OTA Account Setup", desc: "Create and optimise your accounts across Airbnb, Booking.com, Vrbo, and other relevant platforms.", href: "#step-2" },
-              { n: 3, icon: <IconPMS color={C.primary} />, title: "PMS Setup", desc: "Connect OTAs into one system to manage calendars, messaging, tasks, and reporting from one place.", href: "#step-3" },
-              { n: 4, icon: <IconTeam color={C.secondary} />, title: "Operations Team Setup", desc: "Set up third-party housekeeping, maintenance, guest relations, and virtual assistant support.", href: "#step-4" },
-              { n: 5, icon: <IconPricing color={C.primary} />, title: "Pricing Setup", desc: "Use dynamic pricing tools and adjust rates based on market demand, season, and events.", href: "#step-5" },
-              { n: 6, icon: <IconSOP color={C.secondary} />, title: "SOPs & Templates", desc: "Create repeatable standards for cleaning, maintenance, guest messages, inspections, and escalation.", href: "#step-6" },
-            ].map(({ n, icon, title, desc, href }) => (
-              <div key={n} style={{ background: C.bgSection, borderRadius: "16px", border: `1px solid ${C.border}`, padding: "24px", boxShadow: C.shadowSm, display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
-                  <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: `${C.primary}0A`, border: `1px solid ${C.primary}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>
-                  <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: C.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700, color: "#fff" }}>{n}</div>
-                </div>
-                <h3 style={{ fontSize: "15px", fontFamily: SF, fontWeight: 700, color: C.textMain, marginBottom: "8px" }}>{title}</h3>
-                <p style={{ fontSize: "13px", color: C.textMuted, lineHeight: 1.6, flex: 1, marginBottom: "16px" }}>{desc}</p>
-                <a href={href} style={{ fontSize: "13px", fontWeight: 700, color: C.primary, textDecoration: "none" }}>View step →</a>
+              { icon: <IconDET color={C.primary} />, title: "DET & Permit Setup", desc: "Register your holiday home and keep the annual permit active before going live." },
+              { icon: <IconOTA color={C.secondary} />, title: "OTA Listings", desc: "Create and manage Airbnb, Booking.com, and other channel listings with accurate photos, pricing, and rules." },
+              { icon: <IconPMS color={C.primary} />, title: "PMS / Channel Manager", desc: "Use tools like Guesty or Hostaway to manage reservations, calendars, messaging, reporting, and automation." },
+              { icon: <IconTeam color={C.secondary} />, title: "Operations Vendors", desc: "Set up reliable housekeeping, maintenance, guest support, laundry, and access teams." },
+              { icon: <IconPricing color={C.primary} />, title: "Dynamic Pricing", desc: "Use pricing tools like PriceLabs or PMS pricing features to adjust rates based on demand and seasonality." },
+              { icon: <IconSOP color={C.secondary} />, title: "Guest Templates & SOPs", desc: "Use structured guest communication and operational SOPs to reduce mistakes and improve reviews." },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} style={{ background: C.bgMain, borderRadius: "16px", border: `1px solid ${C.border}`, borderTop: `3px solid ${C.secondary}`, padding: "22px 20px", boxShadow: C.shadowSm }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "11px", background: `${C.primary}09`, border: `1px solid ${C.primary}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>{icon}</div>
+                <h3 style={{ fontSize: "15px", fontFamily: SF, fontWeight: 700, color: C.primary, marginBottom: "7px" }}>{title}</h3>
+                <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.6, margin: 0 }}>{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── PRICING DISCLAIMER STRIP ─── */}
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: isMobile ? "0 20px 32px" : "0 40px 32px" }}>
-        <div style={{ background: "#F5F1EA", borderRadius: "12px", border: `1px solid #DDD8CE`, padding: "14px 20px", display: "flex", gap: "12px", alignItems: "flex-start" }}>
-          <div style={{ marginTop: "1px", flexShrink: 0 }}><IconInfo color={C.secondary} /></div>
-          <div>
-            <span style={{ fontSize: "11px", fontWeight: 700, color: C.secondary, letterSpacing: "0.1em", marginRight: "8px" }}>PRICING NOTE</span>
-            <span style={{ fontSize: "13px", color: "#5A4A30", lineHeight: 1.6 }}>
-              The costs below are approximate and may vary based on DET updates, software plans, portfolio size, selected vendors, building requirements, and operator setup preferences. Owners should verify final pricing directly with DET, software providers, and service vendors before proceeding.
-            </span>
+      {/* ─── SECTION 2: SETUP PLAYBOOK ─── */}
+      <section style={{ padding: secPad }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "16px" }}>
+            <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>SETUP PLAYBOOK</div>
+            <h2 style={{ fontSize: isMobile ? "26px" : "34px", fontFamily: SF, fontWeight: 700, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>The Self-Manage Setup Playbook</h2>
+            <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "620px", marginBottom: "24px" }}>Follow these core setup layers before listing your property as a short-term rental.</p>
+            <div style={{ padding: "12px 18px", background: "#F5F1EA", borderRadius: "10px", border: "1px solid #DDD8CE", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+              <div style={{ marginTop: "1px", flexShrink: 0 }}><IconInfo color={C.secondary} /></div>
+              <p style={{ fontSize: "12.5px", color: "#5A4A30", margin: 0, lineHeight: 1.6 }}><strong style={{ color: C.secondary }}>Pricing note:</strong> All costs are approximate and may change. Verify current fees directly with DET, software providers, and vendors before committing.</p>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "36px" }}>
+
+            {/* Step 1 */}
+            <div id="step-1" style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.primary}`, boxShadow: C.shadowSm, overflow: "hidden" }}>
+              <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.primary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>1</div>
+                <div>
+                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 700, color: C.primary, margin: 0 }}>DET Portal & Holiday Home Permit</h3>
+                  <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>The legal foundation — required before listing on any platform.</p>
+                </div>
+              </div>
+              <div style={{ padding: isMobile ? "20px" : "24px 28px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "24px" }}>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>WHAT TO SET UP</div>
+                    <CL items={["Register your account on the DET holiday homes portal", "Apply for a holiday home permit for each property", "Ensure permit is active before listing on any OTA", "Collect and manage required guest details as applicable", "Renew annually — set a reminder 45 days before expiry"]} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>APPROXIMATE DET COSTS</div>
+                    <div style={{ background: C.bgMain, borderRadius: "10px", border: `1px solid ${C.border}`, overflow: "hidden" }}>
+                      {[
+                        { label: "Account / registration", price: "AED 1,520 approx." },
+                        { label: "Studio / 1BR permit", price: "AED 370 / yr" },
+                        { label: "2BR permit", price: "AED 670 / yr" },
+                        { label: "3BR permit", price: "AED 970 / yr" },
+                        { label: "4BR+ permit", price: "AED 1,270+ / yr" },
+                      ].map((r, i, arr) => (
+                        <div key={r.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 14px", borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : "none" }}>
+                          <span style={{ fontSize: "12.5px", color: C.textMuted }}>{r.label}</span>
+                          <span style={{ fontSize: "13px", fontWeight: 700, color: C.secondary }}>{r.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: "12px", color: C.textMuted, lineHeight: 1.5, marginTop: "10px" }}>Approx. AED 300 / bedroom + AED 70 / unit. Verify directly with DET before applying.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.secondary}`, boxShadow: C.shadowSm, overflow: "hidden" }}>
+              <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.secondary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>2</div>
+                <div>
+                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 700, color: C.textMain, margin: 0 }}>OTA Listing Setup</h3>
+                  <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Your listings are your storefront — set them up properly.</p>
+                </div>
+              </div>
+              <div style={{ padding: isMobile ? "20px" : "24px 28px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "24px" }}>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>LISTING ESSENTIALS</div>
+                    <CL color={C.secondary} items={["Create host accounts on Airbnb and Booking.com", "Write a strong title, description, and house rules", "Upload professional photos — minimum 15–20 per unit", "Set accurate amenities list — do not overstate", "Configure cancellation policy and cleaning fee", "Set up guest communication and message automation"]} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>PLATFORM COST NOTE</div>
+                    <div style={{ padding: "14px 16px", background: "#FFFBF5", borderRadius: "10px", border: "1px solid #E8D9BC", borderLeft: `3px solid ${C.secondary}` }}>
+                      <p style={{ fontSize: "13px", color: "#7A5010", margin: 0, lineHeight: 1.65 }}>OTA platforms may charge host or service commissions depending on platform structure and booking model. Owners should verify charges directly with each platform before listing.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.primary}`, boxShadow: C.shadowSm, overflow: "hidden" }}>
+              <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.primary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>3</div>
+                <div>
+                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 700, color: C.primary, margin: 0 }}>PMS / Channel Manager</h3>
+                  <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Essential once you are on 2+ platforms or managing multiple units.</p>
+                </div>
+              </div>
+              <div style={{ padding: isMobile ? "20px" : "24px 28px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "24px" }}>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>WHAT A PMS HANDLES</div>
+                    <CL items={["Calendar sync across all OTA channels", "Unified guest messaging inbox", "Automated pre-arrival, check-in, and review messages", "Housekeeping and task automation", "Owner reporting and financial summaries", "Team access controls for cleaners and VAs", "Pricing tool integrations (PriceLabs, Beyond)"]} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>PRICING GUIDANCE</div>
+                    <div style={{ background: C.bgMain, borderRadius: "10px", border: `1px solid ${C.border}`, padding: "15px 16px", marginBottom: "12px" }}>
+                      <div style={{ fontSize: "13.5px", fontWeight: 700, color: C.textMain, marginBottom: "5px" }}>Guesty / Hostaway</div>
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: C.secondary, marginBottom: "6px" }}>Usually quote-based or portfolio-based</div>
+                      <div style={{ fontSize: "12.5px", color: C.textMuted, lineHeight: 1.5 }}>Pricing depends on number of listings, selected modules, onboarding support, and integrations. Request a direct quote from the provider.</div>
+                    </div>
+                    <div style={{ padding: "11px 14px", background: "#FFFBF5", borderRadius: "8px", border: "1px solid #E8D9BC" }}>
+                      <p style={{ fontSize: "12px", color: "#7A5010", margin: 0, lineHeight: 1.6 }}>Some PMS platforms include pricing or revenue-management features depending on plan and setup.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.secondary}`, boxShadow: C.shadowSm, overflow: "hidden" }}>
+              <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.secondary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>4</div>
+                <div>
+                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 700, color: C.textMain, margin: 0 }}>Dynamic Pricing Setup</h3>
+                  <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Pricing needs regular review — not a one-time decision.</p>
+                </div>
+              </div>
+              <div style={{ padding: isMobile ? "20px" : "24px 28px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "24px" }}>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>WHAT TO CONFIGURE</div>
+                    <CL color={C.secondary} items={["Set base nightly rate using market research", "Apply seasonal pricing: peak (Nov–Mar) vs low (Jun–Aug)", "Configure event pricing for GITEX, Art Dubai, NYE, and Eid", "Set minimum stay rules by season", "Fill gap nights with targeted discounts", "Review pricing every 7–14 days"]} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>PRICING TOOL COST</div>
+                    <div style={{ background: C.bgMain, borderRadius: "10px", border: `1px solid ${C.border}`, padding: "15px 16px", marginBottom: "12px" }}>
+                      <div style={{ fontSize: "13.5px", fontWeight: 700, color: C.textMain, marginBottom: "5px" }}>PriceLabs — Dynamic Pricing</div>
+                      <div style={{ fontSize: "14px", fontWeight: 700, color: C.secondary, marginBottom: "4px" }}>From approx. USD 14.49 / listing / month</div>
+                      <div style={{ fontSize: "12px", color: C.textMuted }}>Plus applicable taxes. Based on PriceLabs public pricing.</div>
+                    </div>
+                    <div style={{ padding: "11px 14px", background: "#FFFBF5", borderRadius: "8px", border: "1px solid #E8D9BC" }}>
+                      <p style={{ fontSize: "12px", color: "#7A5010", margin: 0, lineHeight: 1.6 }}>Guesty and Hostaway may also include pricing or revenue-management features depending on plan and setup.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.primary}`, boxShadow: C.shadowSm, overflow: "hidden" }}>
+              <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.primary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>5</div>
+                <div>
+                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 700, color: C.primary, margin: 0 }}>Operations & SOP Setup</h3>
+                  <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Self-managing means controlling the system — not doing everything yourself.</p>
+                </div>
+              </div>
+              <div style={{ padding: isMobile ? "20px" : "24px 28px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "24px" }}>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>OPERATIONS TO ARRANGE</div>
+                    <CL items={["Housekeeping team familiar with STR turnovers", "Maintenance contacts — handyman, AC, plumber", "Guest messaging or virtual assistant coverage", "Laundry and linen coordination", "Smart lock or building access setup", "Inspection and quality control process", "Issue escalation process for live problems", "Guest communication templates (see section below)"]} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "12px" }}>VENDOR INTRODUCTIONS</div>
+                    <div style={{ background: `${C.primary}07`, borderRadius: "12px", border: `1px solid ${C.primary}18`, padding: "18px 18px 20px" }}>
+                      <p style={{ fontSize: "13.5px", color: C.textMain, lineHeight: 1.6, margin: "0 0 14px" }}>AssetIntel can help connect owners with experienced third-party vendors already working in the Dubai STR space.</p>
+                      <button
+                        onClick={() => setShowVendor(true)}
+                        style={{ padding: "11px 20px", background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, color: "#fff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 3px 10px rgba(27,94,74,0.22)", width: isMobile ? "100%" : "auto" }}
+                      >
+                        Request STR Vendor Contacts
+                      </button>
+                    </div>
+                    <p style={{ fontSize: "12px", color: C.textMuted, lineHeight: 1.5, marginTop: "10px" }}>AssetIntel can introduce vendors but does not guarantee vendor pricing, availability, or service quality unless separately agreed.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ─── STEPS ─── */}
-      <div style={{ maxWidth: "1100px", margin: "0 auto", paddingLeft: isMobile ? "20px" : "40px", paddingRight: isMobile ? "20px" : "40px", paddingTop: 0, paddingBottom: "8px" }}>
-
-        {/* STEP 1 — DET */}
-        <StepSection id="step-1" num={1} icon={<IconDET color={C.primary} />}
-          title="DET Portal & Holiday Home Permit"
-          subtitle="The legal foundation. You cannot operate without this."
-          intro="Owners who self-manage must register their holiday home through the DET holiday homes system and obtain a permit before listing the property. The portal is used to apply for holiday home permits for each unit and manage compliance obligations such as guest check-in/check-out records.">
-          <DETPricingCard isMobile={isMobile} />
-          <Accordion id="s1a" title="A — Owner Registration" open={open.has("s1a")} onToggle={toggle}>
-            <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.65, marginTop: "12px" }}>Create your account on the DET portal and complete your owner profile with accurate personal and contact details. Overseas owners can register — you do not need to be a UAE resident.</p>
-          </Accordion>
-          <Accordion id="s1b" title="B — Property Permit Setup" open={open.has("s1b")} onToggle={toggle}>
-            <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.65, marginTop: "12px" }}>Each property requires its own holiday home permit before it can be listed on any OTA. A permit is not transferable between units. Processing typically takes 3–7 working days. The permit is valid for one year and must be renewed annually.</p>
-          </Accordion>
-          <Accordion id="s1c" title="C — Documents To Prepare" open={open.has("s1c")} onToggle={toggle}>
-            <CL items={["Title deed or approved ownership document", "Owner passport / Emirates ID", "DEWA bill", "Property details (floor, size, unit number)", "Developer / building NOC if required", "Property photos if required"]} />
-          </Accordion>
-          <Accordion id="s1d" title="D — Guest Check-In / Check-Out Process" open={open.has("s1d")} onToggle={toggle}>
-            <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.65, marginTop: "12px" }}>Owners are required to maintain guest records for each stay. Build a consistent process to collect guest passport or Emirates ID details and update these through the DET holiday homes system. Retain guest records for 5 years.</p>
-          </Accordion>
-          <Accordion id="s1e" title="E — Renewal & Compliance Tracking" open={open.has("s1e")} onToggle={toggle}>
-            <CL items={["Track permit expiry date per unit", "Set renewal reminder 45 days before expiry", "Keep guest ID collection consistent across all stays", "Ensure permit is displayed inside the property", "Stay updated on any DET requirement changes"]} />
-          </Accordion>
-          <Note>Requirements can change. Owners should verify current DET requirements and building / community rules before listing or operating. Some buildings in master communities (Emaar, Nakheel, Damac) may require a developer NOC, which can take 5–15 working days and cost AED 500–2,000.</Note>
-        </StepSection>
-
-        {/* STEP 2 — OTA */}
-        <StepSection id="step-2" num={2} icon={<IconOTA color={C.secondary} />}
-          title="OTA Account Setup"
-          subtitle="Your OTA accounts are your storefront. Poor setup means lower visibility and lower revenue."
-          intro="Owners usually need to create and manage accounts and listings across platforms such as Airbnb, Booking.com, and other relevant channels. Your listing is your first impression — weak setup directly reduces bookings.">
-          <div style={{ padding: "14px 18px", background: "#FFFBF5", borderRadius: "10px", border: `1px solid #E8D9BC`, borderLeft: `3px solid ${C.secondary}`, marginBottom: "4px" }}>
-            <p style={{ fontSize: "13px", color: "#7A5010", margin: 0, lineHeight: 1.6 }}>
-              <strong style={{ color: C.secondary }}>OTA Platform Costs:</strong> OTA platforms may charge host or service commissions, or guest service fees, depending on platform structure and booking model. Final charges should be checked directly with each OTA before listing.
-            </p>
+      {/* ─── SECTION 4: OPERATIONS VENDOR SUPPORT ─── */}
+      <section style={{ padding: secPad }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "40px" }}>
+            <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>OPERATIONS SUPPORT</div>
+            <h2 style={{ fontSize: isMobile ? "26px" : "32px", fontFamily: SF, fontWeight: 700, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>Need Reliable STR Vendors?</h2>
+            <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "660px", margin: 0 }}>Self-managing does not mean doing everything yourself. AssetIntel can help connect owners with experienced vendors already operating in Dubai short-term rentals.</p>
           </div>
-          <Accordion id="s2a" title="A — Account Creation" open={open.has("s2a")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Create owner/host account on each platform", "Complete your profile fully — photo, bio, response rate", "Verify identity where required (government ID)", "Add payout details and bank information", "Set notification preferences — push notifications are essential"]} />
-          </Accordion>
-          <Accordion id="s2b" title="B — Listing Setup" open={open.has("s2b")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Professional photos — minimum 15–25 images per unit", "Clear listing title including community, view, and unit type", "Strong description covering layout, location benefits, and unique features", "Accurate amenities list — do not overstate", "House rules clearly stated", "Check-in instructions and access method", "Cancellation policy appropriate for your risk tolerance", "Cleaning fee set to cover your actual cleaning cost", "Security deposit or damage policy where platform allows"]} />
-          </Accordion>
-          <Accordion id="s2c" title="C — Calendar & Availability" open={open.has("s2c")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Keep calendar updated at all times to avoid double-bookings", "Use a PMS or channel manager once live on 2+ platforms", "Set minimum night requirements appropriate to season", "Block maintenance days in advance", "Manage owner stays with owner-blocked dates"]} />
-          </Accordion>
-          <Accordion id="s2d" title="D — Review Strategy" open={open.has("s2d")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Respond to guest messages within 1 hour", "Smooth check-in experience is the #1 factor in first reviews", "Clean, well-presented property on arrival", "Send review request template after checkout", "Respond professionally and briefly to negative reviews — future guests read your responses"]} />
-          </Accordion>
-          <Accordion id="s2e" title="E — OTA Risk Controls" open={open.has("s2e")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Do not overstate amenities — guests flag inaccurate listings", "Keep photos accurate — outdated photos cause expectation mismatches", "Avoid manual calendar mistakes that lead to double-bookings", "Monitor platform messages daily — algorithms track response times", "Read platform policy updates — rules change, especially on Airbnb"]} />
-          </Accordion>
-        </StepSection>
-
-        {/* STEP 3 — PMS */}
-        <StepSection id="step-3" num={3} icon={<IconPMS color={C.primary} />}
-          title="PMS / Channel Manager"
-          subtitle="A PMS becomes essential once you are on multiple OTAs or managing more than one unit."
-          intro="A PMS helps owners manage calendars, reservations, guest messages, channel sync, owner reporting, and team tasks across platforms. Common STR PMS options include Guesty and Hostaway.">
-          {/* PMS Pricing Guidance */}
-          <div style={{ background: C.bgMain, borderRadius: "14px", border: `1px solid ${C.border}`, overflow: "hidden" }}>
-            <div style={{ padding: "14px 20px", background: `${C.primary}08`, borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: "12px", fontWeight: 700, color: C.primary, letterSpacing: "0.08em" }}>PMS PRICING GUIDANCE — GUESTY & HOSTAWAY</div>
-            </div>
-            <div style={{ padding: "18px 20px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
-                <div>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.06em", marginBottom: "8px" }}>PRICING MODEL</div>
-                  <div style={{ fontSize: "14px", fontWeight: 600, color: C.secondary }}>Usually quote-based or portfolio-based</div>
-                  <p style={{ fontSize: "13px", color: C.textMuted, lineHeight: 1.6, marginTop: "6px" }}>Guesty and Hostaway pricing often depends on portfolio size, selected modules, onboarding, and feature requirements. Owners should request direct quotes from the provider.</p>
-                </div>
-                <div>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.06em", marginBottom: "8px" }}>TYPICAL COST FACTORS</div>
-                  <CL items={["Number of listings", "Channel manager requirements", "Guest messaging and automation", "Owner portal and reporting", "Payment tools", "Onboarding support", "Integrations"]} />
-                </div>
-              </div>
-              <div style={{ padding: "12px 16px", background: "#FFFBF5", borderRadius: "8px", border: "1px solid #E8D9BC" }}>
-                <p style={{ fontSize: "12.5px", color: "#7A5010", margin: 0, lineHeight: 1.6 }}>Some PMS platforms also include pricing or revenue management features, but owners may still choose a dedicated pricing tool depending on their strategy.</p>
-              </div>
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "10px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px", marginBottom: "32px" }}>
             {[
-              { title: "OTA Calendar Sync", desc: "Connect Airbnb, Booking.com, Vrbo, and others to reduce double-booking risk." },
-              { title: "Unified Inbox", desc: "Manage guest messages from all platforms in one place." },
-              { title: "Automated Guest Messaging", desc: "Automate booking confirmations, pre-arrival, check-in instructions, checkout reminders, and review requests." },
-              { title: "Task Management", desc: "Create cleaning, maintenance, inspection, and follow-up tasks automatically on new bookings." },
-              { title: "Team Access", desc: "Give limited access to cleaners, VAs, or team members without handing over full control." },
-              { title: "Channel Manager", desc: "Sync rates, availability, restrictions, and reservations across platforms simultaneously." },
-              { title: "Direct Booking Website", desc: "Some PMS tools allow a direct booking site to reduce platform dependency over time." },
-              { title: "Owner / Financial Reporting", desc: "Track revenue, bookings, payouts, expenses, and monthly performance from one dashboard." },
-              { title: "Pricing Tool Integration", desc: "Connect with PriceLabs, Beyond, or Wheelhouse where supported for automated rate adjustments." },
-              { title: "Guest Verification / Forms", desc: "Collect guest information, ID, and arrival details through automated forms where available." },
-            ].map(({ title, desc }) => (
-              <div key={title} style={{ padding: "14px 16px", background: C.bgMain, borderRadius: "10px", border: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: "13px", fontWeight: 700, color: C.textMain, marginBottom: "4px" }}>{title}</div>
-                <div style={{ fontSize: "12.5px", color: C.textMuted, lineHeight: 1.5 }}>{desc}</div>
+              { icon: <IconTeam color={C.primary} />, title: "Housekeeping", desc: "Cleaning teams familiar with STR turnovers, guest standards, and time-sensitive check-ins." },
+              { icon: <IconPMS color={C.secondary} />, title: "Maintenance", desc: "Reliable support for callouts, repairs, minor fixes, and guest-reported issues." },
+              { icon: <IconSOP color={C.primary} />, title: "Virtual Assistant / Guest Messaging", desc: "Guest communication support for check-in questions, issue handling, and review follow-ups." },
+              { icon: <IconOTA color={C.secondary} />, title: "Laundry / Linen", desc: "Support for linen, towels, replacements, and operational standards depending on your setup." },
+              { icon: <IconDET color={C.primary} />, title: "Smart Lock / Access", desc: "Guidance around access setup, key handling, smart locks, and building entry requirements." },
+              { icon: <IconPricing color={C.secondary} />, title: "Full Setup Support", desc: "For owners who need help arranging multiple vendors before going live." },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} style={{ background: C.bgSection, borderRadius: "14px", border: `1px solid ${C.border}`, padding: "20px 18px", boxShadow: C.shadowSm }}>
+                <div style={{ marginBottom: "12px" }}>{icon}</div>
+                <h3 style={{ fontSize: "14px", fontFamily: SF, fontWeight: 700, color: C.textMain, marginBottom: "7px" }}>{title}</h3>
+                <p style={{ fontSize: "13px", color: C.textMuted, lineHeight: 1.6, margin: 0 }}>{desc}</p>
               </div>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px", marginTop: "8px" }}>
-            <div style={{ padding: "18px 20px", background: C.bgMain, borderRadius: "12px", border: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: "12px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "10px" }}>WHEN PMS IS OPTIONAL</div>
-              <CL items={["Single unit only", "Single OTA platform", "Owner managing messaging personally and has time"]} />
-            </div>
-            <div style={{ padding: "18px 20px", background: "#F0F8F4", borderRadius: "12px", border: `1px solid ${C.primary}20` }}>
-              <div style={{ fontSize: "12px", fontWeight: 700, color: C.primary, letterSpacing: "0.08em", marginBottom: "10px" }}>WHEN PMS BECOMES NECESSARY</div>
-              <CL items={["2+ units", "Multiple OTAs", "Same-day turnovers", "Outsourced housekeeping", "Guest messages handled by VA or team", "Need cleaner and task automation"]} />
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+            <button
+              onClick={() => setShowVendor(true)}
+              style={{ padding: "14px 32px", background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, color: "#fff", border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 20px rgba(27,94,74,0.22)" }}
+            >
+              Request STR Vendor Contacts
+            </button>
+            <p style={{ fontSize: "12px", color: C.textMuted, margin: 0, textAlign: "center", maxWidth: "480px", lineHeight: 1.6 }}>AssetIntel can introduce third-party vendors but does not guarantee vendor pricing, availability, or service quality unless separately agreed.</p>
           </div>
-        </StepSection>
+        </div>
+      </section>
 
-        {/* STEP 4 — TEAM */}
-        <StepSection id="step-4" num={4} icon={<IconTeam color={C.secondary} />}
-          title="Operations Team Setup"
-          subtitle="Self-management means you control the system — not that you do everything yourself."
-          intro="Self-managing owners still need reliable STR operations support for housekeeping, maintenance, guest support, inspections, and issue handling. AssetIntel can help connect owners with experienced third-party vendors already working in the Dubai STR space.">
-          {/* Vendor categories */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "10px" }}>
-            {[
-              { title: "Housekeeping Teams", items: ["STR cleaning experience and same-day turnover ability", "Linen handling and laundry coordination", "Inspection photos submitted after each clean", "Replenishment checks for toiletries and consumables", "Cleaning checklist sign-off per stay"] },
-              { title: "Maintenance Providers", items: ["Handyman for general repairs", "AC technician for the most common Dubai issue", "Plumber, electrician, and locksmith contacts", "Appliance repair contact", "Emergency response process defined in advance"] },
-              { title: "Virtual Assistant / Guest Messaging Teams", items: ["Answering OTA messages using templates", "Coordinating check-ins and cleaner scheduling", "Updating task boards and tracking guest issues", "Escalating emergencies to the owner or team", "Following up on review requests"] },
-              { title: "Guest Relations Support", items: ["Guest issue handling and complaint escalation", "Review protection — fast resolution prevents bad reviews", "Check-in support for late arrivals or access issues", "Post-stay follow-up and review requests", "Especially important in buildings with strict access procedures"] },
-              { title: "Laundry / Linen Support", items: ["Linen collection and return per turnover", "Linen quality checks and replacement tracking", "Coordination with housekeeping team schedules", "Towel and bedding par levels per unit size"] },
-              { title: "Smart Lock / Access Support", items: ["Access card process per building", "Parking instructions and guest access codes", "Security desk check-in procedure", "Guest ID submission process where required", "Backup key or access backup process"] },
-            ].map(({ title, items }) => (
-              <div key={title} style={{ padding: "18px 20px", background: C.bgMain, borderRadius: "12px", border: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: "13px", fontWeight: 700, color: C.textMain, marginBottom: "10px", paddingBottom: "8px", borderBottom: `1px solid ${C.border}` }}>{title}</div>
-                <CL items={items} color={C.secondary} />
-              </div>
-            ))}
-          </div>
-          {/* Vendor CTA */}
-          <div style={{ background: `linear-gradient(135deg, ${C.primary}08 0%, ${C.secondary}06 100%)`, borderRadius: "16px", border: `1px solid ${C.primary}20`, padding: isMobile ? "24px 20px" : "28px 32px", display: "flex", flexDirection: isMobile ? "column" : "row", gap: "20px", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "11px", fontWeight: 700, color: C.secondary, letterSpacing: "0.1em", marginBottom: "8px" }}>VENDOR INTRODUCTIONS</div>
-              <h3 style={{ fontSize: "17px", fontFamily: SF, fontWeight: 700, color: C.textMain, marginBottom: "6px" }}>Need STR Operations Vendor Contacts?</h3>
-              <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.6, margin: 0 }}>AssetIntel can introduce owners to experienced third-party vendors already working in the Dubai STR space. Vendor quotes, availability, and service quality should be confirmed directly.</p>
-            </div>
-            <div style={{ flexShrink: 0 }}>
-              <button onClick={() => setShowVendor(true)} style={{ padding: "13px 26px", background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, color: "#fff", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(27,94,74,0.22)", whiteSpace: "nowrap" }}>
-                Get STR Vendor Contacts
-              </button>
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
-            <div style={{ padding: "18px 20px", background: C.bgMain, borderRadius: "12px", border: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: "12px", fontWeight: 700, color: C.textMuted, letterSpacing: "0.08em", marginBottom: "10px" }}>MINIMUM TEAM — 1–2 UNITS</div>
-              <CL items={["One STR cleaning team", "One handyman contact", "One AC technician contact", "One VA or owner-managed inbox", "One guest escalation contact"]} />
-            </div>
-            <div style={{ padding: "18px 20px", background: "#F0F8F4", borderRadius: "12px", border: `1px solid ${C.primary}20` }}>
-              <div style={{ fontSize: "12px", fontWeight: 700, color: C.primary, letterSpacing: "0.08em", marginBottom: "10px" }}>SCALED TEAM — 3–8 UNITS</div>
-              <CL items={["Dedicated housekeeping partner", "Maintenance escalation list per issue type", "VA coverage across platforms", "Guest relations support contact", "PMS task workflows per cleaning team"]} />
-            </div>
-          </div>
-        </StepSection>
+      {/* ─── SECTION 5: GUEST COMMUNICATION TEMPLATES ─── */}
+      <section style={{ padding: secPad }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ background: C.bgSection, borderRadius: "18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${C.secondary}`, boxShadow: C.shadowSm, overflow: "hidden" }}>
 
-        {/* STEP 5 — PRICING */}
-        <StepSection id="step-5" num={5} icon={<IconPricing color={C.primary} />}
-          title="Dynamic Pricing Setup"
-          subtitle="Pricing is not a one-time decision. It needs weekly review and seasonal adjustment."
-          intro="Dynamic pricing tools help adjust nightly rates and minimum stays based on demand, seasonality, market data, and listing performance. PriceLabs is commonly used for STR dynamic pricing. Guesty and Hostaway may also offer pricing or revenue-management features depending on plan and setup — owners should confirm whether these features are included or require additional configuration.">
-          {/* PriceLabs pricing card */}
-          <div style={{ background: C.bgMain, borderRadius: "14px", border: `1px solid ${C.border}`, overflow: "hidden" }}>
-            <div style={{ padding: "14px 20px", background: `${C.primary}08`, borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: "12px", fontWeight: 700, color: C.primary, letterSpacing: "0.08em" }}>DYNAMIC PRICING SOFTWARE — APPROXIMATE COSTS</div>
-            </div>
-            <div style={{ padding: "16px 20px 20px" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", flexWrap: "wrap", marginBottom: "14px" }}>
-                <div>
-                  <div style={{ fontSize: "14px", fontWeight: 700, color: C.textMain, marginBottom: "4px" }}>PriceLabs — Dynamic Pricing</div>
-                  <div style={{ fontSize: "12.5px", color: C.textMuted, lineHeight: 1.5 }}>Based on PriceLabs publicly listed pricing</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "14px", fontWeight: 700, color: C.secondary }}>From approx. USD 14.49 / listing / month</div>
-                  <div style={{ fontSize: "12px", color: C.textMuted }}>Plus applicable taxes</div>
-                </div>
-              </div>
-              <div style={{ padding: "12px 16px", background: "#FFFBF5", borderRadius: "8px", border: "1px solid #E8D9BC" }}>
-                <p style={{ fontSize: "12.5px", color: "#7A5010", margin: 0, lineHeight: 1.6 }}>Even with pricing software, owners should review settings regularly — especially during peak season, low season, public holidays, major events, and early listing launch periods. Software automates rate adjustments, but owner oversight improves performance.</p>
-              </div>
-            </div>
-          </div>
-          <Accordion id="s5a" title="A — Base Price" open={open.has("s5a")} onToggle={toggle}>
-            <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.65, marginTop: "12px" }}>Set a realistic starting nightly rate based on your building, unit type, view, furnishing level, and comparable listings in the same community. Research 8–12 comparable listings to establish your market position before launching.</p>
-          </Accordion>
-          <Accordion id="s5b" title="B — Seasonality" open={open.has("s5b")} onToggle={toggle}>
-            <CL items={["Dubai peak season: November to March — highest demand and rates", "Summer low season: June to August — occupancy and rates drop 30–45%", "Shoulder periods: April–May and September–October", "Price according to the season, not a flat annual rate"]} />
-          </Accordion>
-          <Accordion id="s5c" title="C — Event Pricing" open={open.has("s5c")} onToggle={toggle}>
-            <CL items={["Adjust pricing for major events: Art Dubai, GITEX, World Cup qualifiers, concerts, NYE", "Dubai Shopping Festival and Eid holidays increase demand significantly", "Conference season (Oct–Nov) drives weekday corporate demand", "Track the Dubai events calendar and adjust pricing 60–90 days ahead"]} />
-          </Accordion>
-          <Accordion id="s5d" title="D — Minimum Stay Rules" open={open.has("s5d")} onToggle={toggle}>
-            <CL items={["Peak season: 2–3 night minimum to protect against expensive same-day turnovers", "Low season: reduce to 1–2 nights to maximise occupancy", "Events and holidays: consider 3–5 night minimum", "Review minimum stay rules monthly — too high kills occupancy, too low increases costs"]} />
-          </Accordion>
-          <Accordion id="s5e" title="E — Gap Night Strategy" open={open.has("s5e")} onToggle={toggle}>
-            <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.65, marginTop: "12px" }}>Isolated 1–2 night gaps between bookings are missed revenue. Discount gap nights by 10–20% to fill them. Most dynamic pricing tools can automate this. A filled gap night at a lower rate is better than an empty night at a premium rate.</p>
-          </Accordion>
-          <Accordion id="s5f" title="F — Weekly Pricing Review" open={open.has("s5f")} onToggle={toggle}>
-            <CL items={["Review next 7, 30, and 90 days every week", "Check occupancy pace — are you ahead or behind expected bookings?", "Compare competitor prices in your building and community", "Identify high-demand dates and make sure rates reflect them", "Identify underperforming gaps and reduce price to fill them"]} />
-          </Accordion>
-          <Accordion id="s5g" title="G — Pricing Guardrails" open={open.has("s5g")} onToggle={toggle}>
-            <CL items={["Set a minimum rate (floor) — never go below your break-even nightly rate", "Set a maximum rate (ceiling) for event peaks to stay competitive", "Set a low-season floor that still covers operating costs", "Set last-minute discount rules — e.g. 10% off 3 days before if still unbooked"]} />
-          </Accordion>
-          <Note>Do not rely on a flat rate for the full year. Dubai demand varies significantly across months, events, and property type. A flat rate will underperform both in peak season (leaving money on the table) and in low season (blocking bookings entirely).</Note>
-        </StepSection>
-
-        {/* STEP 6 — SOPs */}
-        <StepSection id="step-6" num={6} icon={<IconSOP color={C.secondary} />}
-          title="SOPs & Guest Communication Templates"
-          subtitle="SOPs keep your standards consistent across all properties, teams, and guest situations."
-          intro="Before launching, you need ready-made operating procedures and message templates for every common scenario. These are what separate professional operations from reactive, inconsistent hosting.">
-          <Accordion id="s6a" title="A — Pre-Arrival SOP" open={open.has("s6a")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Request guest ID 48 hours before arrival", "Send check-in instructions 24 hours before arrival", "Include: building name, unit number, access code, parking details, WiFi", "Confirm check-in time and contact number", "House rules summary included in message"]} />
-          </Accordion>
-          <Accordion id="s6b" title="B — Check-In SOP" open={open.has("s6b")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Access code or key delivery confirmed working before arrival", "First check-in message sent within 30 minutes of arrival", "Emergency contact provided", "Issue escalation path clear (VA → owner)", "Building amenities briefed in welcome message"]} />
-          </Accordion>
-          <Accordion id="s6c" title="C — Checkout SOP" open={open.has("s6c")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Checkout reminder sent night before — time and instructions", "Key return process clearly communicated", "Damage check within 1 hour of checkout", "Cleaner notified and slot confirmed", "Review request sent within 2 hours of checkout"]} />
-          </Accordion>
-          <Accordion id="s6d" title="D — Housekeeping SOP" open={open.has("s6d")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Cleaning checklist by room — every item listed", "Linen count per bed and towel standard per guest", "Amenities restock checklist (soap, shampoo, coffee, tea)", "Photo proof submitted after cleaning complete", "Any maintenance issues flagged to owner immediately"]} />
-          </Accordion>
-          <Accordion id="s6e" title="E — Maintenance SOP" open={open.has("s6e")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Issue reported via WhatsApp message to designated contact", "Emergency vs non-emergency classification defined in advance", "Approval process for jobs above AED 300 (requires owner sign-off)", "Vendor coordination handled by VA or owner", "Guest compensation rules defined in advance (free night vs partial refund)"]} />
-          </Accordion>
-          <Accordion id="s6f" title="F — Review SOP" open={open.has("s6f")} onToggle={toggle}>
-            <CL color={C.secondary} items={["Review request sent within 2 hours of checkout (automated or manual)", "Negative review response drafted within 24 hours — calm, professional, brief", "Issue follow-up internally to prevent recurrence", "Quality improvement log updated with any recurring feedback"]} />
-          </Accordion>
-          <div style={{ background: C.bgMain, borderRadius: "16px", border: `1px solid ${C.border}`, padding: isMobile ? "20px 16px" : "26px 28px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px", flexWrap: "wrap", gap: "10px" }}>
+            {/* Step header — matches Steps 1–5 */}
+            <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.secondary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
+              <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>6</div>
               <div>
-                <div style={{ fontSize: "12px", fontWeight: 700, color: C.textMain, letterSpacing: "0.08em" }}>GUEST COMMUNICATION TEMPLATES</div>
-                <div style={{ fontSize: "12.5px", color: C.textMuted, marginTop: "4px" }}>Click any template to view the full message and copy it.</div>
+                <h2 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 700, color: C.textMain, margin: 0 }}>Guest Communication Templates</h2>
+                <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Ready-to-use Airbnb-style templates for key guest moments.</p>
               </div>
-              <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, padding: "4px 12px", background: "#FFFBF5", borderRadius: "999px", border: "1px solid #E8D9BC" }}>12 templates</div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "10px" }}>
-              {GUEST_TEMPLATES.map(t => (
+
+            {/* Body */}
+            <div style={{ padding: isMobile ? "20px" : "24px 28px" }}>
+              <p style={{ fontSize: "14px", color: C.textMuted, lineHeight: 1.65, marginBottom: "22px", maxWidth: "660px" }}>
+                Covers booking confirmation, pre-arrival, check-in, checkout, review request, late checkout, noise complaints, maintenance, refunds, lost items, and damage claims.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "12px", marginBottom: "24px" }}>
+                {GUEST_TEMPLATES.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setSelectedTemplate(t)}
+                    style={{ padding: "16px 18px", background: C.bgMain, borderRadius: "12px", border: `1px solid ${C.border}`, borderTop: `2px solid ${C.secondary}`, textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", boxShadow: C.shadowSm }}
+                    onMouseEnter={e => { const el = e.currentTarget as HTMLButtonElement; el.style.borderColor = C.primary; el.style.borderTopColor = C.primary; el.style.boxShadow = "0 4px 14px rgba(27,94,74,0.11)"; }}
+                    onMouseLeave={e => { const el = e.currentTarget as HTMLButtonElement; el.style.borderColor = C.border; el.style.borderTopColor = C.secondary; el.style.boxShadow = C.shadowSm; }}
+                  >
+                    <div style={{ fontSize: "13.5px", fontWeight: 700, color: C.textMain, lineHeight: 1.3 }}>{t.title}</div>
+                    <div style={{ fontSize: "12px", color: C.textMuted, lineHeight: 1.45 }}>{TEMPLATE_CARD_DESC[t.id]}</div>
+                    <div style={{ marginTop: "4px", fontSize: "11.5px", fontWeight: 700, color: C.secondary, letterSpacing: "0.02em" }}>Open Template →</div>
+                  </button>
+                ))}
+              </div>
+              <div style={{ paddingTop: "20px", borderTop: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+                <p style={{ fontSize: "13px", color: C.textMuted, margin: 0, lineHeight: 1.5 }}>Need the full template pack sent to you directly?</p>
                 <button
-                  key={t.id}
-                  onClick={() => setSelectedTemplate(t)}
-                  style={{
-                    padding: "14px 16px",
-                    background: C.bgSection,
-                    borderRadius: "10px",
-                    border: `1px solid ${C.border}`,
-                    textAlign: "left",
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "5px",
-                    transition: "box-shadow 0.15s, border-color 0.15s",
-                    boxShadow: C.shadowSm,
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.primary; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 14px rgba(27,94,74,0.10)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.boxShadow = C.shadowSm; }}
+                  onClick={() => setShowLead(true)}
+                  style={{ padding: "10px 22px", background: `linear-gradient(135deg, ${C.secondary} 0%, #8B6F3F 100%)`, color: "#fff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 3px 10px rgba(184,138,68,0.20)", flexShrink: 0 }}
                 >
-                  <div style={{ fontSize: "13px", fontWeight: 700, color: C.textMain, lineHeight: 1.3 }}>{t.title}</div>
-                  <div style={{ fontSize: "12px", color: C.textMuted, lineHeight: 1.4 }}>{TEMPLATE_CARD_DESC[t.id]}</div>
-                  <div style={{ marginTop: "4px", fontSize: "11.5px", fontWeight: 600, color: C.primary }}>View template →</div>
+                  Request Template Pack
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
-        </StepSection>
-
-      </div>
-
-      {/* ─── APPROXIMATE COST SNAPSHOT ─── */}
-      <section style={{ padding: secPad }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <SH label="COST OVERVIEW" title="Approximate Self-Manage Cost Snapshot" subtitle="A summary of the main cost categories involved in self-managing a Dubai STR. Designed to help owners understand cost layers — not confirmed final pricing." />
-          <CostSnapshot isMobile={isMobile} onVendor={() => setShowVendor(true)} />
-          <div style={{ marginTop: "16px", padding: "13px 18px", background: "#F5F1EA", borderRadius: "10px", border: `1px solid #DDD8CE`, display: "flex", gap: "10px", alignItems: "flex-start" }}>
-            <div style={{ marginTop: "1px", flexShrink: 0 }}><IconInfo color={C.secondary} /></div>
-            <p style={{ fontSize: "12.5px", color: "#5A4A30", margin: 0, lineHeight: 1.65 }}>
-              This snapshot is designed to help owners understand cost categories, not final confirmed pricing. All costs should be verified directly with DET, software providers, and service vendors before committing to a setup.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* ─── ASSETINTEL SETUP CTA ─── */}
-      <section style={{ padding: isMobile ? "0 20px 52px" : "0 40px 72px" }}>
+      {/* ─── SECTION 3: COST SNAPSHOT ─── */}
+      <section style={{ padding: secPad, background: "#F5F1EA", borderTop: "1px solid #DDD8CE", borderBottom: "1px solid #DDD8CE" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, borderRadius: "20px", padding: isMobile ? "36px 24px" : "52px 60px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.20)" }}>
+          <div style={{ marginBottom: "36px" }}>
+            <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>COST OVERVIEW</div>
+            <h2 style={{ fontSize: isMobile ? "26px" : "32px", fontFamily: SF, fontWeight: 700, color: C.primary, marginBottom: "12px", lineHeight: 1.2 }}>Approximate Self-Manage Cost Snapshot</h2>
+            <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "640px", margin: 0 }}>A practical view of the setup and software cost categories owners should understand before going live.</p>
+          </div>
+          <CostSnapshot isMobile={isMobile} onVendor={() => setShowVendor(true)} />
+          <div style={{ marginTop: "16px", padding: "12px 18px", background: "#EDEAE3", borderRadius: "10px", border: "1px solid #D0CBB9", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+            <div style={{ marginTop: "1px", flexShrink: 0 }}><IconInfo color={C.secondary} /></div>
+            <p style={{ fontSize: "12.5px", color: "#5A4A30", margin: 0, lineHeight: 1.65 }}>This snapshot helps owners understand the cost categories involved in self-managing. Final pricing should be confirmed with DET, software providers, and service vendors.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── SECTION 6 CTA: FINAL SETUP SUPPORT ─── */}
+      <section style={{ padding: secPad }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, borderRadius: "20px", padding: isMobile ? "40px 24px" : "56px 64px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.20)" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, color: `${C.secondary}CC`, letterSpacing: "0.14em", marginBottom: "16px" }}>ASSETINTEL SUPPORT</div>
-            <h2 style={{ fontSize: isMobile ? "26px" : "34px", fontFamily: SF, fontWeight: 700, color: "#FDFBF7", marginBottom: "16px", lineHeight: 1.2 }}>Need Help Setting Up Your STR Stack?</h2>
-            <p style={{ fontSize: "15px", color: "rgba(253,251,247,0.75)", lineHeight: 1.65, marginBottom: "36px", maxWidth: "560px", margin: "0 auto 36px" }}>
-              AssetIntel can guide owners through the practical setup layers — DET, PMS, pricing tools, housekeeping, maintenance, guest support, and vendor contacts.
+            <h2 style={{ fontSize: isMobile ? "24px" : "32px", fontFamily: SF, fontWeight: 700, color: "#FDFBF7", marginBottom: "16px", lineHeight: 1.2 }}>Want AssetIntel To Help Handle The Setup?</h2>
+            <p style={{ fontSize: "15px", color: "rgba(253,251,247,0.75)", lineHeight: 1.65, maxWidth: "540px", margin: "0 auto 36px" }}>
+              AssetIntel can help you understand the setup layers, coordinate the right STR vendors, and guide the practical steps needed before going live.
             </p>
-            <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-              <button onClick={() => setShowLead(true)} style={{ padding: "14px 30px", background: "#FDFBF7", color: C.primary, border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}>
-                Speak To AssetIntel
-              </button>
-              <button onClick={() => setShowVendor(true)} style={{ padding: "14px 26px", background: "transparent", color: "#FDFBF7", border: "2px solid rgba(253,251,247,0.35)", borderRadius: "10px", fontSize: "15px", fontWeight: 600, cursor: "pointer" }}>
-                Request STR Vendor Contacts
-              </button>
-            </div>
+            <button
+              onClick={() => setShowVendor(true)}
+              style={{ padding: isMobile ? "16px 0" : "15px 40px", background: "#FDFBF7", color: C.primary, border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,0.15)", width: isMobile ? "100%" : "auto" }}
+            >
+              Help AssetIntel Handle The Setup
+            </button>
           </div>
         </div>
       </section>
