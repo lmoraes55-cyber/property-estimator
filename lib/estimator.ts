@@ -20,26 +20,25 @@ export type UnitType = "Apartment" | "Villa";
 export type OCCStrategy = "LOCCHP" | "HOCCLP";
 
 export type ViewType =
-  | "Sea View" | "Burj Khalifa View" | "Full Marina View"
-  | "Pool View" | "City View" | "Garden / Park View" | "Standard View";
+  | "Burj / Downtown Skyline" | "Marina / Waterfront" | "Sea View"
+  | "Golf / Park View" | "Community View" | "Standard View";
 
 export const VIEW_PREMIUMS: Record<ViewType, number> = {
-  "Burj Khalifa View":  0.10,
-  "Sea View":           0.08,
-  "Full Marina View":   0.06,
-  "Pool View":          0.03,
-  "City View":          0.02,
-  "Garden / Park View": 0.01,
-  "Standard View":      0.00,
+  "Burj / Downtown Skyline": 0.09,
+  "Sea View":                0.075,
+  "Marina / Waterfront":     0.055,
+  "Community View":          0.025,
+  "Golf / Park View":        0.01,
+  "Standard View":           0.00,
 };
 
 // Floor premium: realistic Dubai STR uplift by floor band
 export function floorPremium(floor: number): number {
-  if (floor >= 40) return 0.08;
-  if (floor >= 30) return 0.06;
-  if (floor >= 20) return 0.04;
-  if (floor >= 10) return 0.02;
-  if (floor >= 5)  return 0.01;
+  if (floor > 40) return 0.015;
+  if (floor >= 31) return 0.010;
+  if (floor >= 21) return 0.0075;
+  if (floor >= 11) return 0.005;
+  if (floor >= 5)  return 0.0025;
   return 0;
 }
 
@@ -69,20 +68,34 @@ export interface STRDemand {
   revenuePremium: number;      // added to the STR revenue premium
   occUplift: number;           // added to every month's occupancy (points), capped at 0.90
   lowSeasonOccUplift: number;  // extra occupancy added to low-season months (Jun–Sep)
+  sepOccUplift?: number;       // extra occupancy added to September specifically (building-specific overrides only)
 }
+
+// Per-building demand overrides — for buildings with observed performance that
+// differs meaningfully from their generic area tier (checked before area matching).
+const BUILDING_STR_OVERRIDES: Record<string, STRDemand> = {
+  // Sunrise Bay (Dubai Marina waterfront) — strong occupancy performer.
+  // sepOccUplift is now negative: base September occupancy (OCC_BASE_SHAPE_APT) was smoothed
+  // sharply upward platform-wide, so the flat +0.06 occUplift alone would overshoot September
+  // well past target — this trims it back down to the ~71% previously verified for this building.
+  "Sunrise Bay": { tier: "prime", revenuePremium: 0.04, occUplift: 0.06, lowSeasonOccUplift: 0, sepOccUplift: -0.075 },
+};
 
 const STR_DEMAND_TIERS: { tier: "prime" | "strong"; revenuePremium: number; occUplift: number; match: string[] }[] = [
   {
-    tier: "prime", revenuePremium: 0.04, occUplift: 0.03,
+    tier: "prime", revenuePremium: 0.016, occUplift: 0.03,
     match: ["palm jumeirah", "bluewaters", "jbr", "jumeirah beach residence", "dubai marina", "marina", "downtown dubai", "downtown"],
   },
   {
-    tier: "strong", revenuePremium: 0.015, occUplift: 0.015,
+    tier: "strong", revenuePremium: 0.006, occUplift: 0.015,
     match: ["business bay", "dubai creek harbour", "creek harbour", "emaar beachfront", "dubai harbour", "city walk", "difc", "jumeirah village circle", "jvc"],
   },
 ];
 
 export function getSTRDemand(buildingName: string, unitSize?: UnitSize): STRDemand {
+  const override = BUILDING_STR_OVERRIDES[buildingName];
+  if (override) return override;
+
   const haystack = locationHaystack(buildingName);
 
   // Prime tourist core (applies to all unit types)
@@ -218,7 +231,7 @@ export const LTR_MARKET_RENTS: Record<string, Partial<Record<UnitSize, number>>>
     "4BR APT": 270000, "5BR APT": 360000,
   },
   "DIFC": {
-    "1BR": 140000, "2BR": 210000, "3BR": 300000, "4BR APT": 420000,
+    "STU": 88000, "1BR": 130000, "2BR": 168000, "3BR": 245000, "4BR APT": 380000,
   },
   "Dubai Creek Harbour": {
     "STU": 60000, "1BR": 100000, "2BR": 150000, "3BR": 210000,
@@ -293,6 +306,17 @@ function sizeAdjust(median: number, aedPerSqft?: number, sizeSqft?: number): { r
   return { rent: Math.round(clamped), adjusted: true };
 }
 
+// Maps our curated building database's `area` string (lib/buildings-data.ts) to the
+// DLD's actual area_name_en, so buildings picked from the dropdown (not resolved via
+// DLD autocomplete, so no dldArea/dldKey) still get a real area-level DLD rent fallback
+// instead of falling straight through to the generic "Dubai market average".
+// Verified live: DLD tags every JBR tower's rent contracts with area_name_en "Marsa Dubai"
+// (confirmed via direct Ejari query — JBR buildings have no distinct building/project tag
+// in Ejari, but DO roll up into this area).
+const CURATED_AREA_TO_DLD_AREA: Record<string, string> = {
+  "Jumeirah Beach Residence (JBR)": "Marsa Dubai",
+};
+
 export function getLTRMarketRent(
   buildingName: string,
   unitSize: UnitSize,
@@ -304,6 +328,12 @@ export function getLTRMarketRent(
   // Resolve community: prefer BUILDING_DIRECTORY, then map via DLD area, then DLD area itself
   const community = info?.community
     ?? (dldArea ? (DLD_AREA_TO_COMMUNITY[dldArea] ?? dldArea) : undefined);
+  // Fallback DLD area when the caller didn't supply one (building came from the curated
+  // dropdown, not DLD autocomplete) — lets JBR (and future-mapped areas) reach tier 2
+  // instead of skipping straight to the curated table / Dubai-average fallback.
+  const curatedDldArea = !dldArea
+    ? CURATED_AREA_TO_DLD_AREA[getBuildingByName(buildingName)?.area ?? ""]
+    : undefined;
 
   // 1a. Exact DLD key lookup (when building was selected from DLD autocomplete)
   if (dldKey) {
@@ -343,8 +373,9 @@ export function getLTRMarketRent(
   }
 
   // 2. Area-level actual rents from DLD
-  //    Try the mapped community name, then the raw DLD area name as fallback
-  const areaLookupTargets = [community, dldArea].filter(Boolean) as string[];
+  //    Try the mapped community name, then the raw DLD area name, then the
+  //    curated-database area's DLD equivalent (e.g. JBR → "Marsa Dubai").
+  const areaLookupTargets = [community, dldArea, curatedDldArea].filter(Boolean) as string[];
   for (const target of areaLookupTargets) {
     const dldAreaStat = lookupDLDArea(target, unitSize);
     if (dldAreaStat) {
@@ -389,6 +420,11 @@ const BUILDING_LTR_OVERRIDES: Record<string, Partial<Record<UnitSize, number>>> 
   "South Ridge 3": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
   "South Ridge 4": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
   "South Ridge 5": { "STU": 75000, "1BR": 110000, "2BR": 160000, "3BR": 220000 },
+  // Ejari has no building-level tag for these (project_name_en null / building not
+  // registered as a distinct project) — sourced from Bayut/Property Finder listing
+  // medians instead. 3BR/2BR omitted where sample data was too thin to trust.
+  "Al Bateen Residences": { "1BR": 145000, "2BR": 190000 },
+  "G-24": { "STU": 50000, "1BR": 68000 },
 };
 
 // Dubai buildings mapped to community + area type
@@ -427,6 +463,7 @@ export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   "Sulafa Tower":          { community: "Dubai Marina", area: "Dubai Marina", tier: "mid",     completionYear: 2010, serviceChargePsf: 18, maxFloors: 75 },
   "Silverene":             { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury",  completionYear: 2011, serviceChargePsf: 24, maxFloors: 38 },
   "Studio One":            { community: "Dubai Marina", area: "Dubai Marina", tier: "mid",     completionYear: 2019, serviceChargePsf: 14, maxFloors: 30 },
+  "Sunrise Bay":           { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury",  completionYear: 2023, serviceChargePsf: 20, maxFloors: 40 },
   // JBR
   "Sadaf":                 { community: "JBR", area: "JBR", tier: "mid",     completionYear: 2009, serviceChargePsf: 17, maxFloors: 38 },
   "Rimal":                 { community: "JBR", area: "JBR", tier: "mid",     completionYear: 2009, serviceChargePsf: 17, maxFloors: 39 },
@@ -439,6 +476,7 @@ export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   "One Palm":              { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "ultra-luxury", completionYear: 2021, serviceChargePsf: 52, maxFloors: 24 },
   "Palm Beach Towers":     { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2022, serviceChargePsf: 25, maxFloors: 52 },
   "Tiara Residences":      { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2011, serviceChargePsf: 20, maxFloors: 38 },
+  "Seven Palm":            { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2019, serviceChargePsf: 26, maxFloors: 24 },
   "Shoreline Apartments":  { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "mid",          completionYear: 2008, serviceChargePsf: 18, maxFloors: 13 },
   "Garden Homes":          { community: "Palm Jumeirah", area: "Palm Jumeirah", tier: "luxury",       completionYear: 2008, serviceChargePsf: 18, maxFloors: 2 },
   // Business Bay
@@ -448,8 +486,14 @@ export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   "DAMAC Maison":          { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2017, serviceChargePsf: 22, maxFloors: 52 },
   "Paramount Tower":       { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2018, serviceChargePsf: 28, maxFloors: 64 },
   // DIFC
-  "Index Tower":           { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2011, serviceChargePsf: 25, maxFloors: 80 },
-  "Liberty House":         { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2009, serviceChargePsf: 22, maxFloors: 38 },
+  "Index Tower":              { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2011, serviceChargePsf: 25, maxFloors: 80 },
+  "Liberty House":            { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2009, serviceChargePsf: 22, maxFloors: 38 },
+  "Sky Gardens":              { community: "DIFC", area: "DIFC", tier: "mid",    completionYear: 2009, serviceChargePsf: 20, maxFloors: 45 },
+  "Burj Daman":               { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2013, serviceChargePsf: 24, maxFloors: 42 },
+  "Limestone House":          { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2011, serviceChargePsf: 23, maxFloors: 34 },
+  "Central Park Residences":  { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2013, serviceChargePsf: 22, maxFloors: 34 },
+  "Park Towers A":            { community: "DIFC", area: "DIFC", tier: "mid",    completionYear: 2006, serviceChargePsf: 18, maxFloors: 39 },
+  "Park Towers B":            { community: "DIFC", area: "DIFC", tier: "mid",    completionYear: 2006, serviceChargePsf: 18, maxFloors: 39 },
   // LTR-recommended zones
   "Aurum Villas":          { community: "Furjan", area: "Furjan", tier: "mid",           completionYear: 2016, serviceChargePsf: 15, maxFloors: 4 },
   "Masakin Al Furjan":     { community: "Furjan", area: "Furjan", tier: "mid",           completionYear: 2015, serviceChargePsf: 15, maxFloors: 6 },
@@ -518,8 +562,8 @@ const DU: Record<UnitSize, number> = {
 
 // Monthly maintenance by unit size — flat
 const MAINTENANCE: Record<UnitSize, number> = {
-  "STU": 100, "1BR": 150, "2BR": 200, "3BR": 250,
-  "4BR APT": 300, "5BR APT": 350, "6BR APT": 400,
+  "STU": 250, "1BR": 400, "2BR": 550, "3BR": 700,
+  "4BR APT": 850, "5BR APT": 1000, "6BR APT": 1150,
   "4BR VILLA": 2000, "5BR VILLA": 2500, "6BR VILLA": 2500,
   "7BR VILLA": 3000, "8BR VILLA": 3000, "9BR VILLA": 6000,
 };
@@ -550,13 +594,13 @@ const FURNITURE_AMORT_FULL: Record<UnitSize, number> = {
 };
 
 const FURNITURE_AMORT_REFRESH: Record<UnitSize, number> = {
-  "STU":       2000,
-  "1BR":       3000,
-  "2BR":       4000,
-  "3BR":       5000,
-  "4BR APT":   6000,
-  "5BR APT":   7000,
-  "6BR APT":   8000,
+  "STU":       3500,
+  "1BR":       5000,
+  "2BR":       7000,
+  "3BR":       9000,
+  "4BR APT":  11000,
+  "5BR APT":  13000,
+  "6BR APT":  15000,
   "4BR VILLA": 10000,
   "5BR VILLA": 12000,
   "6BR VILLA": 14000,
@@ -565,45 +609,77 @@ const FURNITURE_AMORT_REFRESH: Record<UnitSize, number> = {
   "9BR VILLA": 20000,
 };
 
-// Occupancy base curves — seasonal shape only (avg ≈ 1.0 when normalised)
-// Scaled per unit size to hit target annual occupancy averages:
-//   STU / 1BR → 75%  |  2BR → 70%  |  3BR → 65%  |  Villas → 60%
+// Two separate seasonal shapes — apartments and villas behave differently in Dubai.
 // Months order: Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar, Apr, May
-// Winter (Nov–Mar) high occupancy, summer (Jun–Aug) low. Avg ≈ 1.0 (normalised).
-const OCC_BASE_SHAPE = [0.88,0.86,0.87,0.95,1.04,1.08,1.10,1.09,1.10,1.06,1.00,0.92];
 
+// APARTMENTS (STU → 6BR APT):
+// Summer (Jun–Aug): monthly stays by families/workers fill calendars → higher occ, very low ADR per night.
+// Dec is undisputed peak (DSF + NYE fireworks +30–50% premium). Oct–Feb = high season.
+// Sep and May nudged up ~4% (occupancy) — small seasonal recalibration per owner feedback.
+// Aug→Dec is now a straight linear ramp (Sep/Oct/Nov interpolated between the Aug and Dec
+// anchors) instead of cliffing down at Sep and jumping back up at Oct — occupancy rises
+// gradually into the winter high season rather than lurching.
+const OCC_BASE_SHAPE_APT  = [1.22,1.17,1.17,1.19,1.21,1.22,1.24,1.18,1.13,1.07,0.96,1.12];
+
+// VILLAS (4BR → 9BR VILLA):
+// Fewer summer monthly stays (harder to fill, less accessible for workers).
+// Much stronger Dec/Jan peak — luxury family groups, staycations, holiday rentals.
+// Summer ADR is still lower (monthly rate) but occupancy dips more than apartments.
+// Aug→Dec is a straight linear ramp (same rationale as apartments above).
+const OCC_BASE_SHAPE_VILLA = [0.90,0.88,0.90,1.02,1.13,1.25,1.36,1.26,1.16,1.08,0.96,0.88];
+
+// Annual occupancy targets per bedroom type (effective annual average).
+// Apartments: STU/1BR benefit most from summer monthly stays.
+// Villas: lower annual avg but stronger peak months offset by lower summer.
 const OCC_TARGETS: Record<UnitSize, number> = {
-  "STU": 0.75, "1BR": 0.75, "2BR": 0.70, "3BR": 0.65,
-  "4BR APT": 0.62, "5BR APT": 0.60, "6BR APT": 0.58,
-  "4BR VILLA": 0.60, "5BR VILLA": 0.58, "6BR VILLA": 0.56,
-  "7BR VILLA": 0.55, "8BR VILLA": 0.54, "9BR VILLA": 0.52,
+  "STU":      0.63,   // High monthly-stay demand, easiest to fill year-round
+  "1BR":      0.63,   // Same — most popular for monthly stays
+  "2BR":      0.61,   // Good family demand + some monthly stays
+  "3BR":      0.57,   // Popular for family tourism, fewer pure monthly stays
+  "4BR APT":  0.52,   // Less monthly stays; good peak season family demand
+  "5BR APT":  0.48,
+  "6BR APT":  0.46,
+  "4BR VILLA":0.54,   // High Dec/Jan demand from families; lower summer
+  "5BR VILLA":0.52,
+  "6BR VILLA":0.49,
+  "7BR VILLA":0.46,
+  "8BR VILLA":0.45,
+  "9BR VILLA":0.43,
 };
 
-// targetAdj makes the per-bedroom occupancy a flexible baseline:
-//   - the bedroom value is the floor (we allow it to dip at most ~3% below)
-//   - the upside is uncapped by this logic — it rises as far as the data/quality
-//     signals warrant; only the 90% realism ceiling applies (STR rarely exceeds this outside rare long stays).
+const VILLA_UNIT_SIZES: UnitSize[] = ["4BR VILLA","5BR VILLA","6BR VILLA","7BR VILLA","8BR VILLA","9BR VILLA"];
+
 function getOccRates(unitSize: UnitSize, targetAdj = 0): number[] {
   const base = OCC_TARGETS[unitSize] ?? 0.65;
   const target = base + targetAdj;
-  return OCC_BASE_SHAPE.map(v => Math.min(v * target, 0.90));
+  const shape = VILLA_UNIT_SIZES.includes(unitSize) ? OCC_BASE_SHAPE_VILLA : OCC_BASE_SHAPE_APT;
+  return shape.map(v => Math.min(v * target, 0.90));
 }
 
 // Revenue distribution by property type
 // Months order: Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar, Apr, May
-// Dubai STR seasonality: winter (Nov–Mar) is peak, summer (Jun–Aug) is low.
-const DIST_APARTMENT = [0.065,0.063,0.064,0.082,0.090,0.102,0.104,0.103,0.095,0.091,0.073,0.068];
-const DIST_VILLA     = [0.070,0.069,0.070,0.082,0.088,0.097,0.098,0.097,0.091,0.089,0.076,0.073];
+// Revenue distribution — share of annual revenue earned each month.
+// APARTMENTS: Summer monthly-stay rates cheap per night → low revenue share despite high occ.
+//   Dec = clear peak (DSF + NYE). Oct–Feb = high season. Jun–Aug = low ADR monthly stays.
+// Sep and May ADR share nudged down ~4% (revenue shifted to shoulder Aug/Oct/Apr/Jun)
+// to match the occupancy bump above — same total annual revenue share.
+// ADR share (revenue ÷ occupancy) now rises in even steps from Aug through the Dec peak —
+// previously it spiked the month right after August. The small residual (Sep+Oct+Nov moved
+// to a smoother curve) is absorbed by Dec/Jan, which were already the two next-highest months.
+const DIST_APARTMENT = [0.0515,0.054,0.0565,0.072,0.087,0.104,0.127,0.110,0.096,0.092,0.0805,0.0695];
+// VILLAS: Even stronger Dec peak (luxury family groups + NYE premium).
+//   Summer dips more than apartments (fewer monthly stays). Jan/Feb still good but well below Dec.
+// Same even-step ADR ramp Aug→Dec as apartments above.
+const DIST_VILLA     = [0.054,0.052,0.054,0.0699,0.0871,0.1070,0.131,0.104,0.094,0.091,0.078,0.078];
 
 export type FurnishedStatus = "Furnished" | "Unfurnished";
 
-export type PropertyCondition = "Standard" | "Lightly Upgraded" | "Fully Upgraded" | "Premium Renovated";
+export type PropertyCondition = "Standard" | "Semi Upgraded" | "Fully Upgraded";
 
 export const CONDITION_PREMIUMS: Record<PropertyCondition, { str: number; ltr: number }> = {
-  "Standard":          { str: 0.00, ltr: 0.00 },
-  "Lightly Upgraded":  { str: 0.02, ltr: 0.01 },
-  "Fully Upgraded":    { str: 0.04, ltr: 0.02 },
-  "Premium Renovated": { str: 0.06, ltr: 0.03 },
+  "Standard":       { str: 0.00, ltr: 0.00 },
+  "Semi Upgraded":  { str: 0.04, ltr: 0.02 },
+  "Fully Upgraded": { str: 0.08, ltr: 0.06 },
 };
 
 export interface EstimatorInput {
@@ -686,7 +762,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const {
     unitSize, unitType,
     managementFee, propertyValue,
-    premium = 0.15, floor, view, buildingName,
+    premium = 0.03, floor, view, buildingName,
     longTermRentOverride, furnished,
   } = input;
 
@@ -726,10 +802,16 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // Property condition premiums (owner estimator only; ignored in SUBLEASE_RISK mode)
   const condition = input.propertyCondition ?? "Standard";
   const condPremiums = CONDITION_PREMIUMS[condition];
-  const conditionStrPremium = input.mode === "SUBLEASE_RISK" ? 0 : Math.min(condPremiums.str, 0.06);
-  const conditionLtrPremium = input.mode === "SUBLEASE_RISK" ? 0 : Math.min(condPremiums.ltr, 0.03);
+  const conditionStrPremium = input.mode === "SUBLEASE_RISK" ? 0 : Math.min(condPremiums.str, 0.08);
+  const conditionLtrPremium = input.mode === "SUBLEASE_RISK" ? 0 : Math.min(condPremiums.ltr, 0.06);
 
-  const totalPremium = basePremium + vPremium + fPremium + tPremium + strDemand.revenuePremium + conditionStrPremium;
+  // Cap the combined stacked premium — location/view/floor/tier/condition can all
+  // apply to the same unit simultaneously, so cap the total to keep STR revenue realistic.
+  const MAX_TOTAL_PREMIUM = 0.25;
+  const totalPremium = Math.min(
+    MAX_TOTAL_PREMIUM,
+    basePremium + vPremium + fPremium + tPremium + strDemand.revenuePremium + conditionStrPremium
+  );
 
   // Low season = Jun, Jul, Aug, Sep (indices 0–3 in MONTHS)
   const isLowSeason = (i: number) => i <= 3;
@@ -739,14 +821,21 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   const occRatesAdjusted = ltrWarning
     ? occRates.map(rate => rate * (1 - ltrWarning.avgOccupancyLoss))
     : occRates.map((rate, i) =>
-        Math.min(0.90, rate + strDemand.occUplift + (isLowSeason(i) ? strDemand.lowSeasonOccUplift : 0)));
+        Math.min(0.90, rate + strDemand.occUplift + (isLowSeason(i) ? strDemand.lowSeasonOccUplift : 0) + (i === 3 ? (strDemand.sepOccUplift ?? 0) : 0)));
 
   const buildingInfo = BUILDING_DIRECTORY[buildingName];
 
   // Derive LTR from market data unless overridden internally
   const ltrMarket = getLTRMarketRent(buildingName, unitSize, input.sizeSqft, input.dldKey, input.dldArea);
   const { rent: marketRent, source: ltrSource } = ltrMarket;
-  const longTermRent = (longTermRentOverride ?? marketRent) * (1 + conditionLtrPremium);
+  // baseLTR (no condition bump) is what STR revenue is derived from — conditionStrPremium
+  // already captures the STR-side uplift for an upgraded interior, so deriving revenue from
+  // the condition-bumped longTermRent as well would double-count the same upgrade twice
+  // (once via conditionLtrPremium, again via conditionStrPremium stacked on top of it).
+  // longTermRent (bumped) is kept only for display/comparison — the LTR benchmark shown
+  // to the user, and the STR-vs-LTR delta, both correctly reflect the upgraded rent.
+  const baseLTR = longTermRentOverride ?? marketRent;
+  const longTermRent = baseLTR * (1 + conditionLtrPremium);
 
   // Annual owner-paid running costs (in STR the OWNER pays these; in LTR the tenant does).
   const annualUtilEst = MONTHS.reduce((s, _m, i) => s + DEWA[unitSize][i] + AC[unitSize][i] + DU[unitSize], 0);
@@ -765,16 +854,24 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // LTR-recommended areas are exempt (there STR is intentionally not advantaged).
   // SUBLEASE_RISK mode: do not force a minimum premium — let the deal fail naturally.
   // Owner estimator mode: floor the premium so STR net is always ≥ 18% above LTR.
-  const MIN_STR_NET_ADVANTAGE = 0.18;
-  const requiredPremium = MIN_STR_NET_ADVANTAGE + (annualUtilEst + annualMaintEst + furnitureAmortAnnual) / longTermRent;
+  // Studios get a higher net-advantage floor than other unit sizes: fixed running costs
+  // (utilities/maintenance/furniture) eat a much larger share of a studio's small LTR
+  // baseline, so the standard 14% floor left studio STR net too close to LTR net.
+  const MIN_STR_NET_ADVANTAGE = unitSize === "STU" ? 0.26 : 0.09;
+  // Costs are subtracted directly from net (net = LTR × (1 + premium) − costs), so any
+  // premium value needs this same costs/LTR offset added to translate into an actual net
+  // advantage over LTR — applied uniformly here so the natural (view/floor/tier/location)
+  // stack and the minimum-advantage floor both produce their stated net advantage cleanly,
+  // instead of only the floor path compensating for costs.
+  const costsRatio = (annualUtilEst + annualMaintEst + furnitureAmortAnnual) / baseLTR;
   const effectivePremium = (input.mode === "SUBLEASE_RISK" || ltrWarning)
     ? totalPremium
-    : Math.max(totalPremium, requiredPremium);
+    : Math.max(totalPremium, MIN_STR_NET_ADVANTAGE) + costsRatio;
 
   // Target annual STR revenue. In SUBLEASE_RISK mode a furnishing multiplier scales this
   // down so Basic/Standard furnishing naturally reduces ADR and increases break-even occupancy.
   const furnishingMult = input.furnishingRevenueMult ?? 1;
-  const targetRevenue = ((longTermRent * (1 + effectivePremium)) / (1 - managementFee)) * furnishingMult;
+  const targetRevenue = ((baseLTR * (1 + effectivePremium)) / (1 - managementFee)) * furnishingMult;
 
   const months: MonthlyRow[] = MONTHS.map((month, i) => {
     const revenue = targetRevenue * dist[i];

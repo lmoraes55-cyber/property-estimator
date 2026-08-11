@@ -25,6 +25,8 @@ export async function GET(request: Request) {
   const pageSize = searchParams.get("pageSize") ?? "5";
   const page     = searchParams.get("page") ?? "1";
   const filter   = searchParams.get("filter") ?? "";
+  const dataset  = searchParams.get("dataset") ?? "dld_rent_contracts-open-api";
+  const entity   = searchParams.get("entity") ?? "dld";
 
   const base   = (process.env.DDA_BASE_URL        ?? "").trim();
   const appId  = (process.env.DDA_APP_IDENTIFIER  ?? "").trim();
@@ -37,7 +39,7 @@ export async function GET(request: Request) {
 
   const token = await getToken(base, appId, cid, secret);
 
-  const url = new URL(`${base}/open/dld/dld_rent_contracts-open-api`);
+  const url = new URL(`${base}/open/${entity}/${dataset}`);
   url.searchParams.set("pageSize", pageSize);
   url.searchParams.set("page", page);
   if (filter) url.searchParams.set("filter", filter);

@@ -9,6 +9,8 @@ export interface BuildingRecord {
   area: string;
   tier: "ultra-luxury" | "luxury" | "mid" | "low";
   premiumPercentage: number;
+  dldKey?: string;   // normalized DLD dataset key → enables live Ejari lookup
+  dldArea?: string;  // DLD administrative area (e.g. "Burj Khalifa")
 }
 
 // Map CSV tiers to our system with premium percentages
@@ -18,10 +20,10 @@ const mapTierAndPremium = (
   switch (csvTier) {
     case "High":
       // High tier = ultra-luxury/luxury with 1-2% premium
-      return { tier: "luxury", premiumPercentage: 1.5 };
+      return { tier: "luxury", premiumPercentage: 0.6 };
     case "Medium":
       // Medium tier = mid with 0.5-1% premium
-      return { tier: "mid", premiumPercentage: 0.75 };
+      return { tier: "mid", premiumPercentage: 0.3 };
     case "Low-to-Medium":
       // Low-to-medium = low with 0% premium
       return { tier: "low", premiumPercentage: 0 };
@@ -130,11 +132,15 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "The Residences at Marina Gate 1",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "at marina gate 1",
+    dldArea: "Marsa Dubai",
   },
   "The Residences at Marina Gate 2": {
     name: "The Residences at Marina Gate 2",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "at marina gate 2",
+    dldArea: "Marsa Dubai",
   },
   "Marina Diamond 1": {
     name: "Marina Diamond 1",
@@ -200,46 +206,64 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Marina Quays North",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "marina quays",
+    dldArea: "Marsa Dubai",
   },
   "Marina Quays South": {
     name: "Marina Quays South",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "marina quays",
+    dldArea: "Marsa Dubai",
   },
   "Marina Quays East": {
     name: "Marina Quays East",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "marina quays",
+    dldArea: "Marsa Dubai",
   },
   "52|42 Tower 1": {
     name: "52|42 Tower 1",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "5242",
+    dldArea: "Marsa Dubai",
   },
   "52|42 Tower 2": {
     name: "52|42 Tower 2",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "5242",
+    dldArea: "Marsa Dubai",
   },
   "Silverene Tower A": {
     name: "Silverene Tower A",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "silverene",
+    dldArea: "Marsa Dubai",
   },
   "Silverene Tower B": {
     name: "Silverene Tower B",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "silverene",
+    dldArea: "Marsa Dubai",
   },
   "Sparkle Tower 1": {
     name: "Sparkle Tower 1",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "sparkle",
+    dldArea: "Marsa Dubai",
   },
   "Sparkle Tower 2": {
     name: "Sparkle Tower 2",
     area: "Dubai Marina",
     ...mapTierAndPremium("High"),
+    dldKey: "sparkle",
+    dldArea: "Marsa Dubai",
   },
   "DEC Tower A": {
     name: "DEC Tower A",
@@ -843,6 +867,11 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     area: "Jumeirah Beach Residence (JBR)",
     ...mapTierAndPremium("High"),
   },
+  "Al Bateen Residences": {
+    name: "Al Bateen Residences",
+    area: "Jumeirah Beach Residence (JBR)",
+    ...mapTierAndPremium("High"),
+  },
   "1 JBR": {
     name: "1 JBR",
     area: "Jumeirah Beach Residence (JBR)",
@@ -894,21 +923,29 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Forte Tower 1",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "forte",
+    dldArea: "Burj Khalifa",
   },
   "Forte Tower 2": {
     name: "Forte Tower 2",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "forte",
+    dldArea: "Burj Khalifa",
   },
   "Act One": {
     name: "Act One",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "act one act two",
+    dldArea: "Burj Khalifa",
   },
   "Act Two": {
     name: "Act Two",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "act one act two",
+    dldArea: "Burj Khalifa",
   },
   "Burj Crown": {
     name: "Burj Crown",
@@ -999,16 +1036,22 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Burj Views Tower A",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "burj views",
+    dldArea: "Burj Khalifa",
   },
   "Burj Views Tower B": {
     name: "Burj Views Tower B",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "burj views",
+    dldArea: "Burj Khalifa",
   },
   "Burj Views Tower C": {
     name: "Burj Views Tower C",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "burj views",
+    dldArea: "Burj Khalifa",
   },
   "The Lofts East": {
     name: "The Lofts East",
@@ -1059,11 +1102,15 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Burj Vista Tower 1",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "burj vista",
+    dldArea: "Burj Khalifa",
   },
   "Burj Vista Tower 2": {
     name: "Burj Vista Tower 2",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "burj vista",
+    dldArea: "Burj Khalifa",
   },
   "Standpoint Tower A": {
     name: "Standpoint Tower A",
@@ -1079,21 +1126,29 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Bellevue Towers Tower 1",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "bellevue",
+    dldArea: "Burj Khalifa",
   },
   "Bellevue Towers Tower 2": {
     name: "Bellevue Towers Tower 2",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "bellevue",
+    dldArea: "Burj Khalifa",
   },
   "Address Residences Dubai Opera Tower 1": {
     name: "Address Residences Dubai Opera Tower 1",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "address dubai opera",
+    dldArea: "Burj Khalifa",
   },
   "Address Residences Dubai Opera Tower 2": {
     name: "Address Residences Dubai Opera Tower 2",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "address dubai opera",
+    dldArea: "Burj Khalifa",
   },
   "Address Residences Downtown (Residential Wing)": {
     name: "Address Residences Downtown (Residential Wing)",
@@ -1134,11 +1189,15 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Vida Dubai Mall Tower 1",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "vida dubai mall",
+    dldArea: "Burj Khalifa",
   },
   "Vida Dubai Mall Tower 2": {
     name: "Vida Dubai Mall Tower 2",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "vida dubai mall",
+    dldArea: "Burj Khalifa",
   },
   "St. Regis The Residences Tower 1": {
     name: "St. Regis The Residences Tower 1",
@@ -1169,6 +1228,8 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Elite Downtown Residence 2",
     area: "Downtown Dubai",
     ...mapTierAndPremium("High"),
+    dldKey: "elite downtown",
+    dldArea: "Burj Khalifa",
   },
   "Al Noujoum Tower": {
     name: "Al Noujoum Tower",
@@ -1352,25 +1413,38 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
   },
 
   // JVC (Low-to-Medium tier)
+  "G-24": {
+    name: "G-24",
+    area: "Jumeirah Village Circle (JVC)",
+    ...mapTierAndPremium("Low-to-Medium"),
+  },
   "Belgravia I": {
     name: "Belgravia I",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "belgravia",
+    dldArea: "Al Barsha South Fourth",
   },
   "Belgravia II": {
     name: "Belgravia II",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "belgravia",
+    dldArea: "Al Barsha South Fourth",
   },
   "Belgravia III": {
     name: "Belgravia III",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "belgravia iii",
+    dldArea: "Al Barsha South Fourth",
   },
   "Belgravia Square": {
     name: "Belgravia Square",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "belgravia square",
+    dldArea: "Al Barsha South Fourth",
   },
   "The Portman by Ellington": {
     name: "The Portman by Ellington",
@@ -1396,11 +1470,15 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Oxford Residence 1",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "oxford",
+    dldArea: "Al Barsha South Fourth",
   },
   "Oxford Residence 2": {
     name: "Oxford Residence 2",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "oxford 2",
+    dldArea: "Al Barsha South Fourth",
   },
   "Oxford Boulevard": {
     name: "Oxford Boulevard",
@@ -1636,11 +1714,15 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Pantheon Elysee I",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "pantheon elysee",
+    dldArea: "Al Barsha South Fourth",
   },
   "Pantheon Elysee II": {
     name: "Pantheon Elysee II",
     area: "Jumeirah Village Circle (JVC)",
     ...mapTierAndPremium("Low-to-Medium"),
+    dldKey: "pantheon elysee",
+    dldArea: "Al Barsha South Fourth",
   },
   "Elysee Heights": {
     name: "Elysee Heights",
@@ -2037,6 +2119,8 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     name: "Creek Horizon Tower 1",
     area: "Dubai Creek Harbour",
     ...mapTierAndPremium("High"),
+    dldKey: "creek horizon",
+    dldArea: "Al Khairan First",
   },
   "Address Grand Creek Residences": {
     name: "Address Grand Creek Residences",

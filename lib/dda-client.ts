@@ -24,12 +24,20 @@ function _normalize(name: string): string {
 
 /**
  * Returns the official DLD project_name_en for a display name, or null.
- * Looks up the normalized form in the pre-built name map.
+ * Tries the full normalized key first, then progressively strips trailing
+ * tokens to handle tower/phase suffixes (e.g. "BLVD CRESCENT TOWER 1" → "blvd crescent 1" → "blvd crescent").
  */
 export function resolveDLDName(displayName: string): string | null {
   if (!displayName) return null;
-  const key = _normalize(displayName);
-  return DLD_NAME_MAP[key] ?? null;
+  let key = _normalize(displayName);
+  while (key.length >= 4) {
+    const mapped = DLD_NAME_MAP[key];
+    if (mapped) return mapped;
+    const shorter = key.replace(/\s+\S+$/, "").trim();
+    if (shorter === key) break;
+    key = shorter;
+  }
+  return null;
 }
 
 // ── Token cache (process-level, survives hot-reload in dev) ───────────────
@@ -141,6 +149,7 @@ export interface DLDRentContract {
   contract_start_date: string;          // "YYYY-MM-DD"
   contract_end_date: string;
   is_free_hold: number;
+  contract_reg_type_en: string;         // "New" | "Renew"
 }
 
 // ── Bedroom type normaliser (matches ingest-dld-rents.mjs logic) ──────────
@@ -149,7 +158,7 @@ export interface DLDRentContract {
 export function dldBedroomBucket(subType: string, propType?: string): string | null {
   const r = String(subType ?? "").toLowerCase();
   const t = String(propType ?? "").toLowerCase();
-  if (r.includes("studio")) return "Studio";
+  if (r.includes("studio")) return "STU";
   const m = r.match(/(\d+)\s*bed/);
   const beds = m ? parseInt(m[1], 10) : null;
   if (beds === null) return null;
@@ -161,6 +170,98 @@ export function dldBedroomBucket(subType: string, propType?: string): string | n
     return beds + "BR";
   }
   return null; // skip villas for residential LTR benchmarking
+}
+
+// ── Building age / completion lookup ────────────────────────────────────────
+// Joins dld_units-open-api (project_name_en → project_id) with
+// dld_projects-open-api (project_id → completion_date / status) since the
+// projects dataset only exposes the Arabic project name.
+
+interface DLDUnitProjectRow {
+  project_id: number;
+  project_name_en: string;
+  master_project_en: string;
+}
+
+interface DLDProjectRow {
+  project_id: number;
+  project_status: string;         // ACTIVE | FINISHED | PENDING | CANCELLED
+  percent_completed: number;
+  completion_date: string | null; // actual (FINISHED) or estimated handover (ACTIVE)
+  project_start_date: string | null;
+  no_of_buildings: number;
+  no_of_units: number;
+}
+
+export interface BuildingAgeResult {
+  matched: boolean;
+  projectNameDLD: string | null;
+  projectStatus: string | null;
+  completionDate: string | null;
+  completionYear: number | null;
+  ageYears: number | null;        // null if not yet completed
+  percentCompleted: number | null;
+  projectStartDate: string | null;
+}
+
+const NOT_FOUND: BuildingAgeResult = {
+  matched: false, projectNameDLD: null, projectStatus: null, completionDate: null,
+  completionYear: null, ageYears: null, percentCompleted: null, projectStartDate: null,
+};
+
+/** Look up a building's completion/handover data via project_name_en (exact DLD name). */
+export async function fetchBuildingAge(projectNameEn: string): Promise<BuildingAgeResult> {
+  if (!projectNameEn) return NOT_FOUND;
+
+  // 1. Resolve project_id from the units dataset (has English project names).
+  let unitRows = (await ddaQuery<DLDUnitProjectRow>({
+    entity: "dld",
+    dataset: "dld_units-open-api",
+    filters: { project_name_en: projectNameEn },
+    columns: ["project_id", "project_name_en", "master_project_en"],
+    pageSize: 1,
+  })).results;
+
+  if (!unitRows.length) {
+    unitRows = (await ddaQuery<DLDUnitProjectRow>({
+      entity: "dld",
+      dataset: "dld_units-open-api",
+      likeFilters: { project_name_en: `${projectNameEn}%` },
+      columns: ["project_id", "project_name_en", "master_project_en"],
+      pageSize: 1,
+    })).results;
+  }
+
+  const projectId = unitRows[0]?.project_id;
+  if (!projectId) return NOT_FOUND;
+
+  // 2. Pull completion data from the projects dataset by project_id.
+  const { results: projectRows } = await ddaQuery<DLDProjectRow>({
+    entity: "dld",
+    dataset: "dld_projects-open-api",
+    filters: { project_id: String(projectId) },
+    pageSize: 1,
+  });
+
+  const p = projectRows[0];
+  if (!p) return NOT_FOUND;
+
+  const completionYear = p.completion_date ? parseInt(p.completion_date.slice(0, 4), 10) : null;
+  const isFinished = p.project_status === "FINISHED";
+  const ageYears = isFinished && completionYear
+    ? new Date().getFullYear() - completionYear
+    : null;
+
+  return {
+    matched: true,
+    projectNameDLD: unitRows[0]?.project_name_en ?? null,
+    projectStatus: p.project_status ?? null,
+    completionDate: p.completion_date ?? null,
+    completionYear,
+    ageYears,
+    percentCompleted: p.percent_completed ?? null,
+    projectStartDate: p.project_start_date ?? null,
+  };
 }
 
 // ── Stats helpers ──────────────────────────────────────────────────────────
@@ -196,7 +297,11 @@ export function computeLTRStats(contracts: DLDRentContract[]): LTRStat | null {
 
   if (rents.length < 3) return null;
 
-  const areas  = contracts.map(c => c.actual_area).filter(v => v > 50 && v < 50_000);
+  // actual_area is in sq.m. — convert to sqft for display; filter out junk (< 15 sqm = 161 sqft)
+  const areasSqft = contracts
+    .map(c => c.actual_area)
+    .filter(v => v > 15 && v < 5_000)
+    .map(v => Math.round(v * 10.764));
   const latestDate = contracts
     .map(c => c.contract_start_date)
     .filter(Boolean)
@@ -205,15 +310,15 @@ export function computeLTRStats(contracts: DLDRentContract[]): LTRStat | null {
     ?.slice(0, 7) ?? "";
 
   const medianRent = median(rents);
-  const medianArea = areas.length ? median([...areas].sort((a, b) => a - b)) : undefined;
+  const medianSqft = areasSqft.length ? median([...areasSqft].sort((a, b) => a - b)) : undefined;
 
   return {
     median: medianRent,
     p25:    percentile(rents, 25),
     p75:    percentile(rents, 75),
     n:      rents.length,
-    aedPerSqft: medianArea ? Math.round(medianRent / medianArea) : undefined,
-    medianSqft: medianArea,
+    aedPerSqft: medianSqft ? Math.round(medianRent / medianSqft) : undefined,
+    medianSqft,
     asOf:   latestDate,
     source: "dda-live",
   };
@@ -282,10 +387,20 @@ async function fetchContractsForName(
 
     if (!results.length) break;
 
-    const recent = results.filter(c =>
-      c.contract_start_date >= cutoffStr &&
-      (c.property_usage_en?.toLowerCase().includes("resid") ?? true)
-    );
+    const recent = results.filter(c => {
+      if (c.contract_start_date < cutoffStr) return false;
+      if (!(c.property_usage_en?.toLowerCase().includes("resid") ?? true)) return false;
+      // New contracts only — exclude renewals
+      if (c.contract_reg_type_en && c.contract_reg_type_en !== "New") return false;
+      // 1-year leases only — exclude multi-year (allow up to 13 months for rounding)
+      if (c.contract_start_date && c.contract_end_date) {
+        const start = new Date(c.contract_start_date);
+        const end   = new Date(c.contract_end_date);
+        const days  = (end.getTime() - start.getTime()) / 86_400_000;
+        if (days > 400) return false;
+      }
+      return true;
+    });
     allContracts.push(...recent);
 
     if (results.length < pageSize) break;
@@ -298,12 +413,12 @@ async function fetchContractsForName(
 /** Fetch all rent contracts for a project name, optionally filtered by date window. */
 export async function fetchProjectContracts(
   projectName: string,
-  options: { monthsBack?: number; maxRecords?: number } = {}
+  options: { daysBack?: number; maxRecords?: number } = {}
 ): Promise<DLDRentContract[]> {
-  const { monthsBack = 24, maxRecords = 2000 } = options;
+  const { daysBack = 30, maxRecords = 2000 } = options;
 
   const cutoff = new Date();
-  cutoff.setMonth(cutoff.getMonth() - monthsBack);
+  cutoff.setDate(cutoff.getDate() - daysBack);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
 
   const columns: (keyof DLDRentContract)[] = [
@@ -311,21 +426,28 @@ export async function fetchProjectContracts(
     "project_name_en", "area_name_en",
     "ejari_property_type_en", "ejari_property_sub_type_en",
     "property_usage_en", "contract_start_date", "contract_end_date", "is_free_hold",
+    "contract_reg_type_en",
   ];
 
-  // 1. Try the canonical DLD name from our pre-built name map (exact match — no LIKE)
+  // 1. Try the canonical DLD name — exact first, then LIKE (DLD sometimes stores trailing spaces)
   const canonicalName = resolveDLDName(projectName);
   if (canonicalName) {
-    const contracts = await fetchContractsForName(
+    const exact = await fetchContractsForName(
       canonicalName, columns as string[], cutoffStr, 1000, maxRecords, true
     );
-    if (contracts.length > 0) return contracts;
+    if (exact.length > 0) return exact;
+
+    // Exact returned 0 — try LIKE in case DLD stored name has trailing space/suffix
+    const like = await fetchContractsForName(
+      canonicalName, columns as string[], cutoffStr, 1000, maxRecords, false
+    );
+    if (like.length > 0) return like;
   }
 
   // 2. Try name variants (LIKE prefix) as fallback for unmapped buildings
   const variants = buildDLDVariants(projectName);
   for (const variant of variants) {
-    // Skip if this variant is the same as canonical (already tried)
+    // Skip if this variant is the same as canonical (already tried both ways)
     if (canonicalName && variant.toUpperCase() === canonicalName.toUpperCase()) continue;
     const contracts = await fetchContractsForName(
       variant, columns as string[], cutoffStr, 1000, maxRecords
@@ -334,4 +456,235 @@ export async function fetchProjectContracts(
   }
 
   return [];
+}
+
+// ── Sale transactions (dld_transactions-open-api) ──────────────────────────
+
+export interface DLDSaleTransaction {
+  transaction_id: string;
+  instance_date: string;          // "YYYY-MM-DD"
+  trans_group_en: string;         // "Sales" | "Mortgages" | "Gifts" ...
+  procedure_name_en: string;      // "Sell - Pre registration" | "Sell" ...
+  reg_type_en: string;            // "Off-Plan Properties" | "Existing Properties"
+  property_type_en: string;       // "Unit" | "Villa" | "Land" ...
+  property_sub_type_en: string;   // "Flat" | "Villa" ...
+  area_name_en: string;
+  building_name_en: string;
+  project_name_en: string;
+  master_project_en: string;
+  rooms_en: string;               // "1 B/R" | "Studio" ...
+  procedure_area: number;         // sq.m.
+  actual_worth: number;           // AED transaction price
+  meter_sale_price: number;       // AED per sq.m.
+}
+
+/** Map DLD rooms_en ("1 B/R", "Studio", "PENTHOUSE") → our UnitSize bucket. */
+export function dldRoomsBucket(roomsEn: string): string | null {
+  const r = String(roomsEn ?? "").toLowerCase();
+  if (r.includes("studio")) return "STU";
+  const m = r.match(/(\d+)\s*b\/?r/);
+  if (!m) return null;
+  const beds = parseInt(m[1], 10);
+  if (beds <= 1) return "1BR";
+  if (beds === 2) return "2BR";
+  if (beds === 3) return "3BR";
+  return beds + "BR";
+}
+
+export interface SaleStat {
+  medianPrice: number;
+  p25Price: number;
+  p75Price: number;
+  medianAedPerSqft: number;
+  medianSqft: number;
+  offPlanShare: number;   // 0–1, fraction of sample that was off-plan
+  n: number;
+  asOf: string;            // "YYYY-MM" of most recent transaction
+  source: "dda-live";
+}
+
+/** Compute sale-price stats from an array of transaction records. */
+export function computeSaleStats(transactions: DLDSaleTransaction[]): SaleStat | null {
+  const clean = transactions.filter(
+    t => t.actual_worth > 50_000 && t.actual_worth < 500_000_000 && t.procedure_area > 5 && t.procedure_area < 5_000
+  );
+  if (clean.length < 3) return null;
+
+  const prices = clean.map(t => t.actual_worth).sort((a, b) => a - b);
+  const perSqft = clean
+    .map(t => Math.round(t.actual_worth / (t.procedure_area * 10.764)))
+    .sort((a, b) => a - b);
+  const sqftVals = clean.map(t => Math.round(t.procedure_area * 10.764)).sort((a, b) => a - b);
+  const offPlanCount = clean.filter(t => t.reg_type_en === "Off-Plan Properties").length;
+  const latestDate = clean.map(t => t.instance_date).filter(Boolean).sort().at(-1)?.slice(0, 7) ?? "";
+
+  return {
+    medianPrice: median(prices),
+    p25Price: percentile(prices, 25),
+    p75Price: percentile(prices, 75),
+    medianAedPerSqft: median(perSqft),
+    medianSqft: median(sqftVals),
+    offPlanShare: Math.round((offPlanCount / clean.length) * 100) / 100,
+    n: clean.length,
+    asOf: latestDate,
+    source: "dda-live",
+  };
+}
+
+/** Fetch sale transactions for a project name, filtered to a date window. */
+export async function fetchSaleTransactions(
+  projectName: string,
+  options: { daysBack?: number; maxRecords?: number } = {}
+): Promise<DLDSaleTransaction[]> {
+  const { daysBack = 365, maxRecords = 2000 } = options;
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - daysBack);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  const columns: (keyof DLDSaleTransaction)[] = [
+    "transaction_id", "instance_date", "trans_group_en", "procedure_name_en", "reg_type_en",
+    "property_type_en", "property_sub_type_en", "area_name_en", "building_name_en",
+    "project_name_en", "master_project_en", "rooms_en", "procedure_area", "actual_worth",
+    "meter_sale_price",
+  ];
+
+  async function fetchForName(
+    field: "project_name_en" | "building_name_en", dldName: string, exact: boolean
+  ): Promise<DLDSaleTransaction[]> {
+    const all: DLDSaleTransaction[] = [];
+    let page = 1;
+    const pageSize = 1000;
+    while (all.length < maxRecords) {
+      const { results } = await ddaQuery<DLDSaleTransaction>({
+        entity: "dld",
+        dataset: "dld_transactions-open-api",
+        page,
+        pageSize,
+        columns: columns as string[],
+        filters: { trans_group_en: "Sales" },
+        ...(exact
+          ? { likeFilters: { [field]: dldName } }
+          : { likeFilters: { [field]: `${dldName}%` } }
+        ),
+        orderBy: "instance_date",
+        orderDir: "desc",
+      });
+      if (!results.length) break;
+      const recent = results.filter(t => t.instance_date >= cutoffStr && t.property_type_en === "Unit");
+      all.push(...recent);
+      if (results.length < pageSize) break;
+      page++;
+    }
+    return all;
+  }
+
+  const canonicalName = resolveDLDName(projectName);
+  if (canonicalName) {
+    const rows = await fetchForName("project_name_en", canonicalName, true);
+    if (rows.length > 0) return rows;
+  }
+
+  const variants = buildDLDVariants(projectName);
+  for (const variant of variants) {
+    if (canonicalName && variant.toUpperCase() === canonicalName.toUpperCase()) continue;
+    const rows = await fetchForName("project_name_en", variant, false);
+    if (rows.length > 0) return rows;
+  }
+
+  // Fallback: some DLD records (especially individual towers within a larger
+  // complex) store the name under building_name_en rather than project_name_en.
+  for (const variant of variants) {
+    const rows = await fetchForName("building_name_en", variant, false);
+    if (rows.length > 0) return rows;
+  }
+
+  return [];
+}
+
+// ── DLD valuations (dld_valuation-open-api) ─────────────────────────────────
+// Note: this dataset only exposes area_name_en (no building/project name), so
+// results are keyed by area rather than by building.
+
+export interface DLDValuation {
+  procedure_id: number;
+  procedure_year: number;
+  instance_date: string;         // "YYYY-MM-DD HH:mm:ss"
+  actual_worth: number;
+  row_status_code: string;       // "COMPLETED" ...
+  procedure_area: number;        // sq.m.
+  property_type_en: string;
+  property_sub_type_en: string;
+  area_name_en: string;
+  actual_area: number;           // sq.m.
+  property_total_value: number;
+}
+
+export interface ValuationStat {
+  medianValue: number;
+  medianAedPerSqft: number;
+  n: number;
+  asOf: string;
+  source: "dda-live";
+}
+
+export function computeValuationStats(valuations: DLDValuation[]): ValuationStat | null {
+  const clean = valuations.filter(
+    v => v.row_status_code === "COMPLETED" && v.actual_worth > 50_000 && v.actual_area > 5 && v.actual_area < 5_000
+  );
+  if (clean.length < 3) return null;
+
+  const values = clean.map(v => v.actual_worth).sort((a, b) => a - b);
+  const perSqft = clean
+    .map(v => Math.round(v.actual_worth / (v.actual_area * 10.764)))
+    .sort((a, b) => a - b);
+  const latestDate = clean.map(v => v.instance_date).filter(Boolean).sort().at(-1)?.slice(0, 7) ?? "";
+
+  return {
+    medianValue: median(values),
+    medianAedPerSqft: median(perSqft),
+    n: clean.length,
+    asOf: latestDate,
+    source: "dda-live",
+  };
+}
+
+/** Fetch completed property valuations for an area name, filtered to a date window. */
+export async function fetchAreaValuations(
+  areaName: string,
+  options: { daysBack?: number; maxRecords?: number } = {}
+): Promise<DLDValuation[]> {
+  const { daysBack = 730, maxRecords = 2000 } = options;
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - daysBack);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  const columns: (keyof DLDValuation)[] = [
+    "procedure_id", "procedure_year", "instance_date", "actual_worth", "row_status_code",
+    "procedure_area", "property_type_en", "property_sub_type_en", "area_name_en",
+    "actual_area", "property_total_value",
+  ];
+
+  const all: DLDValuation[] = [];
+  let page = 1;
+  const pageSize = 1000;
+  while (all.length < maxRecords) {
+    const { results } = await ddaQuery<DLDValuation>({
+      entity: "dld",
+      dataset: "dld_valuation-open-api",
+      page,
+      pageSize,
+      columns: columns as string[],
+      likeFilters: { area_name_en: `${areaName}%` },
+      orderBy: "instance_date",
+      orderDir: "desc",
+    });
+    if (!results.length) break;
+    const recent = results.filter(v => v.instance_date >= cutoffStr);
+    all.push(...recent);
+    if (results.length < pageSize) break;
+    page++;
+  }
+  return all;
 }
