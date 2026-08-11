@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID } from "@/lib/gtag";
+import WelcomeToast from "@/components/WelcomeToast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,7 +39,26 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {(GA_MEASUREMENT_ID || GOOGLE_ADS_ID) && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID || GOOGLE_ADS_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                ${GA_MEASUREMENT_ID ? `gtag('config', '${GA_MEASUREMENT_ID}');` : ""}
+                ${GOOGLE_ADS_ID ? `gtag('config', '${GOOGLE_ADS_ID}');` : ""}
+                window.gtag = gtag;
+              `}
+            </Script>
+          </>
+        )}
         {children}
+        <WelcomeToast />
       </body>
     </html>
   );

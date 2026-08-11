@@ -36,7 +36,7 @@ function PayCancelContent() {
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <button
-            onClick={() => router.push("/self-manage#pricing")}
+            onClick={() => router.push("/self-manage#guide")}
             style={{ padding: "12px 24px", background: colors.primary, color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
           >
             Back to Pricing

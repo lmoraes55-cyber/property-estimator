@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import {
@@ -10,11 +10,16 @@ import {
 import {
   runEstimator,
   fmt, UnitSize, UnitType, OCCStrategy, ViewType, FurnishedStatus, EstimatorOutput, PropertyCondition,
-  BUILDING_DIRECTORY,
+  BUILDING_DIRECTORY, getBuildingInfo,
 } from "@/lib/estimator";
+import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 import { checkSTRViability } from "@/lib/str-viability";
 import { colors } from "@/lib/colors";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
+import DecorativeBackdrop from "@/components/DecorativeBackdrop";
+import AreaIntelligence from "@/components/report/AreaIntelligence";
+import RecentTransactions from "@/components/report/RecentTransactions";
+import { createClient } from "@/lib/supabase/client";
 
 function StatCard({ label, value, sub, highlight, icon }: { label: string; value: string; sub?: string; highlight?: boolean; icon?: string }) {
   // Icon mapping with SVG line icons (minimal, professional)
@@ -147,7 +152,7 @@ function PremiumCTACard({
       className="relative overflow-hidden text-center"
       style={{
         borderRadius: "28px",
-        padding: "44px 36px",
+        padding: "34px 32px",
         background: bg,
         border: `1px solid ${accent}33`,
         boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 40px rgba(0,0,0,0.06)",
@@ -222,25 +227,25 @@ function PremiumCTACard({
       {/* Content */}
       <div className="relative" style={{ zIndex: 1 }}>
         {/* Eyebrow + diamond divider */}
-        <p className="text-xs font-bold uppercase mb-2.5" style={{ color: eyebrowColor, letterSpacing: "0.18em" }}>{eyebrow}</p>
-        <div className="flex items-center justify-center gap-3 mb-5">
+        <p className="text-xs font-bold uppercase mb-2" style={{ color: eyebrowColor, letterSpacing: "0.18em" }}>{eyebrow}</p>
+        <div className="flex items-center justify-center gap-3 mb-4">
           <span style={{ width: "60px", height: "1px", background: `${accent}40` }} />
           <svg width="9" height="9" viewBox="0 0 9 9"><rect x="4.5" y="0" width="6.4" height="6.4" transform="rotate(45 4.5 0)" fill="none" stroke={accent} strokeWidth="1" /></svg>
           <span style={{ width: "60px", height: "1px", background: `${accent}40` }} />
         </div>
 
         {/* Heading with green→bronze gradient */}
-        <h2 className="font-bold mb-3" style={{
+        <h2 className="font-bold mb-2" style={{
           fontFamily: "'Georgia', serif",
-          fontSize: "32px",
-          lineHeight: 1.15,
+          fontSize: "26px",
+          lineHeight: 1.18,
           background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
           backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>
           {heading}
         </h2>
 
-        <p className="text-sm mb-6 max-w-lg mx-auto" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
+        <p className="text-sm mb-5 max-w-lg mx-auto" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
           {description}
         </p>
 
@@ -248,7 +253,7 @@ function PremiumCTACard({
           onClick={onClick}
           className="inline-flex items-center gap-2 font-bold text-sm transition-all hover:-translate-y-0.5 hover:brightness-105"
           style={{
-            padding: "13px 30px",
+            padding: "11px 26px",
             borderRadius: "999px",
             background: buttonGradient,
             color: "#FFF",
@@ -262,8 +267,13 @@ function PremiumCTACard({
   );
 }
 
-function ReportContent() {
-  const params = useSearchParams();
+function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
+  overrideParams?: URLSearchParams;
+  snapshotResult?: EstimatorOutput;
+  snapshotId?: string;
+}) {
+  const searchParams = useSearchParams();
+  const params = overrideParams ?? searchParams;
   const router = useRouter();
 
   const ltrRecommended = params.get("ltrRecommended") === "true";
@@ -279,14 +289,421 @@ function ReportContent() {
     occStrategy: (params.get("occStrategy") ?? "LOCCHP") as OCCStrategy,
     managementFee: Number(params.get("managementFee") ?? 0.20),
     propertyValue: params.get("propertyValue") ? Number(params.get("propertyValue")) : undefined,
-    // User enters size in sqm; convert to sqft for the rent-per-sqft refinement
     sizeSqft: params.get("sizeSqm") ? Number(params.get("sizeSqm")) * 10.7639 : undefined,
     dldKey: params.get("dldKey") ?? undefined,
     dldArea: params.get("dldArea") ?? undefined,
     propertyCondition: (params.get("propertyCondition") ?? "Standard") as PropertyCondition,
   };
 
-  const result: EstimatorOutput = runEstimator(input);
+  const lrOverride = Number(params.get("lr")) || 0;
+
+  // A saved report is a frozen snapshot — use it as-is, never recompute.
+  const staticResult: EstimatorOutput = snapshotResult ?? runEstimator(
+    lrOverride > 0 ? { ...input, longTermRentOverride: lrOverride } : input
+  );
+  const [result, setResult] = useState<EstimatorOutput>(staticResult);
+  const [ltrSource, setLtrSource] = useState<"static" | "dda-live">(
+    snapshotResult ? "dda-live" : (lrOverride > 0 ? "dda-live" : "static")
+  );
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const [saved, setSaved] = useState(!!snapshotId);
+  const [saving, setSaving] = useState(false);
+  const [operatorSent, setOperatorSent] = useState(false);
+  const [operatorSending, setOperatorSending] = useState(false);
+  const [savedReportId, setSavedReportId] = useState<string | null>(snapshotId ?? null);
+
+  async function handleSave() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push("/login?next=" + encodeURIComponent(window.location.pathname + window.location.search));
+      return;
+    }
+    setSaving(true);
+    const reportParams: Record<string, string> = {};
+    params.forEach((v, k) => { reportParams[k] = v; });
+    const { data } = await supabase.from("saved_reports").insert({
+      user_id: user.id,
+      building_name: input.buildingName || input.propertyName,
+      unit_size: input.unitSize,
+      floor: input.floor,
+      recommendation: result.strVsLtrDelta > 0 ? "STR" : "LTR",
+      str_net_annual: Math.round(result.annualNetToLandlord),
+      ltr_annual: Math.round(result.longTermRent),
+      report_params: reportParams,
+      // Freeze the exact computed output + which LTR source/value was used, so
+      // reopening this report later renders this snapshot instead of
+      // re-running the estimator against whatever DLD data looks like then.
+      result_snapshot: result,
+      lr_used: lrOverride > 0 ? lrOverride : null,
+    }).select("id").single();
+    setSaving(false);
+    setSaved(true);
+    if (data?.id) setSavedReportId(data.id);
+  }
+
+  async function handleOperatorMatch() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const email = user?.email;
+    if (!email) {
+      router.push("/login?next=" + encodeURIComponent(window.location.pathname + window.location.search));
+      return;
+    }
+    setOperatorSending(true);
+    await fetch("/api/send-operator-match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, result }),
+    });
+    setOperatorSending(false);
+    setOperatorSent(true);
+  }
+
+  async function generatePDF() {
+    setPdfGenerating(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const W  = doc.internal.pageSize.getWidth();
+      const H  = doc.internal.pageSize.getHeight();
+      const ml = 36;
+      const mr = 36;
+      const cw = W - ml - mr;
+      const footerH = 28;
+      const safeBottom = H - footerH - 10;
+
+      const Gr = 27,  Gg = 94,  Gb = 74;
+      const Br = 184, Bg = 138, Bb = 68;
+      const Iv: [number,number,number] = [248, 244, 238];
+      const Mg = 110;
+
+      const strBetter = result.strVsLtrDelta > 0;
+      const money = (n: number) => "AED " + Math.round(n).toLocaleString();
+      const pct   = (n: number) => (n * 100).toFixed(0) + "%";
+
+      function txt(
+        s: string, x: number, y: number,
+        opts?: { size?: number; bold?: boolean; color?: [number,number,number]; align?: "left"|"right"|"center" }
+      ) {
+        const { size = 8, bold = false, color = [27,27,27], align = "left" } = opts ?? {};
+        doc.setCharSpace(0);
+        doc.setFontSize(size);
+        doc.setFont("helvetica", bold ? "bold" : "normal");
+        doc.setTextColor(color[0], color[1], color[2]);
+        doc.text(s, x, y, { align });
+      }
+
+      function sectionLabel(label: string, y: number) {
+        txt(label, ml, y, { size: 6.5, bold: true, color: [Br, Bg, Bb] });
+        doc.setDrawColor(Br, Bg, Bb);
+        doc.setLineWidth(0.4);
+        doc.line(ml + doc.getTextWidth(label) + 6, y - 1, ml + cw, y - 1);
+      }
+
+      function metricBox(
+        x: number, y: number, w: number, h: number,
+        label: string, value: string, sub: string,
+        green: boolean
+      ) {
+        doc.setFillColor(...Iv);
+        doc.roundedRect(x, y, w, h, 5, 5, "F");
+        doc.setFillColor(green ? Gr : Br, green ? Gg : Bg, green ? Gb : Bb);
+        doc.rect(x, y, 3, h, "F");
+        txt(label, x + 11, y + 13, { size: 6.5, bold: true, color: [Mg, Mg, Mg] });
+        txt(value, x + 11, y + 29, { size: 13, bold: true, color: green ? [Gr,Gg,Gb] : [Br,Bg,Bb] });
+        if (sub) txt(sub, x + 11, y + 41, { size: 6, color: [160,160,160] });
+      }
+
+      // ── Load BURJ hero image ──────────────────────────────────────
+      let burjDataUrl: string | null = null;
+      try {
+        const blob = await fetch("/BURJ.png").then(r => r.blob());
+        burjDataUrl = await new Promise<string>((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = () => res(reader.result as string);
+          reader.onerror = rej;
+          reader.readAsDataURL(blob);
+        });
+      } catch { /* hero image optional */ }
+
+      // ══════════════════════════════════════════════════════════════
+      // PAGE 1
+      // ══════════════════════════════════════════════════════════════
+
+      // ── Hero band ────────────────────────────────────────────────
+      const heroH = 170;
+
+      // Green base layer
+      doc.setFillColor(Gr, Gg, Gb);
+      doc.rect(0, 0, W, heroH, "F");
+
+      // BURJ image flush right
+      if (burjDataUrl) {
+        const imgW = W * 0.70;
+        doc.addImage(burjDataUrl, "PNG", W - imgW, 0, imgW, heroH);
+      }
+
+      // Left-side green overlay bands (fade effect without true opacity)
+      [
+        { x: 0,        w: W * 0.30, r: Gr, g: Gg, b: Gb },
+        { x: W * 0.28, w: W * 0.15, r: 38, g: 82, b: 68 },
+        { x: W * 0.40, w: W * 0.12, r: 52, g: 90, b: 76 },
+      ].forEach(({ x, w, r, g, b }) => {
+        doc.setFillColor(r, g, b);
+        doc.rect(x, 0, w, heroH, "F");
+      });
+
+      // Bronze accent line at bottom of hero
+      doc.setFillColor(Br, Bg, Bb);
+      doc.rect(0, heroH - 3, W, 3, "F");
+
+      // Hero text
+      const propName = result.propertyName || input.buildingName || "Property Report";
+      const dateStr = new Date().toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" });
+      txt("ASSETINTEL", ml, 26, { size: 8, bold: true, color: [Br, Bg, Bb] });
+      txt(dateStr, W - mr, 26, { size: 7.5, color: [Br, Bg, Bb], align: "right" });
+      txt(propName, ml, 72, { size: 20, bold: true, color: [255, 255, 255] });
+      const subParts = [input.unitSize, input.unitType, "Floor " + input.floor, input.view, input.furnished].filter(Boolean);
+      txt(subParts.join("  |  "), ml, 94, { size: 8.5, color: [210, 230, 220] });
+      txt("STR vs LTR  RENTAL STRATEGY REPORT", ml, 118, { size: 7, bold: true, color: [Br, Bg, Bb] });
+      const verdictShort = strBetter
+        ? "STR leads by " + money(Math.abs(result.strVsLtrDelta)) + " / yr"
+        : "LTR competitive  |  " + money(Math.abs(result.strVsLtrDelta)) + " delta";
+      txt(verdictShort, ml, 148, { size: 10.5, bold: true, color: [255, 255, 255] });
+
+      let y = heroH + 14;
+
+      // ── Verdict card ──────────────────────────────────────────────
+      const vCardH = 58;
+      doc.setFillColor(strBetter ? 232 : 252, strBetter ? 246 : 246, strBetter ? 236 : 237);
+      doc.roundedRect(ml, y, cw, vCardH, 7, 7, "F");
+      doc.setFillColor(strBetter ? Gr : Br, strBetter ? Gg : Bg, strBetter ? Gb : Bb);
+      doc.roundedRect(ml, y, 5, vCardH, 3, 3, "F");
+      txt("12-MONTH VERDICT", ml + 16, y + 16, { size: 6.5, bold: true, color: strBetter ? [Gr,Gg,Gb] : [Br,Bg,Bb] });
+      const verdictLine = strBetter
+        ? "Short-term rental outperforms long-term by " + money(Math.abs(result.strVsLtrDelta)) + " per year"
+        : "Long-term rental is competitive  |  STR delta: " + money(Math.abs(result.strVsLtrDelta)) + " per year";
+      txt(verdictLine, ml + 16, y + 38, { size: 12, bold: true, color: [28,28,28] });
+      y += vCardH + 14;
+
+      // ── 2x2 Key Metrics ──────────────────────────────────────────
+      const bh = 60;
+      const gap = 10;
+      const bw = (cw - gap) / 2;
+      const ltrSub = result.ltrBasis === "dld-building" ? "DLD / Ejari live data" : "Market estimate";
+
+      metricBox(ml,        y, bw, bh, "STR NET / YEAR",  money(result.annualNetToLandlord), "After all deductions",     true);
+      metricBox(ml+bw+gap, y, bw, bh, "LTR / YEAR",      money(result.longTermRent),        ltrSub,                    false);
+      y += bh + gap;
+      metricBox(ml,        y, bw, bh, "AVG OCCUPANCY",   pct(result.avgOccupancy),          "Annual average",           true);
+      metricBox(ml+bw+gap, y, bw, bh, "AVG DAILY RATE",  money(result.avgADR),              "Per night  |  annual avg", false);
+      y += bh + gap;
+
+      if (result.grossYield !== undefined || result.netYield !== undefined) {
+        const yw = result.grossYield !== undefined && result.netYield !== undefined ? (cw-gap)/2 : cw;
+        if (result.grossYield !== undefined)
+          metricBox(ml, y, yw, bh, "GROSS YIELD", result.grossYield.toFixed(2) + "%", "Based on property value", true);
+        if (result.netYield !== undefined)
+          metricBox(result.grossYield !== undefined ? ml+yw+gap : ml, y, yw, bh, "NET YIELD", result.netYield.toFixed(2) + "%", "After all deductions", false);
+        y += bh + gap;
+      }
+
+      // ── Cost & Deduction Snapshot ─────────────────────────────────
+      sectionLabel("COST AND DEDUCTION SNAPSHOT", y);
+      y += 12;
+
+      const costRows: Array<{ label: string; val: number; note: string; isResult?: boolean }> = [
+        { label: "Gross STR Revenue",     val:  result.annualRevenue,              note: "Total gross income from STR" },
+        { label: "Less: Management Fee",  val: -result.annualManagementFee,        note: (input.managementFee * 100).toFixed(0) + "% of gross revenue" },
+        { label: "Less: DEWA / Utilities",val: -(result.annualUtilities ?? 0),     note: "Annual DEWA and utility costs" },
+        { label: "Less: Maintenance",     val: -(result.annualMaintenance ?? 0),   note: "Upkeep and minor repairs" },
+        { label: "Less: Furniture Amort.",val: -(result.annualFurnitureAmort ?? 0),note: "Annual furniture depreciation" },
+        { label: "Net to Owner",          val:  result.annualNetToLandlord,        note: "After all deductions", isResult: true },
+      ];
+
+      costRows.forEach(({ label, val, note, isResult }, i) => {
+        const rowH = isResult ? 30 : 24;
+        if (isResult) {
+          doc.setFillColor(Gr, Gg, Gb);
+          doc.roundedRect(ml, y, cw, rowH, 4, 4, "F");
+          txt(label, ml + 12, y + 20, { size: 8, bold: true, color: [255,255,255] });
+          txt(money(val), ml + cw - 12, y + 20, { size: 8, bold: true, color: [Br,Bg,Bb], align: "right" });
+        } else {
+          doc.setFillColor(i % 2 === 0 ? 252 : 245, i % 2 === 0 ? 251 : 247, i % 2 === 0 ? 247 : 241);
+          doc.rect(ml, y, cw, rowH, "F");
+          const isDeduction = val < 0;
+          txt(label, ml + 12, y + 13, { size: 7.5, color: isDeduction ? [140,55,55] : [Gr,Gg,Gb] });
+          txt(note,  ml + 12, y + 22, { size: 6,   color: [160,160,160] });
+          const valStr = val < 0 ? "- " + money(Math.abs(val)) : money(val);
+          txt(valStr, ml + cw - 12, y + 13, { size: 7.5, bold: true, color: isDeduction ? [140,55,55] : [Gr,Gg,Gb], align: "right" });
+        }
+        y += rowH + 2;
+      });
+      y += 8;
+
+      // ── Building info strip ───────────────────────────────────────
+      const bInfo = result.buildingInfo;
+      if (bInfo) {
+        const parts = [
+          bInfo.community      && "Community: " + bInfo.community,
+          bInfo.completionYear && "Built " + bInfo.completionYear,
+          bInfo.serviceChargePsf && "SC AED " + bInfo.serviceChargePsf + "/sqft",
+          bInfo.tier           && "Tier: " + bInfo.tier.charAt(0).toUpperCase() + bInfo.tier.slice(1),
+        ].filter(Boolean) as string[];
+        if (parts.length) {
+          doc.setFillColor(244, 241, 234);
+          doc.roundedRect(ml, y, cw, 20, 3, 3, "F");
+          txt(parts.join("   |   "), ml + 12, y + 13, { size: 6.5, color: [Mg, Mg, Mg] });
+          y += 26;
+        }
+      }
+
+      // ── Monthly mini bar chart ────────────────────────────────────
+      const chartTop = y + 6;
+      const chartAvail = safeBottom - chartTop - 22;
+      if (chartAvail > 80 && result.months.length === 12) {
+        sectionLabel("MONTHLY NET INCOME SNAPSHOT", chartTop);
+        const cy = chartTop + 16;
+        const barAreaH = Math.min(chartAvail - 16, 110);
+        const barW = (cw - 11) / 12;
+        const maxNet = Math.max(...result.months.map(m => Math.abs(m.netToLandlord)), 1);
+
+        result.months.forEach((m, i) => {
+          const net = m.netToLandlord;
+          const barH = Math.max(2, (Math.abs(net) / maxNet) * (barAreaH - 22));
+          const bx = ml + i * (barW + 1);
+          const isPos = net >= 0;
+          doc.setFillColor(isPos ? Gr : 175, isPos ? Gg : 58, isPos ? Gb : 58);
+          doc.roundedRect(bx, cy + (barAreaH - 22) - barH, barW, barH, 2, 2, "F");
+          txt(m.month.slice(0,3), bx + barW / 2, cy + barAreaH - 5, { size: 5.5, color: [Mg,Mg,Mg], align: "center" });
+          const netK = Math.abs(net) >= 1000 ? (net / 1000).toFixed(0) + "k" : Math.round(net).toString();
+          txt((isPos ? "" : "-") + netK, bx + barW / 2, cy + (barAreaH - 22) - barH - 3, { size: 5, color: [Mg,Mg,Mg], align: "center" });
+        });
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // PAGE 2  — 12-Month Projection + Owner Insight + Disclaimer
+      // ══════════════════════════════════════════════════════════════
+      doc.addPage();
+
+      // ── Page 2 mini header ────────────────────────────────────────
+      doc.setFillColor(Gr, Gg, Gb);
+      doc.rect(0, 0, W, 38, "F");
+      doc.setFillColor(Br, Bg, Bb);
+      doc.rect(0, 38, W, 2, "F");
+      txt("ASSETINTEL", ml, 16, { size: 7.5, bold: true, color: [Br, Bg, Bb] });
+      txt("12-MONTH PROJECTION TABLE", ml, 30, { size: 9, bold: true, color: [255,255,255] });
+      txt(propName, W - mr, 23, { size: 7.5, color: [200,220,210], align: "right" });
+
+      y = 52;
+
+      // ── Projection table ──────────────────────────────────────────
+      const tH  = ["Month", "Revenue", "Occupancy", "ADR", "Total Costs", "Net to Owner"];
+      const tW  = [62, 90, 64, 82, 88, 95];
+      const tTotal = tW.reduce((a,b) => a+b, 0);
+      const tX = ml + (cw - tTotal) / 2;
+      const rowH = 18;
+
+      doc.setFillColor(Gr, Gg, Gb);
+      doc.roundedRect(tX, y, tTotal, rowH + 4, 4, 4, "F");
+      let cx = tX;
+      tH.forEach((h, i) => {
+        txt(h, i === 0 ? cx + 6 : cx + tW[i] - 5, y + 13,
+          { size: 7, bold: true, color: [255,255,255], align: i === 0 ? "left" : "right" });
+        cx += tW[i];
+      });
+      y += rowH + 4;
+
+      result.months.forEach((m, idx) => {
+        if (y + rowH > safeBottom - 60) { doc.addPage(); y = ml + 10; }
+        const totalCosts = m.managementFee + m.utilities + m.maintenance + m.furnitureAmort;
+        const isPos = m.netToLandlord >= 0;
+
+        doc.setFillColor(idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 249, idx % 2 === 0 ? 255 : 245);
+        doc.rect(tX, y, tTotal, rowH, "F");
+        doc.setDrawColor(226, 221, 213);
+        doc.setLineWidth(0.3);
+        doc.line(tX, y + rowH, tX + tTotal, y + rowH);
+        // Green left accent on month column
+        doc.setFillColor(Gr, Gg, Gb);
+        doc.rect(tX, y, 2.5, rowH, "F");
+
+        const cells: Array<{ t: string; c: [number,number,number]; bold?: boolean }> = [
+          { t: m.month,                c: [Gr,Gg,Gb], bold: true },
+          { t: money(m.revenue),       c: [40,90,68] },
+          { t: pct(m.occupancy),       c: [60,60,60] },
+          { t: money(m.adr),           c: [Br,Bg,Bb] },
+          { t: money(totalCosts),      c: [135,58,58] },
+          { t: money(m.netToLandlord), c: isPos ? [Gr,Gg,Gb] : [155,48,48], bold: true },
+        ];
+        cx = tX;
+        cells.forEach(({ t, c, bold }, i) => {
+          txt(t, i === 0 ? cx + 8 : cx + tW[i] - 5, y + 12,
+            { size: 7, bold: bold ?? false, color: c, align: i === 0 ? "left" : "right" });
+          cx += tW[i];
+        });
+        y += rowH;
+      });
+      y += 20;
+
+      // ── Owner Insight card ────────────────────────────────────────
+      if (y < safeBottom - 80) {
+        const bestMonth  = result.months.reduce((a, b) => a.netToLandlord > b.netToLandlord ? a : b);
+        const worstMonth = result.months.reduce((a, b) => a.netToLandlord < b.netToLandlord ? a : b);
+        const insightH = 68;
+        doc.setFillColor(241, 237, 229);
+        doc.roundedRect(ml, y, cw, insightH, 6, 6, "F");
+        doc.setFillColor(Br, Bg, Bb);
+        doc.rect(ml, y, 4, insightH, "F");
+        txt("OWNER INSIGHT", ml + 14, y + 16, { size: 6.5, bold: true, color: [Br,Bg,Bb] });
+        const insightLine1 = "Peak: " + bestMonth.month + "  " + money(bestMonth.netToLandlord) + " net     Lowest: " + worstMonth.month + "  " + money(worstMonth.netToLandlord) + " net";
+        const insightLine2 = strBetter
+          ? "STR generates " + money(result.annualNetToLandlord) + " vs LTR " + money(result.longTermRent) + " annually. High-season performance drives the advantage."
+          : "LTR offers " + money(result.longTermRent) + " with zero vacancy risk. STR upside of " + money(result.annualNetToLandlord) + " depends on platform execution.";
+        txt(insightLine1, ml + 14, y + 32, { size: 7.5, bold: true, color: [40,40,40] });
+        txt(insightLine2, ml + 14, y + 48, { size: 7, color: [80,80,80] });
+        y += insightH + 18;
+      }
+
+      // ── Disclaimer ───────────────────────────────────────────────
+      if (y > safeBottom - 50) { doc.addPage(); y = ml; }
+      doc.setDrawColor(218, 212, 202);
+      doc.setLineWidth(0.5);
+      doc.line(ml, y, ml + cw, y);
+      y += 11;
+      const disc = "This report is generated by AssetIntel and is for indicative purposes only. Figures are projections based on historical market data and modelling. Actual STR performance depends on management quality, property condition, platform performance, and DET regulatory compliance. This does not constitute financial or investment advice.";
+      const dLines = doc.splitTextToSize(disc, cw - 10);
+      doc.setCharSpace(0);
+      doc.setFontSize(6.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(160, 155, 145);
+      doc.text(dLines, ml, y);
+
+      // ── Footer on every page ──────────────────────────────────────
+      const totalPages = doc.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        doc.setFillColor(Gr, Gg, Gb);
+        doc.rect(0, H - footerH, W, footerH, "F");
+        doc.setFillColor(Br, Bg, Bb);
+        doc.rect(0, H - footerH, W, 1.5, "F");
+        txt("AssetIntel", ml, H - 10, { size: 7.5, bold: true, color: [Br,Bg,Bb] });
+        txt("Property Intelligence. Smarter Decisions.", ml + 68, H - 10, { size: 7, color: [175,212,195] });
+        txt("Page " + p + " of " + totalPages, W - mr, H - 10, { size: 7, color: [155,195,178], align: "right" });
+      }
+
+      const filename = "AssetIntel-Report-" +
+        (result.propertyName || input.buildingName || "property").replace(/[^a-z0-9]/gi, "-") + ".pdf";
+      doc.save(filename);
+    } catch (e) {
+      console.error("PDF generation failed:", e);
+    } finally {
+      setPdfGenerating(false);
+    }
+  }
+
+  // LTR data is fetched by ReportGate before this component mounts — no background update needed.
 
   const community = result.buildingInfo?.community ?? input.buildingName;
   const strViability = checkSTRViability(input.buildingName, community);
@@ -324,7 +741,9 @@ function ReportContent() {
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
 
   return (
-    <div className="min-h-screen" style={{ background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, #FFFFFF 0%, ${colors.bgMain} 35%, ${colors.bgSection} 100%)` }}>
+    <div className="min-h-screen" style={{ position: "relative", background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(248,244,238,0.9) 35%, rgba(253,251,247,0.94) 100%)` }}>
+      <DecorativeBackdrop />
+      <div style={{ position: "relative", zIndex: 1 }}>
       <style>{`
         @media print {
           @page {
@@ -335,6 +754,9 @@ function ReportContent() {
             background: #fff !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+          }
+          .decorative-backdrop-no-print {
+            display: none !important;
           }
           .no-print {
             display: none !important;
@@ -560,10 +982,13 @@ function ReportContent() {
             <span className="hidden sm:inline" style={{ fontSize: 11, padding: "4px 12px", borderRadius: 999, fontWeight: 500, background: "rgba(184,138,68,0.10)", color: "#1B5E4A", border: "1px solid rgba(184,138,68,0.22)" }}>
               {input.unitSize} · {input.unitType}
             </span>
-            <button onClick={() => window.print()}
-              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: "linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 100%)", color: "#FFF", border: "none", cursor: "pointer", fontWeight: 700, boxShadow: "0 4px 12px rgba(27,94,74,0.25)" }}
-              title="Export PDF — use 'Save as PDF' in the print dialog">
-              Export PDF
+            <button onClick={handleSave} disabled={saving || saved}
+              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: saved ? "#EFF4F0" : "#fff", color: saved ? "#1B5E4A" : "#1B5E4A", border: "1.5px solid #1B5E4A", cursor: (saving || saved) ? "default" : "pointer", fontWeight: 600, transition: "all 0.2s" }}>
+              {saved ? "✓ Saved" : saving ? "Saving…" : "Save to Dashboard"}
+            </button>
+            <button onClick={generatePDF} disabled={pdfGenerating}
+              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: pdfGenerating ? "#6B6B6B" : "linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 100%)", color: "#FFF", border: "none", cursor: pdfGenerating ? "not-allowed" : "pointer", fontWeight: 700, boxShadow: "0 4px 12px rgba(27,94,74,0.25)", transition: "background 0.2s" }}>
+              {pdfGenerating ? "Generating…" : "Download PDF"}
             </button>
           </div>
         </div>
@@ -840,7 +1265,12 @@ function ReportContent() {
                   <svg aria-hidden="true" style={{ position: "absolute", bottom: -18, right: -18, opacity: 0.11, pointerEvents: "none" }} width="100" height="80" viewBox="0 0 100 80"><path d="M0 80 Q50 0 100 40" stroke="#B88A44" strokeWidth="1.4" fill="none"/></svg>
                   <p className="rc-label rc-label-bronze">LTR / Year</p>
                   <p className="rc-value rc-value-bronze" style={{ marginBottom: 8 }}>AED {fmt(result.longTermRent)}</p>
-                  {result.ltrBasis === "dld-building" ? (
+                  {ltrSource === "dda-live" ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.primary, background: "rgba(27,94,74,0.07)", border: "1px solid rgba(27,94,74,0.14)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      Live DLD · building
+                    </span>
+                  ) : result.ltrBasis === "dld-building" ? (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.primary, background: "rgba(27,94,74,0.07)", border: "1px solid rgba(27,94,74,0.14)", borderRadius: 20, padding: "2px 8px" }}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {result.ltrSampleSize?.toLocaleString()} DLD · building{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
@@ -1355,128 +1785,38 @@ function ReportContent() {
           );
         })()}
 
-        {/* ── STR READINESS GUIDE TEASER ── */}
+        {/* ── AREA INTELLIGENCE — market context powered by AirROI ── */}
         {(() => {
-          const [showReadinessModal, setShowReadinessModal] = React.useState(false);
-          const [readinessForm, setReadinessForm] = React.useState({ name:"", email:"", phone:"", property:"", unitSize:"", furnished:"", hasOperator:"", helpWith:"" });
-          const [readinessSubmitted, setReadinessSubmitted] = React.useState(false);
-          const [readinessSubmitting, setReadinessSubmitting] = React.useState(false);
-
-          const handleReadinessSubmit = async (e: React.FormEvent) => {
-            e.preventDefault();
-            setReadinessSubmitting(true);
-            try { await fetch("/api/lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...readinessForm, source: "STR Readiness Review" }) }); } catch {}
-            setReadinessSubmitting(false);
-            setReadinessSubmitted(true);
-          };
-
-          const topics = ["Guest access & amenities","Furnishing & styling","One-time setup costs","Linen & operator standards","Smart lock & access","Photography & listing readiness","Maintenance & handover","Inventory checklist","Utilities & deductions","Insurance & property protection"];
-
+          const resolvedArea =
+            result.buildingInfo?.area
+            || getBuildingInfo(result.buildingName)?.area
+            || (input.dldArea ? (DLD_AREA_TO_COMMUNITY[input.dldArea] ?? input.dldArea) : undefined);
+          if (!resolvedArea) return null;
           return (
-            <>
-              {/* Modal */}
-              {showReadinessModal && (
-                <div onClick={() => { if (!readinessSubmitting) { setShowReadinessModal(false); setReadinessSubmitted(false); setReadinessForm({ name:"", email:"", phone:"", property:"", unitSize:"", furnished:"", hasOperator:"", helpWith:"" }); } }}
-                  style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(20,30,25,0.55)", backdropFilter:"blur(4px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
-                  <div onClick={e => e.stopPropagation()} style={{ background:"#FDFBF7", borderRadius:"20px", boxShadow:"0 32px 80px rgba(20,48,38,0.22)", width:"100%", maxWidth:"520px", maxHeight:"90vh", overflowY:"auto", padding:"36px 32px", position:"relative" }}>
-                    <button onClick={() => { setShowReadinessModal(false); setReadinessSubmitted(false); setReadinessForm({ name:"", email:"", phone:"", property:"", unitSize:"", furnished:"", hasOperator:"", helpWith:"" }); }}
-                      style={{ position:"absolute", top:"14px", right:"16px", background:"none", border:"none", cursor:"pointer", color:colors.textLight, fontSize:"22px", lineHeight:1 }}>×</button>
-                    <div style={{ height:"3px", background:`linear-gradient(90deg,${colors.primary},rgba(27,94,74,0.18))`, borderRadius:"2px", marginBottom:"20px" }} />
-                    {readinessSubmitted ? (
-                      <div style={{ textAlign:"center", padding:"16px 0" }}>
-                        <div style={{ width:"48px", height:"48px", borderRadius:"50%", background:"#EEF5F1", border:"1.5px solid rgba(27,94,74,0.18)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </div>
-                        <p style={{ fontSize:"16px", fontWeight:700, color:colors.primary, marginBottom:"8px" }}>Request Received</p>
-                        <p style={{ fontSize:"13.5px", color:colors.textLight, lineHeight:1.6 }}>AssetIntel will review your details and contact you to discuss your STR readiness.</p>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleReadinessSubmit}>
-                        <p style={{ fontSize:"18px", fontWeight:800, color:colors.primary, marginBottom:"5px", fontFamily:"'Georgia',serif" }}>STR Readiness Review</p>
-                        <p style={{ fontSize:"12.5px", color:colors.textLight, lineHeight:1.55, marginBottom:"20px" }}>Tell us about your property and AssetIntel will help you review readiness, costs, and go-live preparation.</p>
-                        {[
-                          { label:"Full Name", key:"name", type:"text", placeholder:"Your full name", required:true },
-                          { label:"Email", key:"email", type:"email", placeholder:"your@email.com", required:true },
-                          { label:"Phone / WhatsApp", key:"phone", type:"tel", placeholder:"+971 50 000 0000", required:false },
-                          { label:"Building / Property Name", key:"property", type:"text", placeholder:"e.g. Marina Gate 2", required:false },
-                        ].map(f => (
-                          <div key={f.key} style={{ marginBottom:"13px" }}>
-                            <label style={{ display:"block", fontSize:"10.5px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"5px" }}>{f.label}{f.required && <span style={{ color:colors.secondary }}> *</span>}</label>
-                            <input type={f.type} required={f.required} placeholder={f.placeholder} value={(readinessForm as any)[f.key]}
-                              onChange={e => setReadinessForm(p => ({ ...p, [f.key]: e.target.value }))}
-                              style={{ width:"100%", boxSizing:"border-box", padding:"9px 12px", borderRadius:"9px", border:`1.5px solid ${colors.border}`, background:"#FBF9F5", fontSize:"13.5px", color:colors.textMain, outline:"none", fontFamily:"inherit" }} />
-                          </div>
-                        ))}
-                        {[
-                          { label:"Unit Size", key:"unitSize", options:["Studio","1 Bedroom","2 Bedrooms","3 Bedrooms","4+ Bedrooms"] },
-                          { label:"Is the property furnished?", key:"furnished", options:["Yes — fully furnished","Partially furnished","No — unfurnished"] },
-                          { label:"Do you already have an operator?", key:"hasOperator", options:["Yes","No — still deciding","Considering a few options"] },
-                          { label:"What do you need help with?", key:"helpWith", options:["Operator onboarding costs","Furnishing readiness","Insurance guidance","Maintenance condition","Smart lock / access setup","Inventory checklist","Utility handling","Full STR readiness review"] },
-                        ].map(f => (
-                          <div key={f.key} style={{ marginBottom:"13px" }}>
-                            <label style={{ display:"block", fontSize:"10.5px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"5px" }}>{f.label}</label>
-                            <select value={(readinessForm as any)[f.key]} onChange={e => setReadinessForm(p => ({ ...p, [f.key]: e.target.value }))}
-                              style={{ width:"100%", boxSizing:"border-box", padding:"9px 12px", borderRadius:"9px", border:`1.5px solid ${colors.border}`, background:"#FBF9F5", fontSize:"13.5px", color:(readinessForm as any)[f.key] ? colors.textMain : colors.textLight, outline:"none", fontFamily:"inherit", appearance:"none" }}>
-                              <option value="" disabled>Select an option</option>
-                              {f.options.map(o => <option key={o} value={o}>{o}</option>)}
-                            </select>
-                          </div>
-                        ))}
-                        <button type="submit" disabled={readinessSubmitting}
-                          style={{ width:"100%", marginTop:"6px", padding:"13px", borderRadius:"11px", background:colors.primary, color:"#fff", fontSize:"14px", fontWeight:700, letterSpacing:"0.04em", border:"none", cursor:readinessSubmitting?"not-allowed":"pointer", opacity:readinessSubmitting?0.7:1 }}>
-                          {readinessSubmitting ? "Submitting..." : "Submit Readiness Review"}
-                        </button>
-                      </form>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Compact teaser — web */}
-              <div className="no-print" style={{ background:"#FDFBF7", borderRadius:28, border:`1px solid ${colors.border}`, boxShadow:"0 1px 3px rgba(0,0,0,0.03), 0 12px 36px rgba(27,94,74,0.06)", padding:"28px 28px 26px" }}>
-                <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
-                  {/* Header row */}
-                  <div>
-                    <p style={{ fontSize:11, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color:colors.secondary, marginBottom:6 }}>STR Readiness Guide</p>
-                    <h2 style={{ fontSize:20, fontWeight:700, color:colors.primary, marginBottom:6, fontFamily:"'Georgia',serif", lineHeight:1.25 }}>Before Your Property Goes Live</h2>
-                    <p style={{ fontSize:13, color:colors.textLight, lineHeight:1.65, maxWidth:680, marginBottom:0 }}>
-                      A strong STR result depends on more than the forecast. Review the full preparation checklist covering guest access, furnishing, setup costs, insurance, maintenance, inventory, utilities, and operator onboarding.
-                    </p>
-                  </div>
-                  {/* Topic pills */}
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
-                    {topics.map(t => (
-                      <span key={t} style={{ fontSize:11.5, padding:"5px 11px", borderRadius:999, background:"rgba(27,94,74,0.06)", border:"1px solid rgba(27,94,74,0.10)", color:colors.primary, fontWeight:600 }}>{t}</span>
-                    ))}
-                  </div>
-                  {/* CTA row */}
-                  <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-                    <a href="/str-readiness-guide"
-                      style={{ display:"inline-flex", alignItems:"center", padding:"11px 22px", background:colors.primary, color:"#fff", borderRadius:10, fontSize:13.5, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 14px rgba(27,94,74,0.22)", letterSpacing:"0.02em" }}>
-                      View Full STR Readiness Guide →
-                    </a>
-                    <button onClick={() => setShowReadinessModal(true)}
-                      style={{ padding:"11px 20px", background:"transparent", color:colors.primary, border:`1.5px solid ${colors.primary}`, borderRadius:10, fontSize:13.5, fontWeight:600, cursor:"pointer" }}>
-                      Request Readiness Review
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* PDF-only compact version */}
-              <div className="print-only" style={{ background:"#FDFBF7", borderRadius:16, border:`1px solid ${colors.border}`, padding:"18px 22px", breakInside:"avoid" as const }}>
-                <p style={{ fontSize:10, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:colors.secondary, marginBottom:5 }}>STR Readiness Guide</p>
-                <p style={{ fontSize:14, fontWeight:700, color:colors.primary, fontFamily:"'Georgia',serif", marginBottom:5 }}>Before Your Property Goes Live</p>
-                <p style={{ fontSize:11.5, color:colors.textLight, lineHeight:1.6, margin:0 }}>
-                  A strong STR result depends on more than the forecast. Review guest access, furnishing, setup costs, insurance, maintenance, inventory, utilities, and operator onboarding before going live. Full guide available at assetintel.ae/str-readiness-guide
-                </p>
-              </div>
-            </>
+          <AreaIntelligence
+            area={resolvedArea}
+            propertyName={result.buildingName || result.propertyName}
+            unitSize={result.unitSize}
+            avgADR={result.avgADR}
+            avgOccupancy={result.avgOccupancy}
+            annualRevenue={result.annualRevenue}
+            annualNetToLandlord={result.annualNetToLandlord}
+            longTermRent={result.longTermRent}
+            ltrRecommended={ltrRecommended}
+          />
           );
         })()}
 
+        {/* ── RECENT LTR TRANSACTIONS — live DLD Ejari data for this building ── */}
+        <RecentTransactions
+          buildingName={result.buildingName || result.propertyName}
+          dldKey={input.dldKey}
+          dldArea={input.dldArea}
+          unitSize={result.unitSize}
+        />
+
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
-        <div className="no-print" style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+        <div className="no-print" style={{ display: "flex", flexDirection: "column", gap: 28, marginTop: 4 }}>
         {ltrRecommended ? (
           <PremiumCTACard
             theme="bronze"
@@ -1494,12 +1834,12 @@ function ReportContent() {
             theme="bronze"
             eyebrow="Part 2 of 2"
             eyebrowColor={colors.secondary}
-            heading="Now find your best operator"
-            description={<>Get your top 5 operator matches — ranked by fit for your property, with full pros &amp; cons, OTA platform ratings, and recent guest reviews.</>}
-            buttonText="Find My Best Operator →"
+            heading="Get matched with the right operator"
+            description={<>We&apos;ll instantly send you a personalised shortlist of the top Dubai STR operators for your property — with their fees, strengths, and track record.</>}
+            buttonText={operatorSent ? "✓ Sent to your email" : operatorSending ? "Sending…" : "Send Me My Operator Matches →"}
             buttonGradient="linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)"
             buttonShadow="0 8px 20px rgba(184, 138, 68, 0.3)"
-            onClick={() => { const p = new URLSearchParams(window.location.search); window.location.href = `/operators?${p.toString()}`; }}
+            onClick={() => { if (!operatorSent) handleOperatorMatch(); }}
           />
         )}
 
@@ -1543,8 +1883,250 @@ function ReportContent() {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
+}
+
+// ── Shared branded loading screen — used while live DLD data is being
+// fetched (can take several seconds on a cold cache) and while a saved
+// report snapshot is loading. Cycles through status copy + shows a
+// skeleton of the report layout so the wait doesn't read as a blank hang. ──
+function ReportLoadingScreen({
+  steps,
+  subtitle,
+}: {
+  steps: string[];
+  subtitle?: string;
+}) {
+  const [stepIndex, setStepIndex] = useState(0);
+
+  useEffect(() => {
+    if (steps.length <= 1) return;
+    const id = setInterval(() => {
+      setStepIndex(i => Math.min(i + 1, steps.length - 1));
+    }, 3200);
+    return () => clearInterval(id);
+  }, [steps.length]);
+
+  const progressPct = Math.round(((stepIndex + 1) / steps.length) * 92);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#F8F4EE" }}>
+      <style>{`
+        @keyframes ai-spin { to { transform: rotate(360deg); } }
+        @keyframes ai-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+        @keyframes ai-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+        .ai-skel {
+          background: linear-gradient(90deg, #EFEAE0 25%, #F5F1E8 37%, #EFEAE0 63%);
+          background-size: 800px 100%;
+          animation: ai-shimmer 1.6s linear infinite;
+          border-radius: 8px;
+        }
+      `}</style>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <AssetIntelLogo />
+
+        <div
+          style={{
+            marginTop: 28,
+            width: "100%",
+            maxWidth: 460,
+            background: "#fff",
+            border: "1px solid #E6E1D8",
+            borderRadius: 16,
+            padding: "28px 28px 24px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.04), 0 12px 32px rgba(27,94,74,0.06)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
+            <div style={{ position: "relative", width: 44, height: 44 }}>
+              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid rgba(27,94,74,0.12)" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid transparent", borderTopColor: "#1B5E4A", animation: "ai-spin 0.9s linear infinite" }} />
+            </div>
+          </div>
+
+          <p
+            key={stepIndex}
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#2A2A2A",
+              fontFamily: "'Georgia', serif",
+              marginBottom: 6,
+              animation: "ai-pulse 1.6s ease-in-out infinite",
+            }}
+          >
+            {steps[stepIndex]}
+          </p>
+          {subtitle && (
+            <p style={{ fontSize: 12.5, color: "#8E8E8E", marginBottom: 18 }}>{subtitle}</p>
+          )}
+
+          <div style={{ height: 6, borderRadius: 999, background: "#EFEAE0", overflow: "hidden", marginTop: subtitle ? 0 : 18 }}>
+            <div
+              style={{
+                height: "100%",
+                width: `${progressPct}%`,
+                borderRadius: 999,
+                background: "linear-gradient(90deg, #1B5E4A 0%, #B88A44 100%)",
+                transition: "width 0.6s ease",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: i <= stepIndex ? "#1B5E4A" : "#E6E1D8",
+                  transition: "background 0.4s ease",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Skeleton preview of the report layout taking shape underneath */}
+        <div style={{ width: "100%", maxWidth: 620, marginTop: 32, opacity: 0.85 }}>
+          <div className="ai-skel" style={{ height: 18, width: "45%", marginBottom: 18 }} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 18 }}>
+            <div className="ai-skel" style={{ height: 84 }} />
+            <div className="ai-skel" style={{ height: 84 }} />
+            <div className="ai-skel" style={{ height: 84 }} />
+          </div>
+          <div className="ai-skel" style={{ height: 140, marginBottom: 14 }} />
+          <div className="ai-skel" style={{ height: 60 }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Gate: loads a previously saved report's frozen snapshot as-is — no
+// recomputation, no live DLD/LTR refetch, so the client sees exactly what
+// was saved. ──
+function SavedReportGate({ savedId }: { savedId: string }) {
+  const [state, setState] = useState<
+    { status: "loading" }
+    | { status: "ready"; result: EstimatorOutput; params: URLSearchParams }
+    | { status: "not-found" }
+  >({ status: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("saved_reports")
+        .select("result_snapshot, report_params")
+        .eq("id", savedId)
+        .single();
+
+      if (cancelled) return;
+      if (!data?.result_snapshot) { setState({ status: "not-found" }); return; }
+
+      const params = new URLSearchParams(
+        (data.report_params ?? {}) as Record<string, string>
+      );
+      setState({ status: "ready", result: data.result_snapshot as EstimatorOutput, params });
+    })();
+    return () => { cancelled = true; };
+  }, [savedId]);
+
+  if (state.status === "loading") return (
+    <ReportLoadingScreen steps={["Loading your saved report…", "Restoring your exact figures…"]} />
+  );
+
+  if (state.status === "not-found") return (
+    <div style={{ minHeight: "100vh", background: "#F8F4EE", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px" }}>
+      <p style={{ fontSize: "15px", color: "#6B6B6B", fontFamily: "'Georgia', serif" }}>This saved report could not be found.</p>
+    </div>
+  );
+
+  return <ReportContent overrideParams={state.params} snapshotResult={state.result} snapshotId={savedId} />;
+}
+
+// ── Gate: pre-fetches live LTR before rendering report, so content renders with correct data ──
+function ReportGate() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+  const [lrParam, setLrParam] = useState("");
+
+  useEffect(() => {
+    const existingLr = Number(params.get("lr")) || 0;
+    if (existingLr > 0) { setLrParam(String(existingLr)); setReady(true); return; }
+
+    const buildingName = params.get("buildingName") ?? "";
+    const dldKey = params.get("dldKey") ?? "";
+    const dldArea = params.get("dldArea") ?? "";
+    const unitSize = params.get("unitSize") ?? "";
+    const project = dldKey || buildingName;
+
+    if (!project || !unitSize) { setReady(true); return; }
+
+    const qs = new URLSearchParams({ project, bedrooms: unitSize });
+    if (dldArea) qs.set("area", dldArea);
+
+    const controller = new AbortController();
+    // Cold lookups on rarely-viewed building/bedroom combos widen across
+    // several DLD name-variant and date-window attempts server-side and can
+    // take well over 12s — that was cutting off the live fetch and silently
+    // falling back to static data even when live comps existed.
+    const timeout = setTimeout(() => { controller.abort(); }, 28000);
+
+    fetch(`/api/ltr-rents?${qs}`, { signal: controller.signal })
+      .then(r => r.json())
+      .then((data: { stat: { median: number } | null; source: string }) => {
+        clearTimeout(timeout);
+        const median = data?.stat?.median;
+        const isLive = data?.source === "dda-live" || data?.source === "dda-live-cached";
+        // Batch both state updates together so ReportContent sees lrParam on first render
+        if (median && isLive) {
+          setLrParam(String(median));
+        }
+        setReady(true);
+      })
+      .catch(() => { clearTimeout(timeout); setReady(true); });
+
+    return () => { controller.abort(); clearTimeout(timeout); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!ready) {
+    const buildingLabel = params.get("buildingName") || params.get("propertyName");
+    return (
+      <ReportLoadingScreen
+        steps={[
+          "Connecting to Dubai Land Department…",
+          "Pulling recent rental contracts…",
+          "Matching comparable units…",
+          "Calculating live market rent…",
+          "Finalising your report…",
+        ]}
+        subtitle={buildingLabel ? `Analysing ${buildingLabel}` : undefined}
+      />
+    );
+  }
+
+  // Inject lr into search params so ReportContent initialises with live value
+  const fullParams = new URLSearchParams(params.toString());
+  if (lrParam) fullParams.set("lr", lrParam);
+
+  return <ReportContent overrideParams={fullParams} />;
+}
+
+function ReportEntry() {
+  const params = useSearchParams();
+  const savedId = params.get("savedId");
+  return savedId ? <SavedReportGate savedId={savedId} /> : <ReportGate />;
 }
 
 export default function ReportPage() {
@@ -1558,7 +2140,7 @@ export default function ReportPage() {
         </div>
       </div>
     }>
-      <ReportContent />
+      <ReportEntry />
     </Suspense>
   );
 }
