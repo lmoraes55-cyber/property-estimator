@@ -1,5 +1,11 @@
 {
   "github": {
     "enabled": false
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/str-market-refresh",
+      "schedule": "0 3 * * 1"
+    }
+  ]
 }
