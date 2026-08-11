@@ -158,8 +158,13 @@ export async function GET(request: Request) {
   // Vercel Cron sends `Authorization: Bearer ${CRON_SECRET}` automatically when
   // CRON_SECRET is set as an env var — reject anything else so this can't be
   // triggered (and billed against our AirROI credits) by a random visitor.
+  //
+  // Fails CLOSED: a missing CRON_SECRET means the route is unusable rather than
+  // unprotected. Previously the check was skipped entirely when the env var was
+  // unset, which left this public — it runs for up to 300s, spends AirROI credits
+  // and writes with the service-role key. Same shape as app/api/admin/*.
   const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
