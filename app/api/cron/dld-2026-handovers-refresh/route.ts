@@ -7,10 +7,11 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
 // Weekly refresh — the ONLY place in the app allowed to query DDA for 2026
-// handover data. Pulls every ACTIVE DLD project with a 2026 project_end_date and
-// upserts into dld_2026_handovers. Replaces the earlier hand-curated/Bayut-scraped
-// static list (data/dubai-2026-handovers.ts) — confirmed 2026-08-14: 309 real
-// projects vs. 38 scraped ones.
+// handover data. Pulls every ACTIVE or PENDING DLD project with a 2026
+// project_end_date and upserts into dld_2026_handovers (FINISHED/CANCELLED/
+// NOT_STARTED/CONDITIONAL_ACTIVATING excluded). Replaces the earlier
+// hand-curated/Bayut-scraped static list (data/dubai-2026-handovers.ts) —
+// confirmed 2026-08-14: DLD has ~250+ real projects vs. 38 scraped ones.
 //
 // project_end_date (not completion_date) is the reliable target-handover field —
 // completion_date can carry a stale historical value unrelated to the current
@@ -21,6 +22,13 @@ export const maxDuration = 120;
 // Arabic (project_name) — master_project_en (the project/community cluster name)
 // is the most specific English name actually available without an expensive
 // per-project join to dld_units-open-api, so that's what's stored and displayed.
+//
+// ddaQuery's exact-match filter (project_status=ACTIVE) is NOT reliably honored
+// by the DDA API when combined with a LIKE filter (project_end_date) in the same
+// request — confirmed live: a query filtered to ACTIVE only still returned
+// NOT_STARTED/PENDING/CONDITIONAL_ACTIVATING/FINISHED rows too. Re-filtered
+// client-side below as a backstop; do not remove even if the upstream filter
+// combination is later fixed.
 
 interface DLDProjectRow {
   project_id: number;
@@ -49,6 +57,7 @@ export async function GET(request: Request) {
     });
 
     const rows = results
+      .filter(r => r.project_status === "ACTIVE" || r.project_status === "PENDING") // DDA doesn't reliably honor the filters query for this combo — see comment above
       .filter(r => r.area_name_en) // area_name_en not null, per table constraint
       .map(r => ({
         project_id: r.project_id,
