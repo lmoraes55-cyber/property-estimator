@@ -141,17 +141,16 @@ export function rankOperators(priorities: Priority[]): MatchedOperator[] {
       score = (fee != null ? Math.max(0, 25 - fee) : 0) + commScore * 3 + Math.min(portfolio, 800) / 40 + flexScore * 2;
     }
 
-    // Some portfolioSize entries are a short quote ("650"), others are a full paragraph
-    // (e.g. First Class's account-split explanation, GuestReady's two-figure caveat) —
-    // truncate for the compact card either way; the full text is still in the record.
+    // Compact card display: just the number, no source/provenance prose (that detail
+    // still lives in verifiedListingCount/portfolioSize for anyone reading the record).
     const MAX_QUOTE_LEN = 40;
     const truncated = op.portfolioSize && op.portfolioSize.length > MAX_QUOTE_LEN
       ? `${op.portfolioSize.slice(0, MAX_QUOTE_LEN).trimEnd()}…`
       : op.portfolioSize;
     const displayPortfolio = op.verifiedListingCount
-      ? `${op.verifiedListingCount.count.toLocaleString()} live listings (verified on ${op.verifiedListingCount.source}, ${op.verifiedListingCount.capturedOn})`
+      ? `${op.verifiedListingCount.count.toLocaleString()} listings`
       : quant
-      ? `${quant.listings.toLocaleString()} listings (Airbtics)${truncated ? ` — operator quoted "${truncated}"` : ""}`
+      ? `${quant.listings.toLocaleString()} listings`
       : (truncated ?? "Not disclosed");
 
     return { ...op, quant, score, matchReasons: reasons, displayPortfolio };
