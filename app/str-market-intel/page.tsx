@@ -1,37 +1,38 @@
+/*
+  DIRECTION CONTRACT (Impeccable new-work, surface scope — see PRODUCT.md / DESIGN.md)
+  THESIS: One area, fully understood, before the next — not a dashboard-shell trying to
+    show all of Dubai at once. Refuses the generic sidebar+grid analytics-tool default
+    this page shipped with.
+  OWN-WORLD: The Chartered Estate (unchanged) — forest green/bronze on warm ivory, Georgia
+    serif numbers, restrained lift+shadow. No new palette, no new type, no new material.
+  STORY: An owner scans ranked areas, opens the one they care about, and immediately sees
+    which numbers are real (DLD/AirROI/Airbtics, sourced) versus AssetIntel's own directional
+    read — never blended into one undifferentiated block of "fact."
+  FIRST VIEWPORT: Serif H1 + eyebrow, Dubai-wide KPI strip, then the area accordion list
+    (rank, area, live headline metrics) with the top area already expanded.
+  FORM: Candidate 6 of 7 grounded structures (area-profile accordion, single-open, one
+    area's full profile revealed in place) — assigned by concept-seed.mjs (key afe2d5aa).
+    Raise: a declined challenger (sneaker-box world) donated its "row lifts, then hinges
+    open" physicality to the accordion's open transition — motion only, no palette change.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish
+    review, the verdict, and DESIGN.md.
+*/
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
+import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import ConsultationBanner from "@/components/home/ConsultationBanner";
-import AreaMap from "@/components/str-market-intel/AreaMap";
+import AccessGate from "@/components/AccessGate";
+import { colors } from "@/lib/colors";
 import type { AreaStatsRow } from "@/lib/str-market-data";
 
-// ── DESIGN TOKENS ─────────────────────────────────────────────────────────────
+const serif = "'Georgia', serif";
 
-const C = {
-  green:       "#1B5E4A",
-  greenDark:   "#133D30",
-  greenLight:  "#2D7A5E",
-  gold:        "#B88A44",
-  goldLight:   "#D4A574",
-  ivory:       "#FDFBF7",
-  bg:          "#F8F4EE",
-  bgSage:      "#F2EFE9",
-  border:      "#E6E1D8",
-  borderLight: "#F0EDE8",
-  text:        "#1B2A1F",
-  muted:       "#6B6B6B",
-  subtle:      "#999",
-  sage:        "#EFF4F0",
-  sageBorder:  "#C8DAD0",
-  danger:      "#B4544A",
-};
-
-const SIDEBAR_W = 248;
-
-// ── STATIC CONTENT (kept from prior page) ───────────────────────────────────
+// ── STATIC EDITORIAL CONTENT (AssetIntel's own directional model — kept
+// visually and textually distinct from live sourced data throughout) ──────
 
 const strAreaOpportunityRanking = [
   { rank: 1, area: "Emaar Beachfront", score: 89, opportunityView: "Premium Selective", bestUnitType: "1BR / 2BR", confidence: "Medium", ownerNote: "Beachfront positioning, newer stock, and lifestyle appeal can support premium STR pricing. Performance should be checked carefully against low-season demand, furnishing cost, and view quality." },
@@ -74,9 +75,16 @@ const strScoreMethodology = [
   { label: "Low Season Risk", weight: 5 },
 ];
 
-// Areas AirROI doesn't recognize as a named market — STR figures are estimated
-// from a geo-radius listings sample instead of AirROI's own market summary.
+// Areas AirROI/Airbtics don't recognize as a named market — STR figures are
+// estimated from a geo-radius listings sample instead of a market summary.
 const APPROX_STR_AREAS = new Set(["JBR", "Palm Jumeirah", "JVC", "Al Furjan"]);
+
+function matchingRanking(area: string) {
+  return strAreaOpportunityRanking.find(r => r.area.includes(area) || (area === "JBR" && r.area.includes("Dubai Marina")));
+}
+function matchingBuildings(area: string) {
+  return strBuildingWatchlist.filter(b => b.area === area || (area === "JBR" && b.area === "Dubai Marina") || (area === "Dubai Marina" && b.area === "JBR"));
+}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
@@ -92,43 +100,69 @@ function fmtNum(n: number | null | undefined): string {
   if (n == null) return "—";
   return Math.round(n).toLocaleString();
 }
-function pctChange(cur: number | null | undefined, prev: number | null | undefined): number | null {
-  if (cur == null || prev == null || prev === 0) return null;
-  return ((cur - prev) / prev) * 100;
+// Raw scraped titles carry promo spam ("50% DISCOUNT!!!", ALL CAPS) — clean before display.
+function sanitizeListingTitle(raw: string | null | undefined): string {
+  if (!raw) return "Untitled listing";
+  let s = raw
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "") // emoji
+    .replace(/\d{1,3}\s?%\s?(off|discount)/gi, "")
+    .replace(/\b(discount|deal|promo|special offer)\b/gi, "")
+    .replace(/!{1,}/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  if (!s) return "Untitled listing";
+  // Mostly-caps titles read as shouting — normalize to title case.
+  const letters = s.replace(/[^a-zA-Z]/g, "");
+  if (letters.length > 4 && letters === letters.toUpperCase()) {
+    s = s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+  return s.length > 60 ? s.slice(0, 57).trim() + "…" : s;
+}
+function dataSourceLabel(row: AreaStatsRow): string {
+  if (row.data_sources === "airbtics-primary") return "Airbtics (primary)";
+  if (row.data_sources === "airroi+airbtics") return "AirROI + Airbtics (blended)";
+  if (row.data_sources === "airbtics") return "Airbtics";
+  return "AirROI";
 }
 
-function confidenceColor(c: string | null) {
-  if (c === "high") return C.green;
-  if (c === "medium") return C.gold;
-  return C.subtle;
+type SortKey = "revpar" | "adr" | "occ" | "yield" | "sales";
+type TrendMetric = "adr" | "occ" | "revpar" | "sales" | "rentals";
+
+function scoreColor(score: number) {
+  if (score >= 85) return colors.primary;
+  if (score >= 75) return colors.primaryLight;
+  if (score >= 65) return colors.secondaryText;
+  return colors.error;
+}
+function scoreBg(score: number) {
+  if (score >= 85) return "rgba(27,94,74,0.10)";
+  if (score >= 75) return "rgba(42,122,98,0.10)";
+  if (score >= 65) return "rgba(184,138,68,0.10)";
+  return "rgba(199,90,90,0.08)";
+}
+function scoreLabel(score: number) {
+  if (score >= 85) return "Premium";
+  if (score >= 75) return "Strong";
+  if (score >= 65) return "Selective";
+  return "High Caution";
 }
 
-type SortKey = "area" | "sales" | "rentals" | "sqft" | "yield" | "adr" | "occ" | "revpar";
-type MapLayer = "sales" | "rentals" | "demand" | "adr" | "occ" | "revpar";
+function EyebrowLabel({ children }: { children: React.ReactNode }) {
+  return <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, margin: 0 }}>{children}</p>;
+}
 
-function SidebarLink({ label, active, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+function SourceChip({ children, tone = "green" }: { children: React.ReactNode; tone?: "green" | "bronze" }) {
+  const isGreen = tone === "green";
   return (
-    <button
-      onClick={onClick}
-      style={{
-        display: "block", width: "100%", textAlign: "left",
-        padding: "9px 14px", borderRadius: 9, border: "none", cursor: "pointer",
-        background: active ? "rgba(27,94,74,0.10)" : "transparent",
-        color: active ? C.green : C.muted,
-        fontSize: 13, fontWeight: active ? 700 : 500,
-        marginBottom: 2,
-      }}
-    >
-      {label}
-    </button>
-  );
-}
-
-function SidebarSectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.subtle, margin: "22px 14px 8px" }}>
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999,
+      fontSize: 10.5, fontWeight: 700, letterSpacing: "0.02em",
+      background: isGreen ? "rgba(27,94,74,0.08)" : "rgba(184,138,68,0.10)",
+      color: isGreen ? colors.primary : colors.secondaryText,
+      border: `1px solid ${isGreen ? "rgba(27,94,74,0.18)" : "rgba(184,138,68,0.25)"}`,
+    }}>
       {children}
-    </p>
+    </span>
   );
 }
 
@@ -139,34 +173,37 @@ export default function STRMarketIntelPage() {
 
   const [areaStats, setAreaStats] = useState<AreaStatsRow[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [openArea, setOpenArea] = useState<string | null>(null);
+  const [openAreaFromUrl, setOpenAreaFromUrl] = useState(false);
   const [trendHistory, setTrendHistory] = useState<AreaStatsRow[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("revpar");
-  const [sortDir, setSortDir] = useState<1 | -1>(-1);
-  const [mapLayer, setMapLayer] = useState<MapLayer>("demand");
-  const [hoveredArea, setHoveredArea] = useState<string | null>(null);
-  const [trendMetric, setTrendMetric] = useState<"adr" | "occ" | "revpar" | "sales" | "rentals">("adr");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("Overview");
+  const [areaSearch, setAreaSearch] = useState("");
+  const [trendMetric, setTrendMetric] = useState<TrendMetric>("adr");
+  const [compareAreas, setCompareAreas] = useState<string[]>([]);
+
+  // Read ?area= on first load so an opened area's link is shareable.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("area");
+    if (fromUrl) { setOpenArea(fromUrl); setOpenAreaFromUrl(true); }
+  }, []);
 
   useEffect(() => {
     fetch("/api/str-market-data")
       .then(r => r.json())
       .then(({ data }: { data: AreaStatsRow[] }) => {
         setAreaStats(data);
-        if (data.length > 0) setSelectedArea(data[0].area);
       })
       .catch(() => {})
       .finally(() => setDataLoading(false));
   }, []);
 
   useEffect(() => {
-    if (!selectedArea) return;
-    fetch(`/api/str-market-data?area=${encodeURIComponent(selectedArea)}&months=12`)
+    if (!openArea) return;
+    fetch(`/api/str-market-data?area=${encodeURIComponent(openArea)}&months=12`)
       .then(r => r.json())
       .then(({ data }: { data: AreaStatsRow[] }) => setTrendHistory(data))
       .catch(() => {});
-  }, [selectedArea]);
+  }, [openArea]);
 
   const hasLiveData = areaStats.length > 0;
   const lastUpdated = areaStats.reduce<string | null>((latest, r) => {
@@ -186,10 +223,6 @@ export default function STRMarketIntelPage() {
     (acc, a) => ({
       sales: acc.sales + (a.sales_transactions ?? 0),
       rentals: acc.rentals + (a.rental_transactions ?? 0),
-      sqftSum: acc.sqftSum + (a.median_sale_price_per_sqft ?? 0),
-      sqftCount: acc.sqftCount + (a.median_sale_price_per_sqft != null ? 1 : 0),
-      rentSum: acc.rentSum + (a.median_annual_rent ?? 0),
-      rentCount: acc.rentCount + (a.median_annual_rent != null ? 1 : 0),
       adrSum: acc.adrSum + (a.adr ?? 0),
       adrCount: acc.adrCount + (a.adr != null ? 1 : 0),
       occSum: acc.occSum + (a.occupancy ?? 0),
@@ -198,695 +231,573 @@ export default function STRMarketIntelPage() {
       revparCount: acc.revparCount + (a.revpar != null ? 1 : 0),
       listings: acc.listings + (a.active_listings ?? 0),
     }),
-    { sales: 0, rentals: 0, sqftSum: 0, sqftCount: 0, rentSum: 0, rentCount: 0, adrSum: 0, adrCount: 0, occSum: 0, occCount: 0, revparSum: 0, revparCount: 0, listings: 0 }
+    { sales: 0, rentals: 0, adrSum: 0, adrCount: 0, occSum: 0, occCount: 0, revparSum: 0, revparCount: 0, listings: 0 }
   );
 
   const kpiCards = [
     { label: "Sales Transactions", value: fmtNum(dubaiTotals.sales), source: "DLD" },
     { label: "Rental Transactions", value: fmtNum(dubaiTotals.rentals), source: "DLD" },
-    { label: "Median Sale AED/sqft", value: dubaiTotals.sqftCount ? `AED ${Math.round(dubaiTotals.sqftSum / dubaiTotals.sqftCount)}` : "—", source: "DLD" },
-    { label: "Median Annual Rent", value: dubaiTotals.rentCount ? fmtAED(dubaiTotals.rentSum / dubaiTotals.rentCount) : "—", source: "DLD" },
-    { label: "Avg. ADR", value: dubaiTotals.adrCount ? fmtAED(dubaiTotals.adrSum / dubaiTotals.adrCount) : "—", source: "AirROI" },
-    { label: "Avg. Occupancy", value: dubaiTotals.occCount ? fmtPct(dubaiTotals.occSum / dubaiTotals.occCount) : "—", source: "AirROI" },
-    { label: "Avg. RevPAR", value: dubaiTotals.revparCount ? fmtAED(dubaiTotals.revparSum / dubaiTotals.revparCount) : "—", source: "AirROI" },
-    { label: "Active Listings", value: fmtNum(dubaiTotals.listings), source: "AirROI" },
+    { label: "Avg. ADR", value: dubaiTotals.adrCount ? fmtAED(dubaiTotals.adrSum / dubaiTotals.adrCount) : "—", source: "Airbtics · AirROI" },
+    { label: "Avg. Occupancy", value: dubaiTotals.occCount ? fmtPct(dubaiTotals.occSum / dubaiTotals.occCount) : "—", source: "Airbtics · AirROI" },
+    { label: "Avg. RevPAR", value: dubaiTotals.revparCount ? fmtAED(dubaiTotals.revparSum / dubaiTotals.revparCount) : "—", source: "Airbtics · AirROI" },
+    { label: "Active Listings Tracked", value: fmtNum(dubaiTotals.listings), source: "Airbtics · AirROI" },
   ];
 
   const sortedAreas = useMemo(() => {
-    const rows = [...areaStats];
-    const val = (r: AreaStatsRow): number | string => {
+    const rows = [...areaStats].filter(r => r.area.toLowerCase().includes(areaSearch.toLowerCase()));
+    const val = (r: AreaStatsRow): number => {
       switch (sortKey) {
-        case "area": return r.area;
-        case "sales": return r.sales_transactions ?? -1;
-        case "rentals": return r.rental_transactions ?? -1;
-        case "sqft": return r.median_sale_price_per_sqft ?? -1;
-        case "yield": return r.ltr_yield ?? -1;
         case "adr": return r.adr ?? -1;
         case "occ": return r.occupancy ?? -1;
-        case "revpar": return r.revpar ?? -1;
-        default: return 0;
+        case "yield": return r.ltr_yield ?? -1;
+        case "sales": return r.sales_transactions ?? -1;
+        default: return r.revpar ?? -1;
       }
     };
-    rows.sort((a, b) => {
-      const va = val(a), vb = val(b);
-      if (typeof va === "string" || typeof vb === "string") return sortDir * String(va).localeCompare(String(vb));
-      return sortDir * ((va as number) - (vb as number));
+    return rows.sort((a, b) => val(b) - val(a));
+  }, [areaStats, sortKey, areaSearch]);
+
+  useEffect(() => {
+    if (!openArea && !openAreaFromUrl && sortedAreas.length > 0) setOpenArea(sortedAreas[0].area);
+  }, [sortedAreas, openArea, openAreaFromUrl]);
+
+  function toggleArea(area: string) {
+    setOpenAreaFromUrl(false);
+    setOpenArea(cur => {
+      const next = cur === area ? null : area;
+      const params = new URLSearchParams(window.location.search);
+      if (next) params.set("area", next); else params.delete("area");
+      const qs = params.toString();
+      router.replace(qs ? `/str-market-intel?${qs}` : "/str-market-intel", { scroll: false });
+      return next;
     });
-    return rows;
-  }, [areaStats, sortKey, sortDir]);
-
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) setSortDir(d => (d === 1 ? -1 : 1));
-    else { setSortKey(key); setSortDir(-1); }
   }
 
-  const selectedRow = areaStats.find(a => a.area === selectedArea) || null;
-
-  const topBuildings = useMemo(() => {
-    const rows: { building: string; area: string; adr: number; occ: number; revpar: number }[] = [];
-    for (const w of strBuildingWatchlist) {
-      const areaRow = areaStats.find(a => a.area === w.area || (w.area === "JBR" && a.area === "JBR") || (w.area === "Dubai Marina" && a.area === "Dubai Marina"));
-      if (areaRow && areaRow.adr != null && areaRow.occupancy != null) {
-        rows.push({ building: w.building, area: w.area, adr: areaRow.adr, occ: areaRow.occupancy, revpar: areaRow.revpar ?? areaRow.adr * areaRow.occupancy });
-      }
-    }
-    return rows.sort((a, b) => b.revpar - a.revpar).slice(0, 5);
-  }, [areaStats]);
-
-  const highestYield = useMemo(() => [...areaStats].filter(r => r.ltr_yield != null).sort((a, b) => (b.ltr_yield ?? 0) - (a.ltr_yield ?? 0))[0], [areaStats]);
-  const risingDemand = useMemo(() => [...areaStats].filter(r => r.revpar != null).sort((a, b) => (b.revpar ?? 0) - (a.revpar ?? 0))[0], [areaStats]);
-  const undervalued = useMemo(() => [...areaStats].filter(r => r.median_sale_price_per_sqft != null && r.adr != null).sort((a, b) => (a.median_sale_price_per_sqft ?? 0) - (b.median_sale_price_per_sqft ?? 0))[0], [areaStats]);
-  const emergingArea = useMemo(() => areaStats.find(r => APPROX_STR_AREAS.has(r.area)) ?? areaStats[areaStats.length - 1], [areaStats]);
-
-  const NAV_ITEMS = ["Overview", "Dubai Areas", "Buildings", "Market Trends", "Building Watchlist", "Comparable Listings", "Investment Opportunities"];
-  const TOOL_ITEMS: { label: string; href: string }[] = [
-    { label: "Rental Analyzer", href: "/estimator" },
-    { label: "LTR Estimator", href: "/ltr-estimator" },
-    { label: "Investment Report", href: "/report" },
-    { label: "Operator Match", href: "/agents" },
-  ];
-
-  function scrollToId(id: string, navLabel: string) {
-    setActiveNav(navLabel);
-    setSidebarOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  function toggleCompare(area: string) {
+    setCompareAreas(cur => cur.includes(area) ? cur.filter(a => a !== area) : cur.length >= 4 ? cur : [...cur, area]);
   }
 
-  const sidebarContent = (
-    <>
-      <div style={{ padding: "22px 16px 18px" }}>
-        <AssetIntelLogo size={20} />
-      </div>
-      <SidebarSectionLabel>Market Intelligence</SidebarSectionLabel>
-      <div style={{ padding: "0 8px" }}>
-        <SidebarLink label="Overview" active={activeNav === "Overview"} onClick={() => scrollToId("mi-overview", "Overview")} />
-        <SidebarLink label="Dubai Areas" active={activeNav === "Dubai Areas"} onClick={() => scrollToId("mi-areas", "Dubai Areas")} />
-        <SidebarLink label="Buildings" active={activeNav === "Buildings"} onClick={() => scrollToId("mi-buildings", "Buildings")} />
-        <SidebarLink label="Market Trends" active={activeNav === "Market Trends"} onClick={() => scrollToId("mi-trends", "Market Trends")} />
-        <SidebarLink label="Building Watchlist" active={activeNav === "Building Watchlist"} onClick={() => scrollToId("mi-watchlist", "Building Watchlist")} />
-        <SidebarLink label="Comparable Listings" active={activeNav === "Comparable Listings"} onClick={() => scrollToId("mi-listings", "Comparable Listings")} />
-        <SidebarLink label="Investment Opportunities" active={activeNav === "Investment Opportunities"} onClick={() => scrollToId("mi-opportunities", "Investment Opportunities")} />
-      </div>
+  function exportCompareCsv() {
+    const rows = areaStats.filter(r => compareAreas.includes(r.area));
+    const cols: [string, (r: AreaStatsRow) => string | number][] = [
+      ["Area", r => r.area],
+      ["ADR (AED)", r => r.adr ?? ""],
+      ["Occupancy (%)", r => r.occupancy != null ? Math.round((r.occupancy <= 1 ? r.occupancy * 100 : r.occupancy)) : ""],
+      ["RevPAR (AED)", r => r.revpar ?? ""],
+      ["LTR Yield (%)", r => r.ltr_yield ?? ""],
+      ["Median AED/sqft", r => r.median_sale_price_per_sqft ?? ""],
+      ["Sales Transactions", r => r.sales_transactions ?? ""],
+      ["Rental Transactions", r => r.rental_transactions ?? ""],
+      ["Active Listings", r => r.active_listings ?? ""],
+    ];
+    const csv = [cols.map(c => c[0]).join(",")].concat(
+      rows.map(r => cols.map(c => `"${String(c[1](r)).replace(/"/g, '""')}"`).join(","))
+    ).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `assetintel-str-area-comparison-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
-      <SidebarSectionLabel>Quick Tools</SidebarSectionLabel>
-      <div style={{ padding: "0 8px" }}>
-        {TOOL_ITEMS.map(t => (
-          <SidebarLink key={t.label} label={t.label} onClick={() => router.push(t.href)} />
-        ))}
-      </div>
-
-      <div style={{ flex: 1 }} />
-
-      <div style={{ margin: "20px 14px 22px", padding: "16px 16px", borderRadius: 14, background: C.sage, border: `1px solid ${C.sageBorder}` }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 3 }}>Need Expert Guidance?</p>
-        <p style={{ fontSize: 11, color: C.muted, marginBottom: 12, lineHeight: 1.5 }}>20-min independent advisory call — AED 199</p>
-        <button
-          onClick={() => router.push("/consultation")}
-          style={{ width: "100%", padding: "9px", borderRadius: 9, background: C.green, color: "#fff", border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-        >
-          Book Consultation
-        </button>
-      </div>
-    </>
-  );
+  const pad = "72px 24px";
+  const padSm = "56px 24px";
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", fontFamily: "Arial, sans-serif" }}>
-      <SiteNav active="str-market-intel" />
+    <div style={{ background: colors.bgMain, minHeight: "100vh", position: "relative" }}>
+      <DecorativeBackdrop />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <SiteNav active="str-market-intel" />
 
-      <div style={{ display: "flex", maxWidth: 1600, margin: "0 auto" }}>
-        {/* ── SIDEBAR (desktop) ── */}
-        <aside className="mi-sidebar" style={{
-          width: SIDEBAR_W, flexShrink: 0, borderRight: `1px solid ${C.border}`,
-          display: "flex", flexDirection: "column", position: "sticky", top: 0,
-          height: "100vh", background: C.ivory,
-        }}>
-          {sidebarContent}
-        </aside>
-
-        {/* ── Mobile drawer ── */}
-        {sidebarOpen && (
-          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "none" }} className="mi-drawer-overlay">
-            <div style={{ position: "absolute", inset: 0, background: "rgba(10,22,16,0.5)" }} onClick={() => setSidebarOpen(false)} />
-            <aside style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 260, background: C.ivory, display: "flex", flexDirection: "column", overflowY: "auto" }}>
-              {sidebarContent}
-            </aside>
-          </div>
-        )}
-
-        {/* ── MAIN ── */}
-        <main style={{ flex: 1, minWidth: 0, padding: "28px 28px 0" }}>
-
-          {/* Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
-            <div>
-              <button className="mi-drawer-btn" onClick={() => setSidebarOpen(true)} style={{ display: "none", marginBottom: 10, background: "none", border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 10px", fontSize: 12, cursor: "pointer" }}>☰ Menu</button>
-              <h1 style={{ fontSize: 30, fontWeight: 800, color: C.text, margin: "0 0 6px", fontFamily: "'Georgia', serif" }}>
-                Dubai STR Market Intelligence
-              </h1>
-              <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 560, lineHeight: 1.6, margin: 0 }}>
-                Live DLD transaction data combined with weekly refreshed AirROI market intelligence.
-              </p>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+        {/* ── HEADER ── */}
+        <section style={{ padding: "48px 24px 0", maxWidth: 1200, margin: "0 auto" }}>
+          <EyebrowLabel>DUBAI'S PROPERTY INTELLIGENCE PLATFORM</EyebrowLabel>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginTop: 10, marginBottom: 8 }}>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: 0, lineHeight: 1.15, maxWidth: 640 }}>
+              Dubai STR Market Intelligence
+            </h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
               <div style={{ textAlign: "right" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.subtle, marginBottom: 2 }}>Last Updated</p>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 2px" }}>Last Updated</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, margin: 0 }}>
                   {lastUpdated ? new Date(lastUpdated).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "Syncing…"}
                 </p>
               </div>
               <div style={{ textAlign: "right" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.subtle, marginBottom: 2 }}>Data Confidence</p>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: overallConfidence === "High" ? C.green : overallConfidence === "Medium" ? C.gold : C.subtle }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 2px" }}>Data Confidence</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: overallConfidence === "High" ? colors.primary : overallConfidence === "Medium" ? colors.secondaryText : colors.textLight, margin: 0 }}>
                   {overallConfidence ?? "—"}
                 </p>
               </div>
-              <button
-                onClick={() => window.print()}
-                style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: C.green, color: "#fff", border: "none", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-              >
-                ⬇ Export Report
-              </button>
             </div>
           </div>
+          <p style={{ fontSize: 14.5, color: colors.textMuted, maxWidth: 640, lineHeight: 1.65, marginBottom: 28 }}>
+            Live DLD transaction data blended with weekly refreshed AirROI and Airbtics market intelligence — cross-validated where both cover an area.
+          </p>
 
-          {/* Filter bar */}
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 22 }}>
+          {/* In-page tab strip */}
+          <nav style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }} aria-label="Section navigation">
             {[
-              { label: "Reporting Month", value: lastUpdated ? new Date(lastUpdated).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "Latest" },
-              { label: "Area", value: "All Areas" },
-              { label: "Building", value: "All Buildings" },
-              { label: "Unit Size", value: "All Sizes" },
-              { label: "Property Type", value: "All Types" },
-              { label: "Ready / Off-Plan", value: "All" },
-            ].map(f => (
-              <div key={f.label} style={{ padding: "7px 13px", borderRadius: 9, border: `1px solid ${C.border}`, background: C.bg, fontSize: 12, color: C.text, cursor: "default" }}>
-                <span style={{ color: C.subtle, marginRight: 6 }}>{f.label}:</span>
-                <span style={{ fontWeight: 600 }}>{f.value}</span>
-              </div>
+              ["mi-overview", "Overview"], ["mi-areas", "Areas"], ["mi-signals", "Market Signals"], ["mi-methodology", "Methodology"],
+            ].map(([id, label]) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                style={{
+                  padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600, textDecoration: "none",
+                  color: colors.primary, background: "rgba(27,94,74,0.06)", border: "1px solid rgba(27,94,74,0.14)",
+                }}
+              >
+                {label}
+              </a>
             ))}
-            <div style={{ flex: 1 }} />
-            <button style={{ padding: "7px 14px", borderRadius: 9, border: `1px solid ${C.border}`, background: "transparent", fontSize: 12, fontWeight: 600, color: C.muted, cursor: "pointer" }}>Reset</button>
-          </div>
+          </nav>
+        </section>
 
+        {/* ── OVERVIEW: KPI STRIP ── */}
+        <AccessGate source="str-market-intel" title="Unlock Live Market Data" subtitle="Free — enter your name and email to see live ADR, occupancy, RevPAR, and area rankings.">
+        <section id="mi-overview" style={{ padding: padSm, maxWidth: 1200, margin: "0 auto" }}>
           {!hasLiveData && !dataLoading && (
-            <div style={{ background: C.bgSage, border: `1px solid ${C.border}`, borderRadius: 14, padding: "18px 20px", marginBottom: 22, fontSize: 13, color: C.muted }}>
+            <div style={{ background: colors.bgSage, border: `1px solid ${colors.borderSage}`, borderRadius: 18, padding: "18px 22px", marginBottom: 22, fontSize: 13.5, color: colors.textMuted }}>
               Live market data is syncing — the weekly refresh has not yet populated this database. The dashboard below will populate automatically once the first sync completes.
             </div>
           )}
-
-          {/* KPI cards */}
-          <div id="mi-overview" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 26 }} className="mi-kpi-grid">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }} className="mi-kpi-grid">
             {kpiCards.map(card => (
-              <div key={card.label} style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px", boxShadow: "0 2px 10px rgba(27,94,74,0.05)" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: C.subtle, marginBottom: 8 }}>{card.label}</p>
-                <p style={{ fontSize: 21, fontWeight: 800, color: C.text, margin: "0 0 6px" }}>{card.value}</p>
-                <p style={{ fontSize: 10.5, color: C.gold, fontWeight: 600 }}>Source: {card.source}</p>
+              <div key={card.label} style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, padding: "20px 22px", boxShadow: colors.shadowSm }}>
+                <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, marginBottom: 10 }}>{card.label}</p>
+                <p style={{ fontSize: 26, fontFamily: serif, fontWeight: 700, color: colors.textMain, margin: "0 0 8px" }}>{card.value}</p>
+                <SourceChip>{card.source}</SourceChip>
               </div>
             ))}
           </div>
+        </section>
 
-          {/* Two-column: table + map */}
-          <div id="mi-areas" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 30, alignItems: "start" }} className="mi-split-grid">
-            {/* LEFT — Area Performance table */}
-            <div style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden" }}>
-              <div style={{ padding: "16px 18px 12px", borderBottom: `1px solid ${C.border}` }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.text, margin: "0 0 2px", fontFamily: "'Georgia', serif" }}>Area Performance</p>
-                <p style={{ fontSize: 11.5, color: C.muted }}>Compare key metrics across Dubai&apos;s top STR investment areas.</p>
-              </div>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                  <thead>
-                    <tr style={{ background: C.bgSage, textAlign: "left" }}>
-                      {[
-                        { k: "area" as SortKey, label: "Area" },
-                        { k: "sales" as SortKey, label: "Sales" },
-                        { k: "rentals" as SortKey, label: "Rentals" },
-                        { k: "sqft" as SortKey, label: "AED/sqft" },
-                        { k: "yield" as SortKey, label: "Yield" },
-                        { k: "adr" as SortKey, label: "ADR" },
-                        { k: "occ" as SortKey, label: "Occ" },
-                        { k: "revpar" as SortKey, label: "RevPAR" },
-                      ].map(h => (
-                        <th
-                          key={h.k}
-                          onClick={() => toggleSort(h.k)}
-                          style={{ padding: "10px 12px", fontWeight: 700, color: C.muted, whiteSpace: "nowrap", borderBottom: `1px solid ${C.border}`, cursor: "pointer", userSelect: "none" }}
-                        >
-                          {h.label}{sortKey === h.k ? (sortDir === 1 ? " ↑" : " ↓") : ""}
-                        </th>
-                      ))}
-                      <th style={{ padding: "10px 12px", borderBottom: `1px solid ${C.border}` }} />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedAreas.map(row => {
-                      const approx = APPROX_STR_AREAS.has(row.area);
-                      return (
-                        <tr
-                          key={row.area}
-                          onClick={() => setSelectedArea(row.area)}
-                          onMouseEnter={() => setHoveredArea(row.area)}
-                          onMouseLeave={() => setHoveredArea(null)}
-                          style={{
-                            borderBottom: `1px solid ${C.borderLight}`, cursor: "pointer",
-                            background: selectedArea === row.area ? "rgba(27,94,74,0.06)" : "transparent",
-                          }}
-                        >
-                          <td style={{ padding: "10px 12px", fontWeight: 700, color: C.text, whiteSpace: "nowrap" }}>
-                            {row.area}
-                            {approx && <span style={{ marginLeft: 5, fontSize: 8.5, fontWeight: 700, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 3, padding: "1px 4px" }}>APPROX.</span>}
-                          </td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{fmtNum(row.sales_transactions)}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{fmtNum(row.rental_transactions)}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{row.median_sale_price_per_sqft != null ? Math.round(row.median_sale_price_per_sqft).toLocaleString() : "—"}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{row.ltr_yield != null ? `${row.ltr_yield.toFixed(1)}%` : "—"}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{fmtAED(row.adr)}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{fmtPct(row.occupancy)}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap", fontWeight: 700, color: C.green }}>{fmtAED(row.revpar)}</td>
-                          <td style={{ padding: "10px 12px", whiteSpace: "nowrap", color: C.gold }}>→</td>
-                        </tr>
-                      );
-                    })}
-                    {sortedAreas.length === 0 && (
-                      <tr><td colSpan={9} style={{ padding: "26px 14px", textAlign: "center", color: C.muted }}>{dataLoading ? "Loading market data…" : "No live data yet."}</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        {/* ── AREAS: SEARCH + ACCORDION ── */}
+        <section id="mi-areas" style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <EyebrowLabel>DUBAI AREAS</EyebrowLabel>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 8px" }}>Area Performance</h2>
+            <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 26, maxWidth: 640 }}>
+              Ranked by RevPAR by default. Open any area for its full live profile — and AssetIntel's own directional read, kept visibly separate from sourced data.
+            </p>
 
-            {/* RIGHT — Schematic map */}
-            <div style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "16px 18px", display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.text, margin: 0, fontFamily: "'Georgia', serif" }}>Dubai Area Map</p>
-                <select
-                  value={mapLayer}
-                  onChange={e => setMapLayer(e.target.value as MapLayer)}
-                  style={{ fontSize: 11.5, fontWeight: 600, padding: "6px 10px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.bg, color: C.text }}
-                >
-                  <option value="demand">STR Demand</option>
-                  <option value="sales">Sales Activity</option>
-                  <option value="rentals">Rental Activity</option>
-                  <option value="adr">ADR</option>
-                  <option value="occ">Occupancy</option>
-                  <option value="revpar">RevPAR</option>
-                </select>
-              </div>
-
-              <div style={{ position: "relative", flex: 1, minHeight: 340, borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}` }}>
-                <AreaMap
-                  areaStats={areaStats}
-                  mapLayer={mapLayer}
-                  selectedArea={selectedArea}
-                  onSelectArea={setSelectedArea}
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: 14, marginTop: 12, fontSize: 11, color: C.muted, flexWrap: "wrap" }}>
-                <span><span style={{ display: "inline-block", width: 9, height: 9, borderRadius: "50%", background: C.green, marginRight: 5 }} />High demand</span>
-                <span><span style={{ display: "inline-block", width: 9, height: 9, borderRadius: "50%", background: C.gold, marginRight: 5 }} />Moderate demand</span>
-                <span><span style={{ display: "inline-block", width: 9, height: 9, borderRadius: "50%", background: "#B5B0A3", marginRight: 5 }} />Lower demand</span>
-                <span style={{ marginLeft: "auto", color: C.subtle }}>Source: AirROI &amp; DLD · schematic map, not to scale</span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Four bottom cards ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 30 }} className="mi-split-grid">
-
-            {/* Building Watchlist */}
-            <div id="mi-watchlist" style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.text, margin: 0, fontFamily: "'Georgia', serif" }}>STR Building Watchlist</p>
-                <button onClick={() => scrollToId("mi-watchlist-full", "Building Watchlist")} style={{ fontSize: 11.5, fontWeight: 700, color: C.gold, background: "none", border: "none", cursor: "pointer" }}>View All</button>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {strBuildingWatchlist.slice(0, 3).map(b => (
-                  <div key={b.building} style={{ display: "flex", gap: 12, alignItems: "center", padding: "10px 10px", borderRadius: 12, background: C.bg }}>
-                    <div style={{ width: 52, height: 44, borderRadius: 9, background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`, flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.text, margin: "0 0 2px" }}>{b.building}</p>
-                      <p style={{ fontSize: 10.5, color: C.muted, margin: 0 }}>{b.area}</p>
-                    </div>
-                    <button style={{ background: "none", border: "none", fontSize: 15, color: C.gold, cursor: "pointer" }} title="Bookmark">☆</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Market Trends */}
-            <div id="mi-trends" style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.text, margin: 0, fontFamily: "'Georgia', serif" }}>Market Trends — {selectedArea}</p>
-              </div>
-              <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
-                {([["adr", "ADR"], ["occ", "Occupancy"], ["revpar", "RevPAR"], ["sales", "Sales"], ["rentals", "Rentals"]] as const).map(([k, label]) => (
+            {/* Controls */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 20 }}>
+              <input
+                type="text"
+                placeholder="Search areas…"
+                value={areaSearch}
+                onChange={e => setAreaSearch(e.target.value)}
+                style={{ padding: "11px 16px", borderRadius: 12, border: `1.5px solid ${colors.border}`, background: colors.bgMain, fontSize: 14, color: colors.textMain, outline: "none", minWidth: 220 }}
+              />
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {([["revpar", "RevPAR"], ["adr", "ADR"], ["occ", "Occupancy"], ["yield", "LTR Yield"], ["sales", "Sales Volume"]] as const).map(([k, label]) => (
                   <button
                     key={k}
-                    onClick={() => setTrendMetric(k as any)}
+                    onClick={() => setSortKey(k)}
                     style={{
-                      padding: "5px 11px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: "pointer",
-                      border: `1px solid ${trendMetric === k ? C.green : C.border}`,
-                      background: trendMetric === k ? C.green : "transparent",
-                      color: trendMetric === k ? "#fff" : C.muted,
+                      padding: "9px 15px", borderRadius: 999, fontSize: 12.5, fontWeight: 600, cursor: "pointer",
+                      border: `1.5px solid ${sortKey === k ? colors.primary : colors.border}`,
+                      background: sortKey === k ? colors.primary : "transparent",
+                      color: sortKey === k ? "#fff" : colors.textMuted,
                     }}
                   >
-                    {label}
+                    Sort: {label}
                   </button>
                 ))}
               </div>
-              {trendHistory.length <= 1 ? (
-                <p style={{ fontSize: 12, color: C.muted }}>Only one reporting period stored so far — the chart will populate as weekly refreshes accumulate history.</p>
-              ) : (
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130 }}>
-                  {trendHistory.map(row => {
-                    const field = trendMetric === "adr" ? row.adr : trendMetric === "occ" ? row.occupancy : trendMetric === "revpar" ? row.revpar : trendMetric === "sales" ? row.sales_transactions : row.rental_transactions;
-                    const maxV = Math.max(...trendHistory.map(r => {
-                      const f = trendMetric === "adr" ? r.adr : trendMetric === "occ" ? r.occupancy : trendMetric === "revpar" ? r.revpar : trendMetric === "sales" ? r.sales_transactions : r.rental_transactions;
-                      return f ?? 0;
-                    }), 1);
-                    const h = field ? Math.max(6, (field / maxV) * 110) : 4;
-                    return (
-                      <div key={row.reporting_month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                        <div style={{ width: "100%", height: h, background: C.green, borderRadius: "4px 4px 0 0", opacity: field ? 0.85 : 0.15 }} />
-                        <span style={{ fontSize: 9, color: C.subtle, whiteSpace: "nowrap" }}>{new Date(row.reporting_month).toLocaleDateString(undefined, { month: "short" })}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
 
-            {/* Top Performing Buildings */}
-            <div id="mi-buildings" style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px" }}>
-              <p style={{ fontSize: 15, fontWeight: 800, color: C.text, margin: "0 0 14px", fontFamily: "'Georgia', serif" }}>Top Performing Buildings <span style={{ fontSize: 11, fontWeight: 500, color: C.subtle }}>(by area RevPAR)</span></p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {topBuildings.length === 0 && <p style={{ fontSize: 12, color: C.muted }}>Populates once STR data is synced for watchlist areas.</p>}
-                {topBuildings.map((b, i) => (
-                  <div key={b.building} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < topBuildings.length - 1 ? `1px solid ${C.borderLight}` : "none" }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: C.gold, width: 14 }}>{i + 1}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.text, margin: 0 }}>{b.building}</p>
-                      <p style={{ fontSize: 10.5, color: C.subtle, margin: 0 }}>{b.area}</p>
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: C.green, whiteSpace: "nowrap" }}>{fmtAED(b.revpar)}</span>
+            {/* Compare bar */}
+            {compareAreas.length > 0 && (
+              <div style={{ background: colors.bgSage, border: `1px solid ${colors.borderSage}`, borderRadius: 18, padding: "18px 20px", marginBottom: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: compareAreas.length > 0 ? 14 : 0 }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: colors.textMain, margin: 0 }}>Comparing {compareAreas.length} area{compareAreas.length > 1 ? "s" : ""} {compareAreas.length >= 4 && <span style={{ color: colors.textLight, fontWeight: 500 }}>(max 4)</span>}</p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={exportCompareCsv} style={{ padding: "8px 14px", borderRadius: 10, fontSize: 12.5, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${colors.primary}`, background: "transparent", color: colors.primary }}>
+                      Export CSV
+                    </button>
+                    <button onClick={() => setCompareAreas([])} style={{ padding: "8px 14px", borderRadius: 10, fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${colors.border}`, background: "transparent", color: colors.textMuted }}>
+                      Clear
+                    </button>
                   </div>
-                ))}
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 480 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: "6px 10px 6px 0", color: colors.textLight, fontWeight: 700, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.05em" }}>Metric</th>
+                        {compareAreas.map(a => (
+                          <th key={a} style={{ textAlign: "left", padding: "6px 10px", color: colors.textMain, fontFamily: serif, fontWeight: 700, fontSize: 13.5 }}>{a}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {([
+                        ["ADR", (r: AreaStatsRow) => fmtAED(r.adr)],
+                        ["Occupancy", (r: AreaStatsRow) => fmtPct(r.occupancy)],
+                        ["RevPAR", (r: AreaStatsRow) => fmtAED(r.revpar)],
+                        ["LTR Yield", (r: AreaStatsRow) => r.ltr_yield != null ? `${r.ltr_yield.toFixed(1)}%` : "—"],
+                        ["Median AED/sqft", (r: AreaStatsRow) => r.median_sale_price_per_sqft != null ? Math.round(r.median_sale_price_per_sqft).toLocaleString() : "—"],
+                        ["Sales Transactions", (r: AreaStatsRow) => fmtNum(r.sales_transactions)],
+                      ] as [string, (r: AreaStatsRow) => string][]).map(([label, fn]) => (
+                        <tr key={label} style={{ borderTop: `1px solid ${colors.borderSage}` }}>
+                          <td style={{ padding: "8px 10px 8px 0", color: colors.textLight, fontWeight: 600 }}>{label}</td>
+                          {compareAreas.map(a => {
+                            const r = areaStats.find(x => x.area === a);
+                            return <td key={a} style={{ padding: "8px 10px", color: colors.textMain, fontWeight: 700 }}>{r ? fn(r) : "—"}</td>;
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Investment Opportunities */}
-            <div id="mi-opportunities" style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px" }}>
-              <p style={{ fontSize: 15, fontWeight: 800, color: C.text, margin: "0 0 14px", fontFamily: "'Georgia', serif" }}>Investment Opportunities</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {[
-                  { title: "Highest Yield", sub: highestYield ? `${highestYield.area} · ${highestYield.ltr_yield?.toFixed(1)}% LTR yield` : "Awaiting data" },
-                  { title: "Rising Demand", sub: risingDemand ? `${risingDemand.area} · RevPAR ${fmtAED(risingDemand.revpar)}` : "Awaiting data" },
-                  { title: "Undervalued Buildings", sub: undervalued ? `${undervalued.area} · AED ${Math.round(undervalued.median_sale_price_per_sqft ?? 0)}/sqft` : "Awaiting data" },
-                  { title: "New / Emerging Areas", sub: emergingArea ? emergingArea.area : "Awaiting data" },
-                ].map(o => (
-                  <button
-                    key={o.title}
-                    onClick={() => router.push("/investment-research")}
-                    style={{ display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left", padding: "11px 12px", borderRadius: 11, background: C.bg, border: `1px solid ${C.border}`, cursor: "pointer" }}
-                  >
-                    <div>
-                      <p style={{ fontSize: 12.5, fontWeight: 700, color: C.text, margin: "0 0 2px" }}>{o.title}</p>
-                      <p style={{ fontSize: 10.5, color: C.muted, margin: 0 }}>{o.sub}</p>
-                    </div>
-                    <span style={{ color: C.gold, fontSize: 15 }}>→</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Comparable Listings */}
-          {hasLiveData && (
-            <div id="mi-listings" style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "20px 20px", marginBottom: 30 }}>
-              <p style={{ fontSize: 17, fontWeight: 800, color: C.text, margin: "0 0 4px", fontFamily: "'Georgia', serif" }}>Comparable Listings — {selectedArea}</p>
-              <p style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>A sample of active listings AirROI tracks in this area, refreshed weekly.</p>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
-                {areaStats.map(a => (
-                  <button
-                    key={a.area}
-                    onClick={() => setSelectedArea(a.area)}
+            {/* Accordion list */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {sortedAreas.length === 0 && (
+                <p style={{ fontSize: 13.5, color: colors.textMuted, padding: "24px 0" }}>{dataLoading ? "Loading market data…" : "No areas match your search."}</p>
+              )}
+              {sortedAreas.map((row, i) => {
+                const isOpen = openArea === row.area;
+                const approx = APPROX_STR_AREAS.has(row.area);
+                const ranking = matchingRanking(row.area);
+                const buildings = matchingBuildings(row.area);
+                return (
+                  <div
+                    key={row.area}
                     style={{
-                      padding: "7px 14px", borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                      border: `1px solid ${selectedArea === a.area ? C.green : C.border}`,
-                      background: selectedArea === a.area ? C.green : C.bg,
-                      color: selectedArea === a.area ? "#fff" : C.text,
+                      background: colors.bgMain, border: `1px solid ${isOpen ? "rgba(184,138,68,0.35)" : colors.border}`,
+                      borderRadius: 20, overflow: "hidden",
+                      boxShadow: isOpen ? colors.shadowMd : colors.shadowSm,
+                      transition: "box-shadow 220ms ease, border-color 220ms ease, transform 220ms ease",
+                      transform: isOpen ? "translateY(-2px)" : "none",
                     }}
                   >
-                    {a.area}
-                  </button>
-                ))}
-              </div>
-              {(() => {
-                const listings = selectedRow?.sample_listings ?? [];
-                if (listings.length === 0) return <p style={{ fontSize: 13, color: C.muted }}>No comparable listings stored for this area yet.</p>;
-                return (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-                    {listings.map(l => (
-                      <div key={l.listingId} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
-                        {l.coverPhotoUrl && <img src={l.coverPhotoUrl} alt="" style={{ width: "100%", height: 120, objectFit: "cover", display: "block" }} />}
-                        <div style={{ padding: "12px 14px" }}>
-                          <p style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginBottom: 6, lineHeight: 1.35 }}>{l.name ?? "Untitled listing"}</p>
-                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", fontSize: 10.5, color: C.muted, marginBottom: 8 }}>
-                            {l.bedrooms != null && <span>{l.bedrooms} BR</span>}
-                            {l.rating != null && <span>★ {l.rating.toFixed(2)} ({fmtNum(l.numReviews)})</span>}
-                            {l.professionalManagement && <span style={{ color: C.green, fontWeight: 700 }}>Pro Managed</span>}
-                            {l.superhost && <span style={{ color: C.gold, fontWeight: 700 }}>Superhost</span>}
-                          </div>
-                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.subtle, borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
-                            <span>ADR {l.ttmAvgRate != null ? `AED ${Math.round(l.ttmAvgRate)}` : "—"}</span>
-                            <span>Occ {l.ttmOccupancy != null ? `${Math.round(l.ttmOccupancy * 100)}%` : "—"}</span>
-                          </div>
+                    {/* Row header — always visible */}
+                    <div style={{ display: "flex", alignItems: "stretch" }}>
+                      <label
+                        title={compareAreas.includes(row.area) ? "Remove from comparison" : "Add to comparison"}
+                        style={{ display: "flex", alignItems: "center", padding: "0 0 0 18px", cursor: "pointer", flexShrink: 0 }}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={compareAreas.includes(row.area)}
+                          onChange={() => toggleCompare(row.area)}
+                          disabled={!compareAreas.includes(row.area) && compareAreas.length >= 4}
+                          style={{ width: 16, height: 16, accentColor: colors.primary, cursor: "pointer" }}
+                        />
+                      </label>
+                      <button
+                        onClick={() => toggleArea(row.area)}
+                        style={{
+                          width: "100%", display: "grid",
+                          gridTemplateColumns: "28px 1.4fr 1fr 1fr 1fr auto",
+                          alignItems: "center", gap: 14, padding: "16px 20px",
+                          background: "transparent", border: "none", cursor: "pointer", textAlign: "left",
+                        }}
+                        className="mi-accordion-row"
+                      >
+                      <span style={{ fontSize: 13, fontWeight: 700, color: colors.textLight }}>{i + 1}</span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                        <span style={{ fontSize: 15.5, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{row.area}</span>
+                        {approx && <span style={{ fontSize: 8.5, fontWeight: 700, color: colors.secondaryText, border: `1px solid ${colors.secondaryText}`, borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>APPROX.</span>}
+                      </span>
+                      <span className="mi-accordion-metric">
+                        <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>ADR</span>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{fmtAED(row.adr)}</span>
+                      </span>
+                      <span className="mi-accordion-metric">
+                        <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>Occupancy</span>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{fmtPct(row.occupancy)}</span>
+                      </span>
+                      <span className="mi-accordion-metric">
+                        <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>RevPAR</span>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: colors.primary, fontFamily: serif }}>{fmtAED(row.revpar)}</span>
+                      </span>
+                      <span style={{
+                        width: 26, height: 26, borderRadius: "50%", background: "rgba(27,94,74,0.07)",
+                        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                        transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 220ms ease",
+                      }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke={colors.primary} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </span>
+                      </button>
+                    </div>
+
+                    {/* Expandable body — grid-rows technique for smooth auto-height */}
+                    <div style={{ display: "grid", gridTemplateRows: isOpen ? "1fr" : "0fr", transition: "grid-template-rows 320ms ease" }}>
+                      <div style={{ overflow: "hidden" }}>
+                        <div style={{ padding: "4px 20px 24px", borderTop: `1px solid ${colors.border}` }}>
+                          <AreaProfile
+                            row={row}
+                            trendHistory={trendHistory}
+                            trendMetric={trendMetric}
+                            setTrendMetric={setTrendMetric}
+                            ranking={ranking}
+                            buildings={buildings}
+                            sourceLabel={dataSourceLabel(row)}
+                          />
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 );
-              })()}
+              })}
             </div>
-          )}
 
-          {areaStats.some(r => APPROX_STR_AREAS.has(r.area)) && (
-            <p style={{ fontSize: 11.5, color: C.subtle, marginBottom: 30, lineHeight: 1.6 }}>
-              <span style={{ fontWeight: 700, color: C.gold }}>APPROX.</span> — AirROI doesn&apos;t recognize these areas as named markets, so their STR figures (ADR, occupancy, RevPAR) are estimated from a sample of nearby listings rather than AirROI&apos;s own market summary. Treat as directional, not precise.
+            {sortedAreas.some(r => APPROX_STR_AREAS.has(r.area)) && (
+              <p style={{ fontSize: 11.5, color: colors.textLight, marginTop: 20, lineHeight: 1.6 }}>
+                <span style={{ fontWeight: 700, color: colors.secondaryText }}>APPROX.</span> — neither AirROI nor Airbtics recognizes these areas as a named market, so their STR figures are estimated from a sample of nearby listings rather than a market-level summary. Treat as directional, not precise.
+              </p>
+            )}
+          </div>
+        </section>
+        </AccessGate>
+
+        {/* ── MARKET SIGNALS ── */}
+        <section id="mi-signals" style={{ padding: pad }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <EyebrowLabel>SIGNALS TO WATCH</EyebrowLabel>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 8px" }}>Market Signals To Watch</h2>
+            <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 28, maxWidth: 640 }}>
+              STR performance is not only about location. Owners should review the signals that directly affect income, risk, and guest conversion.
             </p>
-          )}
-        </main>
-      </div>
-
-      {/* ── Full Building Watchlist ── */}
-      <section id="mi-watchlist-full" style={{ background: C.bgSage, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1152, margin: "0 auto", padding: "64px 24px" }}>
-          <SectionHeading eyebrow="Building Watchlist" title="STR Building Watchlist" sub="Buildings worth monitoring for STR potential based on location strength, guest appeal, furnishing upside, operator activity, and owner-side setup considerations." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 14 }}>
-            {strBuildingWatchlist.map(b => (
-              <div key={b.building} style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "20px 20px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                  <div>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 2 }}>{b.building}</p>
-                    <p style={{ fontSize: 11, color: C.gold, fontWeight: 600 }}>{b.area}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+              {marketSignals.map(s => (
+                <div key={s.title} style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 18, padding: "22px 20px", boxShadow: colors.shadowSm }}>
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(27,94,74,0.08)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: 3, background: colors.primary, opacity: 0.75 }} />
                   </div>
-                  <ConfidencePill label={b.confidence} />
+                  <p style={{ fontSize: 13.5, fontWeight: 700, color: colors.textMain, marginBottom: 8 }}>{s.title}</p>
+                  <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{s.text}</p>
                 </div>
-                <p style={{ fontSize: 11, fontWeight: 700, color: C.green, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>{b.assetIntelView}</p>
-                <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, flex: 1, marginBottom: 14 }}>{b.ownerInsight}</p>
-                <div style={{ display: "flex", gap: 8, alignItems: "center", paddingTop: 12, borderTop: `1px solid ${C.borderLight}` }}>
-                  <span style={{ fontSize: 11, color: C.muted }}>Best fit:</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>{b.bestFit}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Area Opportunity Ranking ── */}
-      <section style={{ background: C.ivory, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1152, margin: "0 auto", padding: "64px 24px" }}>
-          <SectionHeading eyebrow="Area Rankings" title="STR Area Opportunity Ranking" sub="Ranked using AssetIntel's directional STR opportunity model across guest demand, ADR potential, occupancy strength, seasonality, owner upside, and execution risk." />
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
-            {[
-              { label: "85+ Premium Opportunity", color: C.green, bg: "rgba(27,94,74,0.10)" },
-              { label: "75–84 Strong", color: C.greenLight, bg: "rgba(45,122,94,0.10)" },
-              { label: "65–74 Selective", color: C.gold, bg: "rgba(184,138,68,0.10)" },
-              { label: "Below 65 High Caution", color: "#C0392B", bg: "rgba(192,57,43,0.08)" },
-            ].map(s => (
-              <span key={s.label} style={{ fontSize: 11, fontWeight: 600, color: s.color, background: s.bg, padding: "3px 11px", borderRadius: 999 }}>{s.label}</span>
-            ))}
-          </div>
-          <div style={{ border: `1px solid ${C.border}`, borderRadius: 18, overflow: "hidden", background: C.bg }}>
-            <div style={{ display: "grid", gridTemplateColumns: "36px 1fr 100px 160px 110px 110px", padding: "11px 20px", background: C.bgSage, borderBottom: `1px solid ${C.border}` }}>
-              {["#", "Area", "Score", "Opportunity View", "Best Unit", "Confidence"].map(h => (
-                <span key={h} style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.07em" }}>{h}</span>
               ))}
             </div>
-            {strAreaOpportunityRanking.map((row, i) => (
-              <div key={row.area} style={{ display: "grid", gridTemplateColumns: "36px 1fr 100px 160px 110px 110px", padding: "16px 20px", alignItems: "start", borderBottom: i < strAreaOpportunityRanking.length - 1 ? `1px solid ${C.borderLight}` : "none", background: i % 2 === 0 ? C.bg : C.ivory }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: C.muted, paddingTop: 2 }}>{row.rank}</span>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>{row.area}</p>
-                  <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.55 }}>{row.ownerNote}</p>
-                </div>
-                <div style={{ paddingTop: 2 }}><ScorePill score={row.score} /></div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: C.text, paddingTop: 4 }}>{row.opportunityView}</span>
-                <span style={{ fontSize: 12, color: C.text, fontWeight: 600, paddingTop: 4 }}>{row.bestUnitType}</span>
-                <div style={{ paddingTop: 2 }}><ConfidencePill label={row.confidence} /></div>
-              </div>
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Market Signals ── */}
-      <section style={{ background: C.bgSage, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1152, margin: "0 auto", padding: "64px 24px" }}>
-          <SectionHeading eyebrow="Signals To Watch" title="Market Signals To Watch" sub="STR performance is not only about location. Owners should review the signals that directly affect income, risk, and guest conversion." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
-            {marketSignals.map(s => (
-              <div key={s.title} style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(27,94,74,0.08)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-                  <div style={{ width: 12, height: 12, borderRadius: 2, background: C.green, opacity: 0.7 }} />
-                </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>{s.title}</p>
-                <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{s.text}</p>
+        {/* ── SCORING METHODOLOGY ── */}
+        <section id="mi-methodology" style={{ padding: pad, background: colors.bgSage, borderTop: `1px solid ${colors.borderSage}`, borderBottom: `1px solid ${colors.borderSage}` }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }} className="mi-methodology-grid">
+              <div>
+                <EyebrowLabel>DIRECTIONAL MODEL — NOT MEASURED DATA</EyebrowLabel>
+                <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 14px" }}>How AssetIntel Scores STR Potential</h2>
+                <p style={{ fontSize: 14, color: colors.textMuted, lineHeight: 1.75, marginBottom: 16 }}>
+                  AssetIntel does not rank properties only by headline revenue. We consider whether a unit can realistically perform after management fees, running costs, furnishing quality, seasonality, and operator execution.
+                </p>
+                <p style={{ fontSize: 13, color: colors.textLight, lineHeight: 1.7, margin: 0 }}>
+                  Scores are directional and should be validated at unit level using building, unit size, floor, view, furnishing status, and cost assumptions.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Scoring Methodology ── */}
-      <section style={{ background: C.ivory, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1152, margin: "0 auto", padding: "64px 24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }} className="methodology-grid">
-            <div>
-              <SectionHeading eyebrow="Scoring Methodology" title="How AssetIntel Scores STR Potential" sub="Our STR score combines market demand with practical owner-side factors that affect real net income." />
-              <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, marginBottom: 16 }}>AssetIntel does not rank properties only by headline revenue. We consider whether a unit can realistically perform after management fees, running costs, furnishing quality, seasonality, and operator execution.</p>
-              <p style={{ fontSize: 13, color: C.subtle, lineHeight: 1.7 }}>Scores are directional and should be validated at unit level using building, unit size, floor, view, furnishing status, and cost assumptions.</p>
-            </div>
-            <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-              {strScoreMethodology.map((item, i) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 20px", borderBottom: i < strScoreMethodology.length - 1 ? `1px solid ${C.borderLight}` : "none" }}>
-                  <span style={{ fontSize: 13, color: C.text, fontWeight: 500 }}>{item.label}</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 80, height: 4, background: C.bgSage, borderRadius: 99 }}>
-                      <div style={{ width: `${(item.weight / 20) * 100}%`, height: "100%", background: `linear-gradient(90deg, ${C.green} 0%, ${C.greenLight} 100%)`, borderRadius: 99 }} />
+              <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, overflow: "hidden", boxShadow: colors.shadowSm }}>
+                {strScoreMethodology.map((item, i) => (
+                  <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 22px", borderBottom: i < strScoreMethodology.length - 1 ? `1px solid ${colors.border}` : "none" }}>
+                    <span style={{ fontSize: 13.5, color: colors.textMain, fontWeight: 500 }}>{item.label}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ width: 80, height: 5, background: colors.bgSage, borderRadius: 99 }}>
+                        <div style={{ width: `${(item.weight / 20) * 100}%`, height: "100%", background: colors.primary, borderRadius: 99 }} />
+                      </div>
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: colors.primary, minWidth: 32, textAlign: "right" }}>{item.weight}%</span>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: C.green, minWidth: 30, textAlign: "right" }}>{item.weight}%</span>
                   </div>
+                ))}
+                <div style={{ padding: "12px 22px", background: colors.bgSage, display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: colors.textMuted }}>Total</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 800, color: colors.primary }}>100%</span>
                 </div>
-              ))}
-              <div style={{ padding: "11px 20px", background: C.bgSage, display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.muted }}>Total</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: C.green }}>100%</span>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Disclaimer ── */}
-      <section style={{ background: C.bgSage }}>
-        <div style={{ maxWidth: 1152, margin: "0 auto", padding: "48px 24px" }}>
-          <div style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 16, padding: "28px 28px" }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.gold, marginBottom: 12 }}>Important Research Note</p>
-            <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, marginBottom: 12 }}>
-              AssetIntel STR Market Intel combines Dubai Land Department transaction data, AirROI market intelligence, operator market signals, and AssetIntel&apos;s own owner-side scoring model. Public STR datasets can vary because each provider tracks different platforms, listings, filters, samples, and time periods. Rankings are directional and should be used as market research, not guaranteed income projections.
-            </p>
-            <p style={{ fontSize: 12, color: C.subtle, lineHeight: 1.7 }}>AssetIntel does not guarantee rental income or final STR performance.</p>
+        {/* ── DISCLAIMER ── */}
+        <section style={{ padding: padSm }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "26px 28px" }}>
+              <EyebrowLabel>IMPORTANT RESEARCH NOTE</EyebrowLabel>
+              <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.8, margin: "12px 0" }}>
+                AssetIntel STR Market Intel combines Dubai Land Department transaction data, AirROI and Airbtics market intelligence, and AssetIntel&apos;s own owner-side scoring model. Public STR datasets can vary because each provider tracks different platforms, listings, filters, samples, and time periods. Rankings are directional and should be used as market research, not guaranteed income projections.
+              </p>
+              <p style={{ fontSize: 12, color: colors.textLight, lineHeight: 1.7, margin: 0 }}>AssetIntel does not guarantee rental income or final STR performance.</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <ConsultationBanner />
+        <ConsultationBanner />
 
-      <footer style={{ background: C.green, padding: "28px 24px" }}>
-        <div style={{ maxWidth: 1152, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ filter: "brightness(0) invert(1)", opacity: 0.9 }}>
-            <AssetIntelLogo size={22} />
+        <footer style={{ background: colors.primary, padding: "28px 24px" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ filter: "brightness(0) invert(1)", opacity: 0.9 }}>
+              <AssetIntelLogo size={22} />
+            </div>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>© {new Date().getFullYear()} AssetIntel. All rights reserved. · assetintel.ae</p>
           </div>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>© {new Date().getFullYear()} AssetIntel. All rights reserved. · assetintel.ae</p>
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       <style>{`
         @media (max-width: 1024px) {
-          .mi-sidebar { display: none !important; }
-          .mi-drawer-btn { display: inline-block !important; }
-          .mi-drawer-overlay { display: block !important; }
           .mi-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .mi-split-grid { grid-template-columns: 1fr !important; }
+          .mi-methodology-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
         }
-        @media (max-width: 640px) {
+        @media (max-width: 760px) {
           .mi-kpi-grid { grid-template-columns: 1fr !important; }
-          .methodology-grid { grid-template-columns: 1fr !important; gap: 28px; }
+          .mi-accordion-row { grid-template-columns: 18px 1fr repeat(3, minmax(0, 54px)) auto !important; gap: 8px !important; padding: 14px 12px !important; }
+          .mi-accordion-metric span:first-child { font-size: 7.5px !important; }
+          .mi-accordion-metric span:last-child { font-size: 12px !important; }
+        }
+        @media (max-width: 480px) {
+          .mi-accordion-row { grid-template-columns: 16px 1fr repeat(3, minmax(0, 44px)) auto !important; gap: 5px !important; }
         }
       `}</style>
     </div>
   );
 }
 
-// ── SHARED SUB-COMPONENTS ────────────────────────────────────────────────────
+// ── AREA PROFILE (accordion body) ───────────────────────────────────────────
 
-function scoreColor(score: number) {
-  if (score >= 85) return C.green;
-  if (score >= 75) return C.greenLight;
-  if (score >= 65) return C.gold;
-  return "#C0392B";
-}
-function scoreBg(score: number) {
-  if (score >= 85) return "rgba(27,94,74,0.10)";
-  if (score >= 75) return "rgba(45,122,94,0.10)";
-  if (score >= 65) return "rgba(184,138,68,0.10)";
-  return "rgba(192,57,43,0.08)";
-}
-function scoreLabel(score: number) {
-  if (score >= 85) return "Premium";
-  if (score >= 75) return "Strong";
-  if (score >= 65) return "Selective";
-  return "High Caution";
-}
-function ScorePill({ score }: { score: number }) {
+function AreaProfile({
+  row, trendHistory, trendMetric, setTrendMetric, ranking, buildings, sourceLabel,
+}: {
+  row: AreaStatsRow;
+  trendHistory: AreaStatsRow[];
+  trendMetric: TrendMetric;
+  setTrendMetric: (m: TrendMetric) => void;
+  ranking?: { score: number; opportunityView: string; bestUnitType: string; confidence: string; ownerNote: string };
+  buildings: { building: string; assetIntelView: string; bestFit: string; confidence: string; ownerInsight: string }[];
+  sourceLabel: string;
+}) {
+  const listings = row.sample_listings ?? [];
+
+  const snapshotMetrics = [
+    { label: "Sales Transactions", value: fmtNum(row.sales_transactions) },
+    { label: "Rental Transactions", value: fmtNum(row.rental_transactions) },
+    { label: "Median AED/sqft", value: row.median_sale_price_per_sqft != null ? Math.round(row.median_sale_price_per_sqft).toLocaleString() : "—" },
+    { label: "LTR Yield", value: row.ltr_yield != null ? `${row.ltr_yield.toFixed(1)}%` : "—" },
+    { label: "Active Listings", value: fmtNum(row.active_listings) },
+    { label: "Median Annual Rent", value: fmtAED(row.median_annual_rent) },
+  ];
+
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: scoreBg(score), borderRadius: 999, padding: "3px 10px" }}>
-      <span style={{ fontSize: 14, fontWeight: 800, color: scoreColor(score) }}>{score}</span>
-      <span style={{ fontSize: 10, fontWeight: 600, color: scoreColor(score) }}>{scoreLabel(score)}</span>
-    </span>
-  );
-}
-function confidencePillColor(c: string) {
-  if (c === "High") return C.green;
-  if (c === "Medium-High") return C.greenLight;
-  if (c === "Medium") return C.gold;
-  return C.muted;
-}
-function confidencePillBg(c: string) {
-  if (c === "High") return "rgba(27,94,74,0.08)";
-  if (c === "Medium-High") return "rgba(45,122,94,0.08)";
-  if (c === "Medium") return "rgba(184,138,68,0.08)";
-  return "rgba(150,150,150,0.08)";
-}
-function ConfidencePill({ label }: { label: string }) {
-  return (
-    <span style={{ display: "inline-block", background: confidencePillBg(label), color: confidencePillColor(label), fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 999, letterSpacing: "0.04em" }}>
-      {label}
-    </span>
-  );
-}
-function SectionHeading({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
-  return (
-    <div style={{ marginBottom: 36 }}>
-      {eyebrow && <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.gold, marginBottom: 10 }}>{eyebrow}</p>}
-      <h2 style={{ fontSize: 28, fontWeight: 700, color: C.text, margin: "0 0 10px", fontFamily: "'Georgia', serif" }}>
-        <span style={{ background: `linear-gradient(90deg, ${C.green} 0%, ${C.gold} 100%)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", display: "inline-block" }}>{title}</span>
-      </h2>
-      {sub && <p style={{ fontSize: 15, color: C.muted, maxWidth: 640, lineHeight: 1.65 }}>{sub}</p>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      {/* Live Market Snapshot */}
+      <div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, margin: 0 }}>Live Market Snapshot</p>
+          <SourceChip>{sourceLabel}</SourceChip>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
+          {snapshotMetrics.map(m => (
+            <div key={m.label} style={{ padding: "11px 13px", background: colors.bgSection, borderRadius: 12, border: `1px solid ${colors.border}` }}>
+              <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 4px" }}>{m.label}</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: colors.textMain, margin: 0, fontFamily: serif }}>{m.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Trend */}
+      <div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+          {([["adr", "ADR"], ["occ", "Occupancy"], ["revpar", "RevPAR"], ["sales", "Sales"], ["rentals", "Rentals"]] as const).map(([k, label]) => (
+            <button
+              key={k}
+              onClick={() => setTrendMetric(k)}
+              style={{
+                padding: "6px 12px", borderRadius: 999, fontSize: 11.5, fontWeight: 600, cursor: "pointer",
+                border: `1px solid ${trendMetric === k ? colors.primary : colors.border}`,
+                background: trendMetric === k ? colors.primary : "transparent",
+                color: trendMetric === k ? "#fff" : colors.textMuted,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {trendHistory.length <= 1 ? (
+          <p style={{ fontSize: 12.5, color: colors.textLight }}>Only one reporting period stored so far — the chart will populate as weekly refreshes accumulate history.</p>
+        ) : (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 110 }}>
+            {trendHistory.map(r => {
+              const field = trendMetric === "adr" ? r.adr : trendMetric === "occ" ? r.occupancy : trendMetric === "revpar" ? r.revpar : trendMetric === "sales" ? r.sales_transactions : r.rental_transactions;
+              const maxV = Math.max(...trendHistory.map(h => {
+                const f = trendMetric === "adr" ? h.adr : trendMetric === "occ" ? h.occupancy : trendMetric === "revpar" ? h.revpar : trendMetric === "sales" ? h.sales_transactions : h.rental_transactions;
+                return f ?? 0;
+              }), 1);
+              const h = field ? Math.max(6, (field / maxV) * 90) : 4;
+              return (
+                <div key={r.reporting_month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: "100%", height: h, background: colors.primary, borderRadius: "4px 4px 0 0", opacity: field ? 0.85 : 0.15 }} />
+                  <span style={{ fontSize: 9, color: colors.textLight, whiteSpace: "nowrap" }}>{new Date(r.reporting_month).toLocaleDateString(undefined, { month: "short" })}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Comparable Listings */}
+      {listings.length > 0 && (
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 12 }}>Comparable Listings</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+            {listings.slice(0, 12).map((l, idx) => (
+              <div key={l.listingId || idx} style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 14, overflow: "hidden" }}>
+                {l.coverPhotoUrl && <img src={l.coverPhotoUrl} alt="" style={{ width: "100%", height: 100, objectFit: "cover", display: "block" }} />}
+                <div style={{ padding: "11px 13px" }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: colors.textMain, marginBottom: 6, lineHeight: 1.35 }}>{sanitizeListingTitle(l.name)}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: colors.textLight, borderTop: `1px solid ${colors.border}`, paddingTop: 7 }}>
+                    <span>ADR {l.ttmAvgRate ? `AED ${Math.round(l.ttmAvgRate)}` : "—"}</span>
+                    <span>Occ {l.ttmOccupancy ? `${Math.round(l.ttmOccupancy * 100)}%` : "—"}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Editorial zone — visually distinct from live data above */}
+      {(ranking || buildings.length > 0) && (
+        <div style={{ background: colors.bgSage, border: `1px solid ${colors.borderSage}`, borderRadius: 18, padding: "18px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.secondaryText, margin: 0 }}>AssetIntel View — Directional, Not Measured Data</p>
+          </div>
+
+          {ranking && (
+            <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: buildings.length > 0 ? 18 : 0, flexWrap: "wrap" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: scoreBg(ranking.score), borderRadius: 999, padding: "4px 12px", flexShrink: 0 }}>
+                <span style={{ fontSize: 15, fontWeight: 800, color: scoreColor(ranking.score) }}>{ranking.score}</span>
+                <span style={{ fontSize: 10.5, fontWeight: 600, color: scoreColor(ranking.score) }}>{scoreLabel(ranking.score)}</span>
+              </span>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <p style={{ fontSize: 12.5, fontWeight: 700, color: colors.textMain, margin: "0 0 4px" }}>{ranking.opportunityView} · Best fit: {ranking.bestUnitType}</p>
+                <p style={{ fontSize: 12.5, color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{ranking.ownerNote}</p>
+              </div>
+            </div>
+          )}
+
+          {buildings.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+              {buildings.map(b => (
+                <div key={b.building} style={{ background: colors.bgMain, border: `1px solid ${colors.border}`, borderRadius: 12, padding: "12px 14px" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: colors.textMain, margin: "0 0 2px" }}>{b.building}</p>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: colors.primary, textTransform: "uppercase", letterSpacing: "0.04em", margin: "0 0 6px" }}>{b.assetIntelView}</p>
+                  <p style={{ fontSize: 11.5, color: colors.textMuted, lineHeight: 1.55, margin: 0 }}>{b.ownerInsight}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
