@@ -43,28 +43,33 @@ export default function AccessGate({
       </div>
       <div
         style={{
-          position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+          position: "absolute", inset: 0,
           background: "linear-gradient(180deg, rgba(248,244,238,0.4) 0%, rgba(248,244,238,0.92) 30%, rgba(248,244,238,0.97) 100%)",
-          padding: 24,
         }}
       >
-        <div style={{ maxWidth: 400, width: "100%", background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, padding: "30px 28px", boxShadow: colors.shadowLg, textAlign: "center" }}>
-          <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.secondaryText, margin: "0 0 8px" }}>Free Access</p>
-          <h3 style={{ fontSize: 21, fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "0 0 8px" }}>{title}</h3>
-          <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.55, margin: "0 0 22px" }}>{subtitle}</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <a
-              href={`/signup?next=${encodedNext}`}
-              style={{ padding: "13px", borderRadius: 12, background: colors.primary, color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
-            >
-              Sign Up Free →
-            </a>
-            <a
-              href={`/login?next=${encodedNext}`}
-              style={{ padding: "13px", borderRadius: 12, background: "transparent", border: `1.5px solid ${colors.border}`, color: colors.textMain, fontSize: 14, fontWeight: 700, textDecoration: "none" }}
-            >
-              Log In
-            </a>
+        {/* Sticky, not centered-in-content: gated sections can be very tall (a full
+            area accordion), and centering within that height pushed the card well
+            below the first viewport. Sticking near the top keeps it visible as soon
+            as the gate appears, on any page length. */}
+        <div style={{ position: "sticky", top: 110, display: "flex", justifyContent: "center", padding: 24 }}>
+          <div style={{ maxWidth: 400, width: "100%", background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, padding: "30px 28px", boxShadow: colors.shadowLg, textAlign: "center" }}>
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.secondaryText, margin: "0 0 8px" }}>Free Access</p>
+            <h3 style={{ fontSize: 21, fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "0 0 8px" }}>{title}</h3>
+            <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.55, margin: "0 0 22px" }}>{subtitle}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <a
+                href={`/signup?next=${encodedNext}`}
+                style={{ padding: "13px", borderRadius: 12, background: colors.primary, color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+              >
+                Sign Up Free →
+              </a>
+              <a
+                href={`/login?next=${encodedNext}`}
+                style={{ padding: "13px", borderRadius: 12, background: "transparent", border: `1.5px solid ${colors.border}`, color: colors.textMain, fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+              >
+                Log In
+              </a>
+            </div>
           </div>
         </div>
       </div>
