@@ -11,6 +11,7 @@ import { getDLDBuildingList, type DLDBuildingEntry } from "@/lib/building-rents"
 import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 import { colors } from "@/lib/colors";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
+import AccessGate from "@/components/AccessGate";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -514,6 +515,7 @@ function EstimatorPage() {
       {/* ── FORM SECTION ── */}
       <section style={{ position: "relative", zIndex: 3 }}>
         <div style={{ maxWidth: "1152px", margin: "0 auto", padding: "32px 24px 80px" }}>
+        <AccessGate source="estimator" title="Unlock the Rental Analyzer" subtitle="Free — sign up or log in to generate your STR vs LTR report.">
           <div className="w-full flex flex-col lg:flex-row gap-6 items-start">
 
             {/* ── MAIN FORM CARD ── */}
@@ -977,6 +979,7 @@ function EstimatorPage() {
           <p className="mt-8 text-xs text-center" style={{ color: colors.textLight }}>
             Projections based on Dubai market data · indicative only
           </p>
+        </AccessGate>
         </div>
       </section>
 

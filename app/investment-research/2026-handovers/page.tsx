@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
 import SiteNav from "@/components/SiteNav";
+import AccessGate from "@/components/AccessGate";
 import type { DLDDeveloperResult } from "@/app/api/dld-developer/route";
 import {
   HANDOVER_PROJECTS,
@@ -618,6 +619,7 @@ export default function HandoversPage() {
           </div>
         </div>
 
+        <AccessGate source="investment-research-2026-handovers" title="Unlock the Handover Watchlist" subtitle="Free — sign up or log in to see every tracked project and its rental strategy read.">
         {/* Strategy category legend */}
         <div style={{
           display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
@@ -767,7 +769,7 @@ export default function HandoversPage() {
                 color: colors.primary, fontSize: 14, fontWeight: 700, cursor: "pointer",
               }}
             >
-              Analyze My Property
+              Analyze Property
             </button>
           </div>
         </div>
@@ -784,6 +786,7 @@ export default function HandoversPage() {
             This watchlist is based on public-source handover information and AssetIntel internal classification. Handover dates, completion status, building rules, and rental suitability must be verified with official sources, developers, and relevant authorities before making investment or rental decisions. All projects are listed as leads requiring DLD/Mashrooi and developer verification.
           </p>
         </div>
+        </AccessGate>
 
       </div>
     </div>
