@@ -11,6 +11,7 @@ import {
 import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
 import { getDLDBuildingList, type DLDBuildingEntry } from "@/lib/building-rents";
 import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
+import AccessGate from "@/components/AccessGate";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -356,6 +357,7 @@ function SubleasingEstimatorInner() {
       {/* ─── ESTIMATOR CONTENT SECTION — clean background, no image ─── */}
       <div style={{ background: C.bg, position: "relative", zIndex: 3 }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "40px 24px 80px" }}>
+        <AccessGate source="str-subleasing-estimator-form" title="Unlock The Risk Estimator" subtitle="Free — sign up or log in to check whether a sub-leased unit can cover rent.">
 
         {/* ─── Two-column layout ─── */}
         <div style={{ display: "flex", gap: "24px", alignItems: "flex-start" }}>
@@ -851,6 +853,7 @@ function SubleasingEstimatorInner() {
           </div>
         </div>
 
+        </AccessGate>
         </div>{/* end inner max-width container */}
       </div>{/* end ESTIMATOR CONTENT SECTION */}
     </main>
