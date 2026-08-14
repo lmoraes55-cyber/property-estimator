@@ -57,7 +57,15 @@ function tierOf(p: DLD2026Handover): STRTierCategory {
 }
 
 function displayName(p: DLD2026Handover): string {
-  return p.master_project_en || p.area_name_en;
+  return p.project_name_en || p.master_project_en || p.area_name_en;
+}
+
+// The community/cluster context line under the name — shown whenever it adds
+// information beyond the name itself (skipped if displayName already used it).
+function displaySubtitle(p: DLD2026Handover): string {
+  const name = displayName(p);
+  const parts = [p.master_project_en, p.area_name_en].filter((v, i, arr) => v && v !== name && arr.indexOf(v) === i);
+  return parts.length ? parts.join(" · ") : p.area_name_en;
 }
 
 function quarterOf(dateStr: string | null): string {
@@ -111,9 +119,10 @@ function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: (
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
         Your 2026 Handover · Live DLD Data
       </p>
-      <h2 style={{ fontFamily: serif, fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 700, color: colors.primary, lineHeight: 1.2, marginBottom: 14, maxWidth: 560 }}>
+      <h2 style={{ fontFamily: serif, fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 700, color: colors.primary, lineHeight: 1.2, marginBottom: 6, maxWidth: 560 }}>
         {name}
       </h2>
+      <p style={{ fontSize: 13.5, color: colors.textMuted, marginBottom: 20 }}>{displaySubtitle(project)}</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
         <TierBadge tier={tier} />
         <span style={{ fontSize: 11, fontWeight: 600, background: colors.bgSage, borderRadius: 20, padding: "4px 12px", color: colors.textMuted, display: "inline-flex", alignItems: "center" }}>
@@ -207,7 +216,9 @@ function ProjectSearch({ projects, onSelect }: { projects: DLD2026Handover[]; on
     const q = query.trim().toLowerCase();
     if (q.length < 2) return [];
     return projects.filter(p =>
-      displayName(p).toLowerCase().includes(q) || p.area_name_en.toLowerCase().includes(q)
+      displayName(p).toLowerCase().includes(q) ||
+      p.area_name_en.toLowerCase().includes(q) ||
+      (p.master_project_en?.toLowerCase().includes(q) ?? false)
     ).slice(0, 7);
   }, [query, projects]);
 
@@ -249,7 +260,7 @@ function ProjectSearch({ projects, onSelect }: { projects: DLD2026Handover[]; on
             >
               <span>
                 <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: colors.textMain }}>{displayName(p)}</span>
-                <span style={{ fontSize: 12, color: colors.textMuted }}>{p.area_name_en} · {quarterOf(p.project_end_date)}</span>
+                <span style={{ fontSize: 12, color: colors.textMuted }}>{displaySubtitle(p)} · {quarterOf(p.project_end_date)}</span>
               </span>
               <TierBadge tier={tierOf(p)} size="sm" />
             </button>
@@ -292,7 +303,7 @@ function ProjectCard({ project, onClick }: { project: DLD2026Handover; onClick: 
         <h3 style={{ fontSize: 15.5, fontWeight: 700, color: colors.textMain, marginBottom: 3, lineHeight: 1.3, fontFamily: serif }}>
           {displayName(project)}
         </h3>
-        <p style={{ fontSize: 12, color: colors.textLight, margin: 0 }}>{project.area_name_en}</p>
+        <p style={{ fontSize: 12, color: colors.textLight, margin: 0 }}>{displaySubtitle(project)}</p>
       </div>
       <p style={{ fontSize: 12.5, color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>
         {project.percent_completed != null ? `${project.percent_completed.toFixed(0)}% complete` : "Progress pending"}
@@ -332,7 +343,11 @@ export default function HandoversPage() {
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return allProjects.filter(p => {
-      if (q && !displayName(p).toLowerCase().includes(q) && !p.area_name_en.toLowerCase().includes(q)) return false;
+      if (q &&
+        !displayName(p).toLowerCase().includes(q) &&
+        !p.area_name_en.toLowerCase().includes(q) &&
+        !(p.master_project_en?.toLowerCase().includes(q) ?? false)
+      ) return false;
       if (filterArea && p.area_name_en !== filterArea) return false;
       if (filterTier && tierOf(p) !== filterTier) return false;
       return true;

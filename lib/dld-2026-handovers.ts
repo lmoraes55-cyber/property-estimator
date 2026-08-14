@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export interface DLD2026Handover {
   project_id: number;
+  project_name_en: string | null;
   master_project_en: string | null;
   area_name_en: string;
   project_status: string;

@@ -4,7 +4,7 @@ import { getDLDAreaTier } from "@/lib/dld-area-tier";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 280;
 
 // Weekly refresh — the ONLY place in the app allowed to query DDA for 2026
 // handover data. Pulls every ACTIVE or PENDING DLD project with a 2026
@@ -18,10 +18,14 @@ export const maxDuration = 120;
 // project timeline (confirmed on a live row: completion_date 2012 vs. a real
 // project_end_date of 2026-06-30 for the same still-active project).
 //
-// DLD does not expose an English per-tower project name in this dataset, only
-// Arabic (project_name) — master_project_en (the project/community cluster name)
-// is the most specific English name actually available without an expensive
-// per-project join to dld_units-open-api, so that's what's stored and displayed.
+// dld_projects-open-api only exposes master_project_en, a community/cluster-
+// level English name -- confirmed live 2026-08-15 that this makes most rows
+// indistinguishable (e.g. 39 distinct Burj Khalifa-area 2026 handovers all
+// showed "DownTown Dubai"). project_name_en (the real per-tower name) only
+// exists in dld_units-open-api, keyed by project_id, so it's resolved with one
+// extra query per project below (~3s each upstream; run concurrently in
+// batches). Not every project has registered units yet, so this can come back
+// null -- the UI falls back to master_project_en/area_name_en when it does.
 //
 // ddaQuery's exact-match filter (project_status=ACTIVE) is NOT reliably honored
 // by the DDA API when combined with a LIKE filter (project_end_date) in the same
@@ -46,34 +50,28 @@ interface DLDUnitProjectRow {
   project_name_en: string | null;
 }
 
-// TEMPORARY diagnostic — not the real refresh path. Confirms whether
-// dld_units-open-api can resolve a real per-tower English name (project_name_en)
-// per project_id, since dld_projects-open-api only exposes master_project_en
-// (a community-level cluster name — e.g. 39 distinct Burj Khalifa-area 2026
-// handovers all collapse to "DownTown Dubai"). Remove once the real fix lands.
-async function probeUnitNames(projectRows: DLDProjectRow[]) {
-  const sample = projectRows.slice(0, 15);
-  const out = await Promise.all(sample.map(async (r) => {
-    const started = Date.now();
-    try {
-      const { results } = await ddaQuery<DLDUnitProjectRow>({
-        entity: "dld", dataset: "dld_units-open-api",
-        filters: { project_id: String(r.project_id) },
-        columns: ["project_id", "project_name_en"],
-        pageSize: 1,
-      });
-      return {
-        project_id: r.project_id,
-        master_project_en: r.master_project_en,
-        area_name_en: r.area_name_en,
-        resolved_project_name_en: results[0]?.project_name_en ?? null,
-        ms: Date.now() - started,
-      };
-    } catch (e) {
-      return { project_id: r.project_id, error: (e as Error).message, ms: Date.now() - started };
-    }
-  }));
-  return out;
+const NAME_RESOLVE_CONCURRENCY = 20;
+
+async function resolveProjectNames(projectIds: number[]): Promise<Map<number, string | null>> {
+  const resolved = new Map<number, string | null>();
+  for (let i = 0; i < projectIds.length; i += NAME_RESOLVE_CONCURRENCY) {
+    const batch = projectIds.slice(i, i + NAME_RESOLVE_CONCURRENCY);
+    const results = await Promise.all(batch.map(async (id) => {
+      try {
+        const { results } = await ddaQuery<DLDUnitProjectRow>({
+          entity: "dld", dataset: "dld_units-open-api",
+          filters: { project_id: String(id) },
+          columns: ["project_id", "project_name_en"],
+          pageSize: 1,
+        });
+        return [id, results[0]?.project_name_en?.trim() || null] as const;
+      } catch {
+        return [id, null] as const; // one project's lookup failing shouldn't fail the whole refresh
+      }
+    }));
+    for (const [id, name] of results) resolved.set(id, name);
+  }
+  return resolved;
 }
 
 export async function GET(request: Request) {
@@ -91,28 +89,25 @@ export async function GET(request: Request) {
       columns: ["project_id", "master_project_en", "area_name_en", "project_status", "percent_completed", "project_end_date", "no_of_units", "no_of_buildings"],
     });
 
-    const url = new URL(request.url);
-    if (url.searchParams.get("probe") === "1") {
-      const validRows = results.filter(r => (r.project_status === "ACTIVE" || r.project_status === "PENDING") && r.area_name_en);
-      const probe = await probeUnitNames(validRows);
-      return NextResponse.json({ probe });
-    }
-
-    const rows = results
+    const validRows = results
       .filter(r => r.project_status === "ACTIVE" || r.project_status === "PENDING") // DDA doesn't reliably honor the filters query for this combo — see comment above
-      .filter(r => r.area_name_en) // area_name_en not null, per table constraint
-      .map(r => ({
-        project_id: r.project_id,
-        master_project_en: r.master_project_en,
-        area_name_en: r.area_name_en,
-        project_status: r.project_status,
-        percent_completed: r.percent_completed,
-        project_end_date: r.project_end_date,
-        no_of_units: r.no_of_units,
-        no_of_buildings: r.no_of_buildings,
-        str_area_tier: getDLDAreaTier(r.area_name_en),
-        updated_at: new Date().toISOString(),
-      }));
+      .filter(r => r.area_name_en); // area_name_en not null, per table constraint
+
+    const projectNames = await resolveProjectNames(validRows.map(r => r.project_id));
+
+    const rows = validRows.map(r => ({
+      project_id: r.project_id,
+      project_name_en: projectNames.get(r.project_id) ?? null,
+      master_project_en: r.master_project_en,
+      area_name_en: r.area_name_en,
+      project_status: r.project_status,
+      percent_completed: r.percent_completed,
+      project_end_date: r.project_end_date,
+      no_of_units: r.no_of_units,
+      no_of_buildings: r.no_of_buildings,
+      str_area_tier: getDLDAreaTier(r.area_name_en),
+      updated_at: new Date().toISOString(),
+    }));
 
     const supabase = createServiceClient();
     // Full replace, not upsert-only: a project that no longer matches (status
@@ -123,7 +118,11 @@ export async function GET(request: Request) {
     const { error } = await supabase.from("dld_2026_handovers").insert(rows);
     if (error) throw new Error(error.message);
 
-    return NextResponse.json({ status: "success", projectsUpserted: rows.length });
+    return NextResponse.json({
+      status: "success",
+      projectsUpserted: rows.length,
+      resolvedNames: rows.filter(r => r.project_name_en).length,
+    });
   } catch (e) {
     console.error("[DLD-2026-HANDOVERS-REFRESH]", (e as Error).message);
     return NextResponse.json({ status: "error", message: (e as Error).message }, { status: 500 });
