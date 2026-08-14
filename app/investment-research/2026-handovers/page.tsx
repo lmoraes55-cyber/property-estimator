@@ -24,6 +24,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
 import AccessGate from "@/components/AccessGate";
+import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import type { DLDDeveloperResult } from "@/app/api/dld-developer/route";
 import {
   HANDOVER_PROJECTS,
@@ -408,8 +409,10 @@ export default function HandoversPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: colors.bgMain }}>
+    <div style={{ minHeight: "100vh", background: colors.bgMain, position: "relative" }}>
+      <DecorativeBackdrop />
       {showLead && <LeadModal onClose={() => setShowLead(false)} />}
+      <div style={{ position: "relative", zIndex: 1 }}>
       <SiteNav active="insights" />
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px 80px" }}>
@@ -576,6 +579,7 @@ export default function HandoversPage() {
             </p>
           </div>
         </AccessGate>
+      </div>
       </div>
 
       <style>{`

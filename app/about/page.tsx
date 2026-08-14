@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
+import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 
 const C = {
   green:       "#1B5E4A",
@@ -175,7 +176,9 @@ export default function AboutPage() {
       <SiteNav active="about" />
       {enquiryOpen && <EnquiryModal onClose={() => setEnquiryOpen(false)} />}
 
-      <main style={{ background: C.bg, color: C.text }}>
+      <main style={{ background: C.bg, color: C.text, position: "relative" }}>
+        <DecorativeBackdrop />
+        <div style={{ position: "relative", zIndex: 1 }}>
 
         {/* ── SECTION 1: HERO ──────────────────────────────────────────── */}
         <section style={{
@@ -493,6 +496,7 @@ export default function AboutPage() {
           </div>
         </section>
 
+        </div>
       </main>
 
       {/* Responsive grid overrides */}
