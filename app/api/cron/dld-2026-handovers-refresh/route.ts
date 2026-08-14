@@ -73,7 +73,12 @@ export async function GET(request: Request) {
       }));
 
     const supabase = createServiceClient();
-    const { error } = await supabase.from("dld_2026_handovers").upsert(rows, { onConflict: "project_id" });
+    // Full replace, not upsert-only: a project that no longer matches (status
+    // changed, end_date slipped out of 2026) must disappear from the table too,
+    // not linger forever from a prior run.
+    const { error: delError } = await supabase.from("dld_2026_handovers").delete().gte("project_id", 0);
+    if (delError) throw new Error(delError.message);
+    const { error } = await supabase.from("dld_2026_handovers").insert(rows);
     if (error) throw new Error(error.message);
 
     return NextResponse.json({ status: "success", projectsUpserted: rows.length });
