@@ -1,0 +1,339 @@
+// Dubai STR management-company competitor research — primary research conducted by the
+// AssetIntel/Deluxe team via direct mystery-shopper outreach (calls, WhatsApp, email),
+// compiled 2026-08-13. This is NOT AirROI/Airbtics data: commission terms, lock-in
+// periods, onboarding timelines and service-quality notes are not published by either
+// provider — this is the only source AssetIntel has for them.
+//
+// Regenerate from a fresh round of outreach rather than hand-editing; treat quoted
+// figures (fee %, fees, unit counts) as exactly what the operator's own rep stated,
+// not verified against a public source the way AirROI/Airbtics figures are.
+//
+// Excluded: rows where a researcher logged only a name with no response captured
+// (Qstay, Keyview, Huas & Huas, Keys Please, Likehome, Maison Prive, Easy Go) — no
+// usable data, listed in RESEARCHED_NO_RESPONSE below instead of fabricating detail.
+
+export interface CompetitorResearch {
+  name: string;
+  tier: "high" | "standard" | null;
+  managementFeePct: [number, number] | number | null; // range or single quoted %
+  feeNotes: string | null; // extra costs, negotiability, exact quote context
+  lockInPeriod: string | null;
+  noticePeriod: string | null;
+  earlyTerminationFee: string | null;
+  onboardingSemiFurnished: string | null;
+  onboardingFullyFurnished: string | null;
+  portfolioSize: string | null; // kept as quoted string — sources phrase this inconsistently ("150+", "As per conversation 400")
+  areasOfFocus: string | null;
+  ownerPortal: string | null;
+  systemsUsed: string | null;
+  listingPlatforms: string | null;
+  responseTime: string | null;
+  serviceQuality: string | null; // "way of attending call" + strengths/weaknesses, condensed
+  strengths: string | null;
+  weaknesses: string | null;
+  additionalObservations: string | null;
+  researchedBy: string;
+}
+
+export const RESEARCHED_NO_RESPONSE = [
+  "Qstay", "Keyview", "Huas & Huas", "Keys Please", "Likehome", "Maison Prive", "Easy Go",
+];
+
+export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
+  {
+    name: "One Perfect Stay",
+    tier: "high",
+    managementFeePct: 15,
+    feeNotes: null,
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: null,
+    areasOfFocus: null,
+    ownerPortal: null, systemsUsed: null,
+    listingPlatforms: "All OTAs",
+    responseTime: "Immediate — within 15 min of filling the form",
+    serviceQuality: "Not very knowledgeable; never called back or replied on WhatsApp",
+    strengths: null,
+    weaknesses: "No follow-up, no reply after a few messages",
+    additionalObservations: null,
+    researchedBy: "Leon",
+  },
+  {
+    name: "Elite Lux Homes",
+    tier: null,
+    managementFeePct: 15,
+    feeNotes: "Quoted as the 'standard DET fee'. Plus AED 350 insurance and AED 1,200 onboarding cost.",
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "150+",
+    areasOfFocus: "All prime areas",
+    ownerPortal: "Yes", systemsUsed: null,
+    listingPlatforms: "All OTAs",
+    responseTime: "Form sent 8pm — replied 10am next day",
+    serviceQuality: "Very professional, straight to the point",
+    strengths: null, weaknesses: null,
+    additionalObservations: null,
+    researchedBy: "Leon",
+  },
+  {
+    name: "Livbnb",
+    tier: null,
+    managementFeePct: 20,
+    feeNotes: "Free photoshoot and linens included; no onboarding costs. 1BR fully-furnished setup cost quoted at AED 30–35K.",
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: "5 days", onboardingFullyFurnished: "2 weeks",
+    portfolioSize: "180+",
+    areasOfFocus: "All areas",
+    ownerPortal: "Yes", systemsUsed: null,
+    listingPlatforms: "All OTAs",
+    responseTime: "Form sent 8pm — replied 12pm next day",
+    serviceQuality: "Quick, professional",
+    strengths: "No onboarding costs", weaknesses: null,
+    additionalObservations: "Provided a 1-page forecast with a property image",
+    researchedBy: "Leon",
+  },
+  {
+    name: "Key One",
+    tier: null,
+    managementFeePct: [15, 18],
+    feeNotes: "Quoted 18% but stated willingness to go as low as 15%.",
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "50+",
+    areasOfFocus: "All prime areas",
+    ownerPortal: "Yes — mobile app only (Play Store: Landlord Connect HH)",
+    systemsUsed: null,
+    listingPlatforms: "All OTAs",
+    responseTime: "Form sent 8pm — took 2 days; real-estate team called first",
+    serviceQuality: "Professional, regular follow-up",
+    strengths: null, weaknesses: "Small portfolio",
+    additionalObservations: null,
+    researchedBy: "Leon",
+  },
+  {
+    name: "Suiteable",
+    tier: null,
+    managementFeePct: 16,
+    feeNotes: "1-year contract, 3-month notice period. Immediate-cancellation fee AED 1,500 per 1BR per month.",
+    lockInPeriod: "1 year contract", noticePeriod: "3 months",
+    earlyTerminationFee: "AED 1,500 per 1BR/month",
+    onboardingSemiFurnished: "5–7 days", onboardingFullyFurnished: "3 weeks",
+    portfolioSize: "200+",
+    areasOfFocus: "Premium areas — Downtown, Dubai Marina, Palm Jumeirah, JBR, etc.",
+    ownerPortal: "Yes — \"Channel Manager\": guest name, check-in/out, management fee, net income, occupancy rate, revenue statement",
+    systemsUsed: null,
+    listingPlatforms: "~6 channels — Booking.com, Airbnb, Expedia, Vrbo, etc.",
+    responseTime: "Answered right away; call lasted ~16 minutes",
+    serviceQuality: "Easygoing but not fully professional, incomplete knowledge",
+    strengths: null, weaknesses: null,
+    additionalObservations: null,
+    researchedBy: "Motasem",
+  },
+  {
+    name: "LUX Holiday Homes",
+    tier: null,
+    managementFeePct: [15, 18],
+    feeNotes: "Described as flexible, between 15% and 18%.",
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: "3 days", onboardingFullyFurnished: "1 week",
+    portfolioSize: "117 units",
+    areasOfFocus: null,
+    ownerPortal: null, systemsUsed: null, listingPlatforms: null,
+    responseTime: "Answered right away",
+    serviceQuality: "Not professional, uncertain, incomplete information",
+    strengths: null, weaknesses: null,
+    additionalObservations: null,
+    researchedBy: "Motasem",
+  },
+  {
+    name: "Frank Porter",
+    tier: "high",
+    managementFeePct: 17,
+    feeNotes: "17% of rent net of Homestay Website fees, confirmed in Frank Porter's own signed Service Agreement (matches Kazem's call quote). DET fees separate: Studio/1BR 370 AED/yr, 2BR 670, 3BR 970, 4BR+ 1200, plus one-time 700 AED DET lock fee. Insurance 550–1200 AED+VAT/yr. Cleaning fees charged to guest separately, kept by Frank Porter. Interior design/furnishing packages (separate document): Full Premium 29,000–72,000 AED (studio–3BR) or Full Standard 22,000–56,000 AED, excludes maintenance and major kitchen appliances.",
+    lockInPeriod: "6 months minimum contract", noticePeriod: "60 days (open calendar) after the 6-month minimum",
+    earlyTerminationFee: "AED 5,000 if terminated within first 6 months; AED 1,500 if terminated after 6 months without giving 60 days notice. Post-termination, Frank Porter still charges 14% of rent (net of Homestay Website fees) on any pre-termination bookings checking in within 60 days of termination.",
+    onboardingSemiFurnished: "2–3 weeks", onboardingFullyFurnished: "3–4 weeks",
+    portfolioSize: "650",
+    areasOfFocus: "All Dubai, plus Abu Dhabi",
+    ownerPortal: "Yes — owner app", systemsUsed: "Own proprietary system",
+    listingPlatforms: "All platforms + own website",
+    responseTime: "Website inquiry answered right away; email within 15 min; phone call the next day",
+    serviceQuality: "Delayed, not attentive — had to call them back myself",
+    strengths: "Lower management fees and overall costs; units in Abu Dhabi; owner app",
+    weaknesses: "Not caring approach, a lot of delay in calls, low attention to client. Contract makes Frank Porter sole agent, gives them full pricing/booking discretion with no consultation requirement, and any Client-caused cancellation (including a Guest cancelling due to a maintenance failure) still costs the Client the full Management Fee.",
+    additionalObservations: "Projections sent instantly and appear well up to date on occupancy/numbers. Confirmed via a real, signed Frank Porter Service Agreement obtained 2026-08-14 — this is the most authoritative figure in this dataset (contract terms, not a phone quote).",
+    researchedBy: "Kazem (call); Service Agreement (contract, 2026-08-14)",
+  },
+  {
+    name: "Vacationer",
+    tier: null,
+    managementFeePct: null,
+    feeNotes: null,
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "345",
+    areasOfFocus: "All Dubai",
+    ownerPortal: null, systemsUsed: null, listingPlatforms: null,
+    responseTime: null,
+    serviceQuality: null,
+    strengths: "Villas in varied locations",
+    weaknesses: "Confusing website, no clear call-to-action for property managers — requires a phone call",
+    additionalObservations: null,
+    researchedBy: "Kazem",
+  },
+  {
+    name: "FAM Living",
+    tier: null,
+    managementFeePct: 15,
+    feeNotes: null,
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "320+",
+    areasOfFocus: "Major areas",
+    ownerPortal: "Yes", systemsUsed: null, listingPlatforms: null,
+    responseTime: "Call received within a couple of hours",
+    serviceQuality: "Friendly",
+    strengths: null, weaknesses: "Very specific/restrictive about which locations they'll take",
+    additionalObservations: null,
+    researchedBy: "Kazem",
+  },
+  {
+    name: "NOX",
+    tier: null,
+    managementFeePct: null,
+    feeNotes: null,
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "100+",
+    areasOfFocus: "Main areas plus secondary areas such as Meydan",
+    ownerPortal: null, systemsUsed: null, listingPlatforms: null,
+    responseTime: null, serviceQuality: null,
+    strengths: "Very luxurious presence, high-end units",
+    weaknesses: null,
+    additionalObservations: null,
+    researchedBy: "Kazem",
+  },
+  {
+    name: "GuestReady",
+    tier: "high",
+    managementFeePct: 15,
+    feeNotes: "15% monthly. 9-month lock-in, 1-month notice, AED 3,000 early-termination fee.",
+    lockInPeriod: "9 months", noticePeriod: "1 month",
+    earlyTerminationFee: "AED 3,000",
+    onboardingSemiFurnished: "1 week", onboardingFullyFurnished: "2–3 weeks (varies by item availability)",
+    portfolioSize: "~400 (per conversation); ~138 real-time on Rental Ready PMS; Airbnb tracked on separate accounts",
+    areasOfFocus: "All areas except Warsan, Deira, etc.",
+    ownerPortal: "Yes — own portal", systemsUsed: "Rental Ready, plus their own owner system",
+    listingPlatforms: "All channels the competitors also use",
+    responseTime: "Received right away from website; called within 10 minutes",
+    serviceQuality: "25-minute call, professional and detail-oriented, kept composed",
+    strengths: "International presence, own channels (revenue/owner portal), 400 units, instant projections from website",
+    weaknesses: null,
+    additionalObservations: "Overall good experience; all information shared within 12 hours.",
+    researchedBy: "Ahmed",
+  },
+  {
+    name: "Blueground",
+    tier: "high",
+    managementFeePct: null,
+    feeNotes: null,
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: null,
+    areasOfFocus: "Downtown, DIFC, SZR, City Walk, Marina and JBR (primary); Dubai Creek Harbour, some JLT towers, Greens & Views (secondary). Building-specific, not blanket onboarding.",
+    ownerPortal: null, systemsUsed: null, listingPlatforms: null,
+    responseTime: "Inquiry sent 12:30pm; email response with more detail the next day; no phone contact",
+    serviceQuality: "Email-only communication",
+    strengths: null,
+    weaknesses: "Doesn't call leads right away, email-only",
+    additionalObservations: "Confirmed not managing in the specific building asked about (Damac Paramount); a second inquiry was sent for another building.",
+    researchedBy: "Ahmed",
+  },
+  {
+    name: "Hi Guests",
+    tier: null,
+    managementFeePct: 18,
+    feeNotes: "18% monthly. 3-month lock-in, 1-month notice, AED 3,000 early-termination fee. AED 500 charge per missed bill payment if owner fails to pay. Maintenance approval limit AED 250 (AED 100 charge if 3rd-party maintenance used). DET permit AED 500 for 1BR, +AED 500 for 2BR. Photoshoot AED 600 for 1BR.",
+    lockInPeriod: "3 months", noticePeriod: "1 month",
+    earlyTerminationFee: "AED 3,000",
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "~43 listings real-time (PMS)",
+    areasOfFocus: "All areas except Warsan, Deira, etc.",
+    ownerPortal: null, systemsUsed: null,
+    listingPlatforms: "All usual channels",
+    responseTime: "Within 1 hour, WhatsApp only, asked to call",
+    serviceQuality: "Slow, incomplete information given only in bits when asked",
+    strengths: "Quick to make contact",
+    weaknesses: "Not forthcoming with full information, slow to fully respond",
+    additionalObservations: null,
+    researchedBy: "Ahmed",
+  },
+  {
+    name: "First Class",
+    tier: "high",
+    managementFeePct: 20,
+    feeNotes: "Ahmed's call quoted 22% as negotiable — user (Leon) has since corrected this to 20% as the current rate. Brochure itself doesn't publish a fee %. Furnishing/styling tiers from brochure: Standard 30,000–100,000 AED (studio–3BR), Luxury 40,000–100,000+ AED (studio–3BR, 4BR+ quoted case-by-case).",
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "Two Airbnb accounts by design, per Leon: 234 and 253 listings — a deliberate portfolio split, not a data-quality artifact. Splitting keeps the review count/rating higher on one account (fewer stays diluting the average) rather than pooling all reviews under one listing history. Brochure claims 200+ luxury properties under management.",
+    areasOfFocus: "All areas except Warsan, Deira, etc. Brochure lists prime focus: Downtown/DIFC, Dubai Creek Harbour, Palm Jumeirah, Bluewaters, Dubai Harbour, Dubai Marina.",
+    ownerPortal: "Yes — owner app (per brochure: bookings, occupancy, revenue by channel, personal-stay blocking)", systemsUsed: "HostAway",
+    listingPlatforms: "Airbnb, Expedia, VRBO, Booking.com, Agoda, HomeAway, TripAdvisor + own website",
+    responseTime: "Contacted right away, replied within 1 hour via WhatsApp",
+    serviceQuality: "Fast, shared all requested details",
+    strengths: "Quick to make contact. Brochure claims 97.8% avg review score across 3,000+ reviews, over 11,500 total bookings — treat this rating as measured against only the split account it's attached to, not their full portfolio.",
+    weaknesses: "Didn't check requirements thoroughly before calling/arranging a call. Splitting listings across two Airbnb accounts to protect a headline rating is a review-quality red flag worth surfacing if this ever appears in owner-facing comparisons.",
+    additionalObservations: "Founders: Rohollah Rohparwar (German, ex-Airbus/consulting) and Luis Santos (Portuguese, ex-consulting), founded 2020. Brochure obtained 2026-08-14 corroborates Ahmed's call but adds no fee %.",
+    researchedBy: "Ahmed (call); company brochure (2026-08-14); Leon (fee correction + account-split confirmation, 2026-08-14)",
+  },
+  {
+    name: "fäm Living",
+    tier: "high",
+    managementFeePct: 15,
+    feeNotes: "15% of gross revenue (85% to owner) — from fäm Living's own revenue-projection proposal for a 3BR Palace Beach Residences unit (Emaar Beachfront), obtained 2026-08-14. One-time set-up fee AED 4,900 (linen/towels, professional photography, snagging, cleaning, inventory/BOQ). DTCM permit AED 970/yr, insurance AED 1,250/yr, both separate from the management fee.",
+    lockInPeriod: "12 months from signing", noticePeriod: "3 months written notice",
+    earlyTerminationFee: "AED 2,000 if terminated within the first 6 months",
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "Claims AED 1.2bn portfolio value under management; 700+ Google reviews, 13K Instagram followers",
+    areasOfFocus: "Not specified in proposal (proposal was for Dubai Creek Harbour / Emaar Beachfront)",
+    ownerPortal: null, systemsUsed: "Own PMS, CRM and revenue-management stack (in-house, per their pitch)",
+    listingPlatforms: "Not specified",
+    responseTime: null,
+    serviceQuality: "Proposal is data-heavy: AI-assisted rate-setting, monthly seasonality curve (quoted occupancy ranging 42% in low season to 92% in peak months), quarterly payout schedule (slower than the monthly norm most competitors use).",
+    strengths: "Positions itself as an independent, neutral operator (separate licenses for vacation homes, property management, and interior design) rather than tied to one developer/broker.",
+    weaknesses: "Quarterly (not monthly) owner payout is a real disadvantage vs. the monthly-payout norm seen across every other operator in this dataset.",
+    additionalObservations: "Not previously in AssetIntel's operator lists — added from a real client-facing revenue projection document, not a mystery-shopper call. Projection quoted AED 629,910 gross / AED 511,424 net-to-owner annually on this specific 3BR unit at 80% occupancy, 672 AED ADR — illustrative for that unit only, not a general benchmark.",
+    researchedBy: "Client-facing proposal document (2026-08-14), not mystery-shopper outreach",
+  },
+  {
+    name: "Allsopp & Allsopp",
+    tier: null,
+    managementFeePct: 20,
+    feeNotes: "20% management fee, from a real client revenue-projection letter for a 1BR unit at The Central Lofts, Downtown Dubai (obtained 2026-08-14). Note: Allsopp & Allsopp is primarily a real-estate brokerage (License No. 613873, Motor City) that also offers STR/holiday-home management as a secondary service line — not a dedicated STR specialist like the other entries in this dataset.",
+    lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: null,
+    areasOfFocus: "Not specified in this document; brokerage operates Dubai-wide",
+    ownerPortal: null, systemsUsed: null,
+    listingPlatforms: "Airbnb, Booking.com, HomeAway, plus local portals Dubizzle & Bayut",
+    responseTime: null,
+    serviceQuality: null,
+    strengths: "As a full-service brokerage, can pitch STR management alongside sales/long-term-rental advice in the same conversation — useful for an owner comparing STR vs. LTR vs. sale.",
+    weaknesses: "STR management looks like an add-on to their core brokerage business rather than a primary specialty; no owner app, PMS, or portfolio-scale claims volunteered the way dedicated STR operators do.",
+    additionalObservations: "Their own projection for this unit: AED 112,000 LTR annual rent vs. AED 184,128 gross STR revenue (before their 20% fee and AED 12,000 utilities) — netting AED 135,302 to the owner, a claimed 20.81% uplift over LTR at 80% occupancy, 672 AED ADR. Also itemizes DTCM onboarding requirements (370 AED permit, insurance, smart lock 1,600–2,700 AED, deep clean 494 AED) — useful as a general onboarding-cost reference even outside Allsopp-specific figures.",
+    researchedBy: "Client-facing revenue projection document (2026-08-14), not mystery-shopper outreach",
+  },
+];
+
+// Internal reference only — never publish alongside competitor figures without
+// explicit sign-off; Deluxe is AssetIntel's own affiliated operator (see PRODUCT.md
+// independence positioning).
+export const DELUXE_OWN_FEE_NOTE =
+  "Deluxe standard management fee is 20%, negotiable down to as low as 18% depending on portfolio/terms. " +
+  "Confirmed by Deluxe's own draft Vacation Rental Services Agreement (obtained 2026-08-14): flat 20% of " +
+  "Rental Proceeds (net rent only — excludes VAT/TDF/cleaning/guest fees), 12-month term auto-renewing, " +
+  "3-month written termination notice, early-exit fee AED 1,500 per bedroom per month for each notice month " +
+  "not honored, maintenance approval limit AED 1,000 (apartments) / AED 2,000 (villas & townhouses), owner " +
+  "payout by the 15th of each month, security deposit AED 1,500 (apartments) / AED 4,500 (villas). Owner " +
+  "stay capped at 1 month/year, excluded during peak season and public holidays. Liability cap: 12 months " +
+  "of management fees paid.";

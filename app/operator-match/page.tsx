@@ -2,32 +2,16 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import {
-  runEstimator, rankOperators,
-  UnitSize, UnitType, ViewType,
-  BUILDING_DIRECTORY,
-} from "@/lib/estimator";
+import { BUILDING_DIRECTORY } from "@/lib/estimator";
 import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
 import { getDLDBuildingList, type DLDBuildingEntry } from "@/lib/building-rents";
+import { PRIORITY_OPTIONS, Priority } from "@/lib/operator-match";
 import { colors } from "@/lib/colors";
 import SiteNav from "@/components/SiteNav";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 
 const DLD_BUILDINGS: DLDBuildingEntry[] = getDLDBuildingList();
 const ALL_BUILDINGS = new Set([...Object.keys(BUILDINGS_DATABASE), ...Object.keys(BUILDING_DIRECTORY)]);
-
-const BEDROOM_OPTIONS: { label: string; value: UnitSize }[] = [
-  { label: "Studio", value: "STU" },
-  { label: "1 Bedroom", value: "1BR" },
-  { label: "2 Bedrooms", value: "2BR" },
-  { label: "3 Bedrooms", value: "3BR" },
-  { label: "4+ Bedrooms", value: "4BR APT" },
-];
-
-const VIEW_OPTIONS: ViewType[] = [
-  "Burj / Downtown Skyline", "Marina / Waterfront", "Sea View",
-  "Golf / Park View", "Community View", "Standard View",
-];
 
 function OperatorMatchContent() {
   const router = useRouter();
@@ -40,10 +24,14 @@ function OperatorMatchContent() {
   const [areaLabel, setAreaLabel] = useState("");
   const buildingRef = useRef<HTMLDivElement>(null);
 
-  const [unitSize, setUnitSize] = useState<UnitSize>("2BR");
-  const [view, setView] = useState<ViewType>("Standard View");
+  const [priorities, setPriorities] = useState<Priority[]>([]);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+
+  function togglePriority(p: Priority) {
+    setPriorities(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+  }
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -77,35 +65,18 @@ function OperatorMatchContent() {
     setShowSuggestions(false);
   }
 
-  const unitLabel = BEDROOM_OPTIONS.find(o => o.value === unitSize)?.label ?? unitSize;
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!buildingName) { setError("Please select a building from the list."); return; }
+    if (priorities.length === 0) { setError("Please select at least one priority."); return; }
     if (!email) { setError("Please enter your email address."); return; }
 
     setSubmitting(true);
     try {
-      const result = runEstimator({
-        propertyName: buildingName,
-        buildingName,
-        unitSize,
-        unitType: "Apartment",
-        floor: 10,
-        view,
-        furnished: "Furnished",
-        managementFee: 0.20,
-        occStrategy: "LOCCHP",
-        dldKey: dldKey || undefined,
-        dldArea: dldArea || undefined,
-        propertyCondition: "Standard",
-      });
-
       const res = await fetch("/api/send-operator-match", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, result }),
+        body: JSON.stringify({ email, priorities, name: name || undefined, buildingName: buildingName || undefined }),
       });
       const json = await res.json();
       if (!json.ok) throw new Error("send failed");
@@ -116,10 +87,9 @@ function OperatorMatchContent() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             type: "operator_match_no_estimate",
-            email, phone,
-            property: buildingName,
-            unitSize,
-            message: `Area: ${areaLabel || dldArea || "—"} | View: ${view}`,
+            name, email, phone,
+            property: buildingName || "—",
+            message: `Priorities: ${priorities.join(", ")} | Area: ${areaLabel || dldArea || "—"}`,
           }),
         });
       } catch {}
@@ -133,9 +103,7 @@ function OperatorMatchContent() {
 
   function runFullEstimator() {
     const params = new URLSearchParams({
-      building: buildingName,
-      type: unitSize,
-      view,
+      ...(buildingName ? { building: buildingName } : {}),
       ...(dldArea ? { dldArea } : {}),
     });
     router.push(`/estimator?${params.toString()}`);
@@ -212,9 +180,37 @@ function OperatorMatchContent() {
                   <div style={{ height: 1, background: "rgba(40,80,65,0.10)", marginTop: 22 }} />
                 </div>
 
-                {/* Building search */}
+                {/* Priorities */}
+                <div style={{ marginBottom: 22 }}>
+                  <label style={labelStyle}>What matters most to you? (select all that apply)</label>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {PRIORITY_OPTIONS.map(opt => {
+                      const active = priorities.includes(opt.value);
+                      return (
+                        <button
+                          type="button"
+                          key={opt.value}
+                          onClick={() => togglePriority(opt.value)}
+                          style={{
+                            textAlign: "left", padding: "12px 14px", borderRadius: 12,
+                            border: active ? `1.5px solid ${colors.primary}` : "1px solid rgba(40,80,65,0.14)",
+                            background: active ? "rgba(27,94,74,0.06)" : "rgba(250,248,243,0.6)",
+                            cursor: "pointer", fontFamily: "inherit",
+                          }}
+                        >
+                          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: active ? colors.primary : colors.textMain }}>
+                            {active ? "✓ " : ""}{opt.label}
+                          </p>
+                          <p style={{ margin: "3px 0 0", fontSize: 12, color: colors.textMuted, lineHeight: 1.4 }}>{opt.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Building search (optional context) */}
                 <div ref={buildingRef} style={{ position: "relative", marginBottom: 20 }}>
-                  <label style={labelStyle}>Building Name</label>
+                  <label style={labelStyle}>Building Name (optional)</label>
                   <input
                     className="opm-field opm-field-building"
                     value={buildingName ? buildingName : buildingSearch}
@@ -244,23 +240,11 @@ function OperatorMatchContent() {
                   )}
                 </div>
 
-                {/* Bedrooms + View */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
-                  <div>
-                    <label style={labelStyle}>Bedrooms</label>
-                    <select className="opm-field" value={unitSize} onChange={e => setUnitSize(e.target.value as UnitSize)} style={{ ...inputStyle, appearance: "none" }}>
-                      {BEDROOM_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>View</label>
-                    <select className="opm-field" value={view} onChange={e => setView(e.target.value as ViewType)} style={{ ...inputStyle, appearance: "none" }}>
-                      {VIEW_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-                </div>
-
                 {/* Contact */}
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>Your Name</label>
+                  <input className="opm-field" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" style={inputStyle} />
+                </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 10 }}>
                   <div>
                     <label style={labelStyle}>Email</label>
