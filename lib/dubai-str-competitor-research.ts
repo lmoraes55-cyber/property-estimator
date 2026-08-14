@@ -88,6 +88,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
     onboardingSemiFurnished: "5 days", onboardingFullyFurnished: "2 weeks",
     portfolioSize: "180+",
+    verifiedListingCount: { count: 172, source: "Livbnb's Airbnb host profile (\"View all 172 listings\")", capturedOn: "2026-08-14" },
     areasOfFocus: "All areas",
     ownerPortal: "Yes", systemsUsed: null,
     listingPlatforms: "All OTAs",
@@ -282,6 +283,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
     onboardingSemiFurnished: null, onboardingFullyFurnished: null,
     portfolioSize: "Two Airbnb accounts by design, per Leon: 234 and 253 listings — a deliberate portfolio split, not a data-quality artifact. Splitting keeps the review count/rating higher on one account (fewer stays diluting the average) rather than pooling all reviews under one listing history. Brochure claims 200+ luxury properties under management.",
+    verifiedListingCount: { count: 328, source: "First Class's main Airbnb host profile (\"View all 328 listings\", 8,862 reviews, Superhost) — one of at least 3 accounts observed (see portfolioSize for the other two, 234 and 253)", capturedOn: "2026-08-14" },
     areasOfFocus: "All areas except Warsan, Deira, etc. Brochure lists prime focus: Downtown/DIFC, Dubai Creek Harbour, Palm Jumeirah, Bluewaters, Dubai Harbour, Dubai Marina.",
     ownerPortal: "Yes — owner app (per brochure: bookings, occupancy, revenue by channel, personal-stay blocking)", systemsUsed: "HostAway",
     listingPlatforms: "Airbnb, Expedia, VRBO, Booking.com, Agoda, HomeAway, TripAdvisor + own website",
@@ -329,17 +331,24 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     additionalObservations: "Their own projection for this unit: AED 112,000 LTR annual rent vs. AED 184,128 gross STR revenue (before their 20% fee and AED 12,000 utilities) — netting AED 135,302 to the owner, a claimed 20.81% uplift over LTR at 80% occupancy, 672 AED ADR. Also itemizes DTCM onboarding requirements (370 AED permit, insurance, smart lock 1,600–2,700 AED, deep clean 494 AED) — useful as a general onboarding-cost reference even outside Allsopp-specific figures.",
     researchedBy: "Client-facing revenue projection document (2026-08-14), not mystery-shopper outreach",
   },
+  {
+    name: "Deluxe Holiday Homes",
+    tier: "high",
+    managementFeePct: [18, 20],
+    feeNotes: "Standard rate 20% flat of Rental Proceeds (net rent only — excludes VAT/TDF/cleaning/guest fees), negotiable down to 18% depending on portfolio/terms, per Leon (2026-08-14). Confirmed by Deluxe's own draft Vacation Rental Services Agreement (obtained 2026-08-14). Maintenance approval limit AED 1,000 (apartments) / AED 2,000 (villas & townhouses) before owner sign-off required. Security deposit AED 1,500 (apartments) / AED 4,500 (villas).",
+    lockInPeriod: "12 months, auto-renewing", noticePeriod: "3 months written notice",
+    earlyTerminationFee: "AED 1,500 per bedroom per month, for each notice month not honored",
+    onboardingSemiFurnished: null, onboardingFullyFurnished: null,
+    portfolioSize: "731 listings (Airbtics, avg 78% occupancy)",
+    verifiedListingCount: { count: 695, source: "Deluxe Holiday Homes's Airbnb host profile (\"View all 695 listings\", 11,411 reviews)", capturedOn: "2026-08-14" },
+    areasOfFocus: "Downtown Dubai, Palm Jumeirah, Dubai Marina, JBR, Emirates Hills, Jumeirah",
+    ownerPortal: null, systemsUsed: null,
+    listingPlatforms: "All major OTAs + own website (deluxehomes.com)",
+    responseTime: null,
+    serviceQuality: "Owner payout by the 15th of each month. Owner stay capped at 1 month/year, excluded during peak season and public holidays. Liability cap: 12 months of management fees paid.",
+    strengths: "One of Dubai's largest and longest-established holiday-home operators (est. 2013); AssetIntel's own team has direct operational visibility into this operator (Leon works at Deluxe) — the only entry in this dataset with that level of first-hand insight rather than outreach/contract review alone.",
+    weaknesses: "AssetIntel is not an independent source for this entry — the fee, terms, and portfolio figures are real and contract/platform-verified the same as every other row, but Leon's employment there is a direct conflict of interest for any competitive ranking. Flag this clearly wherever Deluxe appears alongside competitors.",
+    additionalObservations: "This is AssetIntel's own affiliated operator. Included in the general dataset per Leon's explicit instruction (2026-08-14) rather than held back — but the conflict-of-interest note above should travel with it in any owner-facing output.",
+    researchedBy: "Deluxe's own draft Vacation Rental Services Agreement (contract, 2026-08-14); Leon (direct knowledge, fee correction 2026-08-14)",
+  },
 ];
-
-// Internal reference only — never publish alongside competitor figures without
-// explicit sign-off; Deluxe is AssetIntel's own affiliated operator (see PRODUCT.md
-// independence positioning).
-export const DELUXE_OWN_FEE_NOTE =
-  "Deluxe standard management fee is 20%, negotiable down to as low as 18% depending on portfolio/terms. " +
-  "Confirmed by Deluxe's own draft Vacation Rental Services Agreement (obtained 2026-08-14): flat 20% of " +
-  "Rental Proceeds (net rent only — excludes VAT/TDF/cleaning/guest fees), 12-month term auto-renewing, " +
-  "3-month written termination notice, early-exit fee AED 1,500 per bedroom per month for each notice month " +
-  "not honored, maintenance approval limit AED 1,000 (apartments) / AED 2,000 (villas & townhouses), owner " +
-  "payout by the 15th of each month, security deposit AED 1,500 (apartments) / AED 4,500 (villas). Owner " +
-  "stay capped at 1 month/year, excluded during peak season and public holidays. Liability cap: 12 months " +
-  "of management fees paid.";

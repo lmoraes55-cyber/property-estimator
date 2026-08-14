@@ -5,8 +5,11 @@
 // communicationScore/flexibilityScore below are AssetIntel's OWN derived interpretation
 // of the researcher's free-text notes (keyword-scored), not a figure any operator
 // published or quoted — kept separate from the sourced fields for that reason.
-// Deluxe is deliberately absent from COMPETITOR_RESEARCH (see DELUXE_OWN_FEE_NOTE) so
-// it can never surface here as an "unbiased" match.
+//
+// Deluxe Holiday Homes IS included here (per explicit instruction, 2026-08-14) despite
+// being AssetIntel's own affiliated operator — see its weaknesses field in
+// dubai-str-competitor-research.ts for the conflict-of-interest note that should travel
+// with it wherever it's shown alongside competitors.
 
 import { COMPETITOR_RESEARCH, CompetitorResearch } from "./dubai-str-competitor-research";
 import { DUBAI_OPERATORS, DubaiOperator } from "./dubai-operators";
