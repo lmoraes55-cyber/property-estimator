@@ -41,6 +41,41 @@ interface DLDProjectRow {
   no_of_buildings: number | null;
 }
 
+interface DLDUnitProjectRow {
+  project_id: number;
+  project_name_en: string | null;
+}
+
+// TEMPORARY diagnostic — not the real refresh path. Confirms whether
+// dld_units-open-api can resolve a real per-tower English name (project_name_en)
+// per project_id, since dld_projects-open-api only exposes master_project_en
+// (a community-level cluster name — e.g. 39 distinct Burj Khalifa-area 2026
+// handovers all collapse to "DownTown Dubai"). Remove once the real fix lands.
+async function probeUnitNames(projectRows: DLDProjectRow[]) {
+  const sample = projectRows.slice(0, 15);
+  const out = await Promise.all(sample.map(async (r) => {
+    const started = Date.now();
+    try {
+      const { results } = await ddaQuery<DLDUnitProjectRow>({
+        entity: "dld", dataset: "dld_units-open-api",
+        filters: { project_id: String(r.project_id) },
+        columns: ["project_id", "project_name_en"],
+        pageSize: 1,
+      });
+      return {
+        project_id: r.project_id,
+        master_project_en: r.master_project_en,
+        area_name_en: r.area_name_en,
+        resolved_project_name_en: results[0]?.project_name_en ?? null,
+        ms: Date.now() - started,
+      };
+    } catch (e) {
+      return { project_id: r.project_id, error: (e as Error).message, ms: Date.now() - started };
+    }
+  }));
+  return out;
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -55,6 +90,13 @@ export async function GET(request: Request) {
       pageSize: 1000,
       columns: ["project_id", "master_project_en", "area_name_en", "project_status", "percent_completed", "project_end_date", "no_of_units", "no_of_buildings"],
     });
+
+    const url = new URL(request.url);
+    if (url.searchParams.get("probe") === "1") {
+      const validRows = results.filter(r => (r.project_status === "ACTIVE" || r.project_status === "PENDING") && r.area_name_en);
+      const probe = await probeUnitNames(validRows);
+      return NextResponse.json({ probe });
+    }
 
     const rows = results
       .filter(r => r.project_status === "ACTIVE" || r.project_status === "PENDING") // DDA doesn't reliably honor the filters query for this combo — see comment above
