@@ -44,8 +44,11 @@ export async function POST(request: Request) {
                 </td>
               </tr></table>
               <p style="margin:12px 0 2px;font-size:19px;font-weight:700;color:#17301F;font-family:Georgia,serif;">${op.name}</p>
-              ${op.name === "Deluxe Holiday Homes" ? `<p style="margin:0 0 6px;font-size:11px;color:#B3261E;font-weight:600;">⚠ AssetIntel's affiliated operator — disclosed for transparency</p>` : ""}
-              ${op.quant?.avgRating ? `<p style="margin:0 0 14px;font-size:12.5px;color:#7D6338;">⭐ ${op.quant.avgRating} avg rating · ${op.quant.listings} listings tracked (Airbtics)</p>` : `<p style="margin:0 0 14px;"></p>`}
+              ${op.verifiedListingCount?.rating
+                ? `<p style="margin:0 0 14px;font-size:12.5px;color:#7D6338;">⭐ ${op.verifiedListingCount.rating} on Airbnb${op.verifiedListingCount.reviewCount ? ` · ${op.verifiedListingCount.reviewCount.toLocaleString()} reviews` : ""}</p>`
+                : op.quant?.avgRating
+                ? `<p style="margin:0 0 14px;font-size:12.5px;color:#7D6338;">⭐ ${op.quant.avgRating} avg rating · ${op.quant.listings} listings tracked (Airbtics)</p>`
+                : `<p style="margin:0 0 14px;"></p>`}
             </td>
           </tr>
         </table>

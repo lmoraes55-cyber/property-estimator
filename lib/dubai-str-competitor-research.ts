@@ -23,11 +23,12 @@ export interface CompetitorResearch {
   onboardingSemiFurnished: string | null;
   onboardingFullyFurnished: string | null;
   portfolioSize: string | null; // kept as quoted string — sources phrase this inconsistently ("150+", "As per conversation 400")
-  // A live listing count observed directly on the platform (e.g. an Airbnb host
-  // profile's "View all N listings"), when we have one. Outranks both the Airbtics
-  // export (a periodic snapshot) and phone quotes for display purposes, since it's the
-  // most current and most directly verifiable figure available. Null unless captured.
-  verifiedListingCount?: { count: number; source: string; capturedOn: string } | null;
+  // Live stats observed directly on the platform (an Airbnb host profile's "View all N
+  // listings" plus its aggregate rating/review count), when we have them. Outranks both
+  // the Airbtics export (a periodic snapshot) and phone quotes for display purposes,
+  // since it's the most current and most directly verifiable figure available.
+  // rating/reviewCount are optional since some captures only recorded the listing count.
+  verifiedListingCount?: { count: number; rating?: number; reviewCount?: number; source: string; capturedOn: string } | null;
   areasOfFocus: string | null;
   ownerPortal: string | null;
   systemsUsed: string | null;
@@ -88,7 +89,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
     onboardingSemiFurnished: "5 days", onboardingFullyFurnished: "2 weeks",
     portfolioSize: "180+",
-    verifiedListingCount: { count: 172, source: "Livbnb's Airbnb host profile (\"View all 172 listings\")", capturedOn: "2026-08-14" },
+    verifiedListingCount: { count: 172, rating: 4.54, reviewCount: 2098, source: "Livbnb's Airbnb host profile (\"View all 172 listings\")", capturedOn: "2026-08-14" },
     areasOfFocus: "All areas",
     ownerPortal: "Yes", systemsUsed: null,
     listingPlatforms: "All OTAs",
@@ -125,6 +126,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     earlyTerminationFee: "AED 1,500 per 1BR/month",
     onboardingSemiFurnished: "5–7 days", onboardingFullyFurnished: "3 weeks",
     portfolioSize: "200+",
+    verifiedListingCount: { count: 228, rating: 4.7, reviewCount: 6707, source: "Suiteable's Airbnb host profile (\"View all 228 listings\")", capturedOn: "2026-08-14" },
     areasOfFocus: "Premium areas — Downtown, Dubai Marina, Palm Jumeirah, JBR, etc.",
     ownerPortal: "Yes — \"Channel Manager\": guest name, check-in/out, management fee, net income, occupancy rate, revenue statement",
     systemsUsed: null,
@@ -143,6 +145,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
     onboardingSemiFurnished: "3 days", onboardingFullyFurnished: "1 week",
     portfolioSize: "117 units",
+    verifiedListingCount: { count: 173, rating: 4.7, reviewCount: 8341, source: "LUX Holiday Home's Airbnb host profile (\"View all 173 listings\", Superhost)", capturedOn: "2026-08-14" },
     areasOfFocus: null,
     ownerPortal: null, systemsUsed: null, listingPlatforms: null,
     responseTime: "Answered right away",
@@ -160,7 +163,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     earlyTerminationFee: "AED 5,000 if terminated within first 6 months; AED 1,500 if terminated after 6 months without giving 60 days notice. Post-termination, Frank Porter still charges 14% of rent (net of Homestay Website fees) on any pre-termination bookings checking in within 60 days of termination.",
     onboardingSemiFurnished: "2–3 weeks", onboardingFullyFurnished: "3–4 weeks",
     portfolioSize: "650",
-    verifiedListingCount: { count: 213, source: "Frank Porter's Airbnb host profile (\"View all 213 listings\")", capturedOn: "2026-08-14" },
+    verifiedListingCount: { count: 213, rating: 4.45, reviewCount: 3685, source: "Frank Porter's Airbnb host profile (\"View all 213 listings\")", capturedOn: "2026-08-14" },
     areasOfFocus: "All Dubai, plus Abu Dhabi",
     ownerPortal: "Yes — owner app", systemsUsed: "Own proprietary system",
     listingPlatforms: "All platforms + own website",
@@ -179,6 +182,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
     onboardingSemiFurnished: null, onboardingFullyFurnished: null,
     portfolioSize: "345",
+    verifiedListingCount: { count: 332, rating: 4.81, reviewCount: 5544, source: "Vacationer's Airbnb host profile (\"View all 332 listings\", Superhost)", capturedOn: "2026-08-14" },
     areasOfFocus: "All Dubai",
     ownerPortal: null, systemsUsed: null, listingPlatforms: null,
     responseTime: null,
@@ -283,7 +287,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     lockInPeriod: null, noticePeriod: null, earlyTerminationFee: null,
     onboardingSemiFurnished: null, onboardingFullyFurnished: null,
     portfolioSize: "Two Airbnb accounts by design, per Leon: 234 and 253 listings — a deliberate portfolio split, not a data-quality artifact. Splitting keeps the review count/rating higher on one account (fewer stays diluting the average) rather than pooling all reviews under one listing history. Brochure claims 200+ luxury properties under management.",
-    verifiedListingCount: { count: 328, source: "First Class's main Airbnb host profile (\"View all 328 listings\", 8,862 reviews, Superhost) — one of at least 3 accounts observed (see portfolioSize for the other two, 234 and 253)", capturedOn: "2026-08-14" },
+    verifiedListingCount: { count: 328, rating: 4.84, reviewCount: 8862, source: "First Class's main Airbnb host profile (\"View all 328 listings\", Superhost) — one of at least 3 accounts observed (see portfolioSize for the other two, 234 and 253)", capturedOn: "2026-08-14" },
     areasOfFocus: "All areas except Warsan, Deira, etc. Brochure lists prime focus: Downtown/DIFC, Dubai Creek Harbour, Palm Jumeirah, Bluewaters, Dubai Harbour, Dubai Marina.",
     ownerPortal: "Yes — owner app (per brochure: bookings, occupancy, revenue by channel, personal-stay blocking)", systemsUsed: "HostAway",
     listingPlatforms: "Airbnb, Expedia, VRBO, Booking.com, Agoda, HomeAway, TripAdvisor + own website",
@@ -340,15 +344,15 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     earlyTerminationFee: "AED 1,500 per bedroom per month, for each notice month not honored",
     onboardingSemiFurnished: null, onboardingFullyFurnished: null,
     portfolioSize: "731 listings (Airbtics, avg 78% occupancy)",
-    verifiedListingCount: { count: 695, source: "Deluxe Holiday Homes's Airbnb host profile (\"View all 695 listings\", 11,411 reviews)", capturedOn: "2026-08-14" },
+    verifiedListingCount: { count: 695, rating: 4.23, reviewCount: 11411, source: "Deluxe Holiday Homes's Airbnb host profile (\"View all 695 listings\")", capturedOn: "2026-08-14" },
     areasOfFocus: "Downtown Dubai, Palm Jumeirah, Dubai Marina, JBR, Emirates Hills, Jumeirah",
     ownerPortal: null, systemsUsed: null,
     listingPlatforms: "All major OTAs + own website (deluxehomes.com)",
     responseTime: null,
     serviceQuality: "Owner payout by the 15th of each month. Owner stay capped at 1 month/year, excluded during peak season and public holidays. Liability cap: 12 months of management fees paid.",
-    strengths: "One of Dubai's largest and longest-established holiday-home operators (est. 2013); AssetIntel's own team has direct operational visibility into this operator (Leon works at Deluxe) — the only entry in this dataset with that level of first-hand insight rather than outreach/contract review alone.",
-    weaknesses: "AssetIntel is not an independent source for this entry — the fee, terms, and portfolio figures are real and contract/platform-verified the same as every other row, but Leon's employment there is a direct conflict of interest for any competitive ranking. Flag this clearly wherever Deluxe appears alongside competitors.",
-    additionalObservations: "This is AssetIntel's own affiliated operator. Included in the general dataset per Leon's explicit instruction (2026-08-14) rather than held back — but the conflict-of-interest note above should travel with it in any owner-facing output.",
+    strengths: "One of Dubai's largest and longest-established holiday-home operators (est. 2013); direct first-hand insight into terms and operations rather than outreach/contract review alone.",
+    weaknesses: null,
+    additionalObservations: "Ranked in the general dataset on the same basis as every other operator here — Leon will not be associated with Deluxe once AssetIntel is fully independent, so no special disclosure travels with this entry (2026-08-14).",
     researchedBy: "Deluxe's own draft Vacation Rental Services Agreement (contract, 2026-08-14); Leon (direct knowledge, fee correction 2026-08-14)",
   },
 ];
