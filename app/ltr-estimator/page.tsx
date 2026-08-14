@@ -10,6 +10,7 @@ import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 import type { RecentContract } from "@/app/api/ltr-rents/route";
 import type { BuildingAgeResult } from "@/lib/dda-client";
 import ConsultationBanner from "@/components/home/ConsultationBanner";
+import AccessGate from "@/components/AccessGate";
 
 const C = colors;
 
@@ -358,6 +359,7 @@ export default function RentEstimatorPage() {
         </form>
 
         {estimate && (
+          <AccessGate source="ltr-estimator" title="Unlock Your Rent Estimate" subtitle="Free — enter your name and email to see the full DLD-backed estimate.">
           <div style={{ marginTop: 24, maxWidth: 680, background: C.bgWhite, border: `1px solid ${C.borderSage}`, borderRadius: 16, padding: 28, boxShadow: C.shadowLg }}>
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.mutedGreen, marginBottom: 10 }}>
               Estimated Annual Rent
@@ -415,6 +417,7 @@ export default function RentEstimatorPage() {
               Estimate based on the most recent comparable Ejari contracts in this building, scaled to your unit size, with a furnishing and condition adjustment applied. For guidance only — not a formal valuation.
             </p>
           </div>
+          </AccessGate>
         )}
           </div>
         </div>

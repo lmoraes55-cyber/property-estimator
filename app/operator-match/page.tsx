@@ -9,6 +9,7 @@ import { PRIORITY_OPTIONS, Priority } from "@/lib/operator-match";
 import { colors } from "@/lib/colors";
 import SiteNav from "@/components/SiteNav";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
+import AccessGate from "@/components/AccessGate";
 
 const DLD_BUILDINGS: DLDBuildingEntry[] = getDLDBuildingList();
 const ALL_BUILDINGS = new Set([...Object.keys(BUILDINGS_DATABASE), ...Object.keys(BUILDING_DIRECTORY)]);
@@ -139,6 +140,7 @@ function OperatorMatchContent() {
             </p>
           </div>
 
+          <AccessGate source="operator-match" title="Unlock Operator Matching" subtitle="Free — sign up or log in to get matched with vetted STR operators.">
           {submitted ? (
             <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "44px 32px", textAlign: "center", boxShadow: colors.shadowMd }}>
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#EEF5F1", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
@@ -296,6 +298,7 @@ function OperatorMatchContent() {
               </div>
             </form>
           )}
+          </AccessGate>
 
           <style>{`
             .opm-field { transition: all 180ms ease; }
