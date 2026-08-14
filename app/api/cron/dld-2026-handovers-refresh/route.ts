@@ -22,10 +22,14 @@ export const maxDuration = 280;
 // level English name -- confirmed live 2026-08-15 that this makes most rows
 // indistinguishable (e.g. 39 distinct Burj Khalifa-area 2026 handovers all
 // showed "DownTown Dubai"). project_name_en (the real per-tower name) only
-// exists in dld_units-open-api, keyed by project_id, so it's resolved with one
-// extra query per project below (~3s each upstream; run concurrently in
-// batches). Not every project has registered units yet, so this can come back
-// null -- the UI falls back to master_project_en/area_name_en when it does.
+// exists in dld_units-open-api, keyed by project_id. That endpoint enforces a
+// hard ~60 request/minute quota (confirmed live: 194/254 concurrent lookups
+// got 429'd in one run) — and since this table is fully deleted and
+// re-inserted every week, resolving all ~250 names from scratch every run
+// would hit that quota forever. Resolved names are cached permanently in
+// dld_project_name_cache (a tower's registered name doesn't change); only
+// project_ids missing from that cache get queried here, rate-limited to a
+// safe budget per minute.
 //
 // ddaQuery's exact-match filter (project_status=ACTIVE) is NOT reliably honored
 // by the DDA API when combined with a LIKE filter (project_end_date) in the same
@@ -50,35 +54,57 @@ interface DLDUnitProjectRow {
   project_name_en: string | null;
 }
 
-const NAME_RESOLVE_CONCURRENCY = 20;
+const NAME_RESOLVE_CONCURRENCY = 10;
+const CALLS_PER_WINDOW = 50;          // safety margin under the observed ~60/min DDA quota
+const WINDOW_MS = 65_000;             // a bit over 60s, to be safe against clock skew
+const MAX_RESOLVE_ELAPSED_MS = 250_000; // leaves headroom under maxDuration for the DB writes; any
+                                          // project_ids left over just get picked up by next week's run
 
-async function resolveProjectNames(projectIds: number[]): Promise<{ resolved: Map<number, string | null>; errors: Record<string, number>; emptyCount: number }> {
+async function resolveProjectNames(projectIds: number[]): Promise<{ resolved: Map<number, string | null>; errors: Record<string, number>; emptyCount: number; attempted: number }> {
   const resolved = new Map<number, string | null>();
   const errors: Record<string, number> = {};
   let emptyCount = 0;
-  for (let i = 0; i < projectIds.length; i += NAME_RESOLVE_CONCURRENCY) {
-    const batch = projectIds.slice(i, i + NAME_RESOLVE_CONCURRENCY);
-    const results = await Promise.all(batch.map(async (id) => {
-      try {
-        const { results } = await ddaQuery<DLDUnitProjectRow>({
-          entity: "dld", dataset: "dld_units-open-api",
-          filters: { project_id: String(id) },
-          columns: ["project_id", "project_name_en"],
-          pageSize: 1,
-        });
-        if (!results.length) return { id, name: null, empty: true };
-        return { id, name: results[0]?.project_name_en?.trim() || null, empty: false };
-      } catch (e) {
-        return { id, name: null, error: (e as Error).message };
+  let attempted = 0;
+  const startedAt = Date.now();
+
+  for (let i = 0; i < projectIds.length; i += CALLS_PER_WINDOW) {
+    if (Date.now() - startedAt > MAX_RESOLVE_ELAPSED_MS) break; // rate-limit budget for this run is spent; rest deferred to next week
+
+    const windowStart = Date.now();
+    const window = projectIds.slice(i, i + CALLS_PER_WINDOW);
+
+    for (let j = 0; j < window.length; j += NAME_RESOLVE_CONCURRENCY) {
+      const sub = window.slice(j, j + NAME_RESOLVE_CONCURRENCY);
+      attempted += sub.length;
+      const results = await Promise.all(sub.map(async (id) => {
+        try {
+          const { results } = await ddaQuery<DLDUnitProjectRow>({
+            entity: "dld", dataset: "dld_units-open-api",
+            filters: { project_id: String(id) },
+            columns: ["project_id", "project_name_en"],
+            pageSize: 1,
+          });
+          if (!results.length) return { id, name: null, empty: true };
+          return { id, name: results[0]?.project_name_en?.trim() || null, empty: false };
+        } catch (e) {
+          return { id, name: null, error: (e as Error).message };
+        }
+      }));
+      for (const r of results) {
+        resolved.set(r.id, r.name);
+        if (r.error) errors[r.error] = (errors[r.error] ?? 0) + 1;
+        if (r.empty) emptyCount++;
       }
-    }));
-    for (const r of results) {
-      resolved.set(r.id, r.name);
-      if (r.error) errors[r.error] = (errors[r.error] ?? 0) + 1;
-      if (r.empty) emptyCount++;
+    }
+
+    const hasMore = i + CALLS_PER_WINDOW < projectIds.length;
+    if (hasMore) {
+      const elapsed = Date.now() - windowStart;
+      const waitMs = Math.max(0, WINDOW_MS - elapsed);
+      if (waitMs > 0) await new Promise(r => setTimeout(r, waitMs));
     }
   }
-  return { resolved, errors, emptyCount };
+  return { resolved, errors, emptyCount, attempted };
 }
 
 export async function GET(request: Request) {
@@ -100,11 +126,32 @@ export async function GET(request: Request) {
       .filter(r => r.project_status === "ACTIVE" || r.project_status === "PENDING") // DDA doesn't reliably honor the filters query for this combo — see comment above
       .filter(r => r.area_name_en); // area_name_en not null, per table constraint
 
-    const { resolved: projectNames, errors: nameErrors, emptyCount } = await resolveProjectNames(validRows.map(r => r.project_id));
+    const supabase = createServiceClient();
+
+    const { data: cached, error: cacheReadError } = await supabase
+      .from("dld_project_name_cache")
+      .select("project_id, project_name_en")
+      .in("project_id", validRows.map(r => r.project_id));
+    if (cacheReadError) throw new Error(cacheReadError.message);
+
+    const cachedNames = new Map<number, string>((cached ?? []).map(r => [r.project_id, r.project_name_en]));
+    const toResolve = validRows.map(r => r.project_id).filter(id => !cachedNames.has(id));
+
+    const { resolved, errors: nameErrors, emptyCount, attempted } = await resolveProjectNames(toResolve);
+
+    const newlyResolved = [...resolved.entries()]
+      .filter(([, name]) => name)
+      .map(([project_id, project_name_en]) => ({ project_id, project_name_en: project_name_en! }));
+    if (newlyResolved.length) {
+      const { error: cacheWriteError } = await supabase
+        .from("dld_project_name_cache")
+        .upsert(newlyResolved, { onConflict: "project_id" });
+      if (cacheWriteError) throw new Error(cacheWriteError.message);
+    }
 
     const rows = validRows.map(r => ({
       project_id: r.project_id,
-      project_name_en: projectNames.get(r.project_id) ?? null,
+      project_name_en: cachedNames.get(r.project_id) ?? resolved.get(r.project_id) ?? null,
       master_project_en: r.master_project_en,
       area_name_en: r.area_name_en,
       project_status: r.project_status,
@@ -116,7 +163,6 @@ export async function GET(request: Request) {
       updated_at: new Date().toISOString(),
     }));
 
-    const supabase = createServiceClient();
     // Full replace, not upsert-only: a project that no longer matches (status
     // changed, end_date slipped out of 2026) must disappear from the table too,
     // not linger forever from a prior run.
@@ -129,6 +175,10 @@ export async function GET(request: Request) {
       status: "success",
       projectsUpserted: rows.length,
       resolvedNames: rows.filter(r => r.project_name_en).length,
+      fromCache: cachedNames.size,
+      newlyResolved: newlyResolved.length,
+      resolutionAttempted: attempted,
+      resolutionDeferredToNextRun: toResolve.length - attempted,
       nameResolutionEmptyCount: emptyCount, // no matching unit row found (not necessarily an error)
       nameResolutionErrors: nameErrors,     // thrown exceptions, grouped by message
     });
