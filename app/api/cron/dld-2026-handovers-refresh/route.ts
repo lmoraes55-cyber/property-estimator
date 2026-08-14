@@ -52,8 +52,10 @@ interface DLDUnitProjectRow {
 
 const NAME_RESOLVE_CONCURRENCY = 20;
 
-async function resolveProjectNames(projectIds: number[]): Promise<Map<number, string | null>> {
+async function resolveProjectNames(projectIds: number[]): Promise<{ resolved: Map<number, string | null>; errors: Record<string, number>; emptyCount: number }> {
   const resolved = new Map<number, string | null>();
+  const errors: Record<string, number> = {};
+  let emptyCount = 0;
   for (let i = 0; i < projectIds.length; i += NAME_RESOLVE_CONCURRENCY) {
     const batch = projectIds.slice(i, i + NAME_RESOLVE_CONCURRENCY);
     const results = await Promise.all(batch.map(async (id) => {
@@ -64,14 +66,19 @@ async function resolveProjectNames(projectIds: number[]): Promise<Map<number, st
           columns: ["project_id", "project_name_en"],
           pageSize: 1,
         });
-        return [id, results[0]?.project_name_en?.trim() || null] as const;
-      } catch {
-        return [id, null] as const; // one project's lookup failing shouldn't fail the whole refresh
+        if (!results.length) return { id, name: null, empty: true };
+        return { id, name: results[0]?.project_name_en?.trim() || null, empty: false };
+      } catch (e) {
+        return { id, name: null, error: (e as Error).message };
       }
     }));
-    for (const [id, name] of results) resolved.set(id, name);
+    for (const r of results) {
+      resolved.set(r.id, r.name);
+      if (r.error) errors[r.error] = (errors[r.error] ?? 0) + 1;
+      if (r.empty) emptyCount++;
+    }
   }
-  return resolved;
+  return { resolved, errors, emptyCount };
 }
 
 export async function GET(request: Request) {
@@ -93,7 +100,7 @@ export async function GET(request: Request) {
       .filter(r => r.project_status === "ACTIVE" || r.project_status === "PENDING") // DDA doesn't reliably honor the filters query for this combo — see comment above
       .filter(r => r.area_name_en); // area_name_en not null, per table constraint
 
-    const projectNames = await resolveProjectNames(validRows.map(r => r.project_id));
+    const { resolved: projectNames, errors: nameErrors, emptyCount } = await resolveProjectNames(validRows.map(r => r.project_id));
 
     const rows = validRows.map(r => ({
       project_id: r.project_id,
@@ -122,6 +129,8 @@ export async function GET(request: Request) {
       status: "success",
       projectsUpserted: rows.length,
       resolvedNames: rows.filter(r => r.project_name_en).length,
+      nameResolutionEmptyCount: emptyCount, // no matching unit row found (not necessarily an error)
+      nameResolutionErrors: nameErrors,     // thrown exceptions, grouped by message
     });
   } catch (e) {
     console.error("[DLD-2026-HANDOVERS-REFRESH]", (e as Error).message);
