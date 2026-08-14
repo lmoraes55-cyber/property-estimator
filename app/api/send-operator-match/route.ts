@@ -79,16 +79,33 @@ export async function POST(request: Request) {
   const html = `
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/></head>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width"/>
+<meta name="color-scheme" content="light"/>
+<meta name="supported-color-schemes" content="light"/>
+<style>
+  :root { color-scheme: light; supported-color-schemes: light; }
+  /* Gmail's app-level dark mode ignores the color-scheme meta above and applies
+     its own automatic recoloring regardless of device theme — it was darkening
+     the header's white text against a background that was ALREADY dark green,
+     making the headline unreadable. [data-ogsc] is Gmail's own dark-mode hook;
+     forcing the literal authored colors back (not "inherit" — there's nothing
+     useful to inherit from) undoes that recoloring for the elements it breaks. */
+  [data-ogsc] .ai-header-bg { background: #17301F !important; }
+  [data-ogsc] .ai-header-eyebrow { color: #D9BC88 !important; }
+  [data-ogsc] .ai-header-title, [data-ogsc] .ai-header-sub { color: #ffffff !important; }
+</style>
+</head>
 <body style="margin:0;padding:0;background:#F1EDE3;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F1EDE3;padding:48px 0;">
     <tr><td align="center">
       <table width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 30px 70px rgba(23,48,31,0.16);">
 
-        <tr><td style="background:linear-gradient(135deg,#17301F 0%,#0B2118 100%);padding:40px 44px 34px;position:relative;">
-          <p style="margin:0 0 10px;color:#D9BC88;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-family:system-ui,-apple-system,sans-serif;">AssetIntel · Private Operator Match</p>
-          <h1 style="margin:0;color:#fff;font-size:26px;font-weight:700;font-family:Georgia,serif;line-height:1.3;">${greetingName ? `${greetingName}, here` : "Here"} are your matched STR operators</h1>
-          ${buildingName ? `<p style="margin:10px 0 0;color:rgba(255,255,255,0.7);font-size:13.5px;font-family:system-ui,-apple-system,sans-serif;">${buildingName}</p>` : ""}
+        <tr><td class="ai-header-bg" style="background:linear-gradient(135deg,#17301F 0%,#0B2118 100%);padding:40px 44px 34px;position:relative;">
+          <p class="ai-header-eyebrow" style="margin:0 0 10px;color:#D9BC88;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-family:system-ui,-apple-system,sans-serif;">AssetIntel · Private Operator Match</p>
+          <h1 class="ai-header-title" style="margin:0;color:#fff;font-size:26px;font-weight:700;font-family:Georgia,serif;line-height:1.3;">${greetingName ? `${greetingName}, here` : "Here"} are your matched STR operators</h1>
+          ${buildingName ? `<p class="ai-header-sub" style="margin:10px 0 0;color:rgba(255,255,255,0.7);font-size:13.5px;font-family:system-ui,-apple-system,sans-serif;">${buildingName}</p>` : ""}
         </td></tr>
 
         <tr><td style="padding:36px 44px 0;font-family:system-ui,-apple-system,sans-serif;">
