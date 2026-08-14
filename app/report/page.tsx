@@ -18,8 +18,10 @@ import { colors } from "@/lib/colors";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import AreaIntelligence from "@/components/report/AreaIntelligence";
+import AccessGate from "@/components/AccessGate";
 import RecentTransactions from "@/components/report/RecentTransactions";
 import { createClient } from "@/lib/supabase/client";
+import { PRIORITY_OPTIONS, Priority } from "@/lib/operator-match";
 
 function StatCard({ label, value, sub, highlight, icon }: { label: string; value: string; sub?: string; highlight?: boolean; icon?: string }) {
   // Icon mapping with SVG line icons (minimal, professional)
@@ -310,6 +312,8 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   const [saving, setSaving] = useState(false);
   const [operatorSent, setOperatorSent] = useState(false);
   const [operatorSending, setOperatorSending] = useState(false);
+  const [showOperatorPriorities, setShowOperatorPriorities] = useState(false);
+  const [operatorPriorities, setOperatorPriorities] = useState<Priority[]>([]);
   const [savedReportId, setSavedReportId] = useState<string | null>(snapshotId ?? null);
 
   async function handleSave() {
@@ -342,7 +346,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
     if (data?.id) setSavedReportId(data.id);
   }
 
-  async function handleOperatorMatch() {
+  async function handleOperatorMatch(priorities: Priority[]) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const email = user?.email;
@@ -350,11 +354,16 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       router.push("/login?next=" + encodeURIComponent(window.location.pathname + window.location.search));
       return;
     }
+    const name = user.user_metadata?.full_name || "";
     setOperatorSending(true);
     await fetch("/api/send-operator-match", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, result }),
+      body: JSON.stringify({
+        email, priorities,
+        name: name || undefined,
+        buildingName: input.buildingName || result.buildingName || result.propertyName || undefined,
+      }),
     });
     setOperatorSending(false);
     setOperatorSent(true);
@@ -367,330 +376,612 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
       const W  = doc.internal.pageSize.getWidth();
       const H  = doc.internal.pageSize.getHeight();
-      const ml = 36;
-      const mr = 36;
+      const ml = 38, mr = 38;
       const cw = W - ml - mr;
-      const footerH = 28;
-      const safeBottom = H - footerH - 10;
+      const footerH = 30;
 
-      const Gr = 27,  Gg = 94,  Gb = 74;
-      const Br = 184, Bg = 138, Bb = 68;
-      const Iv: [number,number,number] = [248, 244, 238];
-      const Mg = 110;
+      // ── Design tokens (AssetIntel "Chartered Estate") ──────────────
+      type RGB = [number, number, number];
+      const GREEN: RGB      = [27, 94, 74];
+      const GREEN_DK: RGB   = [15, 62, 51];
+      const BRONZE: RGB     = [184, 138, 68];
+      const BRONZE_TX: RGB  = [125, 99, 56];
+      const IVORY: RGB      = [248, 244, 238];
+      const CARD: RGB       = [253, 251, 247];
+      const SAGE: RGB       = [239, 244, 240];
+      const SAGE_BD: RGB    = [200, 218, 208];
+      const BORDER: RGB     = [230, 225, 216];
+      const TEXT: RGB       = [26, 26, 26];
+      const MUTED: RGB      = [107, 107, 107];
+      const LIGHT: RGB      = [142, 142, 142];
+      const RED: RGB        = [168, 76, 76];
+      const WHITE: RGB      = [255, 255, 255];
+
+      const SERIF = "times", SANS = "helvetica";
 
       const strBetter = result.strVsLtrDelta > 0;
       const money = (n: number) => "AED " + Math.round(n).toLocaleString();
       const pct   = (n: number) => (n * 100).toFixed(0) + "%";
+      const dateStr = new Date().toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" });
 
       function txt(
         s: string, x: number, y: number,
-        opts?: { size?: number; bold?: boolean; color?: [number,number,number]; align?: "left"|"right"|"center" }
+        o?: { size?: number; bold?: boolean; color?: RGB; align?: "left"|"right"|"center"; serif?: boolean; spacing?: number }
       ) {
-        const { size = 8, bold = false, color = [27,27,27], align = "left" } = opts ?? {};
-        doc.setCharSpace(0);
+        const { size = 8, bold = false, color = TEXT, align = "left", serif = false, spacing = 0 } = o ?? {};
+        doc.setCharSpace(spacing);
         doc.setFontSize(size);
-        doc.setFont("helvetica", bold ? "bold" : "normal");
+        doc.setFont(serif ? SERIF : SANS, bold ? "bold" : "normal");
         doc.setTextColor(color[0], color[1], color[2]);
         doc.text(s, x, y, { align });
+        doc.setCharSpace(0);
       }
 
-      function sectionLabel(label: string, y: number) {
-        txt(label, ml, y, { size: 6.5, bold: true, color: [Br, Bg, Bb] });
-        doc.setDrawColor(Br, Bg, Bb);
-        doc.setLineWidth(0.4);
-        doc.line(ml + doc.getTextWidth(label) + 6, y - 1, ml + cw, y - 1);
+      // Patterned AssetIntel background — ivory base, faint dot grid, soft contours.
+      function paintBackground() {
+        doc.setFillColor(...IVORY);
+        doc.rect(0, 0, W, H, "F");
+        doc.setFillColor(238, 233, 224);
+        for (let x = 16; x < W; x += 17) {
+          for (let y = 16; y < H; y += 17) doc.circle(x, y, 0.5, "F");
+        }
+        doc.setLineWidth(1.1);
+        doc.setDrawColor(236, 229, 217);
+        doc.circle(W * 0.94, H * 0.12, 165, "S");
+        doc.circle(W * 0.06, H * 0.80, 200, "S");
+        doc.setDrawColor(233, 238, 233);
+        doc.circle(W * 0.98, H * 0.58, 130, "S");
+        doc.circle(W * 0.02, H * 0.30, 110, "S");
       }
 
-      function metricBox(
-        x: number, y: number, w: number, h: number,
-        label: string, value: string, sub: string,
-        green: boolean
-      ) {
-        doc.setFillColor(...Iv);
-        doc.roundedRect(x, y, w, h, 5, 5, "F");
-        doc.setFillColor(green ? Gr : Br, green ? Gg : Bg, green ? Gb : Bb);
-        doc.rect(x, y, 3, h, "F");
-        txt(label, x + 11, y + 13, { size: 6.5, bold: true, color: [Mg, Mg, Mg] });
-        txt(value, x + 11, y + 29, { size: 13, bold: true, color: green ? [Gr,Gg,Gb] : [Br,Bg,Bb] });
-        if (sub) txt(sub, x + 11, y + 41, { size: 6, color: [160,160,160] });
+      function card(x: number, y: number, w: number, h: number, o?: { fill?: RGB; border?: RGB; r?: number }) {
+        const { fill = CARD, border = BORDER, r = 9 } = o ?? {};
+        doc.setFillColor(...fill);
+        doc.setDrawColor(...border);
+        doc.setLineWidth(0.7);
+        doc.roundedRect(x, y, w, h, r, r, "FD");
       }
 
-      // ── Load BURJ hero image ──────────────────────────────────────
-      let burjDataUrl: string | null = null;
+      function eyebrow(label: string, x: number, y: number, color: RGB = BRONZE_TX) {
+        txt(label, x, y, { size: 6.6, bold: true, color, spacing: 1.1 });
+      }
+
+      // ── Assets ────────────────────────────────────────────────────
+      // Source art is far higher resolution than the small areas it occupies here;
+      // embedding it raw produced a ~9MB file. Downscale (and JPEG the photo) so the
+      // report stays light enough to email onward.
+      async function loadImg(path: string, maxW: number, asJpeg = false): Promise<string | null> {
+        try {
+          const blob = await fetch(path).then(r => r.ok ? r.blob() : Promise.reject());
+          const raw = await new Promise<string>((res, rej) => {
+            const fr = new FileReader();
+            fr.onload = () => res(fr.result as string);
+            fr.onerror = rej;
+            fr.readAsDataURL(blob);
+          });
+          return await new Promise<string>(res => {
+            const im = new window.Image();
+            im.onload = () => {
+              const scale = Math.min(1, maxW / (im.width || maxW));
+              const c = document.createElement("canvas");
+              c.width = Math.max(1, Math.round(im.width * scale));
+              c.height = Math.max(1, Math.round(im.height * scale));
+              const ctx = c.getContext("2d");
+              if (!ctx) return res(raw);
+              if (asJpeg) { ctx.fillStyle = "#F8F4EE"; ctx.fillRect(0, 0, c.width, c.height); }
+              ctx.drawImage(im, 0, 0, c.width, c.height);
+              try { res(c.toDataURL(asJpeg ? "image/jpeg" : "image/png", asJpeg ? 0.82 : 1)); }
+              catch { res(raw); }
+            };
+            im.onerror = () => res(raw);
+            im.src = raw;
+          });
+        } catch { return null; }
+      }
+      const [logoImg, heroImg] = await Promise.all([
+        loadImg("/brand/assetintel-icon.png", 96),
+        loadImg("/BURJ.png", 720, true),
+      ]);
+
+      // ── Area market data — DB only, never a live AirROI/Airbtics call ──
+      const areaName: string | undefined =
+        result.buildingInfo?.area
+        || getBuildingInfo(result.buildingName)?.area
+        || (input.dldArea ? (DLD_AREA_TO_COMMUNITY[input.dldArea] ?? input.dldArea) : undefined);
+
+      type AreaRow = {
+        area: string; reporting_month: string; updated_at: string;
+        sales_transactions: number | null; median_sale_price_per_sqft: number | null;
+        rental_transactions: number | null; median_annual_rent: number | null; ltr_yield: number | null;
+        adr: number | null; occupancy: number | null; revpar: number | null;
+        active_listings: number | null; estimated_str_revenue: number | null;
+        demand_trend: string | null; confidence: string | null; data_sources: string | null;
+        airbtics_adr: number | null; airbtics_occupancy: number | null; airbtics_revpar: number | null;
+        airbtics_active_listings: number | null;
+      };
+      let area: AreaRow | null = null;
       try {
-        const blob = await fetch("/BURJ.png").then(r => r.blob());
-        burjDataUrl = await new Promise<string>((res, rej) => {
-          const reader = new FileReader();
-          reader.onload = () => res(reader.result as string);
-          reader.onerror = rej;
-          reader.readAsDataURL(blob);
+        const r = await fetch("/api/str-market-data");
+        const { data } = await r.json();
+        area = (data as AreaRow[]).find(d => d.area === areaName) ?? null;
+      } catch { /* page 2 degrades to an unavailable notice */ }
+
+      // Airbtics is the primary STR source; AirROI only supplies areas Airbtics
+      // has no market for. Label whichever actually produced the stored figures.
+      // "airroi+airbtics" is legacy data written before Airbtics became primary; it is
+      // still genuinely blended, so it must keep saying so until the cron rewrites the row.
+      const strSource = area?.data_sources === "airroi" ? "AirROI"
+        : area?.data_sources === "airroi+airbtics" ? "AirROI + Airbtics (blended)"
+        : "Airbtics";
+      const strChip = area?.data_sources === "airroi" ? "AIRROI"
+        : area?.data_sources === "airroi+airbtics" ? "BLENDED" : "AIRBTICS";
+
+      const unitLabel = input.unitSize === "STU" ? "Studio"
+        : /^\d/.test(input.unitSize) ? input.unitSize.replace(/^(\d+)BR\s*/, "$1 Bedroom ").trim()
+        : input.unitSize;
+      // Building name alone — propertyName already repeats unit/floor shown on line two.
+      const propLine1 = input.buildingName || result.buildingName || result.propertyName || "Property";
+      const propLine2 = [
+        areaName,
+        [unitLabel, input.unitType].filter(Boolean).join(" "),
+        input.floor ? "Floor " + input.floor : null,
+        input.view, input.furnished,
+        input.propertyCondition ? input.propertyCondition + " condition" : null,
+      ].filter(Boolean).join("  ·  ");
+
+      // ── Shared header on EVERY page ───────────────────────────────
+      function header(title: string, tall = false): number {
+        const h = tall ? 136 : 86;
+        if (tall && heroImg) {
+          // Imagery occupies the right ~34% of the header band only.
+          const iw = W * 0.34;
+          doc.addImage(heroImg, "JPEG", W - iw, 0, iw, h, "aiHero", "FAST");
+          // Soft ivory fade back into the page from the left edge of the photo.
+          const steps = 18, fw = iw * 0.55;
+          for (let i = 0; i < steps; i++) {
+            const t = i / steps;
+            doc.setFillColor(...IVORY);
+            doc.setGState(new (doc as any).GState({ opacity: 1 - t }));
+            doc.rect(W - iw + (fw * t), 0, fw / steps + 1.2, h, "F");
+          }
+          doc.setGState(new (doc as any).GState({ opacity: 1 }));
+          doc.setFillColor(...IVORY);
+          doc.rect(0, 0, W - iw, h, "F");
+        }
+        // Alias keeps a single copy of the mark in the file across all pages.
+        if (logoImg) doc.addImage(logoImg, "PNG", ml, tall ? 22 : 16, 22, 22, "aiLogo", "FAST");
+        txt("AssetIntel", ml + 28, tall ? 38 : 32, { size: 12, bold: true, color: GREEN, serif: true });
+        txt(dateStr, W - mr, tall ? 36 : 30, { size: 7, color: LIGHT, align: "right" });
+        txt(title, ml, tall ? 72 : 54, { size: tall ? 15 : 10.5, bold: true, color: GREEN, serif: true });
+        txt(propLine1, ml, tall ? 92 : 66, { size: tall ? 10 : 8, bold: true, color: TEXT });
+        // Wrap rather than hard-truncating, and never leave a dangling separator.
+        const maxW = cw - (tall ? W * 0.36 : 0);
+        const wrapped = (doc.splitTextToSize(propLine2, maxW) as string[]).slice(0, tall ? 2 : 1);
+        wrapped.forEach((ln, i) => {
+          txt(ln.replace(/\s*·\s*$/, ""), ml, (tall ? 104 : 76) + i * 9.5,
+            { size: tall ? 7.8 : 6.8, color: MUTED });
         });
-      } catch { /* hero image optional */ }
-
-      // ══════════════════════════════════════════════════════════════
-      // PAGE 1
-      // ══════════════════════════════════════════════════════════════
-
-      // ── Hero band ────────────────────────────────────────────────
-      const heroH = 170;
-
-      // Green base layer
-      doc.setFillColor(Gr, Gg, Gb);
-      doc.rect(0, 0, W, heroH, "F");
-
-      // BURJ image flush right
-      if (burjDataUrl) {
-        const imgW = W * 0.70;
-        doc.addImage(burjDataUrl, "PNG", W - imgW, 0, imgW, heroH);
+        doc.setFillColor(...BRONZE);
+        doc.rect(ml, h - 8, cw, 1.4, "F");
+        return h + (tall ? 14 : 12);
       }
 
-      // Left-side green overlay bands (fade effect without true opacity)
-      [
-        { x: 0,        w: W * 0.30, r: Gr, g: Gg, b: Gb },
-        { x: W * 0.28, w: W * 0.15, r: 38, g: 82, b: 68 },
-        { x: W * 0.40, w: W * 0.12, r: 52, g: 90, b: 76 },
-      ].forEach(({ x, w, r, g, b }) => {
-        doc.setFillColor(r, g, b);
-        doc.rect(x, 0, w, heroH, "F");
-      });
+      // ══════════════════════════════════════════════════════════════
+      // PAGE 1 — PROPERTY RENTAL STRATEGY
+      // ══════════════════════════════════════════════════════════════
+      paintBackground();
+      eyebrow("ASSETINTEL PROPERTY INTELLIGENCE", ml, 16);
+      let y = header("Property Rental Strategy", true);
 
-      // Bronze accent line at bottom of hero
-      doc.setFillColor(Br, Bg, Bb);
-      doc.rect(0, heroH - 3, W, 3, "F");
+      // ── Recommendation card ───────────────────────────────────────
+      const recH = 70;
+      card(ml, y, cw, recH, { fill: strBetter ? SAGE : [250, 246, 238], border: strBetter ? SAGE_BD : [225, 210, 185] });
+      doc.setFillColor(...(strBetter ? GREEN : BRONZE));
+      doc.roundedRect(ml, y, 5, recH, 3, 3, "F");
+      eyebrow("ASSETINTEL RECOMMENDATION", ml + 18, y + 18);
+      const recTitle = strBetter ? "Short-Term Rental Recommended" : "Long-Term Rental Recommended";
+      txt(recTitle, ml + 18, y + 40, { size: 15, bold: true, color: strBetter ? GREEN : BRONZE_TX, serif: true });
+      const advLabel = strBetter ? "Projected STR advantage" : "Projected LTR advantage";
+      txt(advLabel + ":", ml + 18, y + 57, { size: 7.5, color: MUTED });
+      txt(money(Math.abs(result.strVsLtrDelta)) + " annually",
+        ml + 18 + doc.getTextWidth(advLabel + ": ") + 4, y + 57, { size: 8.5, bold: true, color: TEXT });
+      y += recH + 14;
 
-      // Hero text
-      const propName = result.propertyName || input.buildingName || "Property Report";
-      const dateStr = new Date().toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" });
-      txt("ASSETINTEL", ml, 26, { size: 8, bold: true, color: [Br, Bg, Bb] });
-      txt(dateStr, W - mr, 26, { size: 7.5, color: [Br, Bg, Bb], align: "right" });
-      txt(propName, ml, 72, { size: 20, bold: true, color: [255, 255, 255] });
-      const subParts = [input.unitSize, input.unitType, "Floor " + input.floor, input.view, input.furnished].filter(Boolean);
-      txt(subParts.join("  |  "), ml, 94, { size: 8.5, color: [210, 230, 220] });
-      txt("STR vs LTR  RENTAL STRATEGY REPORT", ml, 118, { size: 7, bold: true, color: [Br, Bg, Bb] });
-      const verdictShort = strBetter
-        ? "STR leads by " + money(Math.abs(result.strVsLtrDelta)) + " / yr"
-        : "LTR competitive  |  " + money(Math.abs(result.strVsLtrDelta)) + " delta";
-      txt(verdictShort, ml, 148, { size: 10.5, bold: true, color: [255, 255, 255] });
-
-      let y = heroH + 14;
-
-      // ── Verdict card ──────────────────────────────────────────────
-      const vCardH = 58;
-      doc.setFillColor(strBetter ? 232 : 252, strBetter ? 246 : 246, strBetter ? 236 : 237);
-      doc.roundedRect(ml, y, cw, vCardH, 7, 7, "F");
-      doc.setFillColor(strBetter ? Gr : Br, strBetter ? Gg : Bg, strBetter ? Gb : Bb);
-      doc.roundedRect(ml, y, 5, vCardH, 3, 3, "F");
-      txt("12-MONTH VERDICT", ml + 16, y + 16, { size: 6.5, bold: true, color: strBetter ? [Gr,Gg,Gb] : [Br,Bg,Bb] });
-      const verdictLine = strBetter
-        ? "Short-term rental outperforms long-term by " + money(Math.abs(result.strVsLtrDelta)) + " per year"
-        : "Long-term rental is competitive  |  STR delta: " + money(Math.abs(result.strVsLtrDelta)) + " per year";
-      txt(verdictLine, ml + 16, y + 38, { size: 12, bold: true, color: [28,28,28] });
-      y += vCardH + 14;
-
-      // ── 2x2 Key Metrics ──────────────────────────────────────────
-      const bh = 60;
-      const gap = 10;
-      const bw = (cw - gap) / 2;
-      const ltrSub = result.ltrBasis === "dld-building" ? "DLD / Ejari live data" : "Market estimate";
-
-      metricBox(ml,        y, bw, bh, "STR NET / YEAR",  money(result.annualNetToLandlord), "After all deductions",     true);
-      metricBox(ml+bw+gap, y, bw, bh, "LTR / YEAR",      money(result.longTermRent),        ltrSub,                    false);
-      y += bh + gap;
-      metricBox(ml,        y, bw, bh, "AVG OCCUPANCY",   pct(result.avgOccupancy),          "Annual average",           true);
-      metricBox(ml+bw+gap, y, bw, bh, "AVG DAILY RATE",  money(result.avgADR),              "Per night  |  annual avg", false);
-      y += bh + gap;
-
-      if (result.grossYield !== undefined || result.netYield !== undefined) {
-        const yw = result.grossYield !== undefined && result.netYield !== undefined ? (cw-gap)/2 : cw;
-        if (result.grossYield !== undefined)
-          metricBox(ml, y, yw, bh, "GROSS YIELD", result.grossYield.toFixed(2) + "%", "Based on property value", true);
-        if (result.netYield !== undefined)
-          metricBox(result.grossYield !== undefined ? ml+yw+gap : ml, y, yw, bh, "NET YIELD", result.netYield.toFixed(2) + "%", "After all deductions", false);
-        y += bh + gap;
+      // ── Four KPI cards (recommended strategy visually stronger) ────
+      const kpiH = 56, kgap = 10, kw = (cw - kgap) / 2;
+      function kpi(x: number, yy: number, w: number, label: string, value: string, sub: string, strong: boolean) {
+        card(x, yy, w, kpiH, {
+          fill: strong ? SAGE : CARD,
+          border: strong ? SAGE_BD : BORDER,
+        });
+        doc.setFillColor(...(strong ? GREEN : BRONZE));
+        doc.roundedRect(x, yy, 3.5, kpiH, 2, 2, "F");
+        txt(label, x + 14, yy + 16, { size: 6.4, bold: true, color: LIGHT, spacing: 0.9 });
+        txt(value, x + 14, yy + 36, { size: 15, bold: true, color: strong ? GREEN : TEXT, serif: true });
+        if (sub) txt(sub, x + 14, yy + 48, { size: 6.2, color: LIGHT });
       }
+      const ltrSub = result.ltrBasis === "dld-building" ? "DLD Ejari · building level"
+        : result.ltrBasis === "dld-area" ? "DLD Ejari · area level" : "AssetIntel market estimate";
+      kpi(ml,            y, kw, "STR NET / YEAR",    money(result.annualNetToLandlord), "After all deductions", strBetter);
+      kpi(ml + kw+kgap,  y, kw, "LTR / YEAR",        money(result.longTermRent),        ltrSub,                 !strBetter);
+      y += kpiH + kgap;
+      kpi(ml,            y, kw, "AVG STR OCCUPANCY", pct(result.avgOccupancy),          "Annual average",       false);
+      kpi(ml + kw+kgap,  y, kw, "AVG STR ADR",       money(result.avgADR),              "Per night · annual avg", false);
+      y += kpiH + 16;
 
-      // ── Cost & Deduction Snapshot ─────────────────────────────────
-      sectionLabel("COST AND DEDUCTION SNAPSHOT", y);
-      y += 12;
-
-      const costRows: Array<{ label: string; val: number; note: string; isResult?: boolean }> = [
-        { label: "Gross STR Revenue",     val:  result.annualRevenue,              note: "Total gross income from STR" },
-        { label: "Less: Management Fee",  val: -result.annualManagementFee,        note: (input.managementFee * 100).toFixed(0) + "% of gross revenue" },
-        { label: "Less: DEWA / Utilities",val: -(result.annualUtilities ?? 0),     note: "Annual DEWA and utility costs" },
-        { label: "Less: Maintenance",     val: -(result.annualMaintenance ?? 0),   note: "Upkeep and minor repairs" },
-        { label: "Less: Furniture Amort.",val: -(result.annualFurnitureAmort ?? 0),note: "Annual furniture depreciation" },
-        { label: "Net to Owner",          val:  result.annualNetToLandlord,        note: "After all deductions", isResult: true },
+      // ── STR revenue → owner flow ──────────────────────────────────
+      eyebrow("STR REVENUE TO OWNER", ml, y);
+      y += 10;
+      const flowRows: Array<{ l: string; v: number; note: string; kind: "top"|"ded"|"net" }> = [
+        { l: "Gross STR Revenue",   v: result.annualRevenue,                 note: "Projected annual gross", kind: "top" },
+        { l: "Management Fee",      v: -result.annualManagementFee,          note: (input.managementFee * 100).toFixed(0) + "% of gross", kind: "ded" },
+        { l: "Utilities",           v: -(result.annualUtilities ?? 0),       note: "DEWA, cooling, internet", kind: "ded" },
+        { l: "Maintenance",         v: -(result.annualMaintenance ?? 0),     note: "Upkeep and minor repairs", kind: "ded" },
+        { l: "Furniture Amortisation", v: -(result.annualFurnitureAmort ?? 0), note: "Annual depreciation", kind: "ded" },
+        { l: "Projected Net To Owner", v: result.annualNetToLandlord,        note: "After all deductions", kind: "net" },
       ];
-
-      costRows.forEach(({ label, val, note, isResult }, i) => {
-        const rowH = isResult ? 30 : 24;
-        if (isResult) {
-          doc.setFillColor(Gr, Gg, Gb);
-          doc.roundedRect(ml, y, cw, rowH, 4, 4, "F");
-          txt(label, ml + 12, y + 20, { size: 8, bold: true, color: [255,255,255] });
-          txt(money(val), ml + cw - 12, y + 20, { size: 8, bold: true, color: [Br,Bg,Bb], align: "right" });
+      flowRows.forEach(r => {
+        const rh = r.kind === "net" ? 30 : 21;
+        if (r.kind === "net") {
+          doc.setFillColor(...GREEN);
+          doc.roundedRect(ml, y, cw, rh, 6, 6, "F");
+          txt(r.l, ml + 14, y + 19, { size: 8.5, bold: true, color: WHITE });
+          txt(money(r.v), ml + cw - 14, y + 19, { size: 11, bold: true, color: [230, 201, 171], align: "right", serif: true });
+        } else if (r.kind === "top") {
+          card(ml, y, cw, rh, { r: 6 });
+          txt(r.l, ml + 14, y + 13.5, { size: 7.8, bold: true, color: GREEN });
+          txt(r.note, ml + 14 + doc.getTextWidth(r.l) + 8, y + 13.5, { size: 6, color: LIGHT });
+          txt(money(r.v), ml + cw - 14, y + 13.5, { size: 9, bold: true, color: GREEN, align: "right", serif: true });
         } else {
-          doc.setFillColor(i % 2 === 0 ? 252 : 245, i % 2 === 0 ? 251 : 247, i % 2 === 0 ? 247 : 241);
-          doc.rect(ml, y, cw, rowH, "F");
-          const isDeduction = val < 0;
-          txt(label, ml + 12, y + 13, { size: 7.5, color: isDeduction ? [140,55,55] : [Gr,Gg,Gb] });
-          txt(note,  ml + 12, y + 22, { size: 6,   color: [160,160,160] });
-          const valStr = val < 0 ? "- " + money(Math.abs(val)) : money(val);
-          txt(valStr, ml + cw - 12, y + 13, { size: 7.5, bold: true, color: isDeduction ? [140,55,55] : [Gr,Gg,Gb], align: "right" });
+          doc.setFillColor(250, 247, 242);
+          doc.setDrawColor(...BORDER);
+          doc.setLineWidth(0.6);
+          doc.roundedRect(ml + 16, y, cw - 32, rh, 5, 5, "FD");
+          txt(r.l, ml + 30, y + 13.5, { size: 7.4, color: TEXT });
+          txt(r.note, ml + 30 + doc.getTextWidth(r.l) + 8, y + 13.5, { size: 6, color: LIGHT });
+          txt("- " + money(Math.abs(r.v)), ml + cw - 30, y + 13.5, { size: 7.8, bold: true, color: RED, align: "right" });
         }
-        y += rowH + 2;
+        y += rh + 4;
       });
-      y += 8;
+      y += 10;
 
-      // ── Building info strip ───────────────────────────────────────
-      const bInfo = result.buildingInfo;
-      if (bInfo) {
-        const parts = [
-          bInfo.community      && "Community: " + bInfo.community,
-          bInfo.completionYear && "Built " + bInfo.completionYear,
-          bInfo.serviceChargePsf && "SC AED " + bInfo.serviceChargePsf + "/sqft",
-          bInfo.tier           && "Tier: " + bInfo.tier.charAt(0).toUpperCase() + bInfo.tier.slice(1),
-        ].filter(Boolean) as string[];
-        if (parts.length) {
-          doc.setFillColor(244, 241, 234);
-          doc.roundedRect(ml, y, cw, 20, 3, 3, "F");
-          txt(parts.join("   |   "), ml + 12, y + 13, { size: 6.5, color: [Mg, Mg, Mg] });
-          y += 26;
-        }
-      }
-
-      // ── Monthly mini bar chart ────────────────────────────────────
-      const chartTop = y + 6;
-      const chartAvail = safeBottom - chartTop - 22;
-      if (chartAvail > 80 && result.months.length === 12) {
-        sectionLabel("MONTHLY NET INCOME SNAPSHOT", chartTop);
-        const cy = chartTop + 16;
-        const barAreaH = Math.min(chartAvail - 16, 110);
-        const barW = (cw - 11) / 12;
+      // ── Monthly net snapshot ──────────────────────────────────────
+      const peak  = result.months.reduce((a, b) => (b.netToLandlord > a.netToLandlord ? b : a));
+      const trough = result.months.reduce((a, b) => (b.netToLandlord < a.netToLandlord ? b : a));
+      if (result.months.length === 12) {
+        eyebrow("12-MONTH NET INCOME", ml, y);
+        y += 12;
+        const chH = 92;
+        card(ml, y, cw, chH + 26, { r: 8 });
+        const inner = cw - 28;
+        const barW = (inner - 11 * 4) / 12;
         const maxNet = Math.max(...result.months.map(m => Math.abs(m.netToLandlord)), 1);
-
         result.months.forEach((m, i) => {
-          const net = m.netToLandlord;
-          const barH = Math.max(2, (Math.abs(net) / maxNet) * (barAreaH - 22));
-          const bx = ml + i * (barW + 1);
-          const isPos = net >= 0;
-          doc.setFillColor(isPos ? Gr : 175, isPos ? Gg : 58, isPos ? Gb : 58);
-          doc.roundedRect(bx, cy + (barAreaH - 22) - barH, barW, barH, 2, 2, "F");
-          txt(m.month.slice(0,3), bx + barW / 2, cy + barAreaH - 5, { size: 5.5, color: [Mg,Mg,Mg], align: "center" });
-          const netK = Math.abs(net) >= 1000 ? (net / 1000).toFixed(0) + "k" : Math.round(net).toString();
-          txt((isPos ? "" : "-") + netK, bx + barW / 2, cy + (barAreaH - 22) - barH - 3, { size: 5, color: [Mg,Mg,Mg], align: "center" });
+          const bx = ml + 14 + i * (barW + 4);
+          const bh = Math.max(2.5, (Math.abs(m.netToLandlord) / maxNet) * (chH - 30));
+          const by = y + 14 + (chH - 30) - bh;
+          const isPeak = m.month === peak.month, isLow = m.month === trough.month;
+          doc.setFillColor(...(isPeak ? GREEN : isLow ? ([206, 186, 152] as RGB) : ([166, 197, 182] as RGB)));
+          doc.roundedRect(bx, by, barW, bh, 2, 2, "F");
+          txt(m.month.slice(0, 3), bx + barW / 2, y + chH - 4, { size: 5.6, color: MUTED, align: "center" });
+          const k = Math.abs(m.netToLandlord) >= 1000
+            ? (m.netToLandlord / 1000).toFixed(0) + "k" : Math.round(m.netToLandlord).toString();
+          txt(k, bx + barW / 2, by - 3.5, { size: 5.4, bold: isPeak || isLow, color: isPeak ? GREEN : LIGHT, align: "center" });
         });
+        // Peak / lowest callouts
+        const cy2 = y + chH + 4;
+        doc.setFillColor(...SAGE);
+        doc.roundedRect(ml + 14, cy2, (inner - 10) / 2, 17, 4, 4, "F");
+        txt("PEAK MONTH", ml + 24, cy2 + 11, { size: 5.8, bold: true, color: GREEN, spacing: 0.7 });
+        txt(peak.month + " · " + money(peak.netToLandlord), ml + 14 + (inner - 10) / 2 - 10, cy2 + 11,
+          { size: 7, bold: true, color: GREEN, align: "right" });
+        doc.setFillColor(250, 246, 238);
+        doc.roundedRect(ml + 24 + (inner - 10) / 2, cy2, (inner - 10) / 2, 17, 4, 4, "F");
+        txt("LOWEST MONTH", ml + 34 + (inner - 10) / 2, cy2 + 11, { size: 5.8, bold: true, color: BRONZE_TX, spacing: 0.7 });
+        txt(trough.month + " · " + money(trough.netToLandlord), ml + 14 + inner, cy2 + 11,
+          { size: 7, bold: true, color: BRONZE_TX, align: "right" });
       }
 
       // ══════════════════════════════════════════════════════════════
-      // PAGE 2  — 12-Month Projection + Owner Insight + Disclaimer
+      // PAGE 2 — AREA MARKET INTELLIGENCE
       // ══════════════════════════════════════════════════════════════
       doc.addPage();
+      paintBackground();
+      y = header("Area Market Intelligence");
 
-      // ── Page 2 mini header ────────────────────────────────────────
-      doc.setFillColor(Gr, Gg, Gb);
-      doc.rect(0, 0, W, 38, "F");
-      doc.setFillColor(Br, Bg, Bb);
-      doc.rect(0, 38, W, 2, "F");
-      txt("ASSETINTEL", ml, 16, { size: 7.5, bold: true, color: [Br, Bg, Bb] });
-      txt("12-MONTH PROJECTION TABLE", ml, 30, { size: 9, bold: true, color: [255,255,255] });
-      txt(propName, W - mr, 23, { size: 7.5, color: [200,220,210], align: "right" });
+      if (!area) {
+        card(ml, y, cw, 70);
+        txt("Area market data unavailable", ml + 16, y + 28, { size: 11, bold: true, color: MUTED, serif: true });
+        txt(areaName
+          ? "No stored market record for " + areaName + " at the time this report was generated."
+          : "This property's area could not be matched to a tracked AssetIntel market.",
+          ml + 16, y + 46, { size: 7.5, color: LIGHT });
+        y += 84;
+      } else {
+        const refreshed = new Date(area.updated_at).toLocaleDateString("en-AE", { day: "numeric", month: "short", year: "numeric" });
+        txt("Current property and STR market signals for " + area.area + ".", ml, y, { size: 9, color: MUTED });
+        y += 13;
+        txt("Data refreshed: " + refreshed + "     Sources: DLD · AirROI · Airbtics · AssetIntel", ml, y, { size: 6.6, color: LIGHT });
+        y += 14;
 
-      y = 52;
+        // ── Area KPI grid, 4 + 4 ────────────────────────────────────
+        const akH = 46, akGap = 8, akW = (cw - akGap * 3) / 4;
+        function areaKpi(col: number, row: number, label: string, value: string, src: string, srcColor: RGB) {
+          const x = ml + col * (akW + akGap);
+          const yy = y + row * (akH + akGap);
+          card(x, yy, akW, akH);
+          txt(label, x + 10, yy + 13, { size: 5.5, bold: true, color: LIGHT, spacing: 0.6 });
+          txt(value, x + 10, yy + 30, { size: 11.5, bold: true, color: TEXT, serif: true });
+          txt(src, x + 10, yy + 40, { size: 5.2, bold: true, color: srcColor, spacing: 0.5 });
+        }
+        const DLDC: RGB = GREEN, STRC: RGB = BRONZE_TX;
+        const na = "Data unavailable";
+        areaKpi(0, 0, "SALES TRANSACTIONS", area.sales_transactions != null ? area.sales_transactions.toLocaleString() : na, "DLD", DLDC);
+        // The ingestion query pages at 1000, so an exact 1000 is a floor, not a count.
+        const rentTx = area.rental_transactions;
+        areaKpi(1, 0, "RENTAL TRANSACTIONS",
+          rentTx == null ? na : rentTx >= 1000 ? "1,000+" : rentTx.toLocaleString(), "DLD", DLDC);
+        areaKpi(2, 0, "MEDIAN SALE AED/SQFT", area.median_sale_price_per_sqft != null ? Math.round(area.median_sale_price_per_sqft).toLocaleString() : na, "DLD", DLDC);
+        areaKpi(3, 0, "MEDIAN ANNUAL RENT", area.median_annual_rent != null ? money(area.median_annual_rent) : na, "DLD", DLDC);
+        areaKpi(0, 1, "AREA LTR YIELD", area.ltr_yield != null ? area.ltr_yield.toFixed(1) + "%" : na, "DLD · ASSETINTEL", DLDC);
+        areaKpi(1, 1, "STR ADR", area.adr != null ? money(area.adr) : na, strChip, STRC);
+        areaKpi(2, 1, "STR OCCUPANCY", area.occupancy != null ? pct(area.occupancy) : na, strChip, STRC);
+        areaKpi(3, 1, "STR REVPAR", area.revpar != null ? money(area.revpar) : na, strChip, STRC);
+        y += akH * 2 + akGap + 16;
 
-      // ── Projection table ──────────────────────────────────────────
-      const tH  = ["Month", "Revenue", "Occupancy", "ADR", "Total Costs", "Net to Owner"];
-      const tW  = [62, 90, 64, 82, 88, 95];
-      const tTotal = tW.reduce((a,b) => a+b, 0);
-      const tX = ml + (cw - tTotal) / 2;
-      const rowH = 18;
-
-      doc.setFillColor(Gr, Gg, Gb);
-      doc.roundedRect(tX, y, tTotal, rowH + 4, 4, 4, "F");
-      let cx = tX;
-      tH.forEach((h, i) => {
-        txt(h, i === 0 ? cx + 6 : cx + tW[i] - 5, y + 13,
-          { size: 7, bold: true, color: [255,255,255], align: i === 0 ? "left" : "right" });
-        cx += tW[i];
-      });
-      y += rowH + 4;
-
-      result.months.forEach((m, idx) => {
-        if (y + rowH > safeBottom - 60) { doc.addPage(); y = ml + 10; }
-        const totalCosts = m.managementFee + m.utilities + m.maintenance + m.furnitureAmort;
-        const isPos = m.netToLandlord >= 0;
-
-        doc.setFillColor(idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 249, idx % 2 === 0 ? 255 : 245);
-        doc.rect(tX, y, tTotal, rowH, "F");
-        doc.setDrawColor(226, 221, 213);
-        doc.setLineWidth(0.3);
-        doc.line(tX, y + rowH, tX + tTotal, y + rowH);
-        // Green left accent on month column
-        doc.setFillColor(Gr, Gg, Gb);
-        doc.rect(tX, y, 2.5, rowH, "F");
-
-        const cells: Array<{ t: string; c: [number,number,number]; bold?: boolean }> = [
-          { t: m.month,                c: [Gr,Gg,Gb], bold: true },
-          { t: money(m.revenue),       c: [40,90,68] },
-          { t: pct(m.occupancy),       c: [60,60,60] },
-          { t: money(m.adr),           c: [Br,Bg,Bb] },
-          { t: money(totalCosts),      c: [135,58,58] },
-          { t: money(m.netToLandlord), c: isPos ? [Gr,Gg,Gb] : [155,48,48], bold: true },
+        // ── STR market benchmark ────────────────────────────────────
+        eyebrow("STR MARKET BENCHMARK", ml, y);
+        y += 10;
+        const bH = 92;
+        card(ml, y, cw, bH, { fill: SAGE, border: SAGE_BD });
+        txt("Source: " + strSource, ml + cw - 14, y + 17, { size: 6.5, bold: true, color: BRONZE_TX, align: "right", spacing: 0.5 });
+        const benchRows: Array<{ label: string; v: number | null; fmt: (n: number) => string }> = [
+          { label: "ADR",       v: area.adr,       fmt: money },
+          { label: "Occupancy", v: area.occupancy, fmt: pct },
+          { label: "RevPAR",    v: area.revpar,    fmt: money },
         ];
-        cx = tX;
-        cells.forEach(({ t, c, bold }, i) => {
-          txt(t, i === 0 ? cx + 8 : cx + tW[i] - 5, y + 12,
-            { size: 7, bold: bold ?? false, color: c, align: i === 0 ? "left" : "right" });
-          cx += tW[i];
+        const bcW = (cw - 28) / 3;
+        benchRows.forEach((r, i) => {
+          const x = ml + 14 + i * bcW;
+          txt(r.label.toUpperCase(), x, y + 34, { size: 5.8, bold: true, color: LIGHT, spacing: 0.7 });
+          txt(r.v != null ? r.fmt(r.v) : "Data unavailable",
+            x, y + 52, { size: 13, bold: true, color: GREEN, serif: true });
         });
-        y += rowH;
-      });
-      y += 20;
+        const listingsTxt = area.active_listings != null
+          ? "Active listings  ·  " + area.active_listings.toLocaleString() + " (" + strSource + ")"
+          : "Active listings  ·  data unavailable";
+        txt(listingsTxt, ml + 14, y + bH - 20, { size: 6.4, color: MUTED });
+        const conf = area.confidence ? area.confidence.charAt(0).toUpperCase() + area.confidence.slice(1) : "Not stated";
+        txt("Data confidence: " + conf + (area.demand_trend ? "     Demand trend: " + area.demand_trend : ""),
+          ml + 14, y + bH - 9, { size: 6.4, color: MUTED });
+        y += bH + 16;
 
-      // ── Owner Insight card ────────────────────────────────────────
-      if (y < safeBottom - 80) {
-        const bestMonth  = result.months.reduce((a, b) => a.netToLandlord > b.netToLandlord ? a : b);
-        const worstMonth = result.months.reduce((a, b) => a.netToLandlord < b.netToLandlord ? a : b);
-        const insightH = 68;
-        doc.setFillColor(241, 237, 229);
-        doc.roundedRect(ml, y, cw, insightH, 6, 6, "F");
-        doc.setFillColor(Br, Bg, Bb);
-        doc.rect(ml, y, 4, insightH, "F");
-        txt("OWNER INSIGHT", ml + 14, y + 16, { size: 6.5, bold: true, color: [Br,Bg,Bb] });
-        const insightLine1 = "Peak: " + bestMonth.month + "  " + money(bestMonth.netToLandlord) + " net     Lowest: " + worstMonth.month + "  " + money(worstMonth.netToLandlord) + " net";
-        const insightLine2 = strBetter
-          ? "STR generates " + money(result.annualNetToLandlord) + " vs LTR " + money(result.longTermRent) + " annually. High-season performance drives the advantage."
-          : "LTR offers " + money(result.longTermRent) + " with zero vacancy risk. STR upside of " + money(result.annualNetToLandlord) + " depends on platform execution.";
-        txt(insightLine1, ml + 14, y + 32, { size: 7.5, bold: true, color: [40,40,40] });
-        txt(insightLine2, ml + 14, y + 48, { size: 7, color: [80,80,80] });
-        y += insightH + 18;
+        // ── Property vs area benchmark ──────────────────────────────
+        eyebrow("YOUR PROPERTY VS AREA BENCHMARK", ml, y);
+        y += 10;
+        const pvH = 76;
+        card(ml, y, cw, pvH);
+        const cmp: Array<{ label: string; prop: number | null; areaV: number | null; fmt: (n: number) => string }> = [
+          { label: "ADR",       prop: result.avgADR,       areaV: area.adr,       fmt: money },
+          { label: "Occupancy", prop: result.avgOccupancy, areaV: area.occupancy, fmt: pct },
+        ];
+        const cW2 = cw / cmp.length;
+        cmp.forEach((c, i) => {
+          const x = ml + i * cW2 + 16;
+          txt(c.label.toUpperCase(), x, y + 16, { size: 5.8, bold: true, color: LIGHT, spacing: 0.7 });
+          txt("Your property", x, y + 32, { size: 6.6, color: MUTED });
+          txt(c.prop != null ? c.fmt(c.prop) : "n/a", x + 74, y + 32, { size: 8.4, bold: true, color: GREEN, serif: true });
+          txt("Area benchmark", x, y + 46, { size: 6.6, color: MUTED });
+          txt(c.areaV != null ? c.fmt(c.areaV) : "Data unavailable", x + 74, y + 46, { size: 8.4, bold: true, color: TEXT, serif: true });
+          if (c.prop != null && c.areaV != null && c.areaV !== 0) {
+            const d = (c.prop - c.areaV) / c.areaV;
+            const status = d > 0.05 ? "Above area benchmark" : d < -0.05 ? "Below area benchmark" : "In line with area";
+            const sc: RGB = d > 0.05 ? GREEN : d < -0.05 ? RED : MUTED;
+            txt(status, x, y + 62, { size: 6.6, bold: true, color: sc });
+          }
+        });
+        y += pvH + 16;
+
+        // ── AssetIntel interpretation, generated only from present data ──
+        const bits: string[] = [];
+        if (area.sales_transactions != null && area.rental_transactions != null) {
+          bits.push(area.area + " recorded " + area.sales_transactions.toLocaleString() + " sales and "
+            + (area.rental_transactions >= 1000 ? "1,000+" : area.rental_transactions.toLocaleString()) + " rental transactions in the latest reporting month, indicating "
+            + (area.sales_transactions + area.rental_transactions > 800 ? "high" : "moderate") + " transaction liquidity.");
+        }
+        if (area.adr != null && area.occupancy != null) {
+          bits.push("STR benchmarks sit at " + money(area.adr) + " ADR and " + pct(area.occupancy) + " occupancy.");
+        }
+        if (result.avgADR && area.adr) {
+          const d = (result.avgADR - area.adr) / area.adr;
+          bits.push("This unit is modelled " + (Math.abs(d) < 0.05 ? "in line with" : d > 0 ? "above" : "below")
+            + " the area ADR benchmark, so building quality, view and furnishing remain the decisive drivers of the achieved rate.");
+        }
+        bits.push("STR figures are sourced from " + strSource + "; AssetIntel does not merge providers, so the origin of every market number stays traceable.");
+        const interp = bits.slice(0, 4).join(" ");
+        if (interp) {
+          eyebrow("WHAT THIS AREA DATA MEANS", ml, y);
+          y += 10;
+          const iLines = doc.splitTextToSize(interp, cw - 32);
+          const iH = 16 + iLines.length * 10;
+          card(ml, y, cw, iH, { fill: [250, 247, 241], border: [228, 218, 200] });
+          doc.setFillColor(...BRONZE);
+          doc.roundedRect(ml, y, 4, iH, 2, 2, "F");
+          doc.setFontSize(7.4); doc.setFont(SANS, "normal"); doc.setTextColor(...TEXT);
+          doc.text(iLines, ml + 16, y + 16);
+          y += iH + 12;
+        }
+        // Single-period honesty note — no month-over-month or trend chart is possible yet.
+        txt("Month-over-month change and 12-month trend charts are omitted: only one reporting period is currently stored for this area.",
+          ml, y + 4, { size: 6.2, color: LIGHT });
       }
 
-      // ── Disclaimer ───────────────────────────────────────────────
-      if (y > safeBottom - 50) { doc.addPage(); y = ml; }
-      doc.setDrawColor(218, 212, 202);
-      doc.setLineWidth(0.5);
-      doc.line(ml, y, ml + cw, y);
-      y += 11;
-      const disc = "This report is generated by AssetIntel and is for indicative purposes only. Figures are projections based on historical market data and modelling. Actual STR performance depends on management quality, property condition, platform performance, and DET regulatory compliance. This does not constitute financial or investment advice.";
-      const dLines = doc.splitTextToSize(disc, cw - 10);
-      doc.setCharSpace(0);
-      doc.setFontSize(6.5);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(160, 155, 145);
-      doc.text(dLines, ml, y);
+      // ══════════════════════════════════════════════════════════════
+      // PAGE 3 — 12-MONTH FINANCIAL PROJECTION
+      // ══════════════════════════════════════════════════════════════
+      doc.addPage();
+      paintBackground();
+      y = header("12-Month Financial Projection");
 
-      // ── Footer on every page ──────────────────────────────────────
+      const tH2 = ["Month", "Revenue", "Occupancy", "ADR", "Total Costs", "Net To Owner"];
+      const tW2 = [58, 88, 62, 78, 84, 91];
+      const tTot = tW2.reduce((a, b) => a + b, 0);
+      const tX = ml + (cw - tTot) / 2;
+      const rowH2 = 17;
+
+      doc.setFillColor(...GREEN);
+      doc.roundedRect(tX, y, tTot, rowH2 + 3, 5, 5, "F");
+      let cx = tX;
+      tH2.forEach((h, i) => {
+        txt(h, i === 0 ? cx + 8 : cx + tW2[i] - 6, y + 12.5,
+          { size: 6.8, bold: true, color: WHITE, align: i === 0 ? "left" : "right" });
+        cx += tW2[i];
+      });
+      y += rowH2 + 3;
+
+      result.months.forEach((m, idx) => {
+        const totalCosts = m.managementFee + m.utilities + m.maintenance + m.furnitureAmort;
+        doc.setFillColor(...(idx % 2 === 0 ? CARD : ([249, 246, 240] as RGB)));
+        doc.rect(tX, y, tTot, rowH2, "F");
+        doc.setDrawColor(...BORDER);
+        doc.setLineWidth(0.3);
+        doc.line(tX, y + rowH2, tX + tTot, y + rowH2);
+        doc.setFillColor(...GREEN);
+        doc.rect(tX, y, 2.2, rowH2, "F");
+        const cells: Array<{ t: string; c: RGB; b?: boolean; s?: boolean }> = [
+          { t: m.month,                c: GREEN, b: true },
+          { t: money(m.revenue),       c: TEXT },
+          { t: pct(m.occupancy),       c: MUTED },
+          { t: money(m.adr),           c: BRONZE_TX },
+          { t: money(totalCosts),      c: MUTED },
+          { t: money(m.netToLandlord), c: m.netToLandlord >= 0 ? GREEN : RED, b: true, s: true },
+        ];
+        cx = tX;
+        cells.forEach((c, i) => {
+          txt(c.t, i === 0 ? cx + 9 : cx + tW2[i] - 6, y + 11.5,
+            { size: 6.8, bold: c.b ?? false, color: c.c, align: i === 0 ? "left" : "right", serif: c.s });
+          cx += tW2[i];
+        });
+        y += rowH2;
+      });
+      y += 16;
+
+      // ── Seasonality at a glance ───────────────────────────────────
+      eyebrow("SEASONALITY AT A GLANCE", ml, y);
+      y += 10;
+      const sH = 50, sGap = 10, sW = (cw - sGap * 2) / 3;
+      // Derived from the month itself — result.months starts at Jun, so an index-based
+      // mapping labelled December "Summer period".
+      const pkm = peak.month.slice(0, 3);
+      const season = ["Nov","Dec","Jan","Feb","Mar"].includes(pkm) ? "Winter high season"
+        : ["Jun","Jul","Aug","Sep"].includes(pkm) ? "Summer low season" : "Shoulder season";
+      ([
+        { l: "PEAK PERIOD",       v: season,                          s: peak.month + " strongest" , strong: true },
+        { l: "PEAK NET MONTH",    v: money(peak.netToLandlord),       s: peak.month,                strong: true },
+        { l: "SOFTEST NET MONTH", v: money(trough.netToLandlord),     s: trough.month,              strong: false },
+      ] as const).forEach((c, i) => {
+        const x = ml + i * (sW + sGap);
+        card(x, y, sW, sH, { fill: c.strong ? SAGE : [250, 246, 238], border: c.strong ? SAGE_BD : [228, 216, 196] });
+        txt(c.l, x + 12, y + 15, { size: 5.8, bold: true, color: LIGHT, spacing: 0.7 });
+        txt(c.v, x + 12, y + 32, { size: 10.5, bold: true, color: c.strong ? GREEN : BRONZE_TX, serif: true });
+        txt(c.s, x + 12, y + 43, { size: 6.2, color: MUTED });
+      });
+      y += sH + 16;
+
+      // ── Owner insight ─────────────────────────────────────────────
+      eyebrow("ASSETINTEL OWNER INSIGHT", ml, y);
+      y += 10;
+      const advantage = Math.abs(result.strVsLtrDelta);
+      const relAdv = result.longTermRent > 0 ? advantage / result.longTermRent : 0;
+      const magnitude = relAdv > 0.30 ? "a substantial" : relAdv > 0.12 ? "a meaningful" : "a relatively modest";
+      const interpretation = strBetter
+        ? "STR is projected to outperform LTR by " + magnitude + " margin, driven largely by high-season performance. "
+          + (relAdv <= 0.12
+            ? "Because the annual advantage is narrow, management execution and cost control will materially influence whether it is realised."
+            : "Sustaining it depends on consistent occupancy, pricing discipline and furnishing quality.")
+        : "LTR is projected to outperform STR on a net basis, with no vacancy exposure and materially lower operating involvement. "
+          + "STR would need stronger occupancy or nightly rates than currently modelled to close the gap.";
+      const oLines = doc.splitTextToSize(interpretation, cw - 32);
+      const oH = 58 + oLines.length * 10;
+      card(ml, y, cw, oH, { fill: CARD });
+      doc.setFillColor(...(strBetter ? GREEN : BRONZE));
+      doc.roundedRect(ml, y, 4, oH, 2, 2, "F");
+      const facts: Array<[string, string]> = [
+        ["Recommended strategy", strBetter ? "Short-Term Rental" : "Long-Term Rental"],
+        ["Annual STR net", money(result.annualNetToLandlord)],
+        ["Annual LTR", money(result.longTermRent)],
+        ["Projected difference", money(advantage)],
+      ];
+      const fW = (cw - 32) / 4;
+      facts.forEach(([l, v], i) => {
+        const x = ml + 16 + i * fW;
+        txt(l.toUpperCase(), x, y + 17, { size: 5.5, bold: true, color: LIGHT, spacing: 0.6 });
+        txt(v, x, y + 33, { size: 9, bold: true, color: i === 0 ? (strBetter ? GREEN : BRONZE_TX) : TEXT, serif: true });
+      });
+      doc.setFontSize(7.3); doc.setFont(SANS, "normal"); doc.setTextColor(...TEXT);
+      doc.text(oLines, ml + 16, y + 52);
+      y += oH + 14;
+
+      // ── Next step ─────────────────────────────────────────────────
+      eyebrow("WHAT'S YOUR NEXT STEP?", ml, y);
+      y += 10;
+      const nSteps: Array<[string, string]> = strBetter
+        ? [["Private Operator Match", "Find suitable STR operators for this property."],
+           ["Furnishing & STR Setup", "Get the property professionally guest-ready."],
+           ["Independent Advisory", "20-minute unbiased guidance, AED 199."]]
+        : [["Independent Advisory", "20-minute unbiased guidance, AED 199."],
+           ["Leasing Support", "Position the unit for a strong long-term tenant."],
+           ["Furnishing & STR Setup", "Revisit if you later reconsider short-term."]];
+      const nW = (cw - 20) / 3, nH = 44;
+      nSteps.forEach(([t, d], i) => {
+        const x = ml + i * (nW + 10);
+        card(x, y, nW, nH, { fill: [250, 247, 241], border: [228, 218, 200], r: 7 });
+        txt(t, x + 11, y + 17, { size: 7.6, bold: true, color: GREEN, serif: true });
+        const dl = doc.splitTextToSize(d, nW - 22);
+        doc.setFontSize(6.1); doc.setFont(SANS, "normal"); doc.setTextColor(...MUTED);
+        doc.text(dl, x + 11, y + 29);
+      });
+      txt("assetintel.ae", ml + cw, y + nH + 11, { size: 6.6, bold: true, color: BRONZE_TX, align: "right" });
+      y += nH + 20;
+
+      // ── Data provenance ───────────────────────────────────────────
+      const provH = 52;
+      card(ml, y, cw, provH, { fill: [246, 243, 236], border: BORDER, r: 7 });
+      eyebrow("DATA SOURCES", ml + 14, y + 14);
+      const provs: Array<[string, string]> = [
+        ["Dubai Land Department", "Sales & rental transactions"],
+        ["AirROI", "STR market intelligence"],
+        ["Airbtics", "STR market intelligence"],
+        ["AssetIntel", "Calculations & interpretation"],
+      ];
+      const pW = (cw - 28) / 4;
+      provs.forEach(([n, d], i) => {
+        const x = ml + 14 + i * pW;
+        txt(n, x, y + 29, { size: 6.8, bold: true, color: GREEN });
+        txt(d, x, y + 38, { size: 5.8, color: MUTED });
+      });
+      const refreshedTxt = area ? new Date(area.updated_at).toLocaleDateString("en-AE", { day: "numeric", month: "short", year: "numeric" }) : "unavailable";
+      txt("Market data last refreshed: " + refreshedTxt + "     Report generated: " + dateStr,
+        ml + 14, y + provH - 6, { size: 5.9, color: LIGHT });
+      y += provH + 12;
+
+      // ── Disclaimer ────────────────────────────────────────────────
+      eyebrow("IMPORTANT INFORMATION", ml, y);
+      y += 9;
+      const disc = "This report is generated by AssetIntel for indicative purposes only. Figures are projections based on available market data, third-party STR datasets, user inputs and AssetIntel modelling. Actual performance may vary depending on pricing, management quality, property condition, seasonality, booking-platform performance, market conditions and regulatory requirements. This report does not constitute financial, investment, legal or valuation advice.";
+      const dLines = doc.splitTextToSize(disc, cw - 4);
+      doc.setFontSize(6.2); doc.setFont(SANS, "normal"); doc.setTextColor(155, 150, 141);
+      doc.text(dLines, ml, y + 6);
+
+      // ── Consistent footer on every page ───────────────────────────
       const totalPages = doc.getNumberOfPages();
       for (let p = 1; p <= totalPages; p++) {
         doc.setPage(p);
-        doc.setFillColor(Gr, Gg, Gb);
-        doc.rect(0, H - footerH, W, footerH, "F");
-        doc.setFillColor(Br, Bg, Bb);
-        doc.rect(0, H - footerH, W, 1.5, "F");
-        txt("AssetIntel", ml, H - 10, { size: 7.5, bold: true, color: [Br,Bg,Bb] });
-        txt("Property Intelligence. Smarter Decisions.", ml + 68, H - 10, { size: 7, color: [175,212,195] });
-        txt("Page " + p + " of " + totalPages, W - mr, H - 10, { size: 7, color: [155,195,178], align: "right" });
+        doc.setFillColor(...BRONZE);
+        doc.rect(ml, H - footerH - 6, cw, 0.9, "F");
+        txt("AssetIntel", ml, H - footerH + 10, { size: 8, bold: true, color: GREEN, serif: true });
+        txt("Property Intelligence. Smarter Decisions.", W / 2, H - footerH + 10, { size: 6.6, color: MUTED, align: "center" });
+        txt("Page " + p + " of " + totalPages, W - mr, H - footerH + 10, { size: 6.6, color: LIGHT, align: "right" });
       }
 
       const filename = "AssetIntel-Report-" +
@@ -1010,6 +1301,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       </div>
 
       <div id="pdf-report-content" className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+      <AccessGate source="report" title="Unlock Your Full Report" subtitle="Free — enter your name and email to see your rental analysis, comparables, and recommendation.">
 
         {/* Unfurnished notice */}
         {result.furnished === "Unfurnished" && (
@@ -1829,17 +2121,74 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             buttonShadow="0 8px 20px rgba(27, 94, 74, 0.3)"
             onClick={() => { const p = new URLSearchParams(window.location.search); window.location.href = `/agents?${p.toString()}`; }}
           />
+        ) : showOperatorPriorities && !operatorSent ? (
+          <div
+            className="relative overflow-hidden text-left"
+            style={{
+              borderRadius: "28px", padding: "32px 32px",
+              background: `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.secondary}12 0%, transparent 70%), linear-gradient(135deg, #FCF8F1 0%, #FBF6EE 100%)`,
+              border: `1px solid ${colors.secondary}33`,
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 40px rgba(0,0,0,0.06)",
+            }}
+          >
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 10 }}>
+              Part 2 of 2
+            </p>
+            <h3 style={{ fontFamily: "'Georgia', serif", fontSize: 22, fontWeight: 700, color: colors.primary, marginBottom: 8 }}>
+              What matters most to you?
+            </h3>
+            <p style={{ fontSize: 13.5, color: colors.textMuted, marginBottom: 20, lineHeight: 1.55 }}>
+              Select all that apply — we&apos;ll rank operators by what you actually care about, not a fixed &quot;top 3&quot; list.
+            </p>
+            <div style={{ display: "grid", gap: 8, marginBottom: 22 }}>
+              {PRIORITY_OPTIONS.map(opt => {
+                const active = operatorPriorities.includes(opt.value);
+                return (
+                  <button
+                    type="button"
+                    key={opt.value}
+                    onClick={() => setOperatorPriorities(prev => prev.includes(opt.value) ? prev.filter(p => p !== opt.value) : [...prev, opt.value])}
+                    style={{
+                      textAlign: "left", padding: "12px 14px", borderRadius: 12,
+                      border: active ? `1.5px solid ${colors.primary}` : "1px solid rgba(40,80,65,0.14)",
+                      background: active ? "rgba(27,94,74,0.06)" : "rgba(255,255,255,0.6)",
+                      cursor: "pointer", fontFamily: "inherit",
+                    }}
+                  >
+                    <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: active ? colors.primary : colors.textMain }}>
+                      {active ? "✓ " : ""}{opt.label}
+                    </p>
+                    <p style={{ margin: "3px 0 0", fontSize: 12, color: colors.textMuted, lineHeight: 1.4 }}>{opt.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              disabled={operatorPriorities.length === 0 || operatorSending}
+              onClick={() => handleOperatorMatch(operatorPriorities)}
+              style={{
+                width: "100%", padding: "14px", borderRadius: 12, border: "none",
+                background: operatorPriorities.length === 0 ? "rgba(184,138,68,0.35)" : "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)",
+                color: "#fff", fontSize: 14.5, fontWeight: 700,
+                cursor: operatorPriorities.length === 0 || operatorSending ? "not-allowed" : "pointer",
+                boxShadow: operatorPriorities.length === 0 ? "none" : "0 8px 20px rgba(184, 138, 68, 0.3)",
+              }}
+            >
+              {operatorSending ? "Sending…" : "Send Me My Operator Matches →"}
+            </button>
+          </div>
         ) : (
           <PremiumCTACard
             theme="bronze"
             eyebrow="Part 2 of 2"
             eyebrowColor={colors.secondary}
             heading="Get matched with the right operator"
-            description={<>We&apos;ll instantly send you a personalised shortlist of the top Dubai STR operators for your property — with their fees, strengths, and track record.</>}
-            buttonText={operatorSent ? "✓ Sent to your email" : operatorSending ? "Sending…" : "Send Me My Operator Matches →"}
+            description={<>We&apos;ll send you a personalised shortlist of the top Dubai STR operators for your property, ranked by what matters most to you — with their fees, strengths, and track record.</>}
+            buttonText={operatorSent ? "✓ Sent to your email" : "Get Matched With an Operator →"}
             buttonGradient="linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)"
             buttonShadow="0 8px 20px rgba(184, 138, 68, 0.3)"
-            onClick={() => { if (!operatorSent) handleOperatorMatch(); }}
+            onClick={() => { if (!operatorSent) setShowOperatorPriorities(true); }}
           />
         )}
 
@@ -1882,6 +2231,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             </p>
           </div>
         </div>
+      </AccessGate>
       </div>
       </div>
     </div>
