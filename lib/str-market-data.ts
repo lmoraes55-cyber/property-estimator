@@ -45,6 +45,15 @@ export interface AreaStatsRow {
   airroi_source: string;
   confidence: string | null;
   updated_at: string;
+  airbtics_adr: number | null;
+  airbtics_occupancy: number | null;
+  airbtics_revpar: number | null;
+  airbtics_estimated_revenue: number | null;
+  airbtics_active_listings: number | null;
+  airbtics_comparable_listing_count: number | null;
+  airbtics_market_grade: string | null;
+  airbtics_regulations: string | null;
+  data_sources: string | null;
 }
 
 function readOnlyClient() {
