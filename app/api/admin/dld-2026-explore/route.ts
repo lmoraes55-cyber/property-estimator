@@ -6,7 +6,6 @@ export const maxDuration = 60;
 
 interface DLDProjectRow {
   project_id: number;
-  project_name: string;
   master_project_en: string | null;
   area_name_en: string | null;
   developer_name: string;
@@ -14,8 +13,6 @@ interface DLDProjectRow {
   percent_completed: number;
   completion_date: string | null;
   project_end_date: string | null;
-  project_start_date: string | null;
-  no_of_buildings: number;
   no_of_units: number;
 }
 
@@ -25,34 +22,25 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // completion_date-based filter, small page to check true total
-  const byCompletionDate = await ddaQuery<DLDProjectRow>({
-    entity: "dld", dataset: "dld_projects-open-api",
-    filters: { project_status: "ACTIVE" },
-    likeFilters: { completion_date: "2026%" },
-    pageSize: 5,
-    columns: ["project_id", "master_project_en", "area_name_en", "developer_name", "project_status", "percent_completed", "completion_date", "project_end_date", "no_of_units"],
-  });
-
-  // project_end_date-based filter instead
   const byEndDate = await ddaQuery<DLDProjectRow>({
     entity: "dld", dataset: "dld_projects-open-api",
     filters: { project_status: "ACTIVE" },
     likeFilters: { project_end_date: "2026%" },
-    pageSize: 5,
+    pageSize: 1000,
     columns: ["project_id", "master_project_en", "area_name_en", "developer_name", "project_status", "percent_completed", "completion_date", "project_end_date", "no_of_units"],
   });
 
-  // how many ACTIVE projects total (no date filter) to sanity check the dataset size
-  const activeTotal = await ddaQuery<DLDProjectRow>({
-    entity: "dld", dataset: "dld_projects-open-api",
-    filters: { project_status: "ACTIVE" },
-    pageSize: 1,
-  });
+  const byArea: Record<string, number> = {};
+  for (const r of byEndDate.results) {
+    const a = r.area_name_en ?? "Unknown";
+    byArea[a] = (byArea[a] ?? 0) + 1;
+  }
 
   return NextResponse.json({
-    byCompletionDate: { total: byCompletionDate.total, sample: byCompletionDate.results },
-    byEndDate: { total: byEndDate.total, sample: byEndDate.results },
-    activeTotal: activeTotal.total,
+    reportedTotal: byEndDate.total,
+    actualRowCount: byEndDate.results.length,
+    uniqueAreaCount: Object.keys(byArea).length,
+    byArea,
+    sample: byEndDate.results.slice(0, 10),
   });
 }
