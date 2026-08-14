@@ -236,10 +236,7 @@ export default function AboutPage() {
                   fontFamily: "'Georgia', serif",
                   lineHeight: 1.15,
                   marginBottom: 20,
-                  background: `linear-gradient(120deg, ${C.green} 0%, #2A7A62 45%, ${C.bronze} 100%)`,
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  color: C.green,
                 }}>
                   Built From Real Dubai STR, Leasing &amp; Operations Experience
                 </h1>
@@ -260,7 +257,7 @@ export default function AboutPage() {
                 {/* CTAs */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                   <button onClick={() => router.push("/estimator")} style={{ padding: "13px 28px", borderRadius: 12, background: `linear-gradient(135deg, ${C.green} 0%, ${C.greenHover} 100%)`, color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 18px rgba(27,94,74,0.28)" }}>
-                    Analyze My Property
+                    Analyze Property
                   </button>
                   <button onClick={() => router.push("/#services")} style={{ padding: "12px 24px", borderRadius: 12, background: "rgba(255,255,255,0.75)", color: C.green, fontSize: 14, fontWeight: 600, border: `1.5px solid rgba(27,94,74,0.30)`, cursor: "pointer", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
                     Explore Services
@@ -296,30 +293,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── SECTION 2: EXPERIENCE SNAPSHOT CARDS ───────────────────── */}
-        <section style={{ background: C.bgSection, padding: "64px 24px", borderTop: `1px solid ${C.border}` }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12, textAlign: "center" }}>What We Bring</p>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", textAlign: "center", marginBottom: 48, background: `linear-gradient(135deg, ${C.green} 0%, ${C.bronze} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Real Experience Across Dubai's Rental Market
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24 }}>
-              {[
-                { stat: "6+ Years", label: "Dubai STR & Real Estate Experience", desc: "Hands-on experience across short-term rental, long-term leasing, property onboarding, owner relations, and rental strategy in Dubai." },
-                { stat: "STR Company Setup", label: "Sub-leasing operations built from the ground up", desc: "Experience setting up STR sub-leasing businesses, including operations, teams, systems, pricing, and portfolio workflows." },
-                { stat: "Up To 900 Properties", label: "Large-scale portfolio exposure", desc: "Operational and coordination experience across portfolios ranging from small owner-managed units to large Dubai STR portfolios." },
-                { stat: "A–Z Operations", label: "From onboarding to guest experience", desc: "Understanding of the full STR journey, including onboarding, furnishing readiness, listings, PMS, housekeeping, maintenance, guest relations, and owner reporting." },
-              ].map(card => (
-                <div key={card.stat} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 20, padding: "28px 24px", position: "relative", overflow: "hidden" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${C.green} 0%, ${C.bronze} 100%)`, borderRadius: "20px 20px 0 0" }} />
-                  <p style={{ fontSize: "clamp(20px, 2vw, 26px)", fontWeight: 700, color: C.green, fontFamily: "'Georgia', serif", marginBottom: 6, lineHeight: 1.2 }}>{card.stat}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 10, lineHeight: 1.4 }}>{card.label}</p>
-                  <p style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.65 }}>{card.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* ── SECTION 3: OUR STORY ─────────────────────────────────────── */}
         <section style={{ background: C.bgSage, padding: "72px 24px", borderTop: `1px solid ${C.borderSage}` }}>
@@ -379,34 +352,38 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── SECTION 5: PORTFOLIO SCALE ───────────────────────────────── */}
+        {/* ── SECTION 5: THE SCALING JOURNEY — vertical milestone spine,
+             replaces two separate stat-card grids (6+ years / STR company
+             setup / up to 900 properties / A-Z operations, and small/
+             growing/large portfolio cards) that told the same story twice
+             in the same shape. The real story here is a progression, so it
+             reads as one. ── */}
         <section style={{ background: C.bg, padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Scale & Experience</p>
             <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 20, lineHeight: 1.2 }}>From Smaller Portfolios To Large-Scale STR Operations</h2>
-            <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, maxWidth: 720, marginBottom: 16 }}>
-              AssetIntel is built with experience across different portfolio sizes — from smaller STR portfolios where every unit matters, to large-scale operations managing hundreds of properties across Dubai.
+            <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, maxWidth: 680, marginBottom: 56 }}>
+              AssetIntel is built on <strong style={{ color: C.text, fontWeight: 700 }}>6+ years</strong> of hands-on Dubai STR, leasing, and onboarding experience — including <strong style={{ color: C.text, fontWeight: 700 }}>setting up STR sub-leasing operations from the ground up</strong> — across every portfolio size, from a single owner-managed unit to Dubai STR portfolios of <strong style={{ color: C.text, fontWeight: 700 }}>up to around 900 properties</strong>. That range gives us a practical, A–Z understanding of the full STR journey: onboarding, furnishing readiness, listings, PMS, housekeeping, maintenance, guest relations, and owner reporting — and what actually changes as a portfolio grows.
             </p>
-            <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, maxWidth: 720, marginBottom: 12 }}>
-              This gives us a practical understanding of what changes as portfolios grow:
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 48, paddingLeft: 4 }}>
-              {["the systems needed", "the team structure required", "the operational risks", "the reporting standards", "the difference between managing a few units and scaling professionally"].map(point => (
-                <div key={point} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: C.bronze, marginTop: 8, flexShrink: 0 }} />
-                  <p style={{ fontSize: 15, color: C.textMuted }}>{point}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
+
+            <div style={{ position: "relative", paddingLeft: 36 }}>
+              {/* vertical spine */}
+              <div style={{ position: "absolute", left: 9, top: 6, bottom: 6, width: 2, background: `linear-gradient(to bottom, ${C.green}, ${C.bronze})` }} />
               {[
-                { label: "Small Portfolios", desc: "For owners managing 1–8 units who need simple systems, automation, and reliable support." },
-                { label: "Growing Portfolios", desc: "For owners or entrepreneurs scaling beyond a few units who need PMS, pricing, operations teams, and SOPs." },
-                { label: "Large Portfolios", desc: "Experience with large Dubai STR portfolios of up to around 900 properties, where process, coordination, standards, and reporting become critical." },
-              ].map(card => (
-                <div key={card.label} style={{ background: C.bgSection, border: `1px solid ${C.border}`, borderRadius: 18, padding: "24px 22px" }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: C.green, marginBottom: 10 }}>{card.label}</p>
-                  <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.65 }}>{card.desc}</p>
+                { label: "Small Portfolios", range: "1–8 units", desc: "Simple systems, automation, and reliable support for owners who need every unit to perform." },
+                { label: "Growing Portfolios", range: "Scaling beyond a few units", desc: "PMS, pricing, operations teams, and SOPs for owners and entrepreneurs building past the point spreadsheets can handle." },
+                { label: "Large Portfolios", range: "Up to ~900 properties", desc: "Where process, coordination, standards, and reporting stop being optional and become the whole job." },
+              ].map((stage, i) => (
+                <div key={stage.label} style={{ position: "relative", paddingBottom: i < 2 ? 40 : 0 }}>
+                  <div style={{
+                    position: "absolute", left: -36, top: 4, width: 20, height: 20, borderRadius: "50%",
+                    background: C.bg, border: `2.5px solid ${C.green}`, display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green }} />
+                  </div>
+                  <p style={{ fontSize: 17, fontWeight: 700, color: C.green, fontFamily: "'Georgia', serif", marginBottom: 3 }}>{stage.label}</p>
+                  <p style={{ fontSize: 11.5, fontWeight: 700, color: C.bronzeDark, letterSpacing: "0.04em", marginBottom: 8 }}>{stage.range}</p>
+                  <p style={{ fontSize: 14.5, color: C.textMuted, lineHeight: 1.65, maxWidth: 560 }}>{stage.desc}</p>
                 </div>
               ))}
             </div>
@@ -507,7 +484,7 @@ export default function AboutPage() {
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
               <button onClick={() => router.push("/estimator")} style={{ padding: "14px 32px", borderRadius: 12, background: `linear-gradient(135deg, ${C.green} 0%, ${C.greenHover} 100%)`, color: "#fff", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 20px rgba(27,94,74,0.28)" }}>
-                Analyze My Property
+                Analyze Property
               </button>
               <button onClick={() => setEnquiryOpen(true)} style={{ padding: "13px 28px", borderRadius: 12, background: "transparent", color: C.green, fontSize: 15, fontWeight: 600, border: `1.5px solid rgba(27,94,74,0.35)`, cursor: "pointer" }}>
                 Speak To An Advisor
