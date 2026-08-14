@@ -17,6 +17,8 @@ export const colors = {
   secondary: "#B88A44",
   secondaryLight: "#D4A574",
   secondaryDark: "#8B6F3F",
+  secondaryText: "#7D6338", // AA-compliant (4.5:1+) bronze for small/normal-weight text on light backgrounds
+  secondaryOnDark: "#E5C9AB", // AA-compliant bronze for text/links on dark-green backgrounds
 
   // Text
   textMain: "#1A1A1A",
