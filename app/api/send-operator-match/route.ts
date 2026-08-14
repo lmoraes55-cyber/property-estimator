@@ -59,7 +59,7 @@ export async function POST(request: Request) {
             <td style="width:50%;padding-left:8px;">
               <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #EFEAE0;">
                 <p style="margin:0 0 3px;font-size:10px;color:#7D6338;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Portfolio</p>
-                <p style="margin:0;font-size:15px;font-weight:700;color:#17301F;">${op.portfolioSize ?? "Not disclosed"}</p>
+                <p style="margin:0;font-size:15px;font-weight:700;color:#17301F;">${op.displayPortfolio}</p>
               </div>
             </td>
           </tr>

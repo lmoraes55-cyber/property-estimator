@@ -87,6 +87,13 @@ export interface MatchedOperator extends CompetitorResearch {
   quant: DubaiOperator | null;
   score: number;
   matchReasons: string[];
+  // Best-available portfolio figure for display. Airbtics listing counts are measured
+  // per-operator and more reliable than a phone quote — prefer them whenever the
+  // operator cross-references, even though the quoted portfolioSize string stays in
+  // the record above for provenance (e.g. Frank Porter: research call quoted "650",
+  // Airbtics counts 88 actual listings — the two are not the same measure, and the
+  // gap itself is worth surfacing rather than picking whichever number is bigger).
+  displayPortfolio: string;
 }
 
 export function rankOperators(priorities: Priority[]): MatchedOperator[] {
@@ -112,7 +119,7 @@ export function rankOperators(priorities: Priority[]): MatchedOperator[] {
     }
     if (priorities.includes("portfolio")) {
       score += Math.min(portfolio, 800) / 10;
-      if (portfolio >= 200) reasons.push(`${portfolio.toLocaleString()}+ units under management`);
+      if (portfolio >= 200) reasons.push(`${portfolio.toLocaleString()}+ ${quant ? "listings tracked (Airbtics)" : "units under management (operator quoted)"}`);
     }
     if (priorities.includes("flexible_terms")) {
       score += flexScore * 10;
@@ -127,7 +134,18 @@ export function rankOperators(priorities: Priority[]): MatchedOperator[] {
       score = (fee != null ? Math.max(0, 25 - fee) : 0) + commScore * 3 + Math.min(portfolio, 800) / 40 + flexScore * 2;
     }
 
-    return { ...op, quant, score, matchReasons: reasons };
+    // Some portfolioSize entries are a short quote ("650"), others are a full paragraph
+    // (e.g. First Class's account-split explanation, GuestReady's two-figure caveat) —
+    // truncate for the compact card either way; the full text is still in the record.
+    const MAX_QUOTE_LEN = 40;
+    const truncated = op.portfolioSize && op.portfolioSize.length > MAX_QUOTE_LEN
+      ? `${op.portfolioSize.slice(0, MAX_QUOTE_LEN).trimEnd()}…`
+      : op.portfolioSize;
+    const displayPortfolio = quant
+      ? `${quant.listings.toLocaleString()} listings (Airbtics)${truncated ? ` — operator quoted "${truncated}"` : ""}`
+      : (truncated ?? "Not disclosed");
+
+    return { ...op, quant, score, matchReasons: reasons, displayPortfolio };
   });
 
   return matched.sort((a, b) => b.score - a.score);
