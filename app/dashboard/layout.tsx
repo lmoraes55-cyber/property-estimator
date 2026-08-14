@@ -198,6 +198,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
+      {/* Top bar — mobile only (account + sign out; sidebar with these is hidden below 769px) */}
+      <div
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 60,
+          alignItems: "center", justifyContent: "space-between",
+          padding: "12px 16px", background: C.sidebar, borderBottom: `1px solid ${C.border}`,
+        }}
+        className="mobile-topbar"
+      >
+        <a href="/" style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+          <AssetIntelLogo size={26} />
+        </a>
+        <p style={{ fontSize: 12, color: C.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", margin: "0 10px", flex: 1, textAlign: "right" }}>
+          {userEmail}
+        </p>
+        <button
+          onClick={handleSignOut}
+          style={{ padding: "6px 14px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, color: C.muted, cursor: "pointer", fontWeight: 500, flexShrink: 0 }}
+        >
+          Sign Out
+        </button>
+      </div>
+
       {/* Main content */}
       <main
         style={{
@@ -255,13 +278,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       <style>{`
+        .mobile-topbar { display: none; }
         @media (max-width: 768px) {
           .hidden-mobile { display: none !important; }
-          .dashboard-main { margin-left: 0 !important; padding: 20px 16px 80px !important; }
+          .mobile-topbar { display: flex !important; }
+          .dashboard-main { margin-left: 0 !important; padding: 76px 16px 80px !important; }
           .mobile-tabs { display: flex !important; }
         }
         @media (min-width: 769px) {
           .mobile-tabs { display: none !important; }
+          .mobile-topbar { display: none !important; }
         }
       `}</style>
     </div>

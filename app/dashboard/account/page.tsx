@@ -110,7 +110,10 @@ export default function AccountPage() {
 
   return (
     <div style={{ maxWidth: 600 }}>
-      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.text, marginBottom: 28 }}>
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
+        Your Profile
+      </p>
+      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green, marginBottom: 28 }}>
         Account
       </h1>
 
@@ -120,7 +123,7 @@ export default function AccountPage() {
           border: `1px solid ${C.border}`,
           borderRadius: 12,
           padding: "28px 28px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
           marginBottom: 20,
         }}
       >
@@ -190,7 +193,7 @@ export default function AccountPage() {
           border: `1px solid ${C.border}`,
           borderRadius: 12,
           padding: "24px 28px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
           marginBottom: 20,
         }}
       >

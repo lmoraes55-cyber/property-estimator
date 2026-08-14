@@ -325,7 +325,10 @@ export default function RequestsPage() {
 
   return (
     <div style={{ maxWidth: 900 }}>
-      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.text, marginBottom: 8 }}>
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
+        Expert Support
+      </p>
+      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green, marginBottom: 8 }}>
         Service Requests
       </h1>
       <p style={{ color: C.muted, fontSize: 14, marginBottom: 32 }}>
@@ -352,7 +355,7 @@ export default function RequestsPage() {
               border: `1px solid ${C.border}`,
               borderRadius: 12,
               padding: "20px 20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
               display: "flex",
               flexDirection: "column",
             }}
@@ -426,7 +429,7 @@ export default function RequestsPage() {
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: 12,
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                  boxShadow: "0 1px 4px rgba(27,94,74,0.06)",
                 }}
               >
                 <div>

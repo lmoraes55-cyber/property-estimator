@@ -282,7 +282,7 @@ export default function DashboardPage() {
               border: `1px solid ${C.borderLight}`,
               borderRadius: 20,
               padding: "22px 22px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+              boxShadow: "0 2px 10px rgba(27,94,74,0.05)",
             }}
           >
             <div style={{
@@ -321,7 +321,7 @@ export default function DashboardPage() {
                 borderRadius: 20,
                 padding: "22px",
                 textDecoration: "none",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+                boxShadow: "0 2px 10px rgba(27,94,74,0.05)",
               }}
             >
               <div style={{

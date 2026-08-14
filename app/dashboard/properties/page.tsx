@@ -177,9 +177,14 @@ export default function PropertiesPage() {
   return (
     <div style={{ maxWidth: 900 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.text }}>
-          My Properties
-        </h1>
+        <div>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
+            Your Portfolio
+          </p>
+          <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green }}>
+            My Properties
+          </h1>
+        </div>
         <button
           onClick={() => setShowForm((v) => !v)}
           style={{
@@ -206,7 +211,7 @@ export default function PropertiesPage() {
             borderRadius: 12,
             padding: "28px 28px",
             marginBottom: 28,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+            boxShadow: "0 2px 12px rgba(27,94,74,0.08)",
           }}
         >
           <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 18, color: C.text, marginBottom: 20 }}>
@@ -372,7 +377,7 @@ export default function PropertiesPage() {
             borderRadius: 12,
             padding: "48px 32px",
             textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+            boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
           }}
         >
           <p style={{ color: C.muted, fontSize: 15, marginBottom: 8 }}>No properties saved yet.</p>
@@ -390,7 +395,7 @@ export default function PropertiesPage() {
                 border: `1px solid ${C.border}`,
                 borderRadius: 12,
                 padding: "20px 24px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "space-between",

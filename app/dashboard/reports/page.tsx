@@ -66,7 +66,10 @@ export default function ReportsPage() {
 
   return (
     <div style={{ maxWidth: 900 }}>
-      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.text, marginBottom: 28 }}>
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
+        Saved Analysis
+      </p>
+      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green, marginBottom: 28 }}>
         Reports
       </h1>
 
@@ -80,7 +83,7 @@ export default function ReportsPage() {
             borderRadius: 12,
             padding: "48px 32px",
             textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+            boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
           }}
         >
           <p style={{ color: C.muted, fontSize: 15, marginBottom: 12 }}>No reports yet.</p>
@@ -111,7 +114,7 @@ export default function ReportsPage() {
                   border: `1px solid ${C.border}`,
                   borderRadius: 12,
                   padding: "20px 24px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  boxShadow: "0 2px 8px rgba(27,94,74,0.06)",
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
