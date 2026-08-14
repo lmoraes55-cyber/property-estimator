@@ -69,7 +69,11 @@ function flexibilityScore(op: CompetitorResearch): number {
   return s;
 }
 
+// Preference order: a directly-observed live count (e.g. counted on the operator's own
+// Airbnb host profile) beats the Airbtics export (a periodic snapshot, can lag), which
+// beats a phone-quoted figure (self-reported, unverifiable).
 function portfolioNumber(op: CompetitorResearch, quant: DubaiOperator | null): number {
+  if (op.verifiedListingCount) return op.verifiedListingCount.count;
   if (quant) return quant.listings;
   const match = (op.portfolioSize ?? "").match(/(\d[\d,]*)/);
   return match ? Number(match[1].replace(/,/g, "")) : 0;
@@ -119,7 +123,7 @@ export function rankOperators(priorities: Priority[]): MatchedOperator[] {
     }
     if (priorities.includes("portfolio")) {
       score += Math.min(portfolio, 800) / 10;
-      if (portfolio >= 200) reasons.push(`${portfolio.toLocaleString()}+ ${quant ? "listings tracked (Airbtics)" : "units under management (operator quoted)"}`);
+      if (portfolio >= 200) reasons.push(`${portfolio.toLocaleString()}+ ${op.verifiedListingCount ? "live listings" : quant ? "listings tracked (Airbtics)" : "units under management (operator quoted)"}`);
     }
     if (priorities.includes("flexible_terms")) {
       score += flexScore * 10;
@@ -141,7 +145,9 @@ export function rankOperators(priorities: Priority[]): MatchedOperator[] {
     const truncated = op.portfolioSize && op.portfolioSize.length > MAX_QUOTE_LEN
       ? `${op.portfolioSize.slice(0, MAX_QUOTE_LEN).trimEnd()}…`
       : op.portfolioSize;
-    const displayPortfolio = quant
+    const displayPortfolio = op.verifiedListingCount
+      ? `${op.verifiedListingCount.count.toLocaleString()} live listings (verified on ${op.verifiedListingCount.source}, ${op.verifiedListingCount.capturedOn})`
+      : quant
       ? `${quant.listings.toLocaleString()} listings (Airbtics)${truncated ? ` — operator quoted "${truncated}"` : ""}`
       : (truncated ?? "Not disclosed");
 

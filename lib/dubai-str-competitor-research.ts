@@ -23,6 +23,11 @@ export interface CompetitorResearch {
   onboardingSemiFurnished: string | null;
   onboardingFullyFurnished: string | null;
   portfolioSize: string | null; // kept as quoted string — sources phrase this inconsistently ("150+", "As per conversation 400")
+  // A live listing count observed directly on the platform (e.g. an Airbnb host
+  // profile's "View all N listings"), when we have one. Outranks both the Airbtics
+  // export (a periodic snapshot) and phone quotes for display purposes, since it's the
+  // most current and most directly verifiable figure available. Null unless captured.
+  verifiedListingCount?: { count: number; source: string; capturedOn: string } | null;
   areasOfFocus: string | null;
   ownerPortal: string | null;
   systemsUsed: string | null;
@@ -154,6 +159,7 @@ export const COMPETITOR_RESEARCH: CompetitorResearch[] = [
     earlyTerminationFee: "AED 5,000 if terminated within first 6 months; AED 1,500 if terminated after 6 months without giving 60 days notice. Post-termination, Frank Porter still charges 14% of rent (net of Homestay Website fees) on any pre-termination bookings checking in within 60 days of termination.",
     onboardingSemiFurnished: "2–3 weeks", onboardingFullyFurnished: "3–4 weeks",
     portfolioSize: "650",
+    verifiedListingCount: { count: 213, source: "Frank Porter's Airbnb host profile (\"View all 213 listings\")", capturedOn: "2026-08-14" },
     areasOfFocus: "All Dubai, plus Abu Dhabi",
     ownerPortal: "Yes — owner app", systemsUsed: "Own proprietary system",
     listingPlatforms: "All platforms + own website",
