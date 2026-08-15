@@ -106,10 +106,8 @@ interface SaleStat {
   asOf: string;
 }
 
-function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: () => void }) {
-  const router = useRouter();
+function FocusPanel({ project, onClear, onRequestReview }: { project: DLD2026Handover; onClear: () => void; onRequestReview: (project: DLD2026Handover) => void }) {
   const name = displayName(project);
-  const analyzeUrl = `/estimator?buildingName=${encodeURIComponent(name)}&source=2026-handover`;
   const tier = tierOf(project);
 
   const [saleStat, setSaleStat] = useState<SaleStat | null>(null);
@@ -280,7 +278,7 @@ function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: (
       </div>
 
       <button
-        onClick={() => router.push(analyzeUrl)}
+        onClick={() => onRequestReview(project)}
         style={{
           padding: "15px 26px", borderRadius: 12,
           background: `linear-gradient(135deg, ${colors.primary} 0%, #0F3E33 100%)`,
@@ -288,7 +286,7 @@ function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: (
           border: "none", cursor: "pointer", boxShadow: "0 8px 20px rgba(27,94,74,0.25)",
         }}
       >
-        Run Rental Strategy Analysis →
+        Request Handover Strategy Review →
       </button>
     </section>
   );
@@ -412,6 +410,7 @@ export default function HandoversPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<DLD2026Handover | null>(null);
   const [showLead, setShowLead] = useState(false);
+  const [leadPrefill, setLeadPrefill] = useState<{ project: string; area: string } | null>(null);
   const [search, setSearch] = useState("");
   const [filterArea, setFilterArea] = useState("");
   const [filterTier, setFilterTier] = useState("");
@@ -456,7 +455,13 @@ export default function HandoversPage() {
   return (
     <div style={{ minHeight: "100vh", background: colors.bgMain, position: "relative" }}>
       <DecorativeBackdrop />
-      {showLead && <LeadModal onClose={() => setShowLead(false)} />}
+      {showLead && (
+        <LeadModal
+          onClose={() => { setShowLead(false); setLeadPrefill(null); }}
+          initialProject={leadPrefill?.project ?? ""}
+          initialArea={leadPrefill?.area ?? ""}
+        />
+      )}
       <div style={{ position: "relative", zIndex: 1 }}>
       <SiteNav active="insights" />
 
@@ -486,7 +491,11 @@ export default function HandoversPage() {
           <div ref={focusRef} style={{ scrollMarginTop: 24 }}>
             {selectedProject && (
               <div style={{ marginBottom: 48 }}>
-                <FocusPanel project={selectedProject} onClear={() => setSelectedProject(null)} />
+                <FocusPanel
+                  project={selectedProject}
+                  onClear={() => setSelectedProject(null)}
+                  onRequestReview={(p) => { setLeadPrefill({ project: displayName(p), area: p.area_name_en }); setShowLead(true); }}
+                />
               </div>
             )}
           </div>
@@ -625,10 +634,10 @@ export default function HandoversPage() {
 }
 
 // ── Lead capture modal — a genuinely protected-focus task, kept as a modal. ──
-function LeadModal({ onClose }: { onClose: () => void }) {
+function LeadModal({ onClose, initialProject = "", initialArea = "" }: { onClose: () => void; initialProject?: string; initialArea?: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
-    name: "", email: "", phone: "", project: "", area: "", handover: "",
+    name: "", email: "", phone: "", project: initialProject, area: initialArea, handover: "",
     unitType: "", propertyValue: "", plan: "", notes: "",
   });
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
