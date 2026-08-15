@@ -27,10 +27,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { email, agentName, agencyName, reportType, property, summaryHtml, pdfBase64, pdfFilename } = body;
+  const { email, agentName, agencyName, reportType, property, summaryHtml, pdfBase64: rawPdfBase64, pdfFilename } = body;
   if (!email || !summaryHtml) {
     return NextResponse.json({ ok: false, error: "email and summaryHtml are required" }, { status: 400 });
   }
+
+  // Strip data-URL prefix if present. jsPDF's datauristring includes a
+  // `;filename=...;` segment before `base64,` -- match up to the FIRST `;base64,`
+  // occurrence rather than a single semicolon segment, or the prefix stays stuck
+  // onto the file and corrupts it.
+  const pdfBase64 = rawPdfBase64 ? rawPdfBase64.replace(/^data:.*?;base64,/, "") : undefined;
 
   const propertyLabel = property || "the property";
 

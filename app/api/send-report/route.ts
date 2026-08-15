@@ -19,8 +19,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "email and pdfBase64 required" }, { status: 400 });
   }
 
-  // Strip data-URL prefix if present
-  const base64 = pdfBase64.replace(/^data:[^;]+;base64,/, "");
+  // Strip data-URL prefix if present. jsPDF's datauristring includes a
+  // `;filename=...;` segment before `base64,` (e.g.
+  // "data:application/pdf;filename=generated.pdf;base64,...") -- a regex that only
+  // allows one semicolon segment before `base64,` doesn't match that, leaving the
+  // whole prefix stuck onto the file and corrupting it. Match up to the FIRST
+  // `;base64,` occurrence instead, however many segments precede it.
+  const base64 = pdfBase64.replace(/^data:.*?;base64,/, "");
 
   const {
     building = "your property",

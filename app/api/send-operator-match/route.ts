@@ -112,7 +112,11 @@ function buildOperatorMatchPDF(params: {
   const lines = doc.splitTextToSize(disclaimer, W - margin * 2);
   doc.text(lines, margin, y);
 
-  return doc.output("datauristring").replace(/^data:[^;]+;base64,/, "");
+  // jsPDF's datauristring includes a `;filename=...;` segment before `base64,`
+  // (e.g. "data:application/pdf;filename=generated.pdf;base64,...") -- match up to
+  // the FIRST `;base64,` occurrence rather than assuming a single segment, or the
+  // whole prefix stays stuck onto the file and corrupts it.
+  return doc.output("datauristring").replace(/^data:.*?;base64,/, "");
 }
 
 export async function POST(request: Request) {
