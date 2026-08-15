@@ -185,32 +185,23 @@ export async function POST(request: Request) {
 <meta name="viewport" content="width=device-width"/>
 <meta name="color-scheme" content="light"/>
 <meta name="supported-color-schemes" content="light"/>
-<style>
-  :root { color-scheme: light; supported-color-schemes: light; }
-  /* Gmail's app-level dark mode ignores the color-scheme meta above and applies
-     its own automatic recoloring regardless of device theme — it was darkening
-     the header's white text against a background that was ALREADY dark green,
-     making the headline unreadable. [data-ogsc] is Gmail's dark-mode text hook
-     (web/Android); [data-ogsb] is its background counterpart — Gmail's iOS app
-     doesn't reliably honor [data-ogsc] alone the way web/Android do, so both are
-     applied together for real cross-client coverage. Forcing the literal
-     authored colors back (not "inherit" — there's nothing useful to inherit
-     from) undoes the recoloring for the elements it breaks. */
-  [data-ogsc] .ai-header-bg, [data-ogsb] .ai-header-bg { background: #17301F !important; }
-  [data-ogsc] .ai-header-eyebrow, [data-ogsb] .ai-header-eyebrow { color: #D9BC88 !important; }
-  [data-ogsc] .ai-header-title, [data-ogsb] .ai-header-title,
-  [data-ogsc] .ai-header-sub, [data-ogsb] .ai-header-sub { color: #ffffff !important; }
-</style>
 </head>
 <body style="margin:0;padding:0;background:#F1EDE3;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F1EDE3;padding:48px 0;">
     <tr><td align="center">
       <table width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 30px 70px rgba(23,48,31,0.16);">
 
-        <tr><td class="ai-header-bg" bgcolor="#17301F" style="background:linear-gradient(135deg,#17301F 0%,#0B2118 100%);padding:40px 44px 34px;position:relative;">
-          <p class="ai-header-eyebrow" style="margin:0 0 10px;color:#D9BC88;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-family:system-ui,-apple-system,sans-serif;">AssetIntel · Private Operator Match</p>
-          <h1 class="ai-header-title" style="margin:0;color:#FEFEFE;font-size:26px;font-weight:700;font-family:Georgia,serif;line-height:1.3;">${greetingName ? `${greetingName}, here` : "Here"} are your matched STR operators</h1>
-          ${buildingName ? `<p class="ai-header-sub" style="margin:10px 0 0;color:rgba(255,255,255,0.7);font-size:13.5px;font-family:system-ui,-apple-system,sans-serif;">${buildingName}</p>` : ""}
+        <!-- Light header, not dark-green-with-white-text: Gmail's mobile-app automatic
+             dark mode recolors message text unpredictably and isn't reliably
+             controllable with [data-ogsc]/[data-ogsb] CSS hooks on iOS -- a dark
+             background with white text risked Gmail flipping the text dark too,
+             leaving it unreadable against the (unchanged) dark background. A light
+             background with dark brand-color text has nothing for that heuristic to
+             break: light-on-light isn't a pairing Gmail "fixes" into dark-on-dark. -->
+        <tr><td bgcolor="#FBF7EF" style="background:#FBF7EF;padding:40px 44px 34px;border-bottom:1px solid #E6E1D8;">
+          <p style="margin:0 0 10px;color:#8B6F3F;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-family:system-ui,-apple-system,sans-serif;">AssetIntel · Private Operator Match</p>
+          <h1 style="margin:0;color:#17301F;font-size:26px;font-weight:700;font-family:Georgia,serif;line-height:1.3;">${greetingName ? `${greetingName}, here` : "Here"} are your matched STR operators</h1>
+          ${buildingName ? `<p style="margin:10px 0 0;color:#6B6B6B;font-size:13.5px;font-family:system-ui,-apple-system,sans-serif;">${buildingName}</p>` : ""}
         </td></tr>
 
         <tr><td style="padding:36px 44px 0;font-family:system-ui,-apple-system,sans-serif;">

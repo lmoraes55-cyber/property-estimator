@@ -48,27 +48,22 @@ export async function POST(request: Request) {
 <meta name="viewport" content="width=device-width" />
 <meta name="color-scheme" content="light"/>
 <meta name="supported-color-schemes" content="light"/>
-<style>
-  :root { color-scheme: light; supported-color-schemes: light; }
-  /* Same dark-header + white-text pattern as the other report emails, which
-     Gmail's automatic dark mode (web/Android via [data-ogsc], iOS via
-     [data-ogsb]) can recolor into unreadable dark-on-dark — force the literal
-     authored colors back for both hooks. */
-  [data-ogsc] .ai-header-bg, [data-ogsb] .ai-header-bg { background: #1B5E4A !important; }
-  [data-ogsc] .ai-header-eyebrow, [data-ogsb] .ai-header-eyebrow { color: #B88A44 !important; }
-  [data-ogsc] .ai-header-title, [data-ogsb] .ai-header-title,
-  [data-ogsc] .ai-header-sub, [data-ogsb] .ai-header-sub { color: #ffffff !important; }
-</style>
 </head>
 <body style="margin:0;padding:0;background:#F8F4EE;font-family:system-ui,-apple-system,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F4EE;padding:40px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
 
-        <tr><td class="ai-header-bg" bgcolor="#1B5E4A" style="background:linear-gradient(135deg,#1B5E4A 0%,#0F3E33 100%);padding:32px 40px;">
-          <p class="ai-header-eyebrow" style="margin:0;color:#B88A44;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">AssetIntel · Agent Report</p>
-          <h1 class="ai-header-title" style="margin:8px 0 0;color:#FEFEFE;font-size:22px;font-weight:700;font-family:Georgia,serif;">${reportType}</h1>
-          <p class="ai-header-sub" style="margin:6px 0 0;color:rgba(255,255,255,0.7);font-size:13px;">${propertyLabel}${agencyName ? ` · ${agencyName}` : ""}</p>
+        <!-- Light header, not dark-green-with-white-text: Gmail's mobile-app automatic
+             dark mode recolors message text unpredictably and isn't reliably
+             controllable with [data-ogsc]/[data-ogsb] CSS hooks on iOS -- confirmed
+             live, the hook-based fix did not resolve it on a real iOS Gmail app. A
+             light background with dark brand-color text has nothing for that
+             heuristic to break. -->
+        <tr><td bgcolor="#F4F9F7" style="background:#F4F9F7;padding:32px 40px;border-bottom:1px solid #E6E1D8;">
+          <p style="margin:0;color:#8B6F3F;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">AssetIntel · Agent Report</p>
+          <h1 style="margin:8px 0 0;color:#1B5E4A;font-size:22px;font-weight:700;font-family:Georgia,serif;">${reportType}</h1>
+          <p style="margin:6px 0 0;color:#6B6B6B;font-size:13px;">${propertyLabel}${agencyName ? ` · ${agencyName}` : ""}</p>
         </td></tr>
 
         <tr><td style="padding:28px 40px;">
