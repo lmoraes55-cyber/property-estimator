@@ -10,6 +10,9 @@ const PRICES: Record<string, number> = {
   "Self-Manage — Launch + Coaching": 2900,
   "Operations Help — Essentials Launch": 3500,
   "Operations Help — Premium Launch": 5500,
+  "Snagging Inspection — Studio/1BR": 699,
+  "Snagging Inspection — 2BR": 899,
+  "Snagging Inspection — 3BR+/Villa": 1199,
 };
 
 // Return URLs are built from server config only. This used to read `origin` from

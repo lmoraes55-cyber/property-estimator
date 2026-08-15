@@ -277,17 +277,30 @@ function FocusPanel({ project, onClear, onRequestReview }: { project: DLD2026Han
         Sourced directly from the Dubai Land Department's own project registry (dld_projects-open-api) and, where available, its sales transaction registry (dld_transactions-open-api) — not a third-party listing scrape. Construction progress, handover dates, and resale activity can still shift; confirm directly with the developer before making decisions.
       </div>
 
-      <button
-        onClick={() => onRequestReview(project)}
-        style={{
-          padding: "15px 26px", borderRadius: 12,
-          background: `linear-gradient(135deg, ${colors.primary} 0%, #0F3E33 100%)`,
-          color: "#FFF", fontSize: 14.5, fontWeight: 700,
-          border: "none", cursor: "pointer", boxShadow: "0 8px 20px rgba(27,94,74,0.25)",
-        }}
-      >
-        Request Handover Strategy Review →
-      </button>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+        <button
+          onClick={() => onRequestReview(project)}
+          style={{
+            padding: "15px 26px", borderRadius: 12,
+            background: `linear-gradient(135deg, ${colors.primary} 0%, #0F3E33 100%)`,
+            color: "#FFF", fontSize: 14.5, fontWeight: 700,
+            border: "none", cursor: "pointer", boxShadow: "0 8px 20px rgba(27,94,74,0.25)",
+          }}
+        >
+          Request Handover Strategy Review →
+        </button>
+        <a
+          href={`/snagging?project=${encodeURIComponent(name)}&area=${encodeURIComponent(project.area_name_en)}`}
+          style={{
+            padding: "15px 26px", borderRadius: 12,
+            background: "transparent", border: `1.5px solid ${colors.border}`,
+            color: colors.primary, fontSize: 14.5, fontWeight: 700,
+            textDecoration: "none", display: "inline-flex", alignItems: "center",
+          }}
+        >
+          Book a Snagging Inspection →
+        </a>
+      </div>
     </section>
   );
 }

@@ -8,9 +8,10 @@ import { createClient } from "@/lib/supabase/client";
 const C = {
   primary:   "#1B5E4A",
   secondary: "#B88A44",
+  secondaryText: "#7D6338",
   bg:        "#F8F4EE",
   border:    "#E6E1D8",
-  text:      "#2A2A2A",
+  text:      "#1A1A1A",
   muted:     "#6B6B6B",
 };
 
@@ -47,6 +48,7 @@ const SOLUTIONS_GROUPS: { title: string; items: MenuItem[] }[] = [
     items: [
       { label: "Rental Analyzer", href: "/estimator", desc: "Compare STR vs LTR rental performance.", icon: "chart" },
       { label: "Self-Manage", href: "/self-manage", desc: "Learn how to self-manage your Dubai holiday home professionally.", icon: "book" },
+      { label: "Co-Hosting", href: "/co-hosting", desc: "Get introduced to a partner co-host for guest comms and listing management.", icon: "users" },
       { label: "Operations Setup", href: "/operations-setup", desc: "Build and automate your holiday-home operations.", icon: "settings" },
     ],
   },
@@ -55,6 +57,7 @@ const SOLUTIONS_GROUPS: { title: string; items: MenuItem[] }[] = [
     items: [
       { label: "Furnishing & STR Readiness", href: "/furnishing/guide", desc: "Get your unit STR-ready with furnishing guidance.", icon: "home" },
       { label: "STR Operator Matching", href: "/operator-match", desc: "Get matched with a vetted STR operator.", icon: "users" },
+      { label: "Handover Snagging Inspection", href: "/snagging", desc: "A specialist inspector checks your unit before you accept handover.", icon: "doc" },
     ],
   },
   {
@@ -83,7 +86,7 @@ const RESEARCH_GROUPS: { title: string; items: MenuItem[] }[] = [
   },
 ];
 
-const SOLUTIONS_ACTIVE = new Set(["services", "self-manage", "ltr-estimator", "how-str-works"]);
+const SOLUTIONS_ACTIVE = new Set(["services", "self-manage", "ltr-estimator", "how-str-works", "co-hosting", "snagging"]);
 const RESEARCH_ACTIVE = new Set(["str-market-intel", "investment-research", "insights", "upcoming-projects"]);
 
 interface Props {
@@ -119,6 +122,12 @@ export default function SiteNav({ active }: Props) {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+  }
 
   // Hide on scroll-down, show on scroll-up
   useEffect(() => {
@@ -244,7 +253,7 @@ export default function SiteNav({ active }: Props) {
           <p style={{ fontSize: 13.5, fontWeight: 600, color: hov ? C.primary : C.text, lineHeight: 1.3, display: "flex", alignItems: "center", gap: 8 }}>
             {item.label}
             {item.soon && (
-              <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", color: C.muted, background: "#EFEAE0", padding: "2px 6px", borderRadius: 4 }}>
+              <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", color: C.muted, background: C.border, padding: "2px 6px", borderRadius: 4 }}>
                 SOON
               </span>
             )}
@@ -262,7 +271,7 @@ export default function SiteNav({ active }: Props) {
           <div key={g.title}>
             <p style={{
               fontSize: 10.5, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase",
-              color: C.secondary, marginBottom: 6, paddingLeft: 12,
+              color: C.secondaryText, marginBottom: 6, paddingLeft: 12,
             }}>
               {g.title}
             </p>
@@ -371,7 +380,7 @@ export default function SiteNav({ active }: Props) {
           {/* ── CTAs ── */}
           <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0, marginLeft: 24 }}>
             <button
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push(isLoggedIn ? "/dashboard" : "/login")}
               style={{
                 padding: "9px 18px",
                 borderRadius: 999,
@@ -394,7 +403,7 @@ export default function SiteNav({ active }: Props) {
               style={{
                 padding: "9px 18px",
                 borderRadius: 999,
-                background: `linear-gradient(135deg, ${C.secondary} 0%, #9A7238 100%)`,
+                background: `linear-gradient(135deg, ${C.secondary} 0%, #8B6F3F 100%)`,
                 color: "#FFF",
                 fontSize: 13,
                 fontWeight: 700,
@@ -506,7 +515,10 @@ export default function SiteNav({ active }: Props) {
               <MobileRow label="About" onClick={() => { router.push("/about"); setMobileOpen(false); }} />
 
               {/* Sign In / Dashboard */}
-              <MobileRow label={isLoggedIn ? "Dashboard" : "Sign In"} onClick={() => { router.push("/dashboard"); setMobileOpen(false); }} />
+              <MobileRow label={isLoggedIn ? "Dashboard" : "Sign In"} onClick={() => { router.push(isLoggedIn ? "/dashboard" : "/login"); setMobileOpen(false); }} />
+              {isLoggedIn && (
+                <MobileRow label="Sign Out" onClick={() => { setMobileOpen(false); handleSignOut(); }} />
+              )}
 
               {/* CTA */}
               <div style={{ padding: "10px 8px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -515,7 +527,7 @@ export default function SiteNav({ active }: Props) {
                   style={{
                     width: "100%", padding: "13px",
                     borderRadius: 12,
-                    background: `linear-gradient(135deg, ${C.secondary} 0%, #9A7238 100%)`,
+                    background: `linear-gradient(135deg, ${C.secondary} 0%, #8B6F3F 100%)`,
                     color: "#FFF", fontSize: 14, fontWeight: 700,
                     border: "none", cursor: "pointer",
                   }}
@@ -573,7 +585,7 @@ function MobileRow({ label, indent, desc, onClick }: { label: string; indent?: b
         cursor: "pointer", borderRadius: 10, transition: "background 0.15s",
       }}
     >
-      <p style={{ fontSize: 14, fontWeight: indent ? 500 : 600, color: hov ? "#1B5E4A" : "#2A2A2A" }}>{label}</p>
+      <p style={{ fontSize: 14, fontWeight: indent ? 500 : 600, color: hov ? "#1B5E4A" : C.text }}>{label}</p>
       {desc && <p style={{ fontSize: 11, color: "#888", marginTop: 2, lineHeight: 1.4 }}>{desc}</p>}
     </button>
   );
@@ -595,7 +607,7 @@ function MobileExpand({ label, open, toggle, children }: { label: string; open: 
           cursor: "pointer", borderRadius: 10, transition: "background 0.15s",
         }}
       >
-        <p style={{ fontSize: 14, fontWeight: 600, color: hov ? "#1B5E4A" : "#2A2A2A" }}>{label}</p>
+        <p style={{ fontSize: 14, fontWeight: 600, color: hov ? "#1B5E4A" : C.text }}>{label}</p>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "none" }}>
           <path d="M2 3.5L5 6.5L8 3.5" stroke="#6B6B6B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
