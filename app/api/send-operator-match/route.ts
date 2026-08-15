@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { jsPDF } from "jspdf";
 import { rankOperators, Priority, MatchedOperator, PRIORITY_OPTIONS } from "@/lib/operator-match";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,102 @@ function feeLabel(op: MatchedOperator): string {
 
 function firstName(name?: string): string {
   return (name ?? "").trim().split(/\s+/)[0] || "";
+}
+
+// Built server-side (jsPDF ships a Node build, no canvas/DOM dependency) rather than
+// client-side like the sub-leasing report's PDF -- rankOperators() and the underlying
+// contract/fee data it draws on are deliberately kept server-only, never shipped to
+// the browser, so the PDF has to be assembled here too.
+function buildOperatorMatchPDF(params: {
+  ranked: MatchedOperator[]; greetingName: string; buildingName?: string; priorityLabels: (string | undefined)[];
+}): string {
+  const { ranked, greetingName, buildingName, priorityLabels } = params;
+  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const margin = 48;
+  let y = 0;
+
+  // Header band
+  doc.setFillColor(23, 48, 31);
+  doc.rect(0, 0, W, 90, "F");
+  doc.setTextColor(217, 188, 136);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.text("ASSETINTEL · PRIVATE OPERATOR MATCH", margin, 30);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.text(`${greetingName ? `${greetingName}, here` : "Here"} are your matches`, margin, 56);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    `${buildingName ? `${buildingName} · ` : ""}Generated ${new Date().toLocaleDateString("en-AE")}`,
+    margin, 76
+  );
+  y = 112;
+
+  if (priorityLabels.length > 0) {
+    doc.setFontSize(9);
+    doc.setTextColor(107, 107, 107);
+    const lines = doc.splitTextToSize(`Matched on what matters most to you: ${priorityLabels.join(", ")}.`, W - margin * 2);
+    doc.text(lines, margin, y);
+    y += lines.length * 12 + 14;
+  }
+
+  ranked.forEach((op, i) => {
+    const cardH = 108;
+    if (y + cardH > doc.internal.pageSize.getHeight() - 60) { doc.addPage(); y = 48; }
+
+    doc.setFillColor(252, 250, 246);
+    doc.setDrawColor(230, 225, 216);
+    doc.roundedRect(margin, y, W - margin * 2, cardH, 8, 8, "FD");
+
+    // Badge
+    const badgeText = i === 0 ? "TOP MATCH" : `MATCH ${i + 1}`;
+    doc.setFillColor(i === 0 ? 184 : 27, i === 0 ? 138 : 94, i === 0 ? 68 : 74);
+    const badgeW = doc.getTextWidth(badgeText) + 16;
+    doc.roundedRect(margin + 14, y + 12, badgeW, 16, 8, 8, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "bold");
+    doc.text(badgeText, margin + 14 + 8, y + 22.5);
+
+    // Name
+    doc.setTextColor(23, 48, 31);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(op.name, margin + 14, y + 46);
+
+    // Fee / portfolio
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(125, 99, 56);
+    doc.text("MANAGEMENT FEE", margin + 14, y + 64);
+    doc.text("PORTFOLIO", margin + 220, y + 64);
+    doc.setFontSize(11);
+    doc.setTextColor(23, 48, 31);
+    doc.text(feeLabel(op), margin + 14, y + 78);
+    doc.text(op.displayPortfolio, margin + 220, y + 78);
+
+    // Match reasons
+    if (op.matchReasons.length > 0) {
+      doc.setFontSize(8.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(27, 94, 74);
+      doc.text(op.matchReasons.slice(0, 2).join("  ·  "), margin + 14, y + 96);
+    }
+
+    y += cardH + 14;
+  });
+
+  y += 6;
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(150, 150, 150);
+  const disclaimer = "Operator data is sourced from AssetIntel's direct outreach, published Airbtics figures, and (where noted) signed operator contracts -- not guaranteed current. Always verify commission rates and terms directly with the operator before signing.";
+  const lines = doc.splitTextToSize(disclaimer, W - margin * 2);
+  doc.text(lines, margin, y);
+
+  return doc.output("datauristring").replace(/^data:[^;]+;base64,/, "");
 }
 
 export async function POST(request: Request) {
@@ -147,6 +244,14 @@ export async function POST(request: Request) {
 </body>
 </html>`;
 
+  let pdfBase64: string | null = null;
+  try {
+    pdfBase64 = buildOperatorMatchPDF({ ranked, greetingName, buildingName, priorityLabels });
+  } catch (e) {
+    // A PDF build failure shouldn't block the email itself — send without the attachment.
+    console.error("[OPERATOR-MATCH-PDF]", (e as Error).message);
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await resend.emails.send({
@@ -155,6 +260,9 @@ export async function POST(request: Request) {
       replyTo: NOTIFY,
       subject: `${greetingName ? `${greetingName}, your` : "Your"} private operator matches${buildingName ? ` · ${buildingName}` : ""}`,
       html,
+      attachments: pdfBase64
+        ? [{ filename: "AssetIntel-Operator-Match.pdf", content: pdfBase64 }]
+        : undefined,
     });
     resend.emails.send({
       from: FROM,
