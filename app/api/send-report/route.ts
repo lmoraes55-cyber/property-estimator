@@ -43,16 +43,31 @@ export async function POST(request: Request) {
   const htmlBody = `
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width" /></head>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width" />
+<meta name="color-scheme" content="light"/>
+<meta name="supported-color-schemes" content="light"/>
+<style>
+  :root { color-scheme: light; supported-color-schemes: light; }
+  /* Same dark-header + white-text pattern as the operator-match email, which
+     Gmail's automatic dark mode (web/Android via [data-ogsc], iOS via
+     [data-ogsb]) can recolor into unreadable dark-on-dark — force the literal
+     authored colors back for both hooks. */
+  [data-ogsc] .ai-header-bg, [data-ogsb] .ai-header-bg { background: #1B5E4A !important; }
+  [data-ogsc] .ai-header-eyebrow, [data-ogsb] .ai-header-eyebrow { color: #B88A44 !important; }
+  [data-ogsc] .ai-header-title, [data-ogsb] .ai-header-title { color: #ffffff !important; }
+</style>
+</head>
 <body style="margin:0;padding:0;background:#F8F4EE;font-family:system-ui,-apple-system,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F4EE;padding:40px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
 
         <!-- Header -->
-        <tr><td style="background:linear-gradient(135deg,#1B5E4A 0%,#0F3E33 100%);padding:32px 40px;">
-          <p style="margin:0;color:#B88A44;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">AssetIntel · STR Sub-Leasing Report</p>
-          <h1 style="margin:8px 0 0;color:#fff;font-size:24px;font-weight:700;font-family:Georgia,serif;">${building}${unitSize ? ` · ${unitSize}` : ""}</h1>
+        <tr><td class="ai-header-bg" bgcolor="#1B5E4A" style="background:linear-gradient(135deg,#1B5E4A 0%,#0F3E33 100%);padding:32px 40px;">
+          <p class="ai-header-eyebrow" style="margin:0;color:#B88A44;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">AssetIntel · STR Sub-Leasing Report</p>
+          <h1 class="ai-header-title" style="margin:8px 0 0;color:#FEFEFE;font-size:24px;font-weight:700;font-family:Georgia,serif;">${building}${unitSize ? ` · ${unitSize}` : ""}</h1>
         </td></tr>
 
         <!-- Key metrics -->
