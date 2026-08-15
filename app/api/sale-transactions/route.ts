@@ -4,7 +4,9 @@
  * Returns live sale-price stats + 5 most recent transactions from DDA / DLD
  * (dld_transactions-open-api). No static fallback yet — DDA-only.
  *
- * Not wired into any page yet — prepared for future Sale Price Estimator use.
+ * Used by the Focus Panel on /investment-research/2026-handovers (Recent Resale
+ * Activity) via a project's resolved project_name_en. Also available for a
+ * future Sale Price Estimator use.
  */
 
 import { NextResponse } from "next/server";

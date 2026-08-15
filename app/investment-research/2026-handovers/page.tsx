@@ -91,11 +91,45 @@ function TierBadge({ tier, size = "md" }: { tier: STRTierCategory; size?: "sm" |
 }
 
 // ── FOCUS PANEL — the promoted primary object. Was a modal; now the main event. ──
+interface RecentSale {
+  date: string;
+  price: number;
+  areaSqft: number;
+  aedPerSqft: number;
+  offPlan: boolean;
+}
+interface SaleStat {
+  medianPrice: number;
+  medianAedPerSqft: number;
+  offPlanShare: number;
+  n: number;
+  asOf: string;
+}
+
 function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: () => void }) {
   const router = useRouter();
   const name = displayName(project);
   const analyzeUrl = `/estimator?buildingName=${encodeURIComponent(name)}&source=2026-handover`;
   const tier = tierOf(project);
+
+  const [saleStat, setSaleStat] = useState<SaleStat | null>(null);
+  const [recentSales, setRecentSales] = useState<RecentSale[]>([]);
+  const [salesLoading, setSalesLoading] = useState(false);
+
+  // Resale activity is only meaningful for the specific building — master_project_en
+  // is a community name shared by many towers, so we skip the lookup rather than
+  // blend unrelated buildings' transactions together under one project's name.
+  useEffect(() => {
+    setSaleStat(null);
+    setRecentSales([]);
+    if (!project.project_name_en) return;
+    setSalesLoading(true);
+    fetch(`/api/sale-transactions?project=${encodeURIComponent(project.project_name_en)}`)
+      .then(r => r.json())
+      .then(d => { setSaleStat(d.stat ?? null); setRecentSales(d.recentTransactions ?? []); })
+      .catch(() => {})
+      .finally(() => setSalesLoading(false));
+  }, [project.project_name_en]);
 
   return (
     <section
@@ -154,6 +188,66 @@ function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: (
         )}
       </div>
 
+      {/* Recent resale activity — real DLD transaction data (dld_transactions-open-api),
+          only looked up against the specific building's own project_name_en, never the
+          shared community name, so numbers aren't blended across unrelated towers. */}
+      {project.project_name_en && (
+        <div style={{ marginBottom: 26, paddingBottom: 26, borderBottom: `1px solid ${colors.border}` }}>
+          <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, marginBottom: 12 }}>
+            Recent Resale Activity — Live DLD Transactions
+          </p>
+          {salesLoading && (
+            <p style={{ fontSize: 13, color: colors.textMuted }}>Checking DLD transaction records…</p>
+          )}
+          {!salesLoading && !saleStat && (
+            <p style={{ fontSize: 13, color: colors.textMuted }}>No resale transactions recorded for this building yet — common for newer off-plan launches.</p>
+          )}
+          {!salesLoading && saleStat && (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "16px 28px", marginBottom: 18 }}>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Median Resale Price</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>AED {saleStat.medianPrice.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Price / sqft</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>AED {saleStat.medianAedPerSqft.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Transactions (12mo)</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{saleStat.n}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Off-Plan Share</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{Math.round(saleStat.offPlanShare * 100)}%</p>
+                </div>
+              </div>
+              {recentSales.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {recentSales.map((s, i) => (
+                    <div key={i} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                      fontSize: 12.5, padding: "8px 10px", background: colors.bgMain, borderRadius: 8,
+                    }}>
+                      <span style={{ color: colors.textLight, minWidth: 72 }}>{s.date}</span>
+                      <span style={{ color: colors.textMain, fontWeight: 600, flexGrow: 1 }}>AED {s.price.toLocaleString()}</span>
+                      <span style={{ color: colors.textMuted }}>{s.areaSqft.toLocaleString()} sqft</span>
+                      <span style={{ color: colors.textMuted }}>AED {s.aedPerSqft.toLocaleString()}/sqft</span>
+                      {s.offPlan && (
+                        <span style={{ fontSize: 9.5, fontWeight: 700, color: colors.secondaryText, background: "rgba(184,138,68,0.12)", borderRadius: 20, padding: "2px 8px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                          Off-Plan
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p style={{ fontSize: 10.5, color: colors.textLight, marginTop: 10 }}>As of {saleStat.asOf} · Dubai Land Department sales registry</p>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Area-level STR/LTR read — AssetIntel's own directional model, kept visually
           distinct from the DLD-sourced facts above, per PRODUCT.md */}
       <div style={{
@@ -182,7 +276,7 @@ function FocusPanel({ project, onClear }: { project: DLD2026Handover; onClear: (
         borderRadius: 12, padding: "14px 18px", marginBottom: 26,
         fontSize: 12, color: colors.secondaryText, lineHeight: 1.6,
       }}>
-        Sourced directly from the Dubai Land Department's own project registry (dld_projects-open-api), refreshed weekly — not a third-party listing scrape. Construction progress and handover dates can still shift; confirm directly with the developer before making decisions.
+        Sourced directly from the Dubai Land Department's own project registry (dld_projects-open-api) and, where available, its sales transaction registry (dld_transactions-open-api) — not a third-party listing scrape. Construction progress, handover dates, and resale activity can still shift; confirm directly with the developer before making decisions.
       </div>
 
       <button
