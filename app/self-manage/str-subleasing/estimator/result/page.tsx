@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import AccessGate from "@/components/AccessGate";
 import {
   runEstimator,
   getLTRMarketRent,
@@ -22,6 +23,7 @@ import {
   getBuildingOccAdj,
   type BuildingSTRProfile,
 } from "@/lib/sublease-str-demand";
+import type { AreaStatsRow, AirROISampleListingRow } from "@/lib/str-market-data";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -46,6 +48,11 @@ type GuestAppealLevel = "Excellent" | "Good" | "Average" | "Weak";
 type RiskLevel = "Low" | "Medium" | "High" | "Very High";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
+
+// Blended Airbnb + Booking.com commission, deducted by the platforms before payout —
+// applies regardless of self-manage vs. operator mode. Matches the rate quoted in the
+// page's own Financial Methodology section.
+const PLATFORM_FEE_RATE = 0.18;
 
 const FURNISHING_CONFIG: Record<FurnishingQuality, { revMult: number; display: string; tier: "pass" | "warn" | "fail"; color: string; bg: string }> = {
   Basic:    { revMult: 0.82, display: "Basic",             tier: "fail", color: "#B83232", bg: "#FDE8E8" },
@@ -80,6 +87,45 @@ function getViewTier(view: ViewType): "premium" | "good" | "weak" {
 
 function getFloorTier(floor: number): "high" | "mid" | "low" {
   return floor >= 20 ? "high" : floor >= 10 ? "mid" : "low";
+}
+
+// Comparable listings only exist for the areas the weekly STR-market cron actually
+// tracks — must match TARGET_AREAS in app/api/cron/str-market-refresh/route.ts.
+// Most DLD areas won't match; that's an honest gap, not a bug — the section is
+// simply skipped rather than showing a broader area's blended data as if it were
+// this building's own market.
+const STR_TRACKED_AREAS = [
+  "Downtown Dubai", "Dubai Marina", "Business Bay", "JBR", "Palm Jumeirah",
+  "JVC", "Dubai Hills Estate", "Dubai Creek Harbour", "DIFC", "Al Furjan", "MBR City",
+] as const;
+
+function matchTrackedArea(buildingName: string, community: string, dldArea?: string): string | null {
+  const hay = [buildingName, community, dldArea ?? ""].join(" ").toLowerCase();
+  return STR_TRACKED_AREAS.find(a => hay.includes(a.toLowerCase())) ?? null;
+}
+
+function bedroomsForUnitSize(unitSize: UnitSize): number {
+  const map: Partial<Record<UnitSize, number>> = { STU: 0, "1BR": 1, "2BR": 2, "3BR": 3 };
+  return map[unitSize] ?? -1;
+}
+
+// Raw scraped titles carry promo spam ("50% DISCOUNT!!!", ALL CAPS) — clean before display.
+// Mirrors str-market-intel's sanitizeListingTitle.
+function sanitizeListingTitle(raw: string | null | undefined): string {
+  if (!raw) return "Untitled listing";
+  let s = raw
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "")
+    .replace(/\d{1,3}\s?%\s?(off|discount)/gi, "")
+    .replace(/\b(discount|deal|promo|special offer)\b/gi, "")
+    .replace(/!{1,}/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  if (!s) return "Untitled listing";
+  const letters = s.replace(/[^a-zA-Z]/g, "");
+  if (letters.length > 4 && letters === letters.toUpperCase()) {
+    s = s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+  return s.length > 60 ? s.slice(0, 57).trim() + "…" : s;
 }
 
 function getAreaTier(building: string, community: string): "prime" | "strong" | "other" {
@@ -341,6 +387,7 @@ interface SublResult {
   annualMaintenance: number;
   annualFurniture: number;
   annualMgmtFee: number;
+  annualPlatformFee: number;
   ltrMarketRent: number;
   marketADR: number;
   effectiveADR: number;
@@ -422,10 +469,11 @@ function computeResult(params: {
   // Annual gross revenue = effective ADR × days/year × avg occupancy
   const annualRevenue      = effectiveADR * 365 * est.avgOccupancy;
   const annualManagementFee = annualRevenue * mgmtFee;
+  const annualPlatformFee  = annualRevenue * PLATFORM_FEE_RATE;
   const annualFixedCosts   = est.annualUtilities + est.annualMaintenance + est.annualFurnitureAmort;
-  const annualNetBeforeRent = annualRevenue - annualManagementFee - annualFixedCosts;
+  const annualNetBeforeRent = annualRevenue - annualManagementFee - annualPlatformFee - annualFixedCosts;
   const annualNetProfit     = annualNetBeforeRent - annualLandlordRent;
-  const annualNetMinusMgmt  = annualRevenue - annualManagementFee;
+  const annualNetMinusMgmt  = annualRevenue - annualManagementFee - annualPlatformFee;
   const breakEvenOcc = annualNetMinusMgmt > 0
     ? est.avgOccupancy * (annualLandlordRent + annualFixedCosts) / annualNetMinusMgmt
     : 1;
@@ -479,12 +527,13 @@ function computeResult(params: {
   const months = est.months.map(m => {
     const rev  = m.revenue * revenueScale;
     const mgmt = rev * mgmtFee;
+    const platformFee = rev * PLATFORM_FEE_RATE;
     const costs = m.utilities + m.maintenance + m.furnitureAmort;
     return {
       month: m.month,
       revenue: rev,
       landlordRent: monthlyRent,
-      netProfit: rev - mgmt - costs - monthlyRent,
+      netProfit: rev - mgmt - platformFee - costs - monthlyRent,
       occupancy: m.occupancy,
       adr: m.adr * revenueScale,
     };
@@ -507,6 +556,7 @@ function computeResult(params: {
       annualMaintenance: est.annualMaintenance,
       annualFurniture: est.annualFurnitureAmort,
       annualMgmtFee: annualManagementFee,
+      annualPlatformFee,
       ltrMarketRent: effectiveLtrMonthly,
       community: communityDisplay,
       floorTier, viewTier, areaTier, unitTier,
@@ -604,6 +654,30 @@ function ResultInner() {
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasRequiredParams, prefetchedLtr, buildingName, dldKey, dldArea, unitSize, floor, view, fq, monthlyRent, mgmtFee, community, mgmtMode, mgmtFeeCustom]);
+
+  // Comparable listings — only for the 11 areas the STR-market cron tracks, filtered
+  // to the exact bedroom count the user selected (Studio/1BR/2BR/3BR), never a blend.
+  const trackedArea = hasRequiredParams ? matchTrackedArea(buildingName, community, dldArea) : null;
+  const [comparableListings, setComparableListings] = useState<AirROISampleListingRow[] | null>(null);
+  const [comparablesLoading, setComparablesLoading] = useState(false);
+
+  useEffect(() => {
+    if (!trackedArea) { setComparableListings(null); return; }
+    setComparablesLoading(true);
+    let cancelled = false;
+    fetch("/api/str-market-data")
+      .then(r => r.json())
+      .then((data: { data: AreaStatsRow[] }) => {
+        if (cancelled) return;
+        const row = data.data?.find(a => a.area === trackedArea);
+        const targetBeds = bedroomsForUnitSize(unitSize);
+        const matches = (row?.sample_listings ?? []).filter(l => l.bedrooms === targetBeds);
+        setComparableListings(matches);
+      })
+      .catch(() => { if (!cancelled) setComparableListings(null); })
+      .finally(() => { if (!cancelled) setComparablesLoading(false); });
+    return () => { cancelled = true; };
+  }, [trackedArea, unitSize]);
 
   const fmt = (n: number) => Math.round(n).toLocaleString();
   const pct = (n: number) => `${Math.round(n * 100)}%`;
@@ -840,6 +914,7 @@ function ResultInner() {
             Edit Inputs
           </button>
 
+          <AccessGate source="str-subleasing-estimator" title="Unlock Your Risk Report" subtitle="Free — sign up or log in to see your full sub-leasing risk analysis.">
           {/* Hero — Avoid */}
           <div style={{ marginBottom: "32px" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "10px" }}>ASSETINTEL STR SUB-LEASING RISK REPORT</div>
@@ -883,6 +958,7 @@ function ResultInner() {
               Speak to AssetIntel
             </button>
           </div>
+          </AccessGate>
         </div>
       </main>
     );
@@ -897,7 +973,7 @@ function ResultInner() {
 
   // Negotiate target: what monthly rent would bring break-even to 49%
   const annualFixedCosts = r.annualUtilities + r.annualMaintenance + r.annualFurniture;
-  const annualNetMinusMgmt = r.annualSTRRevenue - r.annualMgmtFee;
+  const annualNetMinusMgmt = r.annualSTRRevenue - r.annualMgmtFee - r.annualPlatformFee;
   const targetMonthlyRent = Math.round(((0.49 * annualNetMinusMgmt / r.avgOccupancy) - annualFixedCosts) / 12);
   const rentGap = r.monthlyRent - targetMonthlyRent;
 
@@ -929,6 +1005,7 @@ function ResultInner() {
           Edit Inputs
         </button>
 
+        <AccessGate source="str-subleasing-estimator" title="Unlock Your Risk Report" subtitle="Free — sign up or log in to see your full sub-leasing risk analysis.">
         {/* ── Hero ── */}
         <div style={{ marginBottom: "36px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "12px" }}>ASSETINTEL STR SUB-LEASING RISK REPORT</div>
@@ -1039,6 +1116,40 @@ function ResultInner() {
             </div>
           );
         })()}
+
+        {/* ── Comparable Listings (Airbtics) — same area, same bedroom count only ── */}
+        {trackedArea && (
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "20px", padding: "26px 30px", marginBottom: "20px" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "10px" }}>
+              COMPARABLE LISTINGS · {trackedArea.toUpperCase()} · {unitSize === "STU" ? "STUDIO" : unitSize}
+            </div>
+            {comparablesLoading ? (
+              <p style={{ fontSize: "13px", color: C.muted }}>Checking live comparable listings…</p>
+            ) : comparableListings && comparableListings.length > 0 ? (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
+                  {comparableListings.slice(0, 6).map((l, idx) => (
+                    <div key={l.listingId || idx} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: "14px", overflow: "hidden" }}>
+                      {l.coverPhotoUrl && <img src={l.coverPhotoUrl} alt="" style={{ width: "100%", height: 100, objectFit: "cover", display: "block" }} />}
+                      <div style={{ padding: "11px 13px" }}>
+                        <p style={{ fontSize: "12px", fontWeight: 700, color: C.text, marginBottom: "6px", lineHeight: 1.35 }}>{sanitizeListingTitle(l.name)}</p>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10.5px", color: C.muted, borderTop: `1px solid ${C.border}`, paddingTop: "7px" }}>
+                          <span>ADR {l.ttmAvgRate ? `AED ${Math.round(l.ttmAvgRate)}` : "—"}</span>
+                          <span>Occ {l.ttmOccupancy ? `${Math.round(l.ttmOccupancy * 100)}%` : "—"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ fontSize: "10.5px", color: C.muted, marginTop: "12px" }}>Live Airbtics/AirROI listings for {trackedArea}, filtered to {unitSize === "STU" ? "studio" : unitSize} units only — not this specific building.</p>
+              </>
+            ) : (
+              <p style={{ fontSize: "13px", color: C.muted, lineHeight: 1.6 }}>
+                No live {unitSize === "STU" ? "studio" : unitSize} comparable listings recorded for {trackedArea} in the current data — this area is tracked, but doesn't have a matching sample for this unit size yet.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* ── Guest Appeal Check ── */}
         {(() => {
@@ -1270,6 +1381,7 @@ function ResultInner() {
             {[
               { label: "STR Gross Revenue", value: `AED ${fmt(r.annualSTRRevenue)}`, sub: `Avg effective ADR: AED ${fmt(r.effectiveADR)}/night · market AED ${fmt(r.marketADR)}/night`, color: C.primary },
               { label: "Landlord Rent (annual)", value: `− AED ${fmt(r.annualLandlordRent)}`, sub: `AED ${fmt(r.monthlyRent)}/month fixed`, color: C.risk.high },
+              { label: "Platform Fees (OTA)", value: `− AED ${fmt(r.annualPlatformFee)}`, sub: "~18% blended Airbnb + Booking.com commission", color: C.muted },
               { label: "Operator Fee", value: `− AED ${fmt(r.annualMgmtFee)}`, sub: r.mgmtFeeMode === "self" ? "Self-managed" : `${r.mgmtFeeCustom}% of revenue`, color: C.muted },
               { label: "Utilities & Costs", value: `− AED ${fmt(r.annualUtilities + r.annualMaintenance + r.annualFurniture)}`, sub: "DEWA, AC, maintenance, furnishing", color: C.muted },
             ].map(({ label, value, sub, color }) => (
@@ -1426,6 +1538,7 @@ function ResultInner() {
             </button>
           </div>
         </div>
+        </AccessGate>
 
       </div>
     </main>
