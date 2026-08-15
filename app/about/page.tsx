@@ -176,7 +176,7 @@ export default function AboutPage() {
       <SiteNav active="about" />
       {enquiryOpen && <EnquiryModal onClose={() => setEnquiryOpen(false)} />}
 
-      <main style={{ background: C.bg, color: C.text, position: "relative" }}>
+      <main style={{ color: C.text, position: "relative" }}>
         <DecorativeBackdrop />
         <div style={{ position: "relative", zIndex: 1 }}>
 
@@ -270,11 +270,11 @@ export default function AboutPage() {
 
               {/* Right: experience card — elevated against image */}
               <div style={{
-                background: "rgba(253,251,247,0.96)",
+                background: "rgba(253,251,247,0.85)",
                 border: `1px solid ${C.border}`,
                 borderRadius: 24,
-                padding: "32px 28px",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.03), 0 16px 48px rgba(27,94,74,0.12)",
+                padding: "30px 26px",
+                boxShadow: "0 12px 32px rgba(27,94,74,0.08)",
                 backdropFilter: "blur(12px)",
                 WebkitBackdropFilter: "blur(12px)",
               }}>
@@ -298,7 +298,7 @@ export default function AboutPage() {
 
 
         {/* ── SECTION 3: OUR STORY ─────────────────────────────────────── */}
-        <section style={{ background: C.bgSage, padding: "72px 24px", borderTop: `1px solid ${C.borderSage}` }}>
+        <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.borderSage}` }}>
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Our Background</p>
             <h2 style={{ fontSize: "clamp(24px, 3vw, 38px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 32, lineHeight: 1.2 }}>Why We Built AssetIntel</h2>
@@ -312,17 +312,15 @@ export default function AboutPage() {
               <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75 }}>
                 AssetIntel was created to bring this experience into one practical property intelligence platform.
               </p>
-              <div style={{ background: C.bgSection, border: `1px solid ${C.borderSage}`, borderRadius: 16, padding: "20px 24px" }}>
-                <p style={{ fontSize: 15, fontWeight: 600, color: C.green, lineHeight: 1.65 }}>
-                  Our goal is simple: help owners, investors, and operators make smarter rental, investment, and STR setup decisions before they commit money, time, or contracts.
-                </p>
-              </div>
+              <p style={{ fontSize: 17, fontWeight: 600, color: C.green, lineHeight: 1.65, fontFamily: "'Georgia', serif", fontStyle: "italic", marginTop: 8 }}>
+                Our goal is simple: help owners, investors, and operators make smarter rental, investment, and STR setup decisions before they commit money, time, or contracts.
+              </p>
             </div>
           </div>
         </section>
 
         {/* ── SECTION 4: REAL STR OPERATIONS ──────────────────────────── */}
-        <section style={{ background: C.bgSection, padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
+        <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Operations Experience</p>
             <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 40, lineHeight: 1.2 }}>Built On Real Short-Term Rental Operating Knowledge</h2>
@@ -338,14 +336,14 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              {/* Right: checklist card */}
-              <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 20, padding: "28px 24px" }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: C.green, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 20 }}>What We Understand</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Right: checklist — flat, no card frame */}
+              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: C.green, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 18 }}>What We Understand</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px 20px" }}>
                   {checkList.map(item => (
                     <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                       <IconCheck />
-                      <p style={{ fontSize: 14, color: C.text, lineHeight: 1.5 }}>{item}</p>
+                      <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.5 }}>{item}</p>
                     </div>
                   ))}
                 </div>
@@ -361,7 +359,7 @@ export default function AboutPage() {
              growing/large portfolio cards) that told the same story twice
              in the same shape. The real story here is a progression, so it
              reads as one. ── */}
-        <section style={{ background: C.bg, padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
+        <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Scale & Experience</p>
             <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 20, lineHeight: 1.2 }}>From Smaller Portfolios To Large-Scale STR Operations</h2>
@@ -394,7 +392,7 @@ export default function AboutPage() {
         </section>
 
         {/* ── SECTION 6: SUB-LEASING ───────────────────────────────────── */}
-        <section style={{ background: C.bgSage, padding: "72px 24px", borderTop: `1px solid ${C.borderSage}` }}>
+        <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.borderSage}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 48, alignItems: "start" }}>
 
@@ -408,21 +406,19 @@ export default function AboutPage() {
                 <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, marginBottom: 28 }}>
                   This gives AssetIntel practical insight into what makes sub-leasing work — and what makes it risky.
                 </p>
-                <div style={{ background: C.bgSection, border: `1px solid ${C.borderSage}`, borderRadius: 14, padding: "16px 20px" }}>
-                  <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.65, fontStyle: "italic" }}>
-                    Sub-leasing can be profitable, but only when the unit, rent, approvals, and operating setup are right.
-                  </p>
-                </div>
+                <p style={{ fontSize: 15, color: C.textMuted, lineHeight: 1.65, fontStyle: "italic", fontFamily: "'Georgia', serif" }}>
+                  Sub-leasing can be profitable, but only when the unit, rent, approvals, and operating setup are right.
+                </p>
               </div>
 
-              {/* Right: checklist */}
-              <div style={{ background: C.bgSection, border: `1px solid ${C.borderSage}`, borderRadius: 20, padding: "28px 24px" }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: C.green, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 20 }}>What Matters In STR Sub-Leasing</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Right: checklist — flat, no card frame */}
+              <div style={{ borderTop: `1px solid ${C.borderSage}`, paddingTop: 20 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: C.green, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 18 }}>What Matters In STR Sub-Leasing</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px 20px" }}>
                   {subLeasingChecklist.map(item => (
                     <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                       <IconCheck />
-                      <p style={{ fontSize: 14, color: C.text, lineHeight: 1.5 }}>{item}</p>
+                      <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.5 }}>{item}</p>
                     </div>
                   ))}
                 </div>
@@ -433,20 +429,20 @@ export default function AboutPage() {
         </section>
 
         {/* ── SECTION 7: WHAT ASSETINTEL HELPS WITH ───────────────────── */}
-        <section style={{ background: C.bgSection, padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
+        <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12, textAlign: "center" }}>Our Services</p>
             <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", textAlign: "center", marginBottom: 48, color: C.text }}>What AssetIntel Helps You Decide</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
               {services.map(svc => (
-                <div key={svc.title} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 20, padding: "26px 22px", transition: "transform 0.18s, box-shadow 0.18s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(27,94,74,0.10)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "none"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: "#EEF5F1", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                <div key={svc.title} style={{ background: "rgba(253,251,247,0.55)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px 20px", transition: "transform 0.18s, box-shadow 0.18s, border-color 0.18s" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 20px rgba(27,94,74,0.07)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(184,138,68,0.35)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "none"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; (e.currentTarget as HTMLDivElement).style.borderColor = C.border; }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(238,245,241,0.8)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
                     {svc.icon}
                   </div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 8 }}>{svc.title}</p>
-                  <p style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.65 }}>{svc.desc}</p>
+                  <p style={{ fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 7 }}>{svc.title}</p>
+                  <p style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.6 }}>{svc.desc}</p>
                 </div>
               ))}
             </div>
@@ -461,10 +457,10 @@ export default function AboutPage() {
             <p style={{ fontSize: 16, color: "rgba(255,255,255,0.72)", lineHeight: 1.75, maxWidth: 620, margin: "0 auto 48px" }}>
               AssetIntel is designed to help users understand the opportunity and the risk before making a decision. We focus on rental intelligence, strategy, and setup advisory — not pushing one route blindly.
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20, marginBottom: 40 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 32, marginBottom: 40, textAlign: "left", borderTop: "1px solid rgba(255,255,255,0.14)", paddingTop: 28 }}>
               {trustPoints.map(tp => (
-                <div key={tp.label} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 18, padding: "26px 22px", textAlign: "left" }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 10 }}>{tp.label}</p>
+                <div key={tp.label}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 8 }}>{tp.label}</p>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.65 }}>{tp.desc}</p>
                 </div>
               ))}
@@ -476,7 +472,7 @@ export default function AboutPage() {
         </section>
 
         {/* ── SECTION 9: FINAL CTA ─────────────────────────────────────── */}
-        <section style={{ background: C.bg, padding: "80px 24px", borderTop: `1px solid ${C.border}` }}>
+        <section style={{ padding: "80px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 16 }}>Get Started</p>
             <h2 style={{ fontSize: "clamp(24px, 3.5vw, 42px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 16, lineHeight: 1.2 }}>
