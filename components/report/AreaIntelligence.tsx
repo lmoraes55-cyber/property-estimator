@@ -54,12 +54,33 @@ function currentSeasonLabel() {
   return SEASONS[m] ?? "Shoulder";
 }
 
+// Raw scraped titles carry promo spam ("50% DISCOUNT!!!", ALL CAPS) — clean before
+// display. Mirrors str-market-intel / the sub-leasing report's sanitizeListingTitle.
+function sanitizeListingTitle(raw: string | null | undefined): string {
+  if (!raw) return "Untitled listing";
+  let s = raw
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "")
+    .replace(/\d{1,3}\s?%\s?(off|discount)/gi, "")
+    .replace(/\b(discount|deal|promo|special offer)\b/gi, "")
+    .replace(/!{1,}/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  if (!s) return "Untitled listing";
+  const letters = s.replace(/[^a-zA-Z]/g, "");
+  if (letters.length > 4 && letters === letters.toUpperCase()) {
+    s = s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+  return s.length > 60 ? s.slice(0, 57).trim() + "…" : s;
+}
+
 function confidenceFor(row: AreaStatsRow): number {
-  if (row.confidence === "high") return 92;
-  if (row.confidence === "medium") return 78;
-  if (row.confidence === "low") return 65;
+  const dualSource = row.data_sources === "airbtics-primary";
+  const bonus = dualSource ? 5 : 0;
+  if (row.confidence === "high") return Math.min(97, 92 + bonus);
+  if (row.confidence === "medium") return Math.min(97, 78 + bonus);
+  if (row.confidence === "low") return Math.min(97, 65 + bonus);
   const n = row.comparable_listing_count ?? 0;
-  return n >= 30 ? 88 : n >= 10 ? 74 : 60;
+  return Math.min(97, (n >= 30 ? 88 : n >= 10 ? 74 : 60) + bonus);
 }
 
 function buildInsights(row: AreaStatsRow, area: string): string[] {
@@ -115,7 +136,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
   const listings = (row.sample_listings ?? [])
     .filter(l => l.name && ((l.ttmAvgRate != null && l.ttmAvgRate > 0) || (l.ttmOccupancy != null && l.ttmOccupancy > 0)))
     .filter(l => targetBedrooms == null || l.bedrooms === targetBedrooms)
-    .slice(0, 5);
+    .slice(0, 6);
 
   const strVsLtrPct = longTermRent > 0 ? Math.round(((annualNetToLandlord - longTermRent) / longTermRent) * 100) : null;
 
@@ -124,12 +145,12 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
 
       {/* Header */}
       <div>
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>Area Intelligence</p>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 6 }}>Area Intelligence</p>
         <h2 style={{ fontSize: "clamp(19px, 2.2vw, 26px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: colors.primary, lineHeight: 1.2, margin: "0 0 6px" }}>
           {area} Market Intelligence
         </h2>
         <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.6, maxWidth: 620 }}>
-          Live STR market insights for the surrounding area, powered by AirROI market intelligence.
+          Live STR market insights for the surrounding area, powered by {row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics"} market intelligence.
         </p>
       </div>
 
@@ -193,33 +214,41 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
       {listings.length > 0 && (
         <div style={{ borderRadius: 24, background: "#fff", border: `1px solid ${colors.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 10px 30px rgba(27,94,74,0.06)", padding: "22px 24px", breakInside: "avoid" as const }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Comparable Buildings Nearby</p>
-          <p style={{ fontSize: 12, color: colors.textLight, marginBottom: 16 }}>Nearby {unitSize} STR inventory in {area}, from AirROI live listing data.</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {listings.map((l, i) => (
-              <div key={l.listingId || i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 4px", borderTop: i > 0 ? `1px solid ${colors.border}` : "none", flexWrap: "wrap" }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: colors.textMain, maxWidth: 320 }}>{l.name}</span>
-                <div style={{ display: "flex", gap: 18 }}>
-                  {l.ttmOccupancy != null && l.ttmOccupancy > 0 && (
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 9.5, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.06em" }}>Occupancy</p>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: colors.primary }}>{Math.round((l.ttmOccupancy as number) * 100)}%</p>
+          <p style={{ fontSize: 12, color: colors.textLight, marginBottom: 16 }}>Nearby {unitSize} STR inventory in {area}, from {row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics"} live listing data.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+            {listings.map((l, i) => {
+              const stats = [
+                l.ttmAvgRate != null && l.ttmAvgRate > 0 ? { label: "ADR", value: `AED ${fmt(l.ttmAvgRate)}`, color: colors.textMain } : null,
+                l.ttmOccupancy != null && l.ttmOccupancy > 0 ? { label: "Occupancy", value: `${Math.round(l.ttmOccupancy * 100)}%`, color: colors.primary } : null,
+                l.ttmRevenue != null && l.ttmRevenue > 0 ? { label: "Revenue", value: `AED ${fmt(l.ttmRevenue)}`, color: colors.textMain } : null,
+              ].filter((s): s is { label: string; value: string; color: string } => s !== null);
+              return (
+                <div key={l.listingId || i} className="rpt-comp-card" style={{ borderRadius: 16, background: colors.bgSection, border: `1px solid ${colors.border}`, overflow: "hidden" }}>
+                  {l.coverPhotoUrl ? (
+                    <img src={l.coverPhotoUrl} alt="" style={{ width: "100%", height: 128, objectFit: "cover", display: "block" }} />
+                  ) : (
+                    <div style={{ width: "100%", height: 128, background: colors.bgSage, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={colors.textLight} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
+                      </svg>
                     </div>
                   )}
-                  {l.ttmAvgRate != null && l.ttmAvgRate > 0 && (
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 9.5, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.06em" }}>ADR</p>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>AED {fmt(l.ttmAvgRate as number)}</p>
-                    </div>
-                  )}
-                  {l.ttmRevenue != null && l.ttmRevenue > 0 && (
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ fontSize: 9.5, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.06em" }}>Revenue</p>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>AED {fmt(l.ttmRevenue as number)}</p>
-                    </div>
-                  )}
+                  <div style={{ padding: "13px 15px" }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, color: colors.textMain, marginBottom: 10, lineHeight: 1.4, minHeight: "2.8em" }}>{sanitizeListingTitle(l.name)}</p>
+                    {stats.length > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, paddingTop: 10, borderTop: `1px solid ${colors.border}` }}>
+                        {stats.map(s => (
+                          <div key={s.label}>
+                            <p style={{ fontSize: 9, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>{s.label}</p>
+                            <p style={{ fontSize: 12.5, fontWeight: 700, color: s.color }}>{s.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -232,7 +261,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
         <div style={{ flex: 1, minWidth: 240 }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Forecast Confidence</p>
           <p style={{ fontSize: 12.5, color: colors.textMain, opacity: 0.75, lineHeight: 1.6, margin: 0 }}>
-            Forecast generated using AirROI market performance, comparable buildings, seasonal demand, property characteristics, and historical market behaviour.
+            Forecast generated using {row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics"} market performance, comparable buildings, seasonal demand, property characteristics, and historical market behaviour.
           </p>
         </div>
       </div>
@@ -306,6 +335,11 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
           .rpt-area-snapshot-grid { grid-template-columns: 1fr 1fr !important; }
           .rpt-reco-grid { grid-template-columns: 1fr !important; }
           .rpt-reco-divider { display: none !important; }
+        }
+        .rpt-comp-card { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+        .rpt-comp-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(27,94,74,0.10); border-color: rgba(184,138,68,0.35); }
+        @media print {
+          .rpt-comp-card:hover { transform: none; box-shadow: none; }
         }
       `}</style>
     </div>
