@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID } from "@/lib/gtag";
 import WelcomeToast from "@/components/WelcomeToast";
 import "./globals.css";
@@ -59,6 +60,7 @@ export default function RootLayout({
         )}
         {children}
         <WelcomeToast />
+        <Analytics />
       </body>
     </html>
   );
