@@ -5,21 +5,22 @@ import { useRouter } from "next/navigation";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
 import SiteNav from "@/components/SiteNav";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
+import AccessGate from "@/components/AccessGate";
+import { colors as libColors } from "@/lib/colors";
 import { useIsMobile } from "@/lib/useIsMobile";
 
+// Shares the site's design-system palette, with this page's original (slightly
+// softer) shadow values preserved so the existing card styling doesn't shift.
 const colors = {
-  primary: "#1B5E4A",
-  secondary: "#B88A44",
-  bgMain: "#F8F4EE",
-  bgSection: "#FDFBF7",
-  textMain: "#1A1A1A",
-  textMuted: "#6B6B6B",
-  border: "#E6E1D8",
+  ...libColors,
   shadowSm: "0 1px 2px rgba(0,0,0,0.05)",
   shadowMd: "0 4px 12px rgba(0,0,0,0.09)",
 };
 const serifHeading = "'Georgia', serif";
 const sk = (c: string) => ({ stroke: c, strokeWidth: 1.4, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
+// Bronze fails AA contrast as small/bold TEXT on light backgrounds — swap to the AA-safe variant.
+// Backgrounds, borders, and icon fills are unaffected (those only need 3:1, which bronze clears).
+const textSafe = (c: string) => (c === colors.secondary ? colors.secondaryText : c);
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 const IconCheck = ({ color = colors.primary, size = 16 }) => (
@@ -54,37 +55,6 @@ const IconChevron = ({ color = colors.textMuted, open = false }) => (
     <path d="M4 6L8 10L12 6" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
-
-// ─── Payment Modal ────────────────────────────────────────────────────────────
-type Product = { name: string; price: string; amount: number };
-
-function PaymentModal({ product, onClose, onCheckout }: { product: Product; onClose: () => void; onCheckout: (p: Product) => void }) {
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)", padding: "20px" }}>
-      <div style={{ background: "#fff", borderRadius: "20px", padding: "40px", maxWidth: "440px", width: "100%", boxShadow: "0 24px 64px rgba(0,0,0,0.2)", position: "relative" }}>
-        <button onClick={onClose} style={{ position: "absolute", top: "18px", right: "18px", background: "none", border: "none", cursor: "pointer", color: colors.textMuted, fontSize: "22px", lineHeight: 1 }}>×</button>
-        <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>ASSETINTEL</div>
-        <h2 style={{ fontSize: "22px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>Unlock Playbook</h2>
-        <p style={{ fontSize: "14px", color: colors.textMuted, marginBottom: "28px" }}>You are about to unlock access to the following:</p>
-        <div style={{ background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}`, padding: "20px 22px", marginBottom: "28px" }}>
-          <div style={{ fontSize: "13px", color: colors.textMuted, marginBottom: "6px" }}>Selected product</div>
-          <div style={{ fontSize: "16px", fontWeight: 700, color: colors.textMain, marginBottom: "4px" }}>{product.name}</div>
-          <div style={{ fontSize: "28px", fontWeight: 700, color: colors.secondary, fontFamily: serifHeading }}>{product.price}</div>
-          <div style={{ fontSize: "12px", color: colors.textMuted }}>One-time access fee</div>
-        </div>
-        <div style={{ padding: "14px 16px", background: "#FFFBF5", borderRadius: "10px", border: "1px solid #E8D9BC", marginBottom: "24px" }}>
-          <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>Payment checkout will be connected here. Click continue to proceed when payment is available.</p>
-        </div>
-        <button onClick={() => onCheckout(product)} style={{ width: "100%", padding: "14px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "15px", fontWeight: 700, cursor: "pointer", border: "none", marginBottom: "12px" }}>
-          Continue to Checkout →
-        </button>
-        <button onClick={onClose} style={{ width: "100%", padding: "12px", background: "transparent", color: colors.textMuted, border: `1.5px solid ${colors.border}`, borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ─── Readiness Score ──────────────────────────────────────────────────────────
 const SUBLEASING_READINESS_ITEMS = [
@@ -133,11 +103,6 @@ function SubleasingReadinessScore() {
   );
 }
 
-const PRICE = "AED 299";
-const PRODUCTS: Record<string, Product> = {
-  subleasing: { name: "STR Sub-Leasing Playbook", price: PRICE, amount: 299 },
-};
-
 // ─── Shared sub-components ────────────────────────────────────────────────────
 function PillarBadge({ num, color }: { num: string; color: string }) {
   return (
@@ -154,7 +119,7 @@ function IconBadge({ icon, color }: { icon: React.ReactNode; color: string }) {
 }
 
 function SectionLabel({ text }: { text: string }) {
-  return <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "12px" }}>{text}</div>;
+  return <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "12px" }}>{text}</div>;
 }
 
 function SectionTitle({ children, size = "34px" }: { children: React.ReactNode; size?: string }) {
@@ -193,7 +158,7 @@ function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
       </div>
 
       <div style={{ background: colors.bgMain, borderRadius: "16px", border: `1px solid ${colors.border}`, padding: isMobile ? "24px 20px" : "30px 34px", margin: "24px 0" }}>
-        <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "10px" }}>AREA & BUILDING RISK SCORING</div>
+        <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "10px" }}>AREA & BUILDING RISK SCORING</div>
         <h3 style={{ fontSize: "19px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>Score Any Unit Across 5 Dimensions</h3>
         <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "18px" }}>Before signing any lease, score the unit. Aim for 18+ points before proceeding.</p>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
@@ -207,7 +172,7 @@ function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
             <div key={dimension} style={{ padding: "12px 16px", background: colors.bgSection, borderRadius: "9px", border: `1px solid ${colors.border}` }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                 <div style={{ fontSize: "12.5px", fontWeight: 700, color: colors.textMain }}>{dimension}</div>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: colors.secondary, background: "#FEF3E2", padding: "2px 9px", borderRadius: "12px" }}>max {max} pts</span>
+                <span style={{ fontSize: "11px", fontWeight: 700, color: colors.secondaryText, background: "#FEF3E2", padding: "2px 9px", borderRadius: "12px" }}>max {max} pts</span>
               </div>
               <div style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.5 }}>{desc}</div>
             </div>
@@ -244,7 +209,7 @@ function PillarTwoDetail({ isMobile }: { isMobile: boolean }) {
           { title: "Ongoing Compliance", color: colors.secondary, items: ["Permit must be active before listing on any platform", "Collect guest ID (passport or Emirates ID) on every check-in", "Maintain a guest register — retained for 5 years", "Annual permit renewal — set reminder 45 days before expiry", "Tourism Dirham process where applicable"] },
         ].map(({ title, color, items }) => (
           <div key={title} style={{ padding: "20px 22px", background: colors.bgMain, borderRadius: "14px", border: `1px solid ${colors.border}`, borderTop: `3px solid ${color}` }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color, marginBottom: "12px" }}>{title}</div>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: textSafe(color), marginBottom: "12px" }}>{title}</div>
             {items.map(item => (
               <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "9px", alignItems: "flex-start" }}>
                 <div style={{ marginTop: "2px", flexShrink: 0 }}><IconCheck color={color} size={15} /></div>
@@ -256,7 +221,7 @@ function PillarTwoDetail({ isMobile }: { isMobile: boolean }) {
       </div>
 
       <div style={{ background: colors.bgMain, borderRadius: "16px", border: `1px solid ${colors.border}`, padding: isMobile ? "24px 20px" : "30px 34px", marginBottom: "18px" }}>
-        <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>LANDLORD NEGOTIATION FRAMEWORK</div>
+        <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>LANDLORD NEGOTIATION FRAMEWORK</div>
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {[
             { step: "1", title: "Position yourself as a professional operator", body: "Say: 'I operate a registered holiday home management business and am looking for a property to manage as a licensed DET holiday home. I will maintain the property to a premium standard, provide monthly reports, and ensure full DET compliance.'" },
@@ -301,7 +266,7 @@ function PillarThreeDetail({ isMobile }: { isMobile: boolean }) {
           { title: "Quality Control", color: colors.secondary, items: ["Post-checkout inspection checklist", "Damage reporting before next check-in", "Maintenance log with response tracking", "Monthly replacement reserve (10–15% of revenue)", "Quarterly deep-clean schedule"] },
         ].map(({ title, color, items }) => (
           <div key={title} style={{ padding: "20px", background: colors.bgMain, borderRadius: "14px", border: `1px solid ${colors.border}`, borderTop: `3px solid ${color}` }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color, marginBottom: "12px", paddingBottom: "9px", borderBottom: `1px solid ${colors.border}` }}>{title}</div>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: textSafe(color), marginBottom: "12px", paddingBottom: "9px", borderBottom: `1px solid ${colors.border}` }}>{title}</div>
             {items.map(item => (
               <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "flex-start" }}>
                 <div style={{ marginTop: "2px", flexShrink: 0 }}><IconCheck color={color} size={14} /></div>
@@ -335,7 +300,7 @@ function PillarFourDetail({ isMobile }: { isMobile: boolean }) {
               <IconSystem color={color} size={18} />
             </div>
             <h3 style={{ fontSize: "14.5px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "5px" }}>{title}</h3>
-            <div style={{ fontSize: "11px", color: color, fontWeight: 600, background: `${color}0E`, borderRadius: "6px", padding: "3px 9px", display: "inline-block", marginBottom: "10px" }}>{examples}</div>
+            <div style={{ fontSize: "11px", color: textSafe(color), fontWeight: 600, background: `${color}0E`, borderRadius: "6px", padding: "3px 9px", display: "inline-block", marginBottom: "10px" }}>{examples}</div>
             <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{purpose}</p>
           </div>
         ))}
@@ -365,24 +330,9 @@ const COMMON_MISTAKES = [
 export default function STRSubleasingPage() {
   const router = useRouter();
   const isMobile = useIsMobile();
-  const [hasAccess, setHasAccess] = useState(true);
-  const [modal, setModal] = useState<Product | null>(null);
   const [openPillar, setOpenPillar] = useState<number | null>(null);
   const [showMethodology, setShowMethodology] = useState(false);
   const [showMistakes, setShowMistakes] = useState(false);
-  void setHasAccess;
-
-  function openCheckout(key: keyof typeof PRODUCTS) { setModal(PRODUCTS[key]); }
-
-  async function handleCheckout(product: Product) {
-    try {
-      const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pkg: product.name, origin: window.location.origin }) });
-      const data = await res.json();
-      if (data.ok && data.url) { window.location.href = data.url; }
-      else { alert("Payment unavailable right now. Please try again shortly."); }
-    } catch { alert("Payment unavailable right now. Please try again shortly."); }
-    setModal(null);
-  }
 
   const pad = isMobile ? "56px 20px" : "76px 40px";
 
@@ -390,7 +340,6 @@ export default function STRSubleasingPage() {
     <div style={{ background: colors.bgMain, minHeight: "100vh", position: "relative" }}>
       <DecorativeBackdrop />
       <div style={{ position: "relative", zIndex: 1 }}>
-      {modal && <PaymentModal product={modal} onClose={() => setModal(null)} onCheckout={handleCheckout} />}
 
       {/* ─── HEADER ─── */}
       <SiteNav active="self-manage" />
@@ -411,7 +360,7 @@ export default function STRSubleasingPage() {
               <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,138,68,0.11)", border: "1px solid rgba(184,138,68,0.24)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke={colors.secondary} strokeWidth="1.3"/><circle cx="8" cy="8" r="2.5" stroke={colors.secondary} strokeWidth="1.2"/><circle cx="8" cy="8" r="0.8" fill={colors.secondary}/></svg>
               </div>
-              <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondary }}>STR Sub-Leasing Risk Estimator</span>
+              <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondaryText }}>STR Sub-Leasing Risk Estimator</span>
             </div>
 
             <h1 style={{ fontSize: isMobile ? "clamp(28px,9vw,40px)" : "clamp(34px,3.4vw,50px)", fontFamily: serifHeading, fontWeight: 700, lineHeight: isMobile ? 1.08 : 1.05, letterSpacing: isMobile ? "-0.02em" : "-0.03em", marginBottom: "16px", background: `linear-gradient(130deg, ${colors.primary} 0%, #2A7A58 42%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: "780px" }}>
@@ -466,7 +415,7 @@ export default function STRSubleasingPage() {
                     <IconEstimator color={colors.secondary} size={15} />
                   </div>
                   <div>
-                    <div style={{ fontSize: "9.5px", fontWeight: 700, color: colors.secondary, letterSpacing: "0.14em", textTransform: "uppercase" }}>Risk Estimator — Sample</div>
+                    <div style={{ fontSize: "9.5px", fontWeight: 700, color: colors.secondaryText, letterSpacing: "0.14em", textTransform: "uppercase" }}>Risk Estimator — Sample</div>
                     <div style={{ fontSize: "10.5px", color: colors.textMuted, marginTop: "1px" }}>Marina Gate 2 · 1BR · Floor 24</div>
                   </div>
                 </div>
@@ -501,7 +450,7 @@ export default function STRSubleasingPage() {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#FEF5E8", borderRadius: "9px", border: "1px solid rgba(184,138,68,0.18)" }}>
                     <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Est. net profit / yr</span>
-                    <span style={{ fontSize: "14px", fontWeight: 800, color: colors.secondary }}>AED 42,800</span>
+                    <span style={{ fontSize: "14px", fontWeight: 800, color: colors.secondaryText }}>AED 42,800</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#F8F4EE", borderRadius: "9px", border: `1px solid ${colors.border}` }}>
                     <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Cash buffer required</span>
@@ -534,6 +483,7 @@ export default function STRSubleasingPage() {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* 2. THE 4 PILLARS                                                       */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
+      <AccessGate source="str-subleasing" title="Unlock The Sub-Leasing Playbook" subtitle="Free — sign up or log in to see the full framework, financial methodology, and risk breakdown.">
       <section id="pillars" style={{ padding: pad }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "44px" }}>
@@ -557,7 +507,7 @@ export default function STRSubleasingPage() {
             {PILLARS.map(({ num, icon: Icon, accentColor, label, title, body, points, cta }, i) => (
               <div key={num} className={`pillar-card${openPillar === i ? " active" : ""}`} onClick={() => setOpenPillar(openPillar === i ? null : i)}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-                  <div style={{ fontSize: "11px", fontWeight: 700, color: accentColor, letterSpacing: "0.12em" }}>{num}</div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: textSafe(accentColor), letterSpacing: "0.12em" }}>{num}</div>
                   <IconChevron color={accentColor} open={openPillar === i} />
                 </div>
                 <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: "#F5F0E8", border: `1.5px solid ${accentColor}30`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>
@@ -568,10 +518,10 @@ export default function STRSubleasingPage() {
                 <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "12px" }}>{body}</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
                   {points.map(p => (
-                    <span key={p} style={{ fontSize: "10.5px", fontWeight: 600, color: accentColor, background: `${accentColor}0E`, padding: "3px 9px", borderRadius: "20px" }}>{p}</span>
+                    <span key={p} style={{ fontSize: "10.5px", fontWeight: 600, color: textSafe(accentColor), background: `${accentColor}0E`, padding: "3px 9px", borderRadius: "20px" }}>{p}</span>
                   ))}
                 </div>
-                <div style={{ marginTop: "auto", fontSize: "12.5px", fontWeight: 700, color: accentColor }}>
+                <div style={{ marginTop: "auto", fontSize: "12.5px", fontWeight: 700, color: textSafe(accentColor) }}>
                   {openPillar === i ? "Hide details" : cta} →
                 </div>
               </div>
@@ -581,7 +531,7 @@ export default function STRSubleasingPage() {
           {openPillar !== null && (
             <div style={{ marginTop: "24px", background: colors.bgSection, borderRadius: "20px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 20px" : "40px 44px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "5px 14px", background: `${PILLARS[openPillar].accentColor}10`, borderRadius: "20px", border: `1px solid ${PILLARS[openPillar].accentColor}25`, marginBottom: "18px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: PILLARS[openPillar].accentColor, letterSpacing: "0.1em" }}>PILLAR {PILLARS[openPillar].num}</span>
+                <span style={{ fontSize: "11px", fontWeight: 700, color: textSafe(PILLARS[openPillar].accentColor), letterSpacing: "0.1em" }}>PILLAR {PILLARS[openPillar].num}</span>
               </div>
               <h3 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{PILLARS[openPillar].title}</h3>
               {React.createElement(PILLARS[openPillar].Detail, { isMobile })}
@@ -646,7 +596,7 @@ export default function STRSubleasingPage() {
                 ].map(({ label, formula, note }) => (
                   <div key={label} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "190px 1fr 1fr", gap: "14px", padding: "16px 20px", background: colors.bgMain, borderRadius: "11px", border: `1px solid ${colors.border}`, alignItems: "start" }}>
                     <div style={{ fontSize: "13.5px", fontWeight: 700, color: colors.textMain }}>{label}</div>
-                    <div style={{ fontSize: "12.5px", color: colors.secondary, fontFamily: "monospace", background: "#FEF3E2", padding: "5px 11px", borderRadius: "7px", lineHeight: 1.5 }}>{formula}</div>
+                    <div style={{ fontSize: "12.5px", color: colors.secondaryText, fontFamily: "monospace", background: "#FEF3E2", padding: "5px 11px", borderRadius: "7px", lineHeight: 1.5 }}>{formula}</div>
                     <div style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.6 }}>{note}</div>
                   </div>
                 ))}
@@ -662,7 +612,7 @@ export default function STRSubleasingPage() {
                 ].map(({ label, formula, note }) => (
                   <div key={label} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "190px 1fr 1fr", gap: "12px", padding: "13px 18px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}`, alignItems: "start" }}>
                     <div style={{ fontSize: "12.5px", fontWeight: 700, color: colors.textMuted }}>{label}</div>
-                    <div style={{ fontSize: "12px", color: colors.secondary, fontFamily: "monospace", background: "#FEF3E2", padding: "4px 10px", borderRadius: "6px" }}>{formula}</div>
+                    <div style={{ fontSize: "12px", color: colors.secondaryText, fontFamily: "monospace", background: "#FEF3E2", padding: "4px 10px", borderRadius: "6px" }}>{formula}</div>
                     <div style={{ fontSize: "11.5px", color: colors.textMuted, lineHeight: 1.5 }}>{note}</div>
                   </div>
                 ))}
@@ -708,6 +658,7 @@ export default function STRSubleasingPage() {
           )}
         </div>
       </section>
+      </AccessGate>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* 4. HOW ASSETINTEL CAN HELP                                             */}
@@ -783,17 +734,9 @@ export default function STRSubleasingPage() {
               <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: 0, maxWidth: "440px" }}>
                 Practical guidance covering selection, licensing, operations, systems, and financial planning.
               </p>
-              {hasAccess ? (
-                <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.primary, marginTop: "8px" }}>Included during AssetIntel beta access.</div>
-              ) : (
-                <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.secondary, marginTop: "8px" }}>{PRICE} · one-time access</div>
-              )}
+              <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.primary, marginTop: "8px" }}>Free — sign up or log in to view.</div>
             </div>
-            {hasAccess ? (
-              <a href="#pillars" style={{ padding: "11px 22px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "13.5px", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>View Playbook →</a>
-            ) : (
-              <button onClick={() => openCheckout("subleasing")} style={{ padding: "11px 22px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "13.5px", fontWeight: 700, cursor: "pointer", border: "none", whiteSpace: "nowrap" }}>View Playbook →</button>
-            )}
+            <a href="#pillars" style={{ padding: "11px 22px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "13.5px", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>View Playbook →</a>
           </div>
         </div>
       </section>
