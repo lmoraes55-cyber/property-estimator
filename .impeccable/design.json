@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-09T00:00:00.000Z",
+  "title": "Design System: AssetIntel",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Deep Forest Green",
+        "canonical": "#1B5E4A",
+        "tonalRamp": ["#0A2A20", "#0F3E33", "#164F40", "#1B5E4A", "#2A7A62", "#4F9880", "#8FC2AE", "#D3EAE1"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Aged Bronze",
+        "canonical": "#B88A44",
+        "tonalRamp": ["#4A3717", "#6B4F22", "#8B6F3F", "#B88A44", "#D4A574", "#E0BD94", "#EDD7B8", "#F8EFDF"]
+      },
+      "bg-main": { "role": "neutral", "displayName": "Warm Ivory", "canonical": "#F8F4EE" },
+      "bg-section": { "role": "neutral", "displayName": "Soft Warm White", "canonical": "#FDFBF7" },
+      "bg-sage": { "role": "neutral", "displayName": "Sage Tint", "canonical": "#EFF4F0" },
+      "text-main": { "role": "neutral", "displayName": "Text Main", "canonical": "#1A1A1A" },
+      "text-muted": { "role": "neutral", "displayName": "Text Muted", "canonical": "#6B6B6B" },
+      "border": { "role": "neutral", "displayName": "Warm Border", "canonical": "#E6E1D8" },
+      "error": { "role": "error", "displayName": "Muted Terracotta", "canonical": "#C75A5A" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines and the single biggest number on a page." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles." },
+      "title": { "displayName": "Title", "purpose": "Card and component titles." },
+      "body": { "displayName": "Body", "purpose": "Paragraph copy, table values." },
+      "label": { "displayName": "Eyebrow Label", "purpose": "Uppercase bronze label above every section headline." }
+    },
+    "shadows": [
+      { "name": "ambient-sm", "value": "0 1px 2px rgba(27,94,74,0.04)", "purpose": "Resting card edge definition." },
+      { "name": "raised-md", "value": "0 8px 28px rgba(27,94,74,0.08)", "purpose": "Card/button hover state." },
+      { "name": "deep-lg", "value": "0 20px 48px rgba(27,94,74,0.07)", "purpose": "Large feature cards, hero elements." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "180ms ease", "purpose": "Default transition for color/background/border/shadow/transform state changes." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main CTA — forest-green gradient with warm-tinted shadow and a 2px hover lift.",
+      "html": "<button class=\"ds-btn-primary\">Analyze Property →</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 14px 28px; background: linear-gradient(135deg, #1B5E4A 0%, #0F3E33 100%); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(27,94,74,0.25); transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease; } .ds-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,94,74,0.35); background: linear-gradient(135deg, #0F3E33 0%, #0A2922 100%); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(27,94,74,0.25); }"
+    },
+    {
+      "name": "Bronze Button",
+      "kind": "button",
+      "refersTo": "button-bronze",
+      "description": "Premium/upgrade accent action, distinct from the primary green CTA.",
+      "html": "<button class=\"ds-btn-bronze\">Book Consultation →</button>",
+      "css": ".ds-btn-bronze { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 13px 24px; background: linear-gradient(135deg, #B88A44 0%, #8B6F3F 100%); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(184,138,68,0.25); transition: transform 180ms ease, box-shadow 180ms ease; } .ds-btn-bronze:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(184,138,68,0.35); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ghost/outline action for secondary paths.",
+      "html": "<button class=\"ds-btn-secondary\">Learn More</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 13px 24px; background: transparent; color: #1B5E4A; border: 1.5px solid rgba(27,94,74,0.35); border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 180ms ease, border-color 180ms ease; } .ds-btn-secondary:hover { background: rgba(27,94,74,0.06); border-color: rgba(27,94,74,0.6); }"
+    },
+    {
+      "name": "Content Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Standard content/metric card with lift-on-hover.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-eyebrow\">AREA INTELLIGENCE</p><h3 class=\"ds-card-title\">Business Bay Market Snapshot</h3><p class=\"ds-card-body\">Average occupancy of 44% with an ADR of AED 241, powered by live AirROI market data.</p></div>",
+      "css": ".ds-card { background: #FDFBF7; border: 1px solid #E6E1D8; border-radius: 22px; padding: 24px; box-shadow: 0 1px 2px rgba(27,94,74,0.04); transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; } .ds-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(27,94,74,0.08); border-color: rgba(184,138,68,0.4); } .ds-card-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #B88A44; margin: 0 0 8px; } .ds-card-title { font-family: Georgia, serif; font-size: 20px; font-weight: 700; color: #1A1A1A; margin: 0 0 8px; } .ds-card-body { font-size: 14px; line-height: 1.65; color: #6B6B6B; margin: 0; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Small pill tag for trust badges and status labels.",
+      "html": "<span class=\"ds-chip\">Live DLD data</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(27,94,74,0.07); border: 1px solid rgba(27,94,74,0.18); border-radius: 20px; font-size: 12px; font-weight: 600; color: #1B5E4A; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input with soft green focus glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Search buildings…\" />",
+      "css": ".ds-input { width: 100%; padding: 13px 16px; background: #FDFBF7; border: 1.5px solid #E6E1D8; border-radius: 12px; font-size: 14px; color: #1A1A1A; outline: none; box-sizing: border-box; } .ds-input:focus { border-color: rgba(27,94,74,0.5); box-shadow: 0 0 0 3px rgba(27,94,74,0.08); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Chartered Estate",
+    "overview": "AssetIntel reads like the private office of an old-money chartered surveyor: deep forest green and aged bronze on warm ivory paper, serif headlines that command a room without raising their voice, and every number backed by a registered record rather than a guess. The system trades in restraint — it earns trust by being quietly correct, not by performing luxury at volume.\n\nThe voice is warm concierge, not cold institutional: forest green and bronze carry the authority, but backgrounds stay soft and inviting (warm ivory, not stark white or navy), and copy speaks to an owner directly rather than through a dashboard. It never reaches for the generic SaaS dashboard look (flat blue/indigo, Inter, interchangeable rounded-xl cards), the flashy real-estate-agent look (loud gold gradients, stock skyline hero shots, urgency banners), or the crypto/trading-app look (neon, dark-mode-only, glowing numbers). Every accent is measured; the primary green and bronze are used deliberately, not smeared across every element.",
+    "keyCharacteristics": [
+      "Warm ivory/cream backgrounds throughout — never stark white, never dark mode",
+      "Georgia serif for headlines and hero numbers; clean sans (Geist) for body and UI",
+      "Forest green (institutional trust) + aged bronze (premium accent) as the only two brand colors — no third accent",
+      "Flat surfaces at rest, a small deliberate lift (2–3px) plus a warm-tinted shadow on hover",
+      "Pill-shaped chips and pill nav CTAs; generous corner radius (18–22px) on cards, 12px on buttons/inputs"
+    ],
+    "rules": [
+      { "name": "The Two-Color Rule", "body": "Forest green and aged bronze are the only brand accents. A screen never introduces a third hue for decoration — functional states borrow the nearest existing color (success → green family, warning → bronze) rather than adding new ones.", "section": "colors" },
+      { "name": "The No-White Rule", "body": "Backgrounds are warm ivory or soft warm white, never #FFFFFF as a page background. Pure white appears only inside small elements (button text, icon fills) where it reads as contrast, not surface.", "section": "colors" },
+      { "name": "The Serif-For-Numbers Rule", "body": "Any figure meant to land with weight — annual net income, ADR, RevPAR, a hero stat — renders in Georgia, not the sans body font, even inside an otherwise all-sans card.", "section": "typography" },
+      { "name": "The Deliberate Lift Rule", "body": "Interactive surfaces (cards, primary buttons) move up 2–3px on hover with a synchronized shadow deepen — never a shadow change alone, never a lift alone. It's a single, restrained gesture, not a flourish.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Georgia serif for any number or headline meant to carry weight (hero stats, prices, section titles).",
+      "Do pair every section headline with an 11px uppercase bronze eyebrow label above it.",
+      "Do use warm-tinted shadows (rgba(27,94,74,...)) for every elevation cue — never a neutral gray shadow.",
+      "Do alternate section backgrounds (ivory / soft-white / sage) instead of adding borders between sections.",
+      "Do keep chips and nav CTAs fully pill-shaped; keep cards and buttons on the 12–22px radius scale."
+    ],
+    "donts": [
+      "Don't use a pure white (#FFFFFF) page background — warm ivory or soft warm white only.",
+      "Don't introduce a third brand color. Functional states borrow from the green/bronze family; only destructive/error state uses the one outside color (#C75A5A).",
+      "Don't use a resting shadow with no hover lift, or a lift with no shadow change — the two move together.",
+      "Don't use Inter, system sans-only headlines, or flat rounded-xl SaaS-dashboard styling — headlines are always serif.",
+      "Don't use stock skyline photography, urgency banners, or loud gold gradients — the \"flashy real-estate-agent\" look is an explicit anti-reference."
+    ]
+  }
+}
