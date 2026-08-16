@@ -16,6 +16,8 @@ import FinalHomeCTA from "@/components/home/FinalHomeCTA";
 const colors = {
   primary: "#1B5E4A",
   secondary: "#B88A44",
+  secondaryText: "#7D6338",
+  secondaryOnDark: "#E5C9AB",
   bgMain: "#F8F4EE",
   bgSection: "#FDFBF7",
   textMain: "#1A1A1A",
@@ -33,6 +35,7 @@ export default function HomePage() {
   });
   const [opsSubmitted, setOpsSubmitted] = useState(false);
   const [opsSubmitting, setOpsSubmitting] = useState(false);
+  const [opsError, setOpsError] = useState(false);
 
   const handleAnalyzeClick = () => {
     router.push("/estimator");
@@ -45,15 +48,20 @@ export default function HomePage() {
   const handleOpsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setOpsSubmitting(true);
+    setOpsError(false);
     try {
-      await fetch("/api/lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...opsForm, source: "Operational Setup Enquiry" }),
       });
-    } catch {}
-    setOpsSubmitting(false);
-    setOpsSubmitted(true);
+      if (!res.ok) throw new Error("lead submission failed");
+      setOpsSubmitted(true);
+    } catch {
+      setOpsError(true);
+    } finally {
+      setOpsSubmitting(false);
+    }
   };
 
   return (
@@ -104,8 +112,8 @@ export default function HomePage() {
             <p style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.6)", lineHeight: 1.75, maxWidth: "320px" }}>
               AssetIntel helps Dubai property owners, investors, and operators make smarter rental, investment, and STR setup decisions through data-led intelligence and advisory support.
             </p>
-            <a href="mailto:hello@assetintel.ae" style={{ display: "inline-flex", alignItems: "center", gap: "7px", marginTop: "20px", fontSize: "13px", color: "#B88A44", fontWeight: 600, textDecoration: "none" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B88A44" strokeWidth="1.6" strokeLinecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 4l10 9 10-9"/></svg>
+            <a href="mailto:hello@assetintel.ae" style={{ display: "inline-flex", alignItems: "center", gap: "7px", marginTop: "20px", fontSize: "13px", color: colors.secondaryOnDark, fontWeight: 600, textDecoration: "none" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.secondaryOnDark} strokeWidth="1.6" strokeLinecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 4l10 9 10-9"/></svg>
               hello@assetintel.ae
             </a>
           </div>
@@ -162,12 +170,12 @@ export default function HomePage() {
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.15)")}
               onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")}
             >
-              Analyze My Property
+              Analyze Property
             </button>
             <button
               onClick={() => router.push("/self-manage")}
               style={{ display: "block", width: "100%", padding: "13px 16px", background: "#B88A44", border: "none", borderRadius: "10px", color: "#fff", fontSize: "13.5px", fontWeight: 600, cursor: "pointer", textAlign: "center", transition: "background 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#9A7238")}
+              onMouseEnter={e => (e.currentTarget.style.background = "#8B6F3F")}
               onMouseLeave={e => (e.currentTarget.style.background = "#B88A44")}
             >
               Speak to an Advisor
@@ -188,16 +196,16 @@ export default function HomePage() {
       {/* ── Operational Setup Enquiry Modal ── */}
       {showOpsModal && (
         <div
-          onClick={() => { if (!opsSubmitting) { setShowOpsModal(false); setOpsSubmitted(false); setOpsForm({ name:"",email:"",phone:"",company:"",portfolioSize:"",serviceNeeded:"",stage:"",message:"" }); } }}
+          onClick={() => { if (!opsSubmitting) { setShowOpsModal(false); setOpsSubmitted(false); setOpsError(false); setOpsForm({ name:"",email:"",phone:"",company:"",portfolioSize:"",serviceNeeded:"",stage:"",message:"" }); } }}
           style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(20,30,25,0.55)", backdropFilter:"blur(4px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background:"#FDFBF7", borderRadius:"20px", boxShadow:"0 32px 80px rgba(20,48,38,0.22), 0 8px 24px rgba(20,48,38,0.12)", width:"100%", maxWidth:"560px", maxHeight:"90vh", overflowY:"auto", padding: isMobile ? "28px 20px" : "40px 36px", position:"relative" }}
+            style={{ background:"#FDFBF7", borderRadius:"20px", boxShadow:"0 32px 80px rgba(27,94,74,0.22), 0 8px 24px rgba(27,94,74,0.12)", width:"100%", maxWidth:"560px", maxHeight:"90vh", overflowY:"auto", padding: isMobile ? "28px 20px" : "40px 36px", position:"relative" }}
           >
             {/* Close */}
             <button
-              onClick={() => { setShowOpsModal(false); setOpsSubmitted(false); setOpsForm({ name:"",email:"",phone:"",company:"",portfolioSize:"",serviceNeeded:"",stage:"",message:"" }); }}
+              onClick={() => { setShowOpsModal(false); setOpsSubmitted(false); setOpsError(false); setOpsForm({ name:"",email:"",phone:"",company:"",portfolioSize:"",serviceNeeded:"",stage:"",message:"" }); }}
               style={{ position:"absolute", top:"16px", right:"16px", background:"none", border:"none", cursor:"pointer", color:colors.textMuted, fontSize:"22px", lineHeight:1, padding:"4px 8px" }}
               aria-label="Close"
             >×</button>
@@ -222,6 +230,15 @@ export default function HomePage() {
                   Tell us about your STR operation and AssetIntel will review how we can support your setup, systems, team structure, and operational workflows.
                 </p>
 
+                {opsError && (
+                  <div style={{ display:"flex", gap:"10px", alignItems:"flex-start", padding:"12px 14px", borderRadius:"10px", background:"#FDF1F1", border:"1.5px solid rgba(199,90,90,0.3)", marginBottom:"20px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink:0, marginTop:"1px" }}><circle cx="12" cy="12" r="9" stroke="#C75A5A" strokeWidth="1.6"/><path d="M12 8v5" stroke="#C75A5A" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="16" r="0.9" fill="#C75A5A"/></svg>
+                    <p style={{ fontSize:"13px", color:"#8B3A3A", lineHeight:1.5, margin:0 }}>
+                      Something went wrong sending your enquiry. Please try again, or email <a href="mailto:hello@assetintel.ae" style={{ color:"#8B3A3A", fontWeight:600 }}>hello@assetintel.ae</a> directly.
+                    </p>
+                  </div>
+                )}
+
                 {/* Field styles shared */}
                 {[
                   { label:"Full Name", key:"name", type:"text", placeholder:"Your full name", required:true },
@@ -230,7 +247,7 @@ export default function HomePage() {
                   { label:"Company Name (if any)", key:"company", type:"text", placeholder:"Your company or brand", required:false },
                 ].map(f => (
                   <div key={f.key} style={{ marginBottom:"16px" }}>
-                    <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"6px" }}>{f.label}{f.required && <span style={{ color:colors.secondary }}> *</span>}</label>
+                    <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:colors.secondaryText, marginBottom:"6px" }}>{f.label}{f.required && <span style={{ color:colors.secondaryText }}> *</span>}</label>
                     <input
                       type={f.type}
                       required={f.required}
@@ -248,7 +265,7 @@ export default function HomePage() {
                   { label:"Current Stage", key:"stage", required:true, options:["Planning to start","Already operating","Scaling existing portfolio","Fixing operational issues"] },
                 ].map(f => (
                   <div key={f.key} style={{ marginBottom:"16px" }}>
-                    <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"6px" }}>{f.label}<span style={{ color:colors.secondary }}> *</span></label>
+                    <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:colors.secondaryText, marginBottom:"6px" }}>{f.label}<span style={{ color:colors.secondaryText }}> *</span></label>
                     <select
                       required={f.required}
                       value={(opsForm as any)[f.key]}
@@ -262,7 +279,7 @@ export default function HomePage() {
                 ))}
 
                 <div style={{ marginBottom:"24px" }}>
-                  <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:"#7A9A8A", marginBottom:"6px" }}>Message / Notes</label>
+                  <label style={{ display:"block", fontSize:"11px", fontWeight:700, letterSpacing:"0.10em", textTransform:"uppercase", color:colors.secondaryText, marginBottom:"6px" }}>Message / Notes</label>
                   <textarea
                     rows={4}
                     placeholder="Any additional context about your setup or what you need help with..."
