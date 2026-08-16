@@ -19,7 +19,7 @@ const C = {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/dashboard";
+  const next = searchParams.get("next") || "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,7 +55,7 @@ function LoginForm() {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/api/auth/callback?next=${next}` },
+      options: { redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}` },
     });
   }
 
@@ -255,7 +255,7 @@ function LoginForm() {
 
         <p style={{ textAlign: "center", fontSize: 14, color: C.muted }}>
           Don&apos;t have an account?{" "}
-          <a href="/signup" style={{ color: C.green, fontWeight: 500, textDecoration: "none" }}>
+          <a href={`/signup?next=${encodeURIComponent(next)}`} style={{ color: C.green, fontWeight: 500, textDecoration: "none" }}>
             Create account
           </a>
         </p>

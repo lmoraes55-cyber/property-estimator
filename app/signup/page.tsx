@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
 import AuthBackground from "@/components/AuthBackground";
 import { createClient } from "@/lib/supabase/client";
@@ -15,7 +16,9 @@ const C = {
   error: "#C0392B",
 };
 
-export default function SignupPage() {
+function SignupForm() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/?welcome=1";
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,7 +43,7 @@ export default function SignupPage() {
         },
         // Confirmation links land on the homepage with a "you're signed in"
         // toast rather than dropping the user straight into the dashboard.
-        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent("/?welcome=1")}`,
+        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
     setLoading(false);
@@ -109,7 +112,7 @@ export default function SignupPage() {
             const supabase = createClient();
             await supabase.auth.signInWithOAuth({
               provider: "google",
-              options: { redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard` },
+              options: { redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}` },
             });
           }}
           style={{
@@ -269,7 +272,7 @@ export default function SignupPage() {
 
             <p style={{ textAlign: "center", fontSize: 14, color: C.muted }}>
               Already have an account?{" "}
-              <a href="/login" style={{ color: C.green, fontWeight: 500, textDecoration: "none" }}>
+              <a href={`/login?next=${encodeURIComponent(next)}`} style={{ color: C.green, fontWeight: 500, textDecoration: "none" }}>
                 Sign in
               </a>
             </p>
@@ -277,5 +280,13 @@ export default function SignupPage() {
         )}
       </div>
     </AuthBackground>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
   );
 }

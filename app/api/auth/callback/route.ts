@@ -10,7 +10,14 @@ export async function GET(request: NextRequest) {
   const errorRedirect = (detail?: string) =>
     `${origin}/login?error=auth_failed${detail ? `&detail=${encodeURIComponent(detail)}` : ""}`;
 
-  if (!code) return NextResponse.redirect(errorRedirect("missing_code"));
+  if (!code) {
+    // Log every param actually received so a missing_code report can be diagnosed
+    // from real evidence instead of guessing at Supabase/Google config.
+    const allParams = Object.fromEntries(searchParams.entries());
+    console.error("[auth/callback] missing code — full incoming params:", JSON.stringify(allParams), "full URL:", request.url);
+    const upstreamError = searchParams.get("error_description") || searchParams.get("error");
+    return NextResponse.redirect(errorRedirect(upstreamError ? `missing_code: ${upstreamError}` : "missing_code"));
+  }
 
   // Build the redirect response first — cookies must be set ON this response
   const response = NextResponse.redirect(redirectTo);
