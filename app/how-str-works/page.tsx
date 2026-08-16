@@ -411,7 +411,7 @@ export default function HowSTRWorksPage() {
           </div>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <button onClick={() => router.push("/estimator")} style={{ padding: "14px 24px", borderRadius: "12px", border: "none", background: colors.secondary, color: "#fff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}>
-              Analyze My Property
+              Analyze Property
             </button>
             <button onClick={() => setShowMatchModal(true)} style={{ padding: "14px 24px", borderRadius: "12px", border: "1.5px solid rgba(255,255,255,0.4)", background: "transparent", color: "#fff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}>
               Request Private Operator Match

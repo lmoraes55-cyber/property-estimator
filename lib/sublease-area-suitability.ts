@@ -39,6 +39,12 @@ export const SUBLEASE_AREA_SUITABILITY = {
   /**
    * SELECTIVE STR AREAS — can work, but only with the right unit, rent, and setup.
    * Demand is present but narrower; fundamentals must be strong.
+   *
+   * NOTE: a bare "Jumeirah" entry used to live here. Matching is substring-based and
+   * categories are checked selective-before-prime, so it silently caught "Jumeirah Beach
+   * Residence" (JBR) — downgrading any non-overridden JBR building from eligible to
+   * caution. Removed; genuinely unlisted "Jumeirah X" communities still land on "caution"
+   * via the unknown-area fallback below, so this loses no real coverage.
    */
   selective: [
     "JVC",
@@ -48,7 +54,6 @@ export const SUBLEASE_AREA_SUITABILITY = {
     "Dubai Hills",
     "Dubai Hills Estate",
     "Meydan",
-    "Jumeirah",
     "Al Barsha",
     "Dubai Sports City",
     "Sports City",

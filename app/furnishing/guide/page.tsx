@@ -12,6 +12,10 @@ const C = {
   green: "#1B5E4A",
   greenDark: "#133D30",
   gold: "#B88A44",
+  // AA-compliant (5.47:1 on ivory) bronze for small/normal-weight text — raw
+  // `gold` fails WCAG AA (2.8-3.1:1) below ~18px bold. Use this for eyebrows,
+  // captions, and links; reserve `gold` for large/bold text, fills, and borders.
+  goldText: "#7D6338",
   ivory: "#FDFBF7",
   bg: "#F8F4EE",
   border: "#E6E1D8",
@@ -69,6 +73,7 @@ function FurnishingGuideContent() {
   const [showModal, setShowModal] = useState(false);
   const [modalSubmitted, setModalSubmitted] = useState(false);
   const [modalSubmitting, setModalSubmitting] = useState(false);
+  const [modalError, setModalError] = useState(false);
   const [modalForm, setModalForm] = useState({
     name: "", email: "", phone: "", property: "", budget: "", path: "", message: "",
   });
@@ -76,6 +81,7 @@ function FurnishingGuideContent() {
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
+  const [quoteError, setQuoteError] = useState(false);
   const [quoteForm, setQuoteForm] = useState({
     name: "", email: "", phone: "", property: "", pkg: "", path: "", budget: "", message: "",
   });
@@ -136,6 +142,7 @@ function FurnishingGuideContent() {
 
   const handleQuoteSubmit = async () => {
     setQuoteSubmitting(true);
+    setQuoteError(false);
     const pkgPrices = PKG_PRICES[quoteForm.pkg];
     const setupFee = getSetupFee(rawUnit);
     const totalLo = pkgPrices ? pkgPrices.lo + setupFee : null;
@@ -144,7 +151,7 @@ function FurnishingGuideContent() {
       ? `Package: ${quoteForm.pkg} (${fmt(pkgPrices!.lo)}–${fmt(pkgPrices!.hi)}) | Setup Fee: ${fmt(setupFee)} | Total: ${fmt(totalLo!)}–${fmt(totalHi!)} | Path: ${quoteForm.path}${quoteForm.message ? " | Notes: " + quoteForm.message : ""}`
       : `Path: ${quoteForm.path}${quoteForm.message ? " | Notes: " + quoteForm.message : ""}`;
     try {
-      await fetch("/api/lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -157,15 +164,20 @@ function FurnishingGuideContent() {
           message: quoteSummary,
         }),
       });
-    } catch { /* silent */ }
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error || "Request failed");
+      setQuoteSubmitted(true);
+    } catch {
+      setQuoteError(true);
+    }
     setQuoteSubmitting(false);
-    setQuoteSubmitted(true);
   };
 
   const handleModalSubmit = async () => {
     setModalSubmitting(true);
+    setModalError(false);
     try {
-      await fetch("/api/lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -178,9 +190,13 @@ function FurnishingGuideContent() {
           message: `Budget: ${modalForm.budget} | Path: ${modalForm.path}${modalForm.message ? " | Notes: " + modalForm.message : ""}`,
         }),
       });
-    } catch { /* silent */ }
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error || "Request failed");
+      setModalSubmitted(true);
+    } catch {
+      setModalError(true);
+    }
     setModalSubmitting(false);
-    setModalSubmitted(true);
   };
 
   // Two tabs only — no Operator Furnished
@@ -237,16 +253,16 @@ function FurnishingGuideContent() {
       {showModal && (
         <div
           style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
-          onClick={() => { setShowModal(false); setModalSubmitted(false); }}
+          onClick={() => { setShowModal(false); setModalSubmitted(false); setModalError(false); }}
         >
           <div
             style={{ background: C.ivory, borderRadius: 24, padding: "32px 28px", maxWidth: 480, width: "100%", boxShadow: "0 24px 72px rgba(0,0,0,0.2)", position: "relative", maxHeight: "90vh", overflowY: "auto" }}
             onClick={e => e.stopPropagation()}
           >
-            <button onClick={() => { setShowModal(false); setModalSubmitted(false); }} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.subtle, lineHeight: 1 }}>×</button>
+            <button onClick={() => { setShowModal(false); setModalSubmitted(false); setModalError(false); }} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.subtle, lineHeight: 1 }}>×</button>
             {!modalSubmitted ? (
               <>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.gold, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel Advisory</p>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel Advisory</p>
                 <h2 style={{ fontSize: 20, fontWeight: 700, color: C.green, marginBottom: 6, fontFamily: "'Georgia', serif" }}>Furnishing Guidance Request</h2>
                 <p style={{ fontSize: 13, color: C.muted, marginBottom: 20, lineHeight: 1.6 }}>We&apos;ll match you with the right furnishing path for your property and budget.</p>
                 {[
@@ -282,6 +298,9 @@ function FurnishingGuideContent() {
                     {["AssetIntel Furnishing", "Interior Designer", "Not sure yet"].map(o => <option key={o}>{o}</option>)}
                   </select>
                 </div>
+                {modalError && (
+                  <p style={{ fontSize: 12.5, color: "#B03030", marginBottom: 10 }}>Couldn't send your request — please check your connection and try again.</p>
+                )}
                 <button onClick={handleModalSubmit} disabled={modalSubmitting}
                   style={{ width: "100%", padding: 13, background: C.green, color: "#fff", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(27,94,74,0.25)" }}>
                   {modalSubmitting ? "Submitting…" : "Submit Request"}
@@ -308,16 +327,16 @@ function FurnishingGuideContent() {
       {showQuoteModal && (
         <div
           style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
-          onClick={() => { setShowQuoteModal(false); setQuoteSubmitted(false); }}
+          onClick={() => { setShowQuoteModal(false); setQuoteSubmitted(false); setQuoteError(false); }}
         >
           <div
             style={{ background: C.ivory, borderRadius: 24, padding: "32px 28px", maxWidth: 500, width: "100%", boxShadow: "0 24px 72px rgba(0,0,0,0.2)", position: "relative", maxHeight: "90vh", overflowY: "auto" }}
             onClick={e => e.stopPropagation()}
           >
-            <button onClick={() => { setShowQuoteModal(false); setQuoteSubmitted(false); }} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.subtle, lineHeight: 1 }}>×</button>
+            <button onClick={() => { setShowQuoteModal(false); setQuoteSubmitted(false); setQuoteError(false); }} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.subtle, lineHeight: 1 }}>×</button>
             {!quoteSubmitted ? (
               <>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.gold, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel · Furnishing</p>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel · Furnishing</p>
                 <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, fontFamily: "'Georgia', serif", ...gradStyle }}>Furnishing Quote Request</h2>
 
                 <div style={{ background: `linear-gradient(135deg, ${C.green} 0%, ${C.greenDark} 100%)`, borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16 }}>
@@ -329,7 +348,7 @@ function FurnishingGuideContent() {
                       </p>
                     </div>
                     {quoteForm.pkg && (
-                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: C.gold, background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.35)", borderRadius: 20, padding: "3px 10px" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: C.goldText, background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.35)", borderRadius: 20, padding: "3px 10px" }}>
                         {quoteForm.pkg}
                       </span>
                     )}
@@ -415,6 +434,9 @@ function FurnishingGuideContent() {
                   </div>
                 </div>
 
+                {quoteError && (
+                  <p style={{ fontSize: 12.5, color: "#B03030", marginBottom: 10 }}>Couldn't send your request — please check your connection and try again.</p>
+                )}
                 <button onClick={handleQuoteSubmit} disabled={quoteSubmitting}
                   style={{ width: "100%", padding: 13, background: C.green, color: "#fff", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(27,94,74,0.25)", marginBottom: 12 }}>
                   {quoteSubmitting ? "Submitting…" : "Submit Quote Request"}
@@ -464,7 +486,7 @@ function FurnishingGuideContent() {
             `,
           }} />
           <div style={{ position: "relative", zIndex: 2, padding: "52px 44px", maxWidth: "52%", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: "center" }} className="fhg-hero-content">
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: C.gold, textTransform: "uppercase", margin: "0 0 14px" }}>AssetIntel Service</p>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: C.goldText, textTransform: "uppercase", margin: "0 0 14px" }}>AssetIntel Service</p>
             <h1 style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.08, fontFamily: "'Georgia', serif", margin: "0 0 16px", ...gradStyle }}>
               Furnishing &<br />STR Setup
             </h1>
@@ -575,10 +597,13 @@ function FurnishingGuideContent() {
                       )}
                     </div>
                     <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column" }}>
-                      <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.gold, textTransform: "uppercase", margin: "0 0 4px" }}>{pkg.name}</p>
+                      <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", margin: "0 0 4px" }}>{pkg.name}</p>
                       <p style={{ fontSize: 12, color: C.muted, margin: "0 0 10px", lineHeight: 1.45 }}>{pkg.sub}</p>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: C.text, margin: "0 0 2px" }}>{fmt(totalLo)} – {fmt(totalHi)}</p>
-                      <p style={{ fontSize: 11, color: C.muted, margin: "0 0 10px" }}>Furniture + setup · {unitLabel}</p>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "0 0 2px", flexWrap: "wrap" }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: C.text, margin: 0 }}>{fmt(totalLo)} – {fmt(totalHi)}</p>
+                        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: C.goldText, background: "rgba(184,138,68,0.12)", border: "1px solid rgba(184,138,68,0.3)", borderRadius: 20, padding: "2px 7px" }}>Estimated</span>
+                      </div>
+                      <p style={{ fontSize: 11, color: C.muted, margin: "0 0 10px" }}>Furniture + setup · {unitLabel} · final price confirmed on quote</p>
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
                         {pkg.tags.map(t => (
                           <span key={t} style={{ fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 20, background: "#EEF5F1", color: C.green }}>{t}</span>
@@ -744,7 +769,7 @@ function FurnishingGuideContent() {
           {activeTab === "self" && (
             <div style={{ background: "#FFFEFA", border: "1px solid rgba(35,93,72,0.10)", borderRadius: 24, overflow: "hidden", boxShadow: "0 8px 32px rgba(20,48,38,0.06), 0 2px 8px rgba(20,48,38,0.03)" }}>
               <div style={{ padding: "28px 32px 20px" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.gold, textTransform: "uppercase", margin: "0 0 6px" }}>DET Compliance Checklist</p>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", margin: "0 0 6px" }}>DET Compliance Checklist</p>
                 <p style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px", fontFamily: "'Georgia', serif", ...gradStyle }}>STR Furnishing Checklist</p>
                 <p style={{ fontSize: 13, color: C.subtle, margin: 0 }}>Key items required to make the property guest-ready and aligned with DET holiday home standards.</p>
               </div>
@@ -782,7 +807,7 @@ function FurnishingGuideContent() {
                                 </div>
                               ))}
                               {detSection.items.length > 5 && (
-                                <p style={{ fontSize: 11, color: C.gold, fontWeight: 600, margin: "4px 0 0" }}>+{detSection.items.length - 5} more items</p>
+                                <p style={{ fontSize: 11, color: C.goldText, fontWeight: 600, margin: "4px 0 0" }}>+{detSection.items.length - 5} more items</p>
                               )}
                             </div>
                           )}
@@ -798,7 +823,7 @@ function FurnishingGuideContent() {
                 ))}
               </div>
               <div style={{ padding: "14px 32px", display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={() => window.open("/furnishing/checklist", "_blank")} style={{ fontSize: 12, fontWeight: 600, color: C.gold, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                <button onClick={() => window.open("/furnishing/checklist", "_blank")} style={{ fontSize: 12, fontWeight: 600, color: C.goldText, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   View Full Checklist
                 </button>
