@@ -3,6 +3,7 @@ export const colors = {
   primaryDeep: "#0F3E33",
   secondary: "#B88A44",
   secondaryLight: "#D4A574",
+  secondaryText: "#7D6338", // AA-compliant bronze for small/normal-weight text on light backgrounds
   bgMain: "#F8F4EE",
   bgSection: "#FDFBF7",
   bgSage: "#EFF4F0",

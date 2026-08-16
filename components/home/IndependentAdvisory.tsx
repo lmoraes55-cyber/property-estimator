@@ -17,7 +17,7 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
     <section style={{ padding: isMobile ? "56px 20px" : "88px 48px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: isMobile ? "36px" : "52px" }}>
-          <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondary, textTransform: "uppercase", marginBottom: "14px" }}>
+          <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "14px" }}>
             Independent Property Advisory
           </div>
           <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "34px", color: colors.primary, margin: "0 auto 16px", maxWidth: "760px" }}>
@@ -57,7 +57,7 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
                 display: "block", textAlign: "center", textDecoration: "none", padding: "14px", borderRadius: "12px",
                 border: "1.5px solid rgba(255,255,255,0.35)", color: "#fff", fontSize: "13.5px", fontWeight: 700,
               }}>
-                Analyze My Property
+                Analyze Property
               </a>
             </div>
           </div>

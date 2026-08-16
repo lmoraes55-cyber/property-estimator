@@ -27,7 +27,7 @@ export default function ProductShowcase({ isMobile, onTryAnalyzer }: { isMobile:
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.15fr", gap: isMobile ? "36px" : "56px", alignItems: "center" }}>
           {/* Left — copy */}
           <div>
-            <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondary, textTransform: "uppercase", marginBottom: "14px" }}>
+            <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "14px" }}>
               Rental Strategy Analyzer
             </div>
             <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "36px", color: colors.primary, lineHeight: 1.16, margin: "0 0 18px" }}>
@@ -46,7 +46,7 @@ export default function ProductShowcase({ isMobile, onTryAnalyzer }: { isMobile:
                 cursor: "pointer", boxShadow: "0 10px 26px rgba(27,94,74,0.24)",
               }}
             >
-              Try The Analyzer
+              Analyze Property
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={colors.secondaryLight} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
           </div>

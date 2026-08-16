@@ -6,7 +6,7 @@ export default function HowSTRWorksSection({ isMobile }: { isMobile: boolean }) 
   return (
     <section style={{ padding: isMobile ? "44px 20px" : "60px 48px", background: colors.bgSage }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-        <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondary, textTransform: "uppercase", marginBottom: "12px" }}>
+        <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "12px" }}>
           New To Short-Term Rental?
         </div>
         <h2 style={{ fontFamily: serif, fontSize: isMobile ? "24px" : "28px", color: colors.primary, margin: "0 0 32px" }}>
