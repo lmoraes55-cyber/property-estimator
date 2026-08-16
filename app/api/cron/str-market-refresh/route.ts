@@ -4,15 +4,17 @@ import {
   fetchAirROIMarketSummary, fetchAirROIListingsSample, fetchAirROIListingsByRadius,
   aggregateListingsToSummary, type AirROIMarket, type AirROIGeoRadius,
 } from "@/lib/airroi-client";
+import { fetchAirbticsMarketSummary, fetchAirbticsListingsSample, AIRBTICS_MARKET_IDS } from "@/lib/airbtics-client";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-// Weekly refresh job — the ONLY place in the app allowed to call AirROI.
-// Triggered by Vercel Cron (see vercel.json). Pulls AirROI + DLD data per Dubai
-// community, aggregates, and upserts into str_market_area_stats — preserving
+// Weekly refresh job — the ONLY place in the app allowed to call AirROI or Airbtics.
+// Triggered by Vercel Cron (see vercel.json). Pulls AirROI + Airbtics + DLD data per
+// Dubai community, blends the two STR sources, and upserts into
+// str_market_area_stats — preserving
 // history by keying on (area, reporting_month) rather than overwriting.
 
 // Every area here gets DLD sales/rental data. Only areas with an entry in
@@ -72,6 +74,17 @@ const SALE_COLUMNS: (keyof DLDSaleTransaction)[] = [
   "project_name_en", "master_project_en", "rooms_en", "procedure_area", "actual_worth",
   "meter_sale_price",
 ];
+
+// Comparable-listing cards are only useful when ADR and occupancy are actually
+// present, so pull a wide page (same single API call — page_size only changes the
+// response body) and keep the complete, best-evidenced rows rather than the first six.
+const LISTING_KEEP = 20;
+function pickComplete<T extends { ttmAvgRate: number | null; ttmOccupancy: number | null; ttmRevenue: number | null; numReviews?: number | null }>(rows: T[]): T[] {
+  const complete = rows.filter(l => l.ttmAvgRate != null && l.ttmAvgRate > 0 && l.ttmOccupancy != null && l.ttmOccupancy > 0);
+  const ranked = complete.sort((a, b) => (b.numReviews ?? 0) - (a.numReviews ?? 0));
+  // Fall back to whatever exists rather than showing an empty section.
+  return (ranked.length ? ranked : rows).slice(0, LISTING_KEEP);
+}
 
 const RENT_COLUMNS: (keyof DLDRentContract)[] = [
   "contract_id", "annual_amount", "actual_area",
@@ -174,6 +187,7 @@ export async function GET(request: Request) {
 
   let recordsUpdated = 0;
   let airroiFailures = 0;
+  let airbticsFailures = 0;
   let dldFailures = 0;
   const errors: string[] = [];
 
@@ -231,13 +245,13 @@ export async function GET(request: Request) {
 
         // Real comparable listings + an accurate live count (pagination.total_count),
         // richer than anything /markets/summary returns.
-        const listingsResult = await fetchAirROIListingsSample(airroiMarket, 6);
+        const listingsResult = await fetchAirROIListingsSample(airroiMarket, 100);
         if (listingsResult) {
           row.comparable_listing_count = listingsResult.totalCount;
-          row.sample_listings = listingsResult.listings;
+          row.sample_listings = pickComplete(listingsResult.listings);
         }
       } else if (airroiGeo) {
-        const listingsResult = await fetchAirROIListingsByRadius(airroiGeo, 50);
+        const listingsResult = await fetchAirROIListingsByRadius(airroiGeo, 100);
         if (listingsResult) {
           const summary = aggregateListingsToSummary(listingsResult);
           row.adr = summary.adr;
@@ -246,7 +260,7 @@ export async function GET(request: Request) {
           row.estimated_str_revenue = summary.estimatedRevenue;
           row.active_listings = summary.activeListings;
           row.comparable_listing_count = listingsResult.totalCount;
-          row.sample_listings = listingsResult.listings.slice(0, 6);
+          row.sample_listings = pickComplete(listingsResult.listings);
         }
       }
     } catch (e) {
@@ -254,8 +268,96 @@ export async function GET(request: Request) {
       errors.push(`AirROI/${area}: ${(e as Error).message}`);
     }
 
+    // Airbtics (STR) — second source, blended with AirROI to cross-validate/
+    // solidify the primary display fields. Raw Airbtics figures are kept in
+    // their own airbtics_* columns regardless of blending.
+    const airbticsMarketId = AIRBTICS_MARKET_IDS[area];
+    const hadAirroi = row.adr != null;
+    if (airbticsMarketId) {
+      try {
+        const abSummary = await fetchAirbticsMarketSummary(airbticsMarketId);
+        if (abSummary) {
+          row.airbtics_adr = abSummary.adr;
+          row.airbtics_occupancy = abSummary.occupancy;
+          row.airbtics_revpar = abSummary.revpar;
+          row.airbtics_estimated_revenue = abSummary.estimatedRevenue;
+          row.airbtics_active_listings = abSummary.activeListings;
+          row.airbtics_market_grade = abSummary.marketGrade;
+          row.airbtics_regulations = abSummary.regulations;
+
+          // Airbtics is the PRIMARY source. It resolves a named market for 10 of the 11
+          // tracked areas (AirROI manages 7, approximating the rest from a geo-radius
+          // sample), and its supply/occupancy figures are materially more plausible —
+          // AirROI reported 29 active listings for Dubai Marina and 18% occupancy for
+          // Palm Jumeirah, neither of which is credible. AirROI is now only a fallback
+          // for areas Airbtics has no market for (currently Palm Jumeirah).
+          const prefer = (ab: number | null, airroi: unknown) => {
+            const av = typeof airroi === "number" ? airroi : null;
+            return ab ?? av ?? null;
+          };
+          row.adr = prefer(abSummary.adr, row.adr);
+          row.occupancy = prefer(abSummary.occupancy, row.occupancy);
+          row.revpar = prefer(abSummary.revpar, row.revpar);
+          row.estimated_str_revenue = prefer(abSummary.estimatedRevenue, row.estimated_str_revenue);
+          // Supply counts were previously left on AirROI entirely — the worst-affected field.
+          row.active_listings = prefer(abSummary.activeListings, row.active_listings);
+        }
+
+        const abListings = await fetchAirbticsListingsSample(airbticsMarketId, undefined, 100);
+        if (abListings) {
+          row.airbtics_comparable_listing_count = abListings.totalCount;
+          const normalized = abListings.listings.map(l => ({
+            listingId: Number(l.listingId) || 0,
+            name: l.name,
+            hostName: l.hostName,
+            professionalManagement: false,
+            superhost: false,
+            bedrooms: l.bedrooms,
+            rating: l.rating,
+            numReviews: l.numReviews,
+            coverPhotoUrl: l.coverPhotoUrl,
+            ttmRevenue: l.ttmRevenue,
+            ttmAvgRate: l.ttmAvgRate,
+            ttmOccupancy: l.ttmOccupancy,
+          }));
+          // Merge both providers, de-duplicate by listing id, then keep only rows with
+          // real ADR + occupancy so every comparable card can show full performance.
+          const existingListings = (Array.isArray(row.sample_listings) ? row.sample_listings : []) as typeof normalized;
+          const merged = [...existingListings, ...normalized];
+          const seen = new Set<number>();
+          const unique = merged.filter(l => {
+            if (!l.listingId || seen.has(l.listingId)) return !l.listingId;
+            seen.add(l.listingId); return true;
+          });
+          row.sample_listings = pickComplete(unique);
+          row.comparable_listing_count = Math.max(
+            (row.comparable_listing_count as number) ?? 0,
+            abListings.totalCount,
+          );
+        }
+
+        row.data_sources = hadAirroi ? "airbtics-primary" : "airbtics";
+      } catch (e) {
+        airbticsFailures++;
+        errors.push(`Airbtics/${area}: ${(e as Error).message}`);
+      }
+    } else if (hadAirroi) {
+      row.data_sources = "airroi";
+    }
+
     const salesN = (row.sales_transactions as number) ?? 0;
     const rentalsN = (row.rental_transactions as number) ?? 0;
+    // AirROI measures occupancy very differently to Airbtics. Validated against a known
+    // Dubai portfolio (Deluxe Holiday Homes): AirROI reported 18% where the true figure is
+    // ~78% — a ~4x understatement, and the same pattern holds across every area we hold.
+    // ADR and supply counts are sound, so only the occupancy-derived fields are withheld
+    // when AirROI is the sole source, rather than publishing a number known to be wrong.
+    if (row.data_sources === "airroi") {
+      row.occupancy = null;
+      row.revpar = null;
+      row.estimated_str_revenue = null;
+    }
+
     row.confidence = salesN + rentalsN >= 20 ? "high" : salesN + rentalsN >= 5 ? "medium" : "low";
     // Geo-radius STR figures are self-aggregated from a 50-listing sample around an
     // approximate center point, not AirROI's own named-market summary — cap confidence
@@ -278,6 +380,7 @@ export async function GET(request: Request) {
   await supabase.from("data_sync_log").insert([
     { service: "dld", status: dldFailures === 0 ? "success" : "partial", records_updated: recordsUpdated, started_at: startedAt, completed_at: new Date().toISOString(), error: errors.filter(e => e.startsWith("DLD")).join("; ") || null },
     { service: "airroi", status: airroiFailures === 0 ? "success" : "partial", records_updated: recordsUpdated, started_at: startedAt, completed_at: new Date().toISOString(), error: errors.filter(e => e.startsWith("AirROI")).join("; ") || null },
+    { service: "airbtics", status: airbticsFailures === 0 ? "success" : "partial", records_updated: recordsUpdated, started_at: startedAt, completed_at: new Date().toISOString(), error: errors.filter(e => e.startsWith("Airbtics")).join("; ") || null },
   ]);
 
   return NextResponse.json({ status, recordsUpdated, areasProcessed: TARGET_AREAS.length, errors });

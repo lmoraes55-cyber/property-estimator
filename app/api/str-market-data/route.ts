@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getLatestAreaStats, getAreaHistory } from "@/lib/str-market-data";
 
 // Public, read-only endpoint for the STR Market Intel page.
-// Reads ONLY from our database (str_market_area_stats) — never calls AirROI.
-// This is what keeps API costs low: AirROI is only ever called by the weekly cron job.
+// Reads ONLY from our database (str_market_area_stats) — never calls AirROI or Airbtics.
+// This is what keeps API costs low: both are only ever called by the weekly cron job.
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

@@ -120,7 +120,7 @@ export interface AirROIListingsResult {
  * (pagination.total_count is a more precise "comparable listings" figure than
  * anything /markets/summary returns). Costs an AirROI API call — cron-only.
  */
-export async function fetchAirROIListingsSample(market: AirROIMarket, pageSize = 6): Promise<AirROIListingsResult | null> {
+export async function fetchAirROIListingsSample(market: AirROIMarket, pageSize = 6, page = 1): Promise<AirROIListingsResult | null> {
   if (!AIRROI_API_KEY) {
     throw new Error("AIRROI_API_KEY is not set");
   }
@@ -138,7 +138,7 @@ export async function fetchAirROIListingsSample(market: AirROIMarket, pageSize =
         locality: market.locality,
         ...(market.district ? { district: market.district } : {}),
       },
-      page: 1,
+      page,
       page_size: pageSize,
     }),
     signal: AbortSignal.timeout(20_000),
