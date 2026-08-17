@@ -48,3 +48,5 @@ data/raw/
 
 # local scratch work (mockups, experiments)
 scratch/
+
+.superpowers/
