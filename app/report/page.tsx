@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import {
@@ -315,6 +315,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   const [showOperatorPriorities, setShowOperatorPriorities] = useState(false);
   const [operatorPriorities, setOperatorPriorities] = useState<Priority[]>([]);
   const [savedReportId, setSavedReportId] = useState<string | null>(snapshotId ?? null);
+  const reportLoggedRef = useRef(false);
 
   async function handleSave() {
     const supabase = createClient();
@@ -345,6 +346,37 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
     setSaved(true);
     if (data?.id) setSavedReportId(data.id);
   }
+
+  // Log every report generation for the admin panel — independent of whether
+  // the visitor clicks "Save". Fires once per page view.
+  useEffect(() => {
+    if (reportLoggedRef.current) return;
+    reportLoggedRef.current = true;
+    (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      try {
+        await fetch("/api/report-log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportType: "rental_analyzer",
+            userId: user?.id,
+            name: user?.user_metadata?.full_name || null,
+            email: user?.email || null,
+            phone: user?.user_metadata?.whatsapp || null,
+            buildingName: input.buildingName || input.propertyName,
+            unitSize: input.unitSize,
+            params: Object.fromEntries(params.entries()),
+            resultSnapshot: result,
+          }),
+        });
+      } catch {
+        // Non-fatal — the report itself already rendered successfully.
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleOperatorMatch(priorities: Priority[]) {
     const supabase = createClient();
