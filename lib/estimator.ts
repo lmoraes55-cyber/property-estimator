@@ -919,8 +919,17 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // stack and the minimum-advantage floor both produce their stated net advantage cleanly,
   // instead of only the floor path compensating for costs.
   const costsRatio = (annualUtilEst + annualMaintEst + furnitureAmortAnnual) / baseLTR;
-  const effectivePremium = (input.mode === "SUBLEASE_RISK" || ltrWarning)
+  // LTR-recommended areas: STR net should land at a realistic, proportional disadvantage
+  // (the area's avgOccupancyLoss, e.g. Dubai South's 22%) below LTR — not a raw fixed-AED
+  // cost subtraction. Fixed running costs (DEWA/maintenance/furniture) don't scale down
+  // with a cheaper area's LTR baseline, so subtracting them unadjusted from an unpremiumed
+  // revenue exaggerates the gap far beyond the stated occupancy loss (a real Dubai South
+  // case showed -38% net vs a documented -22% occupancy loss). Solving
+  // baseLTR*(1+premium) - costs = baseLTR*(1-avgOccupancyLoss) for premium:
+  const effectivePremium = input.mode === "SUBLEASE_RISK"
     ? totalPremium
+    : ltrWarning
+    ? costsRatio - ltrWarning.avgOccupancyLoss
     : Math.max(totalPremium, MIN_STR_NET_ADVANTAGE) + costsRatio;
 
   // Target annual STR revenue. In SUBLEASE_RISK mode a furnishing multiplier scales this
