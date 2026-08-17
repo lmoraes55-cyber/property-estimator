@@ -1,0 +1,48 @@
+import { createServiceClient } from "@/lib/supabase/service";
+import { groupContactKey } from "@/lib/admin-people";
+
+export default async function AdminPersonDetailPage({ params }: { params: Promise<{ key: string }> }) {
+  const { key } = await params;
+  const decodedKey = decodeURIComponent(key);
+  const supabase = createServiceClient();
+
+  const [leadsRes, reportsRes] = await Promise.all([
+    supabase.from("leads").select("*").order("created_at", { ascending: false }),
+    supabase.from("report_log").select("*").order("created_at", { ascending: false }),
+  ]);
+
+  const leads = (leadsRes.data ?? []).filter(l => groupContactKey(l.email, l.phone) === decodedKey);
+  const reports = (reportsRes.data ?? []).filter(r => groupContactKey(r.email, r.phone) === decodedKey);
+  const displayName = leads[0]?.name || reports[0]?.name || "(no name)";
+  const displayContact = leads[0]?.email || reports[0]?.email || leads[0]?.phone || reports[0]?.phone || "";
+
+  return (
+    <div>
+      <a href="/admin/people" style={{ fontSize: 13, color: "#6B6B6B" }}>← Back to People</a>
+      <h1 style={{ fontFamily: "Georgia, serif", fontSize: 28, color: "#1B5E4A", margin: "8px 0 4px" }}>{displayName}</h1>
+      <p style={{ color: "#6B6B6B", marginBottom: 24 }}>{displayContact}</p>
+
+      <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Reports ({reports.length})</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
+        {reports.map(r => (
+          <div key={r.id} style={{ padding: 12, background: "#fff", border: "1px solid #E6E1D8", borderRadius: 8 }}>
+            <div style={{ fontWeight: 700 }}>{r.report_type} — {r.building_name || "—"}</div>
+            <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(r.created_at).toLocaleString()}</div>
+          </div>
+        ))}
+        {reports.length === 0 && <p style={{ color: "#6B6B6B" }}>No reports.</p>}
+      </div>
+
+      <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Leads ({leads.length})</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {leads.map(l => (
+          <div key={l.id} style={{ padding: 12, background: "#fff", border: "1px solid #E6E1D8", borderRadius: 8 }}>
+            <div style={{ fontWeight: 700 }}>{l.target_type || "lead"} — {l.target || "—"}</div>
+            <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(l.created_at).toLocaleString()}</div>
+          </div>
+        ))}
+        {leads.length === 0 && <p style={{ color: "#6B6B6B" }}>No leads.</p>}
+      </div>
+    </div>
+  );
+}
