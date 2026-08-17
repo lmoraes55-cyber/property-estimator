@@ -94,108 +94,120 @@ function AgentsContent() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-14">
+      {/* Sage band gives the top of the page real depth instead of one flat tone all the way down */}
+      <div style={{ background: colors.bgSage, borderBottom: `1px solid ${colors.borderSage}` }}>
+        <div className="max-w-6xl mx-auto px-6 pt-8 pb-12 space-y-10">
 
-        {/* 1. PROPERTY SUMMARY BAR */}
-        <div className="rounded-3xl px-7 py-6" style={{
-          background: colors.bgSection,
-          border: `1px solid ${colors.border}`, boxShadow: "0 14px 36px rgba(27,94,74,0.06)",
-        }}>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="lg:pr-6" style={{ borderRight: `1px solid ${colors.border}` }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>PROPERTY</p>
-              <p className="text-lg font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{community || propertyName || "Your Property"}</p>
-              <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{unitSize} • Floor {floor} • {view}</p>
-            </div>
-            <div className="lg:px-6" style={{ borderRight: `1px solid ${colors.border}` }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>RENTAL STRATEGY</p>
-              <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "'Georgia', serif" }}>Long-Term Rental</p>
-              <p className="text-xs mt-1" style={{ color: colors.textMuted }}>Recommended for this property</p>
-            </div>
-            <div className="lg:px-6" style={{ borderRight: `1px solid ${colors.border}` }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>ESTIMATED LTR RANGE</p>
-              <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "'Georgia', serif" }}>{ltrRangeStr}</p>
-              <p className="text-xs mt-1" style={{ color: colors.textMuted }}>per year</p>
-            </div>
-            <div className="lg:pl-6">
-              <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>PROPERTY DETAILS</p>
-              <p className="text-sm font-semibold" style={{ color: colors.textMain }}>{furnished} • {unitType}</p>
-              {mgmtPct != null && <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{mgmtPct}% STR management fee</p>}
+          {/* 1. PROPERTY SUMMARY BAR */}
+          <div className="rounded-3xl px-7 py-6" style={{
+            background: colors.bgSection,
+            border: `1px solid ${colors.border}`, boxShadow: "0 14px 36px rgba(27,94,74,0.07)",
+          }}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="lg:pr-6" style={{ borderRight: `1px solid ${colors.border}` }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>PROPERTY</p>
+                <p className="text-lg font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{community || propertyName || "Your Property"}</p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{unitSize} • Floor {floor} • {view}</p>
+              </div>
+              <div className="lg:px-6" style={{ borderRight: `1px solid ${colors.border}` }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>RENTAL STRATEGY</p>
+                <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "'Georgia', serif" }}>Long-Term Rental</p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>Recommended for this property</p>
+              </div>
+              <div className="lg:px-6" style={{ borderRight: `1px solid ${colors.border}` }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>ESTIMATED LTR RANGE</p>
+                <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "'Georgia', serif" }}>{ltrRangeStr}</p>
+                <p className="text-xs mt-1" style={{ color: colors.textMuted }}>per year</p>
+              </div>
+              <div className="lg:pl-6">
+                <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>PROPERTY DETAILS</p>
+                <p className="text-sm font-semibold" style={{ color: colors.textMain }}>{furnished} • {unitType}</p>
+                {mgmtPct != null && <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{mgmtPct}% STR management fee</p>}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 2. TOP RECOMMENDED HEADING */}
-        <div>
-          <p className="text-[11px] font-bold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.14em" }}>LEASING AGENTS</p>
-          <h2 style={{ fontSize: "clamp(24px, 3.4vw, 34px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: colors.textMain, lineHeight: 1.2 }}>
-            Top Recommended Leasing Agents
-          </h2>
-          <p className="text-sm mt-2 max-w-xl" style={{ color: colors.textMuted, lineHeight: 1.65 }}>Two strongest matches based on area expertise, leasing performance, listing quality, and landlord support.</p>
-        </div>
+          {/* 2. TOP RECOMMENDED HEADING */}
+          <div>
+            <p className="text-[11px] font-bold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.14em" }}>LEASING AGENTS</p>
+            <h2 style={{ fontSize: "clamp(24px, 3.4vw, 34px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: colors.textMain, lineHeight: 1.2 }}>
+              Top Recommended Leasing Agents
+            </h2>
+            <p className="text-sm mt-2 max-w-xl" style={{ color: colors.textMuted, lineHeight: 1.65 }}>Two strongest matches based on area expertise, leasing performance, listing quality, and landlord support.</p>
+          </div>
 
-        {/* 3. TWO MAIN AGENT CARDS */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {main.map((a, i) => {
-            const accent = i === 0 ? colors.primary : colors.secondary;
-            const sc = agentScores(a);
-            return (
-              <div key={a.id} className="ai-agents-card rounded-3xl p-7 flex flex-col" style={{
-                background: colors.bgSection, border: `1px solid ${colors.border}`,
-                boxShadow: "0 16px 40px rgba(27,94,74,0.06)",
-              }}>
-                {/* Badge */}
-                <span className="inline-flex items-center gap-2 self-start px-3 py-1 rounded-full text-xs font-bold mb-5"
-                  style={{ background: `${accent}14`, color: accent, border: `1px solid ${accent}33`, letterSpacing: "0.04em" }}>
-                  <span className="px-1.5 py-0.5 rounded" style={{ background: accent, color: "#fff" }}>#{i + 1}</span>
-                  {i === 0 ? "BEST OVERALL MATCH" : "BEST ALTERNATIVE MATCH"}
-                </span>
+          {/* 3. TWO MAIN AGENT CARDS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {main.map((a, i) => {
+              const accent = i === 0 ? colors.primary : colors.secondary;
+              const sc = agentScores(a);
+              return (
+                <div key={a.id} className="ai-agents-card rounded-3xl p-7 flex flex-col" style={{
+                  background: colors.bgSection, border: `1px solid ${colors.border}`,
+                  boxShadow: "0 16px 40px rgba(27,94,74,0.06)",
+                }}>
+                  {/* Badge */}
+                  <span className="inline-flex items-center gap-2 self-start px-3 py-1 rounded-full text-xs font-bold mb-5"
+                    style={{ background: `${accent}14`, color: accent, border: `1px solid ${accent}33`, letterSpacing: "0.04em" }}>
+                    <span className="px-1.5 py-0.5 rounded" style={{ background: accent, color: "#fff" }}>#{i + 1}</span>
+                    {i === 0 ? "BEST OVERALL MATCH" : "BEST ALTERNATIVE MATCH"}
+                  </span>
 
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-5">
+                  {/* Identity row — always full width, so a wrapping name never disturbs anything beside it */}
                   <div className="flex items-start gap-4">
                     <div className="flex items-center justify-center flex-shrink-0" style={{
-                      width: "60px", height: "60px", borderRadius: "16px", background: accent, color: "#fff",
-                      fontWeight: 700, fontSize: "18px", fontFamily: "'Georgia', serif",
+                      width: "56px", height: "56px", borderRadius: "16px", background: accent, color: "#fff",
+                      fontWeight: 700, fontSize: "17px", fontFamily: "'Georgia', serif",
                     }}>{initialsOf(a.name)}</div>
-                    <div>
-                      <h3 className="text-2xl font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{a.name}</h3>
+                    <div className="min-w-0">
+                      <h3 className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif", lineHeight: 1.25 }}>{a.name}</h3>
                       <p className="text-xs mt-1" style={{ color: colors.textMuted, lineHeight: 1.5 }}>{a.title}</p>
-                      <div className="flex gap-3 mt-4">
-                        {[{ l: "LANDLORD SCORE", v: sc.landlord }, { l: "LEASING SCORE", v: sc.leasing }].map(s => (
-                          <div key={s.l} className="px-4 py-3 rounded-xl text-center" style={{ background: colors.bgMain, border: `1px solid ${colors.border}` }}>
-                            <p className="text-[10px] font-semibold mb-1" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>{s.l}</p>
-                            <p className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{s.v}<span className="text-xs font-sans" style={{ color: colors.textLight }}> /100</span></p>
-                            <div className="mt-1.5 mx-auto rounded-full" style={{ width: "28px", height: "2px", background: accent }} />
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   </div>
-                  <div className="sm:pl-5 sm:border-l" style={{ borderColor: colors.border }}>
-                    <p className="text-[10px] font-semibold mb-1" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>LEASING FEE</p>
-                    <p className="text-lg font-bold mb-4" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>5%<span className="text-xs font-normal font-sans" style={{ color: colors.textMuted }}> market standard</span></p>
-                    <p className="text-[10px] font-semibold mb-1" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>BEST FOR</p>
+
+                  {/* Three equal-width stats — same shape regardless of name length above */}
+                  <div className="grid grid-cols-3 gap-3 mt-5">
+                    {[
+                      { l: "LANDLORD", v: `${sc.landlord}`, sub: "/100" },
+                      { l: "LEASING", v: `${sc.leasing}`, sub: "/100" },
+                      { l: "FEE", v: "5%", sub: "standard" },
+                    ].map(s => (
+                      <div key={s.l} className="px-3 py-3 rounded-xl text-center" style={{ background: colors.bgMain, border: `1px solid ${colors.border}` }}>
+                        <p className="text-[10px] font-semibold mb-1" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>{s.l}</p>
+                        <p className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{s.v}</p>
+                        <p className="text-[10px] font-sans" style={{ color: colors.textLight }}>{s.sub}</p>
+                        <div className="mt-1.5 mx-auto rounded-full" style={{ width: "24px", height: "2px", background: accent }} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Best for — full width, own row */}
+                  <div className="mt-5 pt-5" style={{ borderTop: `1px solid ${colors.border}` }}>
+                    <p className="text-[10px] font-semibold mb-1.5" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>BEST FOR</p>
                     <p className="text-sm" style={{ color: colors.textMain, lineHeight: 1.5 }}>{a.specialties.slice(0, 3).join(", ")}</p>
                   </div>
-                </div>
 
-                {/* Why this match */}
-                <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${colors.border}` }}>
-                  <p className="text-[10px] font-semibold mb-1.5" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>WHY THIS MATCH</p>
-                  <p className="text-sm" style={{ color: colors.textMain, lineHeight: 1.6 }}>{a.matchReasons?.[0] ?? a.title}</p>
-                </div>
+                  {/* Why this match */}
+                  <div className="mt-5 pt-5" style={{ borderTop: `1px solid ${colors.border}` }}>
+                    <p className="text-[10px] font-semibold mb-1.5" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>WHY THIS MATCH</p>
+                    <p className="text-sm" style={{ color: colors.textMain, lineHeight: 1.6 }}>{a.matchReasons?.[0] ?? a.title}</p>
+                  </div>
 
-                {/* Contact */}
-                <button onClick={() => setLead(a.name)}
-                  className="ai-agents-contact w-full inline-flex items-center justify-center gap-2 mt-6 py-3 rounded-xl text-sm font-bold"
-                  style={{ background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`, color: "#fff", boxShadow: `0 8px 20px rgba(27,94,74,0.25)` }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5.5C4 4.7 4.7 4 5.5 4h2.6c.6 0 1.1.4 1.3 1l1 3.2c.1.5 0 1-.4 1.3l-1.6 1.3a12 12 0 0 0 5.4 5.4l1.3-1.6c.3-.4.8-.5 1.3-.4l3.2 1c.6.2 1 .7 1 1.3v2.6c0 .8-.7 1.5-1.5 1.5A15.5 15.5 0 0 1 4 5.5z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round"/></svg>
-                  Contact {a.name.split(" ")[0]}
-                </button>
-              </div>
-            );
-          })}
+                  {/* Contact */}
+                  <button onClick={() => setLead(a.name)}
+                    className="ai-agents-contact w-full inline-flex items-center justify-center gap-2 mt-6 py-3 rounded-xl text-sm font-bold"
+                    style={{ background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`, color: "#fff", boxShadow: `0 8px 20px rgba(27,94,74,0.25)` }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5.5C4 4.7 4.7 4 5.5 4h2.6c.6 0 1.1.4 1.3 1l1 3.2c.1.5 0 1-.4 1.3l-1.6 1.3a12 12 0 0 0 5.4 5.4l1.3-1.6c.3-.4.8-.5 1.3-.4l3.2 1c.6.2 1 .7 1 1.3v2.6c0 .8-.7 1.5-1.5 1.5A15.5 15.5 0 0 1 4 5.5z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round"/></svg>
+                    Contact {a.name.split(" ")[0]}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-10 space-y-14">
 
         {/* 4. OTHER AGENTS TO CONSIDER */}
         {others.length > 0 && (
