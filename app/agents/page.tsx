@@ -8,6 +8,7 @@ import type { UnitSize, UnitType } from "@/lib/estimator";
 import { colors } from "@/lib/colors";
 import AssetIntelLogo from "@/components/AssetIntelLogo";
 import LeadModal from "@/components/LeadModal";
+import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 
 type RankedAgent = RealEstateAgent & { matchScore: number; matchReasons: string[] };
 
@@ -67,7 +68,8 @@ function AgentsContent() {
     : `AED ${fmt(ltr.rent)}`;
 
   return (
-    <div className="min-h-screen" style={{ background: colors.bgMain }}>
+    <div className="min-h-screen" style={{ background: colors.bgMain, position: "relative" }}>
+      <DecorativeBackdrop />
       <style>{`
         .ai-agents-card { transition: transform 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms ease; }
         .ai-agents-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(27,94,74,0.10); border-color: rgba(184,138,68,0.4) !important; }
@@ -75,6 +77,7 @@ function AgentsContent() {
         .ai-agents-contact { transition: transform 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 180ms cubic-bezier(0.16,1,0.3,1), background 150ms ease; }
         .ai-agents-contact:focus-visible, .ai-agents-card:focus-visible { outline: 2px solid ${colors.primary}; outline-offset: 2px; }
       `}</style>
+      <div style={{ position: "relative", zIndex: 1 }}>
 
       {/* Slim header */}
       <div style={{ position: "sticky", top: 0, zIndex: 200, padding: "12px 16px" }}>
@@ -94,11 +97,9 @@ function AgentsContent() {
         </div>
       </div>
 
-      {/* Sage band gives the top of the page real depth instead of one flat tone all the way down */}
-      <div style={{ background: colors.bgSage, borderBottom: `1px solid ${colors.borderSage}` }}>
-        <div className="max-w-6xl mx-auto px-6 pt-8 pb-12 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 py-10 space-y-14">
 
-          {/* 1. PROPERTY SUMMARY BAR */}
+        {/* 1. PROPERTY SUMMARY BAR */}
           <div className="rounded-3xl px-7 py-6" style={{
             background: colors.bgSection,
             border: `1px solid ${colors.border}`, boxShadow: "0 14px 36px rgba(27,94,74,0.07)",
@@ -203,11 +204,7 @@ function AgentsContent() {
                 </div>
               );
             })}
-          </div>
         </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-14">
 
         {/* 4. OTHER AGENTS TO CONSIDER */}
         {others.length > 0 && (
@@ -290,6 +287,7 @@ function AgentsContent() {
             Agent ratings sourced from Google, Property Finder and Bayut. Match scores based on community coverage, transaction volume, and review ratings. Data updated quarterly.
           </p>
         </div>
+      </div>
       </div>
 
       <LeadModal open={!!lead} target={lead ?? ""} targetType="agent" property={propertyCtx}
