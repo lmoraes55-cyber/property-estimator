@@ -485,6 +485,11 @@ export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   "Aykon City":            { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2021, serviceChargePsf: 20, maxFloors: 79 },
   "DAMAC Maison":          { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2017, serviceChargePsf: 22, maxFloors: 52 },
   "Paramount Tower":       { community: "Business Bay", area: "Business Bay", tier: "luxury",  completionYear: 2018, serviceChargePsf: 28, maxFloors: 64 },
+  // Real DLD project (id 602078513), G+4P+22F+R, 214 units, ACTIVE per DLD as of
+  // 2026-08-16 — completionYear/serviceChargePsf not yet published, left unset
+  // rather than guessed. Tier set from real 2026 Ejari rents (Studio 50-55k, 1BR
+  // 75-85k, 2BR 108-120k AED/yr), which read solidly mid-market for Business Bay.
+  "Century":               { community: "Business Bay", area: "Business Bay", tier: "mid",     completionYear: 2026, maxFloors: 22 },
   // DIFC
   "Index Tower":              { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2011, serviceChargePsf: 25, maxFloors: 80 },
   "Liberty House":            { community: "DIFC", area: "DIFC", tier: "luxury", completionYear: 2009, serviceChargePsf: 22, maxFloors: 38 },
