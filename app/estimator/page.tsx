@@ -404,7 +404,7 @@ function EstimatorPage() {
 
   const handleGenerate = () => {
     if (!canGenerate) return;
-    const warning = getLTRWarning(form.buildingName, form.unitSize as UnitSize);
+    const warning = getLTRWarning(form.buildingName, form.unitSize as UnitSize, form.dldArea);
     if (warning) { setLtrWarning(warning); return; }
     navigate(buildParams());
   };

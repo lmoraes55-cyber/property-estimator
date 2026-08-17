@@ -192,14 +192,24 @@ export function isMonthlyStayStudio(buildingName: string, unitSize?: UnitSize): 
 }
 
 // Check if a building or manually typed area is in an LTR-recommended zone
-export function getLTRWarning(buildingName: string, unitSize?: UnitSize): LTRAreaWarning | null {
+export function getLTRWarning(buildingName: string, unitSize?: UnitSize, dldArea?: string): LTRAreaWarning | null {
   // Studios/1BR in monthly-stay value areas perform well via monthly stays —
   // don't steer them to LTR.
   if (isMonthlyStayStudio(buildingName, unitSize)) return null;
   // Check building directory first
   const info = BUILDING_DIRECTORY[buildingName];
   if (info) {
-    return LTR_RECOMMENDED_AREAS[info.community] ?? null;
+    const warning = LTR_RECOMMENDED_AREAS[info.community];
+    if (warning) return warning;
+  }
+  // Most real properties are selected via DLD autocomplete, not the curated
+  // BUILDING_DIRECTORY — resolve the real DLD administrative area to its
+  // community the same way getLTRMarketRent does, so LTR-dominant areas are
+  // recognized regardless of whether the building has a directory entry.
+  if (dldArea) {
+    const community = DLD_AREA_TO_COMMUNITY[dldArea] ?? dldArea;
+    const warning = LTR_RECOMMENDED_AREAS[community];
+    if (warning) return warning;
   }
   // Fuzzy match on the typed name itself against area keys
   const lower = buildingName.toLowerCase();
@@ -836,7 +846,7 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // For LTR-recommended areas, eliminate the base premium and reduce occupancy
   // so STR net revenue matches LTR rent (making the recommendation logical).
   // Studios/1BR in monthly-stay value areas are exempt (handled below).
-  const ltrWarning = getLTRWarning(buildingName, unitSize);
+  const ltrWarning = getLTRWarning(buildingName, unitSize, input.dldArea);
   const basePremium = ltrWarning ? 0 : premium;
 
   // STR demand profile by location + unit (prime, strong, value-monthly). Skipped in LTR areas.
