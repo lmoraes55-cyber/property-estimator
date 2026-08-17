@@ -109,6 +109,7 @@ export default function DashboardPage() {
   const [properties, setProperties] = useState<PropertyCard[]>([]);
   const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<{ is_admin: boolean } | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -118,6 +119,9 @@ export default function DashboardPage() {
 
       const fullName = user.user_metadata?.full_name || user.email || "";
       setFirstName(fullName.split(" ")[0] || "");
+
+      const { data: profileData } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
+      setProfile(profileData);
 
       const [
         { count: pCount },
@@ -254,6 +258,11 @@ export default function DashboardPage() {
             >
               Add Property <ArrowIcon />
             </a>
+            {profile?.is_admin && (
+              <a href="/admin/people" style={{ fontSize: 13, fontWeight: 600, color: "#B88A44", marginLeft: 14 }}>
+                Admin
+              </a>
+            )}
           </div>
 
           <div style={{
