@@ -566,6 +566,14 @@ function EstimatorPage() {
                         )}
                       </div>
                     )}
+                    {showSuggestions && buildingSearch.length >= 2 && filteredDLD.length === 0 && filteredCurated.length === 0 && propsearchSuggestions.length === 0 && (
+                      <div className="absolute z-20 w-full mt-1 rounded-2xl px-4 py-3 text-sm shadow-2xl"
+                        style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, color: colors.textMuted }}>
+                        Can't find your building? Email us at{" "}
+                        <a href="mailto:hello@assetintel.ae" style={{ color: colors.primary, fontWeight: 600 }}>hello@assetintel.ae</a>
+                        {" "}and we'll send you a personalised report.
+                      </div>
+                    )}
                     {showSuggestions && buildingSearch.length >= 2 && (filteredDLD.length > 0 || filteredCurated.length > 0 || propsearchSuggestions.length > 0) && (
                       <div className="absolute z-20 w-full mt-1 rounded-2xl overflow-hidden shadow-2xl"
                         style={{ background: colors.bgSection, border: `1px solid ${colors.border}` }}>
