@@ -1,5 +1,22 @@
 import { createServiceClient } from "@/lib/supabase/service";
 
+/**
+ * Net income figure for a report_log row, if one was captured. Rental
+ * Analyzer stores the full estimator output in result_snapshot
+ * (annualNetToLandlord); STR Sub-Leasing stores the email summary in
+ * params (strNetPerYear). Operator Match has no net-income concept.
+ */
+export function reportNetIncome(row: { params: unknown; result_snapshot: unknown }): number | null {
+  const snapshot = row.result_snapshot as Record<string, unknown> | null;
+  if (snapshot && typeof snapshot.annualNetToLandlord === "number") return snapshot.annualNetToLandlord;
+  const params = row.params as Record<string, unknown> | null;
+  if (params && typeof params.strNetPerYear === "string") {
+    const n = Number(params.strNetPerYear.replace(/,/g, ""));
+    if (!Number.isNaN(n)) return n;
+  }
+  return null;
+}
+
 export interface PersonSummary {
   key: string;
   name: string | null;

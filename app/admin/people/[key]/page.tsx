@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { groupContactKey } from "@/lib/admin-people";
+import { groupContactKey, reportNetIncome } from "@/lib/admin-people";
 
 export default async function AdminPersonDetailPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
@@ -24,12 +24,20 @@ export default async function AdminPersonDetailPage({ params }: { params: Promis
 
       <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Reports ({reports.length})</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
-        {reports.map(r => (
-          <div key={r.id} style={{ padding: 12, background: "#fff", border: "1px solid #E6E1D8", borderRadius: 8 }}>
-            <div style={{ fontWeight: 700 }}>{r.report_type} — {r.building_name || "—"}</div>
-            <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(r.created_at).toLocaleString()}</div>
-          </div>
-        ))}
+        {reports.map(r => {
+          const netIncome = reportNetIncome(r);
+          return (
+            <div key={r.id} style={{ padding: 12, background: "#fff", border: "1px solid #E6E1D8", borderRadius: 8, display: "flex", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontWeight: 700 }}>{r.report_type} — {r.building_name || "—"}</div>
+                <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(r.created_at).toLocaleString()}</div>
+              </div>
+              {netIncome !== null && (
+                <div style={{ fontWeight: 700, color: "#1B5E4A", alignSelf: "center" }}>AED {netIncome.toLocaleString()}/yr</div>
+              )}
+            </div>
+          );
+        })}
         {reports.length === 0 && <p style={{ color: "#6B6B6B" }}>No reports.</p>}
       </div>
 

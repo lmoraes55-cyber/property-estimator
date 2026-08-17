@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { groupContactKey } from "@/lib/admin-people";
+import { groupContactKey, reportNetIncome } from "@/lib/admin-people";
 
 const TYPE_LABELS: Record<string, string> = {
   rental_analyzer: "Rental Analyzer",
@@ -31,13 +31,19 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
       <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "#E6E1D8" }}>
         {(reports ?? []).map(r => {
           const key = groupContactKey(r.email, r.phone);
+          const netIncome = reportNetIncome(r);
           const rowContent = (
             <>
               <div>
                 <div style={{ fontWeight: 700 }}>{TYPE_LABELS[r.report_type] || r.report_type} — {r.building_name || "—"}</div>
                 <div style={{ fontSize: 12, color: "#6B6B6B" }}>{r.name || r.email || "—"}</div>
               </div>
-              <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(r.created_at).toLocaleString()}</div>
+              <div style={{ textAlign: "right" as const }}>
+                {netIncome !== null && (
+                  <div style={{ fontWeight: 700, color: "#1B5E4A" }}>AED {netIncome.toLocaleString()}/yr</div>
+                )}
+                <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(r.created_at).toLocaleString()}</div>
+              </div>
             </>
           );
           const rowStyle = { display: "flex" as const, justifyContent: "space-between" as const, padding: "12px 16px", background: "#fff", textDecoration: "none", color: "#1A1A1A" };
