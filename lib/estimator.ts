@@ -159,6 +159,12 @@ export const LTR_RECOMMENDED_AREAS: Record<string, LTRAreaWarning> = {
   "Remraam":       { reason: "Gated community far from attractions — STR demand is very limited.", avgOccupancyLoss: 0.23, stillPossible: true },
   "DAMAC Hills":   { reason: "Villa community with distance from tourist areas — STR yields are moderate.", avgOccupancyLoss: 0.12, stillPossible: true },
   "Town Square":   { reason: "New developing area with limited short-term rental guest demand currently.", avgOccupancyLoss: 0.20, stillPossible: true },
+  "Warsan":        { reason: "Industrial-adjacent, family-residential community with minimal tourist STR demand.", avgOccupancyLoss: 0.26, stillPossible: true },
+  "Liwan":         { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.24, stillPossible: true },
+  "Dubai Land Residence Complex": { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.24, stillPossible: true },
+  "Arabian Ranches": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.17, stillPossible: true },
+  "JVT":           { reason: "Family-oriented townhouse/villa community with limited short-term guest demand.", avgOccupancyLoss: 0.18, stillPossible: true },
+  "Majan":         { reason: "Emerging Dubailand-adjacent community, far from tourist hubs — low short-term demand.", avgOccupancyLoss: 0.23, stillPossible: true },
 };
 
 // Value communities where operators run STR profitably on MONTHLY stays —

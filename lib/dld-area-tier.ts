@@ -22,7 +22,6 @@ export const DLD_AREA_TIER: Record<string, STRTierCategory> = {
   "Al Wasl": "prime-str",
 
   // Selective — can work with the right unit/view, urban/growth areas
-  "Al Barsha South Fourth": "selective-str",  // JVT
   "Al Barshaa South Third": "selective-str",  // Arjan
   "Al Barshaa South Second": "selective-str",
   "Al Barsha South Fifth": "selective-str",
@@ -58,6 +57,10 @@ export const DLD_AREA_TIER: Record<string, STRTierCategory> = {
   "Al Merkadh": "ltr-preferred",
   "Nadd Hessa": "ltr-preferred",
   "Madinat Dubai Almelaheyah": "ltr-preferred", // Port/industrial-adjacent
+  "Al Barsha South Fourth": "ltr-preferred",  // JVT — family townhouse/villa community
+  "Wadi Al Safa 6": "ltr-preferred",          // Arabian Ranches
+  "Wadi Al Safa 7": "ltr-preferred",          // Arabian Ranches
+  "Al Yelayiss 2": "ltr-preferred",           // Town Square
 
   // Needs verification — mixed-use/emerging areas without a clear existing STR read
   "Palm Deira": "needs-verification",         // Deira Islands, still emerging as an STR market
