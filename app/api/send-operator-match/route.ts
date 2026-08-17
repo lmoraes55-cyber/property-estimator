@@ -268,13 +268,14 @@ export async function POST(request: Request) {
     // Best-effort report log for the admin panel — never blocks the email send.
     try {
       const logSupabase = createServiceClient();
-      await logSupabase.from("report_log").insert({
+      const { error } = await logSupabase.from("report_log").insert({
         report_type: "operator_match",
         name: name || null,
         email,
         building_name: buildingName || null,
         params: { priorities: priorities ?? [] },
       });
+      if (error) console.error("[OPERATOR-MATCH] report_log insert failed:", error.message);
     } catch (e) {
       console.error("[OPERATOR-MATCH] report_log insert failed:", (e as Error).message);
     }

@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   // never blocks the response or the webhook above.
   try {
     const supabase = createServiceClient();
-    await supabase.from("leads").insert({
+    const { error } = await supabase.from("leads").insert({
       ref: lead.ref,
       name: lead.name,
       email: lead.email || null,
@@ -108,6 +108,7 @@ export async function POST(request: Request) {
       recommendation: lead.recommendation || null,
       form_data: lead,
     });
+    if (error) console.error("[AI-LEAD] Supabase insert failed:", error.message);
   } catch (e) {
     console.error("[AI-LEAD] Supabase insert failed:", (e as Error).message);
   }

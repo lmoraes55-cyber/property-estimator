@@ -161,13 +161,14 @@ export async function POST(request: Request) {
     // Best-effort report log for the admin panel — never blocks the email send.
     try {
       const logSupabase = createServiceClient();
-      await logSupabase.from("report_log").insert({
+      const { error } = await logSupabase.from("report_log").insert({
         report_type: "str_subleasing",
         email,
         building_name: building,
         unit_size: unitSize,
         params: summary,
       });
+      if (error) console.error("[AI-REPORT] report_log insert failed:", error.message);
     } catch (e) {
       console.error("[AI-REPORT] report_log insert failed:", (e as Error).message);
     }

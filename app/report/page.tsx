@@ -350,7 +350,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   // Log every report generation for the admin panel — independent of whether
   // the visitor clicks "Save". Fires once per page view.
   useEffect(() => {
-    if (reportLoggedRef.current) return;
+    if (reportLoggedRef.current || snapshotId) return;
     reportLoggedRef.current = true;
     (async () => {
       const supabase = createClient();
