@@ -515,6 +515,40 @@ export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   "Emaar Beachfront":      { community: "Emaar Beachfront", area: "Dubai Harbour", tier: "luxury",       completionYear: 2021, serviceChargePsf: 22, maxFloors: 26 },
   "Beach Vista":           { community: "Emaar Beachfront", area: "Dubai Harbour", tier: "luxury",       completionYear: 2021, serviceChargePsf: 22, maxFloors: 26 },
   "Palace Beach Residence":{ community: "Emaar Beachfront", area: "Dubai Harbour", tier: "ultra-luxury", completionYear: 2022, serviceChargePsf: 28, maxFloors: 25 },
+
+  // 2026-handover-tracked projects confirmed to already have real, recent (last 180
+  // days) new Ejari residential leases as of 2026-08-16, despite DLD's own
+  // percent_completed/status still showing them as under-construction — same stale-
+  // completion pattern found for Century. completionYear=2026 since that's the tracked
+  // target end date; serviceChargePsf/maxFloors not yet published, left unset rather
+  // than guessed. Tier set from area convention (no per-project rent data pulled for
+  // this batch, only lease *counts*), not from confirmed pricing.
+  "NAS3":                              { community: "Arjan", area: "Arjan", tier: "mid", completionYear: 2026 },
+  "Royal Regency":                     { community: "Business Bay", area: "Business Bay", tier: "luxury", completionYear: 2026 },
+  "Creek Beach - Savanna-Cedar-Mangrove": { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury", completionYear: 2026 },
+  "Hills Park":                        { community: "Dubai Hills Estate", area: "Dubai Hills Estate", tier: "luxury", completionYear: 2026 },
+  "Condor Golf Links 18":              { community: "Sports City", area: "Sports City", tier: "mid", completionYear: 2026 },
+  "Park Horizon":                      { community: "Dubai Hills Estate", area: "Dubai Hills Estate", tier: "luxury", completionYear: 2026 },
+  "Luma Park Views":                   { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Sobha Hartland - Crest Grande":     { community: "MBR City", area: "MBR City", tier: "luxury", completionYear: 2026 },
+  "Park Lane 2 by Heilbronn":          { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Creek Beach - Canopy - Moor":       { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury", completionYear: 2026 },
+  "Milestone Residences":              { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Pearl House III by Imtiaz":         { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Azizi Riviera 69":                  { community: "MBR City", area: "MBR City", tier: "luxury", completionYear: 2026 },
+  "ZaZEN Ivy":                         { community: "Al Furjan", area: "Al Furjan", tier: "mid", completionYear: 2026 },
+  "Living Legends Phase 6":            { community: "Living Legends", area: "Living Legends", tier: "mid", completionYear: 2026 },
+  "FH Residency":                      { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Erin":                              { community: "Citywalk", area: "Citywalk", tier: "luxury", completionYear: 2026 },
+  "Golf Residences by Fortimo":        { community: "Dubai Hills Estate", area: "Dubai Hills Estate", tier: "luxury", completionYear: 2026 },
+  "Peninsula Four":                    { community: "Business Bay", area: "Business Bay", tier: "luxury", completionYear: 2026 },
+  "Beach Walk Residences 1":           { community: "Palm Deira", area: "Palm Deira", tier: "mid", completionYear: 2026 },
+  "Golf Heights":                      { community: "JLT", area: "JLT", tier: "mid", completionYear: 2026 },
+  "Tulip Oasis 10":                    { community: "Living Legends", area: "Living Legends", tier: "mid", completionYear: 2026 },
+  "Celine By Vision":                  { community: "Liwan", area: "Liwan", tier: "mid", completionYear: 2026 },
+  "Binghatti Apex":                    { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Volna By Kasco":                    { community: "Al Jadaf", area: "Al Jadaf", tier: "mid", completionYear: 2026 },
+  "The Cove ll":                       { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury", completionYear: 2026 },
 };
 
 // Monthly AC (district cooling / chiller) costs by unit size
