@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic"; // never cache lead submissions
 
@@ -87,6 +88,28 @@ export async function POST(request: Request) {
     } catch (e) {
       console.error("[AI-LEAD] webhook forward failed:", (e as Error).message);
     }
+  }
+
+  // Best-effort copy into Supabase so leads are visible in the admin panel —
+  // never blocks the response or the webhook above.
+  try {
+    const supabase = createServiceClient();
+    await supabase.from("leads").insert({
+      ref: lead.ref,
+      name: lead.name,
+      email: lead.email || null,
+      phone: lead.phone || null,
+      source: lead.source,
+      target: lead.target || null,
+      target_type: lead.targetType || null,
+      property: lead.property || null,
+      building: lead.building || null,
+      community: lead.community || null,
+      recommendation: lead.recommendation || null,
+      form_data: lead,
+    });
+  } catch (e) {
+    console.error("[AI-LEAD] Supabase insert failed:", (e as Error).message);
   }
 
   return NextResponse.json({ ok: true, ref });
