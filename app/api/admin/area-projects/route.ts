@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const { results } = await ddaQuery<Record<string, unknown>>({
       entity: "dld",
       dataset: "dld_projects-open-api",
-      filters: { area_name_en: area, project_status: "Completed" },
+      filters: { area_name_en: area, project_status: "FINISHED" },
       pageSize: 20,
     });
     return NextResponse.json({ area, count: results?.length ?? 0, results });
