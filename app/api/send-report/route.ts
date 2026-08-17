@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
 
@@ -156,6 +157,20 @@ export async function POST(request: Request) {
         },
       ],
     });
+
+    // Best-effort report log for the admin panel — never blocks the email send.
+    try {
+      const logSupabase = createServiceClient();
+      await logSupabase.from("report_log").insert({
+        report_type: "str_subleasing",
+        email,
+        building_name: building,
+        unit_size: unitSize,
+        params: summary,
+      });
+    } catch (e) {
+      console.error("[AI-REPORT] report_log insert failed:", (e as Error).message);
+    }
 
     // Notify internal inbox
     await resend.emails.send({
