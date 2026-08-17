@@ -331,28 +331,40 @@ export function computeLTRStats(contracts: DLDRentContract[]): LTRStat | null {
  *   - "AT NAME" prefix added/missing in DLD
  *   - Trailing number stripped from group search
  */
+// Builds the same set of name transformations (BLVD swap, AT-prefix, BY-suffix
+// strip, trailing-token strip) for one base string.
+function nameTransforms(base: string): string[] {
+  const out = new Set<string>();
+  out.add(base);
+
+  const withBlvd = base.replace(/\bBOULEVARD\b/gi, "BLVD");
+  const withBoulevard = base.replace(/\bBLVD\b/gi, "BOULEVARD");
+  if (withBlvd !== base) out.add(withBlvd);
+  if (withBoulevard !== base) out.add(withBoulevard);
+
+  out.add(`AT ${base}`);
+
+  const withoutBy = base.replace(/\s+BY\s+\S+.*$/i, "").trim();
+  if (withoutBy !== base && withoutBy.length >= 4) out.add(withoutBy);
+
+  const withoutSuffix = base.replace(/\s+\S+$/, "").trim();
+  if (withoutSuffix !== base && withoutSuffix.length >= 5) out.add(withoutSuffix);
+
+  return [...out];
+}
+
 function buildDLDVariants(displayName: string): string[] {
-  const upper = displayName.toUpperCase().trim();
-  const variants = new Set<string>();
+  const trimmed = displayName.trim();
+  const upper = trimmed.toUpperCase();
 
-  variants.add(upper);
-
-  // Abbreviation: BOULEVARD ↔ BLVD
-  const withBlvd = upper.replace(/\bBOULEVARD\b/g, "BLVD");
-  const withBoulevard = upper.replace(/\bBLVD\b/g, "BOULEVARD");
-  if (withBlvd !== upper) variants.add(withBlvd);
-  if (withBoulevard !== upper) variants.add(withBoulevard);
-
-  // "AT <NAME>" — DLD sometimes prefixes with AT
-  variants.add(`AT ${upper}`);
-
-  // Strip "BY <DEVELOPER>" suffix DLD may not store
-  const withoutBy = upper.replace(/\s+BY\s+\S+.*$/, "").trim();
-  if (withoutBy !== upper && withoutBy.length >= 4) variants.add(withoutBy);
-
-  // Strip trailing single token (phase number, letter) for group match
-  const withoutSuffix = upper.replace(/\s+\S+$/, "").trim();
-  if (withoutSuffix !== upper && withoutSuffix.length >= 5) variants.add(withoutSuffix);
+  // DLD's LIKE matching is case-sensitive and its own project-name casing is
+  // inconsistent — most projects are stored ALL CAPS, but some (e.g. "Century")
+  // are stored in title case. Confirmed live: LIKE 'CENTURY%' returned 0 rows
+  // while LIKE 'Century%' returned 32 for the same real project, because this
+  // function used to uppercase unconditionally. Try the name as typed/displayed
+  // first (title case is the more common natural display form), then uppercase,
+  // so both DLD casing conventions get a real shot.
+  const variants = new Set<string>([...nameTransforms(trimmed), ...nameTransforms(upper)]);
 
   return [...variants];
 }
