@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { jsPDF } from "jspdf";
 import { rankOperators, Priority, MatchedOperator, PRIORITY_OPTIONS } from "@/lib/operator-match";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
 
@@ -263,6 +264,21 @@ export async function POST(request: Request) {
         ? [{ filename: "AssetIntel-Operator-Match.pdf", content: pdfBase64 }]
         : undefined,
     });
+
+    // Best-effort report log for the admin panel — never blocks the email send.
+    try {
+      const logSupabase = createServiceClient();
+      await logSupabase.from("report_log").insert({
+        report_type: "operator_match",
+        name: name || null,
+        email,
+        building_name: buildingName || null,
+        params: { priorities: priorities ?? [] },
+      });
+    } catch (e) {
+      console.error("[OPERATOR-MATCH] report_log insert failed:", (e as Error).message);
+    }
+
     resend.emails.send({
       from: FROM,
       to: [NOTIFY],
