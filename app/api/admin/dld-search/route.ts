@@ -20,6 +20,16 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const name = searchParams.get("name") || "";
+  const projectId = searchParams.get("projectId");
+
+  if (projectId) {
+    const { results } = await ddaQuery({
+      entity: "dld", dataset: "dld_projects-open-api",
+      filters: { project_id: projectId },
+      pageSize: 1,
+    });
+    return NextResponse.json({ results });
+  }
 
   const { results } = await ddaQuery<UnitRow>({
     entity: "dld", dataset: "dld_units-open-api",
