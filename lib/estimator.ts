@@ -163,6 +163,7 @@ export const LTR_RECOMMENDED_AREAS: Record<string, LTRAreaWarning> = {
   "Liwan":         { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.24, stillPossible: true },
   "Dubai Land Residence Complex": { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.24, stillPossible: true },
   "Arabian Ranches": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.17, stillPossible: true },
+  "Arabian Ranches 3": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.17, stillPossible: true },
   "JVT":           { reason: "Family-oriented townhouse/villa community with limited short-term guest demand.", avgOccupancyLoss: 0.18, stillPossible: true },
   "Majan":         { reason: "Emerging Dubailand-adjacent community, far from tourist hubs — low short-term demand.", avgOccupancyLoss: 0.23, stillPossible: true },
 };
