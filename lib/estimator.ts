@@ -154,6 +154,7 @@ export interface LTRAreaWarning {
 export const LTR_RECOMMENDED_AREAS: Record<string, LTRAreaWarning> = {
   "Dubai South":   { reason: "Low tourist footfall and limited short-term demand in this corridor.", avgOccupancyLoss: 0.094, stillPossible: true },
   "Furjan":        { reason: "Predominantly residential community with low STR guest demand.", avgOccupancyLoss: 0.091, stillPossible: true },
+  "Al Furjan":     { reason: "Predominantly residential community with low STR guest demand.", avgOccupancyLoss: 0.091, stillPossible: true },
   "Arjan":         { reason: "Emerging area with oversupply and low nightly rates for short-term.", avgOccupancyLoss: 0.089, stillPossible: true },
   "DAMAC Hills 2": { reason: "Remote location from tourist hubs limits STR occupancy significantly.", avgOccupancyLoss: 0.099, stillPossible: true },
   "Dubailand":     { reason: "Far from key attractions — guests prefer more central locations.", avgOccupancyLoss: 0.097, stillPossible: true },
