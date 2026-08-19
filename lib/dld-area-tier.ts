@@ -28,7 +28,7 @@ export const DLD_AREA_TIER: Record<string, STRTierCategory> = {
   "Al Barsha First": "selective-str",
   "Al Thanyah Fifth": "selective-str",        // JLT
   "Al Thanyah Third": "selective-str",
-  "Al Hebiah Second": "selective-str",        // JVC
+  "Al Hebiah Second": "selective-str",        // Studio City
   "Al Hebiah Fourth": "selective-str",        // Dubai Sports City
   "Al Hebiah Sixth": "selective-str",
   "Al Hebiah First": "selective-str",
@@ -57,7 +57,7 @@ export const DLD_AREA_TIER: Record<string, STRTierCategory> = {
   "Al Merkadh": "ltr-preferred",
   "Nadd Hessa": "ltr-preferred",
   "Madinat Dubai Almelaheyah": "ltr-preferred", // Port/industrial-adjacent
-  "Al Barsha South Fourth": "ltr-preferred",  // JVT — family townhouse/villa community
+  "Hessyan First": "ltr-preferred",           // JVT — family townhouse/villa community (Al Barsha South Fourth is JVC, not JVT — corrected)
   "Wadi Al Safa 6": "ltr-preferred",          // Arabian Ranches
   "Wadi Al Safa 7": "ltr-preferred",          // Arabian Ranches
   "Al Yelayiss 2": "ltr-preferred",           // Town Square
