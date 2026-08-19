@@ -88,7 +88,7 @@ export const SUBLEASE_AREA_SUITABILITY = {
     "Al Quoz",
     "Mirdif",
     "Al Nahda",
-    "Motor City",
+    "Uptown Motor City",
     "Muhaisnah",
     "Al Quoz Industrial",
     "Jumeirah Village Triangle",

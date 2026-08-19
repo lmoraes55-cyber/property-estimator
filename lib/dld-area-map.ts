@@ -64,7 +64,7 @@ export const DLD_AREA_TO_COMMUNITY: Record<string, string> = {
   "Me'Aisem First":                   "IMPZ",
 
   // Motor City / Studio City / Sports City / DAMAC Hills
-  "Al Hebiah First":                  "Motor City",
+  "Al Hebiah First":                  "Uptown Motor City",
   "Al Hebiah Second":                 "Studio City",
   "Al Hebiah Third":                  "DAMAC Hills",
   "Al Hebiah Fourth":                 "Sports City",

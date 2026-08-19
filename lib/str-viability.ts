@@ -28,7 +28,7 @@ const AREA_EXCLUSIONS: Record<string, string> = {
   "Mirdif":             "Suburban family community; not a tourist or short-stay destination.",
   "Al Nahda":           "Budget residential area with insufficient nightly rate potential.",
   "Dubai Investment Park": "Far from attractions; primarily industrial and residential workers.",
-  "Motor City":         "Isolated suburban community; low STR occupancy reported.",
+  "Uptown Motor City":  "Isolated suburban community; low STR occupancy reported.",
   "Sports City":        "Transient demand only during events; base occupancy is too low.",
   "Al Warsan":          "Budget residential; STR market essentially non-existent.",
   "Muhaisnah":          "No tourism draw; primarily long-term worker accommodation.",

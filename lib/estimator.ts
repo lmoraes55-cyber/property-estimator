@@ -148,24 +148,28 @@ export interface LTRAreaWarning {
   stillPossible: boolean;   // can owner still do STR if they want flexibility?
 }
 
+// Occupancy-loss values are compressed into an 8-10% band — enough to make LTR
+// the sounder recommendation without an implausibly large STR shortfall — while
+// preserving each area's relative ranking from the original wider assessment.
 export const LTR_RECOMMENDED_AREAS: Record<string, LTRAreaWarning> = {
-  "Dubai South":   { reason: "Low tourist footfall and limited short-term demand in this corridor.", avgOccupancyLoss: 0.22, stillPossible: true },
-  "Furjan":        { reason: "Predominantly residential community with low STR guest demand.", avgOccupancyLoss: 0.20, stillPossible: true },
-  "Arjan":         { reason: "Emerging area with oversupply and low nightly rates for short-term.", avgOccupancyLoss: 0.18, stillPossible: true },
-  "DAMAC Hills 2": { reason: "Remote location from tourist hubs limits STR occupancy significantly.", avgOccupancyLoss: 0.25, stillPossible: true },
-  "Dubailand":     { reason: "Far from key attractions — guests prefer more central locations.", avgOccupancyLoss: 0.24, stillPossible: true },
-  "International City": { reason: "Low ADR ceiling and limited STR demand in this community.", avgOccupancyLoss: 0.26, stillPossible: true },
-  "Discovery Gardens": { reason: "Mostly long-term resident community with limited tourist traffic.", avgOccupancyLoss: 0.19, stillPossible: true },
-  "Remraam":       { reason: "Gated community far from attractions — STR demand is very limited.", avgOccupancyLoss: 0.23, stillPossible: true },
-  "DAMAC Hills":   { reason: "Villa community with distance from tourist areas — STR yields are moderate.", avgOccupancyLoss: 0.12, stillPossible: true },
-  "Town Square":   { reason: "New developing area with limited short-term rental guest demand currently.", avgOccupancyLoss: 0.20, stillPossible: true },
-  "Warsan":        { reason: "Industrial-adjacent, family-residential community with minimal tourist STR demand.", avgOccupancyLoss: 0.26, stillPossible: true },
-  "Liwan":         { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.24, stillPossible: true },
-  "Dubai Land Residence Complex": { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.24, stillPossible: true },
-  "Arabian Ranches": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.17, stillPossible: true },
-  "Arabian Ranches 3": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.17, stillPossible: true },
-  "JVT":           { reason: "Family-oriented townhouse/villa community with limited short-term guest demand.", avgOccupancyLoss: 0.18, stillPossible: true },
-  "Majan":         { reason: "Emerging Dubailand-adjacent community, far from tourist hubs — low short-term demand.", avgOccupancyLoss: 0.23, stillPossible: true },
+  "Dubai South":   { reason: "Low tourist footfall and limited short-term demand in this corridor.", avgOccupancyLoss: 0.094, stillPossible: true },
+  "Furjan":        { reason: "Predominantly residential community with low STR guest demand.", avgOccupancyLoss: 0.091, stillPossible: true },
+  "Arjan":         { reason: "Emerging area with oversupply and low nightly rates for short-term.", avgOccupancyLoss: 0.089, stillPossible: true },
+  "DAMAC Hills 2": { reason: "Remote location from tourist hubs limits STR occupancy significantly.", avgOccupancyLoss: 0.099, stillPossible: true },
+  "Dubailand":     { reason: "Far from key attractions — guests prefer more central locations.", avgOccupancyLoss: 0.097, stillPossible: true },
+  "International City": { reason: "Low ADR ceiling and limited STR demand in this community.", avgOccupancyLoss: 0.100, stillPossible: true },
+  "Discovery Gardens": { reason: "Mostly long-term resident community with limited tourist traffic.", avgOccupancyLoss: 0.090, stillPossible: true },
+  "Remraam":       { reason: "Gated community far from attractions — STR demand is very limited.", avgOccupancyLoss: 0.096, stillPossible: true },
+  "DAMAC Hills":   { reason: "Villa community with distance from tourist areas — STR yields are moderate.", avgOccupancyLoss: 0.080, stillPossible: true },
+  "Town Square":   { reason: "New developing area with limited short-term rental guest demand currently.", avgOccupancyLoss: 0.091, stillPossible: true },
+  "Warsan":        { reason: "Industrial-adjacent, family-residential community with minimal tourist STR demand.", avgOccupancyLoss: 0.100, stillPossible: true },
+  "Liwan":         { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.097, stillPossible: true },
+  "Dubai Land Residence Complex": { reason: "Budget family-residential community away from tourist hubs — LTR is the dominant use.", avgOccupancyLoss: 0.097, stillPossible: true },
+  "Arabian Ranches": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.087, stillPossible: true },
+  "Arabian Ranches 3": { reason: "Established villa community geared toward long-term family residents, not tourist stays.", avgOccupancyLoss: 0.087, stillPossible: true },
+  "JVT":           { reason: "Family-oriented townhouse/villa community with limited short-term guest demand.", avgOccupancyLoss: 0.089, stillPossible: true },
+  "Majan":         { reason: "Emerging Dubailand-adjacent community, far from tourist hubs — low short-term demand.", avgOccupancyLoss: 0.096, stillPossible: true },
+  "Uptown Motor City": { reason: "Isolated suburban community with low reported STR guest demand.", avgOccupancyLoss: 0.093, stillPossible: true },
 };
 
 // Value communities where operators run STR profitably on MONTHLY stays —
