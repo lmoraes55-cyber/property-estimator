@@ -30,7 +30,10 @@ function _normalize(name: string): string {
 export function resolveDLDName(displayName: string): string | null {
   if (!displayName) return null;
   let key = _normalize(displayName);
-  while (key.length >= 4) {
+  // Only strip while ≥2 words remain — collapsing to a single generic word
+  // (e.g. "burj crown" → "burj") risks colliding with an unrelated project
+  // that happens to map from that bare word.
+  while (key.includes(" ")) {
     const mapped = DLD_NAME_MAP[key];
     if (mapped) return mapped;
     const shorter = key.replace(/\s+\S+$/, "").trim();
