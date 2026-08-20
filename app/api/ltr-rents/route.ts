@@ -11,6 +11,7 @@ import {
   fetchAreaContracts,
   computeLTRStats,
   dldBedroomBucket,
+  resolveDLDName,
   type LTRStat,
   type DLDRentContract,
 } from "@/lib/dda-client";
@@ -158,7 +159,12 @@ export async function GET(request: Request) {
       }
 
       // Pass 2: fall back to bedroom-bucket only (no size band) if pass 1 came up short.
-      if (!stat) {
+      // Skip entirely when `project` isn't a resolvable DLD project name and an
+      // `area` was given — the variant search below is guaranteed to fail for
+      // community/area names (e.g. "Liwan"), so go straight to Pass 3 instead
+      // of burning up to 7 sequential DDA round-trips first.
+      const skipPass2 = !resolveDLDName(project) && !!area;
+      if (!stat && !skipPass2) {
         for (const daysBack of WINDOWS) {
           const contracts = await fetchProjectContracts(project, { daysBack });
           const allBedroomContracts = bedroomContractsFor(contracts);
