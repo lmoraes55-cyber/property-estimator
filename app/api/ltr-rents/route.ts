@@ -33,10 +33,18 @@ export interface RecentContract {
 }
 
 // ── In-process cache (1 h TTL — short enough to stay fresh for 30-day window) ──
+// Which pass actually produced the result — surfaced in the response so a
+// mismatch (e.g. a well-known building silently falling to an area-wide
+// average) is visible and debuggable, not hidden behind a plausible-looking
+// number. "area" means the figure is pooled across the whole community, not
+// specific to the requested building — never present that as building-level.
+type MatchLevel = "building-sized" | "building" | "area" | null;
+
 interface CacheEntry {
   stat: LTRStat | null;
   recent: RecentContract[];
   windowDays: number;
+  matchLevel: MatchLevel;
   ts: number;
 }
 const cache = new Map<string, CacheEntry>();
@@ -99,6 +107,7 @@ export async function GET(request: Request) {
       stat: cached.stat,
       source: cached.stat ? "dda-live-cached" : "not-found",
       windowDays: cached.windowDays,
+      matchLevel: cached.matchLevel,
       recentContracts: cached.recent,
     });
   }
@@ -147,6 +156,7 @@ export async function GET(request: Request) {
       let recent: RecentContract[] = [];
       let windowUsed = 0;
       let sizeFilterApplied = false;
+      let matchLevel: MatchLevel = null;
 
       // Pass 1: bedroom bucket + size band (if a size was given).
       if (sizeSqft > 0) {
@@ -158,6 +168,7 @@ export async function GET(request: Request) {
           recent = toRecentContracts(sorted);
           windowUsed = FETCH_WINDOW_DAYS;
           sizeFilterApplied = true;
+          matchLevel = "building-sized";
         }
       }
 
@@ -176,12 +187,16 @@ export async function GET(request: Request) {
           stat = computeLTRStats(sorted);
           recent = toRecentContracts(sorted);
           windowUsed = FETCH_WINDOW_DAYS;
+          matchLevel = "building";
         }
       }
 
       // Pass 3: project name matched nothing at all (e.g. Motor City — a
       // community of independently-named buildings, not one DLD project) —
       // fall back to a live area-level lookup instead of jumping to static JSON.
+      // This is NOT building-specific — it's pooled across every building in
+      // the DLD administrative area — so matchLevel must say so; never let a
+      // caller present this as if it were the requested building's own data.
       if (!stat && area) {
         const contracts = await fetchAreaContracts(area, { daysBack: FETCH_WINDOW_DAYS });
         const sorted = mostRecent(bedroomContractsFor(contracts));
@@ -189,12 +204,13 @@ export async function GET(request: Request) {
           stat = computeLTRStats(sorted);
           recent = toRecentContracts(sorted);
           windowUsed = FETCH_WINDOW_DAYS;
+          matchLevel = "area";
         }
       }
 
       if (stat) {
-        cache.set(key, { stat, recent, windowDays: windowUsed, ts: Date.now() });
-        return NextResponse.json({ stat, source: "dda-live", sizeFilterApplied, windowDays: windowUsed, recentContracts: recent });
+        cache.set(key, { stat, recent, windowDays: windowUsed, matchLevel, ts: Date.now() });
+        return NextResponse.json({ stat, source: "dda-live", sizeFilterApplied, windowDays: windowUsed, matchLevel, recentContracts: recent });
       }
     } catch (err) {
       console.error("[ltr-rents] DDA API error:", (err as Error).message);
@@ -210,6 +226,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ stat: { ...staticStat, source: "static-json" }, source: "static-json", recentContracts: [] });
   }
 
-  cache.set(key, { stat: null, recent: [], windowDays: 0, ts: Date.now() });
+  cache.set(key, { stat: null, recent: [], windowDays: 0, matchLevel: null, ts: Date.now() });
   return NextResponse.json({ stat: null, source: "not-found", recentContracts: [] });
 }
