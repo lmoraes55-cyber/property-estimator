@@ -1,7 +1,8 @@
 /**
  * GET /api/ltr-rents?project=<name>&bedrooms=<Studio|1BR|2BR|3BR>&area=<name>
  *
- * Returns live LTR rent stats + 5 most recent contracts from DDA / DLD Ejari.
+ * Returns live LTR rent stats (median of the 3 most recent transactions)
+ * + those 3 most recent contracts from DDA / DLD Ejari.
  * Falls back to the static building-ltr-rents.json if the API is unavailable.
  */
 
@@ -112,14 +113,14 @@ export async function GET(request: Request) {
 
   if (ddaConfigured) {
     try {
-      // Always price off the most recent 3-5 transactions, not a median
-      // pooled across a wide trailing window — a stale Jan contract sitting
-      // next to fresh Aug ones drags the "current" rent below what the
-      // market actually asks today, especially for low-volume buildings.
+      // Always price off exactly the 3 most recent transactions, not a
+      // median pooled across a wide trailing window — a stale Jan contract
+      // sitting next to fresh Aug ones drags the "current" rent below what
+      // the market actually asks today, especially for low-volume buildings.
       // One generously wide fetch (730 days) maximizes the chance of
-      // finding at least 3 comparables; recency comes from always slicing
-      // to the newest ones after sorting, not from a narrower window.
-      const RECENT_N = 5;
+      // finding 3 comparables; recency comes from always slicing to the
+      // newest ones after sorting, not from a narrower window.
+      const RECENT_N = 3;
       const MIN_FOR_STAT = 3; // computeLTRStats' own floor
       const FETCH_WINDOW_DAYS = 730;
 
