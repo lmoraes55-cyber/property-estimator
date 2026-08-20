@@ -81,6 +81,19 @@ const LADDER = [
   { title: "Full Management", fee: "15–25% of revenue", desc: "A licensed operator takes over everything — pricing, cleaning, maintenance, compliance — for a larger cut, and usually lists the unit on their own account.", href: "/operator-match" },
 ];
 
+const COHOST_PARTNER = {
+  name: "Yogesh Dhangar",
+  title: "Independent Co-Host & Holiday Home Operations Specialist",
+  photo: "/images/yogesh-dhangar.jpg",
+  points: [
+    "7+ years in Dubai's holiday-home and hospitality sector",
+    "Personally handles each property — not passed between departments",
+    "Works a deliberately limited portfolio for direct attention",
+  ],
+  phone: "+971 52 607 8931",
+  email: "hostedbyyogesh@gmail.com",
+};
+
 const VETTING = [
   { title: "DET-licensed", desc: "Holds a current Dubai Holiday Home Operator licence — verified before we introduce anyone." },
   { title: "Insured", desc: "Carries guest-liability and property-damage cover, not just a trade licence." },
@@ -599,6 +612,42 @@ export default function CoHostingPage() {
           </div>
         </section>
 
+        {/* ── MEET YOUR CO-HOST ── */}
+        <section style={{ padding: "0 24px 72px" }}>
+          <div style={{ maxWidth: 780, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <EyebrowLabel>YOUR PARTNER CO-HOST</EyebrowLabel>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: 0 }}>Meet {COHOST_PARTNER.name}</h2>
+            </div>
+            <div
+              style={{
+                background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20,
+                padding: "30px 32px", display: "flex", gap: 28, alignItems: "center",
+              }}
+              className="ch-partner-card"
+            >
+              <img
+                src={COHOST_PARTNER.photo}
+                alt={COHOST_PARTNER.name}
+                style={{ width: 140, height: 140, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `3px solid ${colors.bgMain}`, boxShadow: colors.shadowMd }}
+              />
+              <div>
+                <h3 style={{ fontSize: 19, fontFamily: serif, fontWeight: 700, color: colors.textMain, margin: "0 0 4px" }}>{COHOST_PARTNER.name}</h3>
+                <p style={{ fontSize: 13, fontWeight: 600, color: colors.secondaryText, margin: "0 0 14px" }}>{COHOST_PARTNER.title}</p>
+                {COHOST_PARTNER.points.map(pt => (
+                  <div key={pt} style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: 8 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.primary, marginTop: 6, flexShrink: 0 }} />
+                    <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.55, margin: 0 }}>{pt}</p>
+                  </div>
+                ))}
+                <p style={{ fontSize: 12.5, color: colors.textLight, margin: "14px 0 0" }}>
+                  {COHOST_PARTNER.phone} · {COHOST_PARTNER.email}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── LEAD FORM ── */}
         <section id="request" style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}` }}>
           <div style={{ maxWidth: 560, margin: "0 auto" }}>
@@ -686,6 +735,8 @@ export default function CoHostingPage() {
           .ch-ladder-grid { grid-template-columns: 1fr !important; }
           .ch-scope-grid { grid-template-columns: 1fr !important; }
           .ch-calc-grid { grid-template-columns: 1fr !important; }
+          .ch-partner-card { flex-direction: column !important; text-align: center; }
+          .ch-partner-card p { text-align: center; }
         }
       `}</style>
     </div>
