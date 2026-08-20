@@ -12,7 +12,6 @@ import {
   fetchAreaContracts,
   computeLTRStats,
   dldBedroomBucket,
-  resolveDLDName,
   type LTRStat,
   type DLDRentContract,
 } from "@/lib/dda-client";
@@ -163,12 +162,14 @@ export async function GET(request: Request) {
       }
 
       // Pass 2: fall back to bedroom-bucket only (no size band) if pass 1 came up short.
-      // Skip entirely when `project` isn't a resolvable DLD project name and an
-      // `area` was given — the variant search below is guaranteed to fail for
-      // community/area names (e.g. "Liwan"), so go straight to Pass 3 instead
-      // of burning extra DDA round-trips first.
-      const skipPass2 = !resolveDLDName(project) && !!area;
-      if (!stat && !skipPass2) {
+      // Always attempted, even when `project` doesn't resolve via our offline
+      // name-map — that map is an incomplete crawl (~1,200 of DLD's real
+      // project catalog), not proof the name doesn't exist live. "Burj
+      // Crown" is a concrete example: absent from the map, but DLD has it
+      // under mixed-case "Burj Crown" with real contracts, findable only by
+      // fetchProjectContracts' own live variant search (which tries the
+      // name as-typed before falling to uppercase).
+      if (!stat) {
         const contracts = await fetchProjectContracts(project, { daysBack: FETCH_WINDOW_DAYS });
         const sorted = mostRecent(bedroomContractsFor(contracts));
         if (sorted.length >= MIN_FOR_STAT) {
