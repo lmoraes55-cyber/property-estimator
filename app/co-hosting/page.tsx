@@ -541,39 +541,6 @@ export default function CoHostingPage() {
           </div>
         </section>
 
-        {/* ── PRICING ── */}
-        <section style={{ padding: pad }}>
-          <div style={{ maxWidth: 800, margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: 32 }}>
-              <EyebrowLabel>PRICING</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "0 0 10px" }}>A Flat Percentage, Plus A One-Time Setup</h2>
-              <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 560, margin: "0 auto", lineHeight: 1.65 }}>
-                Set by the referred partner co-host, not AssetIntel. Figures below are indicative — your partner confirms exact terms before you commit to anything.
-              </p>
-            </div>
-
-            <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "28px 30px", marginBottom: 20, textAlign: "center" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 8px" }}>Ongoing Co-Hosting Fee</p>
-              <p style={{ fontSize: 34, fontFamily: serif, fontWeight: 700, color: colors.primary, margin: 0 }}>8–10%</p>
-              <p style={{ fontSize: 12.5, color: colors.textMuted, margin: "6px 0 0" }}>of gross booking revenue</p>
-              <p style={{ fontSize: 11.5, fontWeight: 600, color: colors.secondaryText, margin: "10px 0 0" }}>Charged on an ongoing basis, per booking</p>
-            </div>
-
-            <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "24px 28px" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 4px" }}>One-Time Setup Fee — By Unit Size</p>
-              <p style={{ fontSize: 11.5, fontWeight: 600, color: colors.secondaryText, margin: "0 0 16px" }}>Charged once, at signup — separate from and in addition to the 8–10%</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {SETUP_FEES.map(({ unit, fee }) => (
-                  <div key={unit} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: colors.bgMain, borderRadius: 10, border: `1px solid ${colors.border}` }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 600, color: colors.textMain }}>{unit}</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: colors.secondaryText, fontFamily: serif }}>AED {fee.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ── COMPLIANCE NOTE ── */}
         <section style={{ padding: "0 24px 72px" }}>
           <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", gap: 14, alignItems: "flex-start", padding: "20px 22px", background: colors.bgSage, borderRadius: 16, border: `1px solid ${colors.borderSage}` }}>
@@ -643,6 +610,39 @@ export default function CoHostingPage() {
                 <p style={{ fontSize: 12.5, color: colors.textLight, margin: "14px 0 0" }}>
                   {COHOST_PARTNER.phone} · {COHOST_PARTNER.email}
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── PRICING ── */}
+        <section style={{ padding: pad }}>
+          <div style={{ maxWidth: 800, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              <EyebrowLabel>PRICING</EyebrowLabel>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "0 0 10px" }}>A Flat Percentage, Plus A One-Time Setup</h2>
+              <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 560, margin: "0 auto", lineHeight: 1.65 }}>
+                Set by the referred partner co-host, not AssetIntel. Figures below are indicative — your partner confirms exact terms before you commit to anything.
+              </p>
+            </div>
+
+            <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "28px 30px", marginBottom: 20, textAlign: "center" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 8px" }}>Ongoing Co-Hosting Fee</p>
+              <p style={{ fontSize: 34, fontFamily: serif, fontWeight: 700, color: colors.primary, margin: 0 }}>8–10%</p>
+              <p style={{ fontSize: 12.5, color: colors.textMuted, margin: "6px 0 0" }}>of gross booking revenue</p>
+              <p style={{ fontSize: 11.5, fontWeight: 600, color: colors.secondaryText, margin: "10px 0 0" }}>Charged on an ongoing basis, per booking</p>
+            </div>
+
+            <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "24px 28px" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 4px" }}>One-Time Setup Fee — By Unit Size</p>
+              <p style={{ fontSize: 11.5, fontWeight: 600, color: colors.secondaryText, margin: "0 0 16px" }}>Charged once, at signup — separate from and in addition to the 8–10%</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {SETUP_FEES.map(({ unit, fee }) => (
+                  <div key={unit} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: colors.bgMain, borderRadius: 10, border: `1px solid ${colors.border}` }}>
+                    <span style={{ fontSize: 13.5, fontWeight: 600, color: colors.textMain }}>{unit}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: colors.secondaryText, fontFamily: serif }}>AED {fee.toLocaleString()}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
