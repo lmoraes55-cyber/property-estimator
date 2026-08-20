@@ -112,11 +112,16 @@ export async function GET(request: Request) {
 
   if (ddaConfigured) {
     try {
-      const MIN_CONTRACTS = 5;
-      // Start at 90 days — 30-day window is too narrow and misses contracts just outside the month.
-      // 730-day tier handles buildings where the open API dataset lags several months.
-      // When also matching by size, widen further since the band shrinks the pool.
-      const WINDOWS = sizeSqft > 0 ? [90, 365, 730, 1095] : [90, 365, 730];
+      // Always price off the most recent 3-5 transactions, not a median
+      // pooled across a wide trailing window — a stale Jan contract sitting
+      // next to fresh Aug ones drags the "current" rent below what the
+      // market actually asks today, especially for low-volume buildings.
+      // One generously wide fetch (730 days) maximizes the chance of
+      // finding at least 3 comparables; recency comes from always slicing
+      // to the newest ones after sorting, not from a narrower window.
+      const RECENT_N = 5;
+      const MIN_FOR_STAT = 3; // computeLTRStats' own floor
+      const FETCH_WINDOW_DAYS = 730;
 
       const bedroomKey = bedrooms.replace(/\s+(APT|VILLA)$/i, "");
 
@@ -130,6 +135,14 @@ export async function GET(request: Request) {
         return grouped[bedroomKey] ?? grouped[bedrooms] ?? [];
       };
 
+      const mostRecent = (contracts: DLDRentContract[]) => {
+        const today = new Date().toISOString().slice(0, 10);
+        return [...contracts]
+          .filter(c => c.contract_start_date <= today)
+          .sort((a, b) => b.contract_start_date.localeCompare(a.contract_start_date))
+          .slice(0, RECENT_N);
+      };
+
       let stat: ReturnType<typeof computeLTRStats> = null;
       let recent: RecentContract[] = [];
       let windowUsed = 0;
@@ -137,24 +150,14 @@ export async function GET(request: Request) {
 
       // Pass 1: bedroom bucket + size band (if a size was given).
       if (sizeSqft > 0) {
-        for (const daysBack of WINDOWS) {
-          const contracts = await fetchProjectContracts(project, { daysBack });
-          const allBedroomContracts = bedroomContractsFor(contracts);
-          const today = new Date().toISOString().slice(0, 10);
-          const pastContracts = allBedroomContracts.filter(
-            c => c.contract_start_date <= today && withinSizeBand(c, sizeSqft)
-          );
-          const sorted = [...pastContracts].sort(
-            (a, b) => b.contract_start_date.localeCompare(a.contract_start_date)
-          );
-
-          if (sorted.length >= MIN_CONTRACTS) {
-            stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 8)));
-            recent = toRecentContracts(sorted);
-            windowUsed = daysBack;
-            sizeFilterApplied = true;
-            break;
-          }
+        const contracts = await fetchProjectContracts(project, { daysBack: FETCH_WINDOW_DAYS });
+        const sized = bedroomContractsFor(contracts).filter(c => withinSizeBand(c, sizeSqft));
+        const sorted = mostRecent(sized);
+        if (sorted.length >= MIN_FOR_STAT) {
+          stat = computeLTRStats(sorted);
+          recent = toRecentContracts(sorted);
+          windowUsed = FETCH_WINDOW_DAYS;
+          sizeFilterApplied = true;
         }
       }
 
@@ -162,48 +165,28 @@ export async function GET(request: Request) {
       // Skip entirely when `project` isn't a resolvable DLD project name and an
       // `area` was given — the variant search below is guaranteed to fail for
       // community/area names (e.g. "Liwan"), so go straight to Pass 3 instead
-      // of burning up to 7 sequential DDA round-trips first.
+      // of burning extra DDA round-trips first.
       const skipPass2 = !resolveDLDName(project) && !!area;
       if (!stat && !skipPass2) {
-        for (const daysBack of WINDOWS) {
-          const contracts = await fetchProjectContracts(project, { daysBack });
-          const allBedroomContracts = bedroomContractsFor(contracts);
-          const today = new Date().toISOString().slice(0, 10);
-          const pastContracts = allBedroomContracts.filter(c => c.contract_start_date <= today);
-          const sorted = [...pastContracts].sort(
-            (a, b) => b.contract_start_date.localeCompare(a.contract_start_date)
-          );
-
-          if (sorted.length >= MIN_CONTRACTS || (sorted.length > 0 && daysBack === WINDOWS[WINDOWS.length - 1])) {
-            stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 6)));
-            recent = toRecentContracts(sorted);
-            windowUsed = daysBack;
-            break;
-          }
+        const contracts = await fetchProjectContracts(project, { daysBack: FETCH_WINDOW_DAYS });
+        const sorted = mostRecent(bedroomContractsFor(contracts));
+        if (sorted.length >= MIN_FOR_STAT) {
+          stat = computeLTRStats(sorted);
+          recent = toRecentContracts(sorted);
+          windowUsed = FETCH_WINDOW_DAYS;
         }
       }
 
       // Pass 3: project name matched nothing at all (e.g. Motor City — a
       // community of independently-named buildings, not one DLD project) —
       // fall back to a live area-level lookup instead of jumping to static JSON.
-      // Single 365-day window, not the full WINDOWS ladder: Pass 1/2 already
-      // spent up to 6-7 sequential DDA calls exhausting the project-name
-      // search space, and an area pools many buildings' contracts, so one
-      // moderate window has plenty of volume without adding more round-trips
-      // to an already-slow no-match path.
       if (!stat && area) {
-        const contracts = await fetchAreaContracts(area, { daysBack: 365 });
-        const allBedroomContracts = bedroomContractsFor(contracts);
-        const today = new Date().toISOString().slice(0, 10);
-        const pastContracts = allBedroomContracts.filter(c => c.contract_start_date <= today);
-        const sorted = [...pastContracts].sort(
-          (a, b) => b.contract_start_date.localeCompare(a.contract_start_date)
-        );
-
-        if (sorted.length > 0) {
-          stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 8)));
+        const contracts = await fetchAreaContracts(area, { daysBack: FETCH_WINDOW_DAYS });
+        const sorted = mostRecent(bedroomContractsFor(contracts));
+        if (sorted.length >= MIN_FOR_STAT) {
+          stat = computeLTRStats(sorted);
           recent = toRecentContracts(sorted);
-          windowUsed = 365;
+          windowUsed = FETCH_WINDOW_DAYS;
         }
       }
 
