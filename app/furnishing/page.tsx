@@ -729,41 +729,95 @@ function FurnishingContent() {
                     Request Interior Design Quote →
                   </button>
                 </div>
-                {FURNISHING_COMPANIES.map((company, idx) => (
-                  <div key={company.id} style={{
-                    background: C.ivory, borderRadius: 20, padding: 24,
-                    border: `1px solid ${idx === 0 ? C.green + "44" : C.border}`,
-                    boxShadow: idx === 0 ? "0 4px 20px rgba(27,94,74,0.10)" : "0 1px 4px rgba(0,0,0,0.04)",
-                  }}>
-                    {idx === 0 && (
-                      <span style={{ display: "inline-block", fontSize: 10, padding: "4px 10px", borderRadius: 20, fontWeight: 700, marginBottom: 12, background: "#EEF5F1", color: C.green, border: `1px solid rgba(27,94,74,0.2)` }}>Top Rated</span>
-                    )}
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-                      <div>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: C.text, margin: "0 0 2px" }}>{company.name}</p>
-                        <p style={{ fontSize: 12, color: C.subtle, margin: 0 }}>{company.projectsCompleted}+ projects since {company.founded}</p>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <p style={{ fontSize: 22, fontWeight: 700, color: C.gold, margin: "0 0 2px" }}>{company.googleRating}</p>
-                        <p style={{ fontSize: 11, color: C.subtle, margin: 0 }}>{company.googleReviewCount} reviews</p>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
-                      {company.specialties.map(s => (
-                        <span key={s} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 20, background: "#EEF5F1", color: C.green }}>{s}</span>
-                      ))}
-                    </div>
-                    <button onClick={openGuidanceModal} style={{
-                      width: "100%", padding: 11, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer",
-                      background: idx === 0 ? "linear-gradient(135deg, #B8893F, #C69A4A)" : "transparent",
-                      color: idx === 0 ? "#fff" : C.green,
-                      border: idx === 0 ? "none" : `1.5px solid ${C.green}`,
-                      boxShadow: idx === 0 ? "0 4px 14px rgba(184,138,68,0.22)" : "none",
+                {FURNISHING_COMPANIES.map((company, idx) => {
+                  const priceLine = company.pros.find(p => /AED\s[\d,]+/.test(p));
+                  const priceMatch = priceLine?.match(/AED\s[\d,]+(?:–[\d,]+\+?)?\sper\s\S+/i);
+                  const communityPreview = company.communities.slice(0, 4);
+                  const communityRest = company.communities.length - communityPreview.length;
+                  const featured = idx === 0;
+                  return (
+                    <div key={company.id} style={{
+                      position: "relative",
+                      background: C.ivory, borderRadius: 22, padding: "28px 28px 24px",
+                      border: `1px solid ${featured ? "rgba(184,138,68,0.35)" : C.border}`,
+                      boxShadow: featured ? "0 20px 48px rgba(27,94,74,0.10)" : "0 1px 2px rgba(27,94,74,0.04)",
                     }}>
-                      {idx === 0 ? `Contact ${company.name} for Quote` : `Enquire about ${company.name}`}
-                    </button>
-                  </div>
-                ))}
+                      {featured && (
+                        <div style={{
+                          position: "absolute", top: 0, left: 28, transform: "translateY(-50%)",
+                          fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
+                          padding: "5px 14px", borderRadius: 20, color: "#fff",
+                          background: "linear-gradient(135deg, #B8893F, #8B6F3F)",
+                          boxShadow: "0 4px 12px rgba(184,138,68,0.3)",
+                        }}>
+                          AssetIntel Recommended
+                        </div>
+                      )}
+
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 18 }}>
+                        <div>
+                          <p style={{ fontSize: 20, fontWeight: 700, color: C.text, margin: "0 0 3px", fontFamily: "'Georgia', serif" }}>{company.name}</p>
+                          <p style={{ fontSize: 12, color: C.subtle, margin: 0, letterSpacing: "0.01em" }}>Established {company.founded} · {company.projectsCompleted}+ holiday-home projects</p>
+                        </div>
+                        <div style={{ textAlign: "right", flexShrink: 0 }}>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 4, justifyContent: "flex-end" }}>
+                            <span style={{ fontSize: 24, fontWeight: 700, color: C.gold, fontFamily: "'Georgia', serif" }}>{company.googleRating}</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#B88A44" style={{ marginBottom: 2 }}><path d="M12 2l2.9 6.9 7.4.6-5.6 4.9 1.7 7.3L12 17.9 5.6 21.7l1.7-7.3-5.6-4.9 7.4-.6z"/></svg>
+                          </div>
+                          <p style={{ fontSize: 11, color: C.subtle, margin: 0 }}>{company.googleReviewCount} Google reviews</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.borderLight}`, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 12.5, color: C.text, fontWeight: 600 }}>~{company.avgProjectDays} days turnaround</span>
+                        <span style={{ width: 3, height: 3, borderRadius: "50%", background: C.border }} />
+                        <span style={{ fontSize: 12.5, color: C.text, fontWeight: 600 }}>{company.communities.length} communities served</span>
+                        {company.detCompliant && (
+                          <>
+                            <span style={{ width: 3, height: 3, borderRadius: "50%", background: C.border }} />
+                            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.green, fontWeight: 600 }}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                              DET Compliant
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+                        {company.specialties.map(s => (
+                          <span key={s} style={{ fontSize: 11.5, fontWeight: 600, padding: "5px 12px", borderRadius: 20, background: "rgba(27,94,74,0.07)", color: C.green, border: "1px solid rgba(27,94,74,0.14)" }}>{s}</span>
+                        ))}
+                      </div>
+
+                      {priceMatch && (
+                        <div style={{
+                          display: "flex", alignItems: "baseline", gap: 8, marginBottom: 16,
+                          padding: "12px 16px", borderRadius: 12,
+                          background: "linear-gradient(90deg, rgba(184,138,68,0.08), rgba(184,138,68,0.03))",
+                          border: "1px solid rgba(184,138,68,0.18)",
+                        }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#7D6338" }}>From</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: "#7D6338", fontFamily: "'Georgia', serif" }}>{priceMatch[0]}</span>
+                        </div>
+                      )}
+
+                      <p style={{ fontSize: 12, color: C.subtle, margin: "0 0 20px", lineHeight: 1.6 }}>
+                        Serves {communityPreview.join(", ")}{communityRest > 0 ? ` +${communityRest} more` : ""}
+                      </p>
+
+                      <button onClick={openGuidanceModal} style={{
+                        width: "100%", padding: 13, borderRadius: 12, fontSize: 13.5, fontWeight: 700, cursor: "pointer",
+                        background: featured ? "linear-gradient(135deg, #B8893F, #8B6F3F)" : "transparent",
+                        color: featured ? "#fff" : C.green,
+                        border: featured ? "none" : `1.5px solid rgba(27,94,74,0.35)`,
+                        boxShadow: featured ? "0 4px 16px rgba(184,138,68,0.25)" : "none",
+                        transition: "all 180ms ease",
+                      }}>
+                        {featured ? `Contact ${company.name} for Quote` : `Enquire about ${company.name}`}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
