@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import {
   fetchProjectContracts,
+  fetchAreaContracts,
   computeLTRStats,
   dldBedroomBucket,
   type LTRStat,
@@ -169,6 +170,28 @@ export async function GET(request: Request) {
 
           if (sorted.length >= MIN_CONTRACTS || (sorted.length > 0 && daysBack === WINDOWS[WINDOWS.length - 1])) {
             stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 6)));
+            recent = toRecentContracts(sorted);
+            windowUsed = daysBack;
+            break;
+          }
+        }
+      }
+
+      // Pass 3: project name matched nothing at all (e.g. Motor City — a
+      // community of independently-named buildings, not one DLD project) —
+      // fall back to a live area-level lookup instead of jumping to static JSON.
+      if (!stat && area) {
+        for (const daysBack of WINDOWS) {
+          const contracts = await fetchAreaContracts(area, { daysBack });
+          const allBedroomContracts = bedroomContractsFor(contracts);
+          const today = new Date().toISOString().slice(0, 10);
+          const pastContracts = allBedroomContracts.filter(c => c.contract_start_date <= today);
+          const sorted = [...pastContracts].sort(
+            (a, b) => b.contract_start_date.localeCompare(a.contract_start_date)
+          );
+
+          if (sorted.length >= MIN_CONTRACTS || (sorted.length > 0 && daysBack === WINDOWS[WINDOWS.length - 1])) {
+            stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 8)));
             recent = toRecentContracts(sorted);
             windowUsed = daysBack;
             break;

@@ -375,7 +375,8 @@ async function fetchContractsForName(
   cutoffStr: string,
   pageSize: number,
   maxRecords: number,
-  exactMatch = false  // true when using canonical DLD name from name map
+  exactMatch = false,  // true when using canonical DLD name from name map
+  field: "project_name_en" | "area_name_en" = "project_name_en"
 ): Promise<DLDRentContract[]> {
   const allContracts: DLDRentContract[] = [];
   let page = 1;
@@ -390,8 +391,8 @@ async function fetchContractsForName(
       // Exact match for canonical names (faster, more precise)
       // LIKE prefix for variants to catch phase-numbered sub-buildings
       ...(exactMatch
-        ? { filters:     { project_name_en: dldName } }
-        : { likeFilters: { project_name_en: `${dldName}%` } }
+        ? { filters:     { [field]: dldName } }
+        : { likeFilters: { [field]: `${dldName}%` } }
       ),
       orderBy:     "contract_start_date",
       orderDir:    "desc",
@@ -468,6 +469,38 @@ export async function fetchProjectContracts(
   }
 
   return [];
+}
+
+/**
+ * Fetch all rent contracts for a DLD administrative area, optionally filtered
+ * by date window. For communities made up of many independently-named
+ * buildings (e.g. Motor City / "Al Hebiah First") rather than one DLD
+ * project, this is the only live path — fetchProjectContracts has nothing
+ * to match a single project name against. `areaName` must be the raw DLD
+ * area_name_en value (the keys of DLD_AREA_TO_COMMUNITY / BuildingRecord.dldArea).
+ */
+export async function fetchAreaContracts(
+  areaName: string,
+  options: { daysBack?: number; maxRecords?: number } = {}
+): Promise<DLDRentContract[]> {
+  if (!areaName) return [];
+  const { daysBack = 30, maxRecords = 2000 } = options;
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - daysBack);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  const columns: (keyof DLDRentContract)[] = [
+    "contract_id", "annual_amount", "actual_area",
+    "project_name_en", "area_name_en",
+    "ejari_property_type_en", "ejari_property_sub_type_en",
+    "property_usage_en", "contract_start_date", "contract_end_date", "is_free_hold",
+    "contract_reg_type_en",
+  ];
+
+  return fetchContractsForName(
+    areaName, columns as string[], cutoffStr, 1000, maxRecords, true, "area_name_en"
+  );
 }
 
 // ── Sale transactions (dld_transactions-open-api) ──────────────────────────
