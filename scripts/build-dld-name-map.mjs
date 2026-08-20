@@ -23,7 +23,7 @@ const args = Object.fromEntries(
   process.argv.slice(2).map((a, i, arr) => a.startsWith("--") ? [a.slice(2), arr[i + 1] ?? true] : [])
 );
 const HOST           = args.host       ?? "https://assetintel.ae";
-const MAX_CHUNKS     = parseInt(args.maxChunks ?? "60", 10);
+const MAX_CHUNKS     = parseInt(args.maxChunks ?? "100", 10);
 const PAGES_PER_CHUNK = 8;
 const STALL_AFTER    = 4;   // stop if 4 consecutive chunks add 0 new names
 const OUT_PATH       = path.join(ROOT, "lib/data/dld-name-map.json");
@@ -59,9 +59,25 @@ function wordOverlap(a, b) {
 
 async function fetchChunk(startPage) {
   const url = `${HOST}/api/dld-buildings-probe?startPage=${startPage}&maxPages=${PAGES_PER_CHUNK}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(25_000) });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  // Each chunk does up to PAGES_PER_CHUNK sequential 1000-row DDA calls
+  // server-side, which can legitimately run past 25s — give it real room
+  // and retry transient failures instead of aborting the whole crawl.
+  const MAX_ATTEMPTS = 3;
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < MAX_ATTEMPTS) {
+        process.stdout.write(`(retry ${attempt}: ${err.message}) `);
+        await new Promise(r => setTimeout(r, 2000 * attempt));
+      }
+    }
+  }
+  throw lastErr;
 }
 
 async function main() {
@@ -87,8 +103,8 @@ async function main() {
 
       nextStart = data.done ? null : data.nextStart;
     } catch (err) {
-      console.error(`\n  Error: ${err.message}`);
-      break;
+      console.error(`\n  Chunk failed after retries (${err.message}) — skipping ahead ${PAGES_PER_CHUNK} pages, continuing.`);
+      nextStart += PAGES_PER_CHUNK;
     }
     await new Promise(r => setTimeout(r, 300));
   }
