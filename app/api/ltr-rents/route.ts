@@ -180,22 +180,24 @@ export async function GET(request: Request) {
       // Pass 3: project name matched nothing at all (e.g. Motor City — a
       // community of independently-named buildings, not one DLD project) —
       // fall back to a live area-level lookup instead of jumping to static JSON.
+      // Single 365-day window, not the full WINDOWS ladder: Pass 1/2 already
+      // spent up to 6-7 sequential DDA calls exhausting the project-name
+      // search space, and an area pools many buildings' contracts, so one
+      // moderate window has plenty of volume without adding more round-trips
+      // to an already-slow no-match path.
       if (!stat && area) {
-        for (const daysBack of WINDOWS) {
-          const contracts = await fetchAreaContracts(area, { daysBack });
-          const allBedroomContracts = bedroomContractsFor(contracts);
-          const today = new Date().toISOString().slice(0, 10);
-          const pastContracts = allBedroomContracts.filter(c => c.contract_start_date <= today);
-          const sorted = [...pastContracts].sort(
-            (a, b) => b.contract_start_date.localeCompare(a.contract_start_date)
-          );
+        const contracts = await fetchAreaContracts(area, { daysBack: 365 });
+        const allBedroomContracts = bedroomContractsFor(contracts);
+        const today = new Date().toISOString().slice(0, 10);
+        const pastContracts = allBedroomContracts.filter(c => c.contract_start_date <= today);
+        const sorted = [...pastContracts].sort(
+          (a, b) => b.contract_start_date.localeCompare(a.contract_start_date)
+        );
 
-          if (sorted.length >= MIN_CONTRACTS || (sorted.length > 0 && daysBack === WINDOWS[WINDOWS.length - 1])) {
-            stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 8)));
-            recent = toRecentContracts(sorted);
-            windowUsed = daysBack;
-            break;
-          }
+        if (sorted.length > 0) {
+          stat = computeLTRStats(sorted.slice(0, Math.min(sorted.length, 8)));
+          recent = toRecentContracts(sorted);
+          windowUsed = 365;
         }
       }
 

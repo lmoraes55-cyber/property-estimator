@@ -498,8 +498,15 @@ export async function fetchAreaContracts(
     "contract_reg_type_en",
   ];
 
-  return fetchContractsForName(
+  const exact = await fetchContractsForName(
     areaName, columns as string[], cutoffStr, 1000, maxRecords, true, "area_name_en"
+  );
+  if (exact.length > 0) return exact;
+
+  // Exact returned nothing — retry with LIKE in case DLD stores the area
+  // name with trailing whitespace or a minor variant (mirrors the project-name path).
+  return fetchContractsForName(
+    areaName, columns as string[], cutoffStr, 1000, maxRecords, false, "area_name_en"
   );
 }
 
