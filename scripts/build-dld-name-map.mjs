@@ -115,18 +115,10 @@ async function main() {
   const unmatched = [];
   const methodCounts = {};
 
-  for (const ourKey of ourKeys) {
-    const c = canon(ourKey);
-    const key = c || ourKey;
-    const bump = m => { methodCounts[m] = (methodCounts[m] ?? 0) + 1; };
-
-    // 1. Exact
+  function bestMatch(key, normIndex) {
     if (normIndex.has(key)) {
-      mapping[ourKey] = normIndex.get(key).sort((a, b) => a.length - b.length)[0];
-      bump("exact"); continue;
+      return { dld: normIndex.get(key).sort((a, b) => a.length - b.length)[0], method: "exact", score: 1 };
     }
-
-    // 2. Prefix/containment
     let bestScore = 0, bestDLD = null, bestMethod = "";
     for (const [normKey, dldArr] of normIndex) {
       let score = 0, method = "";
@@ -139,21 +131,99 @@ async function main() {
       }
       if (score > bestScore) { bestScore = score; bestDLD = dldArr.sort((a,b)=>a.length-b.length)[0]; bestMethod = method; }
     }
-    if (bestDLD && bestScore >= 0.6) { mapping[ourKey] = bestDLD; bump(bestMethod); continue; }
-
-    // 3. Word-overlap
+    if (bestDLD && bestScore >= 0.6) return { dld: bestDLD, method: bestMethod, score: bestScore };
     for (const [normKey, dldArr] of normIndex) {
       const score = wordOverlap(key, normKey) * 0.85;
       if (score > bestScore) { bestScore = score; bestDLD = dldArr[0]; bestMethod = "word-overlap"; }
     }
-    if (bestDLD && bestScore >= 0.7) { mapping[ourKey] = bestDLD; bump("word-overlap"); continue; }
+    if (bestDLD && bestScore >= 0.7) return { dld: bestDLD, method: bestMethod, score: bestScore };
+    return null;
+  }
+
+  for (const ourKey of ourKeys) {
+    const c = canon(ourKey);
+    const key = c || ourKey;
+    const bump = m => { methodCounts[m] = (methodCounts[m] ?? 0) + 1; };
+
+    const hit = bestMatch(key, normIndex);
+    if (hit) { mapping[ourKey] = hit.dld; bump(hit.method); continue; }
 
     unmatched.push(ourKey);
   }
 
   const matchedCount = Object.keys(mapping).length;
-  console.log(`\nMatched: ${matchedCount}/${ourKeys.length} (${((matchedCount / ourKeys.length) * 100).toFixed(1)}%)`);
+  console.log(`\nMatched (building-ltr-rents.json set): ${matchedCount}/${ourKeys.length} (${((matchedCount / ourKeys.length) * 100).toFixed(1)}%)`);
   console.log("By method:", methodCounts);
+
+  // ── Second pass: match against the UI's actual building list ───────────
+  // building-ltr-rents.json is a disconnected historical ingest (1,426 names
+  // from a June CSV snapshot) — most buildings the estimator actually lets
+  // users pick (lib/buildings-data.ts + lib/estimator.ts's BUILDING_DIRECTORY,
+  // ~485 names) were never candidates in the pass above, so they can never
+  // resolve live no matter how good the fuzzy matching is. This pass adds
+  // them as real candidates, keyed the same way resolveDLDName() in
+  // lib/dda-client.ts computes its runtime lookup key (plain normalize(),
+  // no canon() — that mismatch is why the pass above stores raw ourKey but
+  // searches on canon(ourKey)) — including the progressive trailing-token
+  // strip resolveDLDName performs, so a phase-numbered building like
+  // "Al Majara 1" can match a DLD project simply called "AL MAJARA".
+  function extractUINames() {
+    const names = new Set();
+    const bd = fs.readFileSync(path.join(ROOT, "lib/buildings-data.ts"), "utf-8");
+    for (const m of bd.matchAll(/^\s*"([^"]+)":\s*\{/gm)) names.add(m[1]);
+    const est = fs.readFileSync(path.join(ROOT, "lib/estimator.ts"), "utf-8");
+    const start = est.indexOf("export const BUILDING_DIRECTORY");
+    const end = est.indexOf("\n};", start);
+    for (const m of est.slice(start, end).matchAll(/"([^"]+)":\s*\{/g)) names.add(m[1]);
+    return [...names];
+  }
+
+  const uiNames = extractUINames();
+  console.log(`\nMatching ${uiNames.length} UI building names (lib/buildings-data.ts + BUILDING_DIRECTORY)…`);
+
+  let uiMatched = 0, uiAlreadyCovered = 0;
+  const uiMethodCounts = {};
+  const uiUnmatched = [];
+
+  for (const uiName of uiNames) {
+    const full = normalize(uiName);
+    if (!full) continue;
+
+    // Already resolvable via the existing map (progressive-strip, same order
+    // resolveDLDName uses) — nothing to add.
+    let probe = full, covered = false;
+    while (probe.length >= 4) {
+      if (mapping[probe]) { covered = true; break; }
+      const shorter = probe.replace(/\s+\S+$/, "").trim();
+      if (shorter === probe) break;
+      probe = shorter;
+    }
+    if (covered) { uiAlreadyCovered++; continue; }
+
+    // Search each progressively-stripped level (same order/levels
+    // resolveDLDName will probe at runtime) and store at the FIRST level
+    // that finds a confident match — mirrors runtime behavior exactly.
+    let level = full, stored = false;
+    while (level.length >= 4) {
+      const hit = bestMatch(canon(level) || level, normIndex);
+      if (hit) {
+        mapping[level] = hit.dld;
+        uiMatched++;
+        uiMethodCounts[hit.method] = (uiMethodCounts[hit.method] ?? 0) + 1;
+        stored = true;
+        break;
+      }
+      const shorter = level.replace(/\s+\S+$/, "").trim();
+      if (shorter === level) break;
+      level = shorter;
+    }
+    if (!stored) uiUnmatched.push(uiName);
+  }
+
+  console.log(`UI names already covered by existing map: ${uiAlreadyCovered}`);
+  console.log(`UI names newly matched: ${uiMatched} (${JSON.stringify(uiMethodCounts)})`);
+  console.log(`UI names still unmatched: ${uiUnmatched.length}`);
+  if (uiUnmatched.length) console.log("First 30:", uiUnmatched.slice(0, 30).join(", "));
 
   const checks = ["marina gate", "creek horizon", "address boulevard", "burj vista", "downtown views 1", "index", "la mer", "one palm", "the palm tower", "burj khalifa"];
   console.log("\nSpot checks:");
@@ -169,6 +239,11 @@ async function main() {
       matched: matchedCount,
       unmatched: unmatched.length,
       matchRate: `${((matchedCount / ourKeys.length) * 100).toFixed(1)}%`,
+      uiBuildings: uiNames.length,
+      uiAlreadyCovered,
+      uiMatched,
+      uiUnmatched: uiUnmatched.length,
+      uiMatchRate: `${(((uiMatched + uiAlreadyCovered) / uiNames.length) * 100).toFixed(1)}%`,
     },
     mapping,
   };
