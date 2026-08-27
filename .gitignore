@@ -50,3 +50,6 @@ data/raw/
 scratch/
 
 .superpowers/
+
+# Local-only DDA credentials (Vercel marks these Secret; never commit)
+.env.dda
