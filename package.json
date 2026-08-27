@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dld:pull": "node scripts/pull-datadubai.mjs",
+    "dld:ingest": "node scripts/ingest-dld-rents.mjs",
+    "dld:refresh": "node scripts/pull-datadubai.mjs --stdout | node scripts/ingest-dld-rents.mjs -",
+    "dld:verify": "node scripts/test-rent-tiers.mjs lib/data/building-ltr-rents.json"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

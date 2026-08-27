@@ -4,7 +4,13 @@ import {
   getBuildingByName,
   type BuildingRecord
 } from "./buildings-data";
-import { lookupDLDBuilding, lookupDLDArea, lookupDLDByKey } from "./building-rents";
+import {
+  lookupDLDBuilding,
+  lookupDLDMaster,
+  lookupDLDArea,
+  lookupDLDByKey,
+  getMasterForBuilding,
+} from "./building-rents";
 import { DLD_AREA_TO_COMMUNITY } from "./dld-area-map";
 
 export const MONTHS = ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"] as const;
@@ -316,7 +322,7 @@ export interface LTRMarketRent {
   rangeLow?: number;       // p25
   rangeHigh?: number;      // p75
   asOf?: string;           // latest contract month used (YYYY-MM)
-  basis?: "dld-building" | "dld-area" | "table"; // data tier used
+  basis?: "dld-building" | "dld-master" | "dld-area" | "table"; // data tier used
 }
 
 // Refine a median rent by the unit's size using rent-per-sqft, guarded so a
@@ -393,6 +399,35 @@ export function getLTRMarketRent(
       basis: "dld-building",
     };
   }
+
+  // 1c. Master-community rents — tighter than the DLD area wherever one area
+  //     pools several distinct markets. Marsa Dubai is the clearest case: it
+  //     covers Dubai Marina, JBR, Dubai Harbour and Bluewaters, so an
+  //     area-level median there blends four different price points. Same for
+  //     Al Merkadh (District One / Meydan One / Sobha Hartland) and
+  //     Al Thanyah Fifth (JLT / Jumeirah Park / Jumeirah Islands).
+  //     NOT building-specific — the source string must say the community.
+  //     Buildings DLD never project-tagged (all of JBR, for one) are absent
+  //     from the buildings block, so their master cannot be derived from the
+  //     dataset — but our own curated `community` already names it. Try the
+  //     derived master first, then the curated community.
+  const masterCandidates = [getMasterForBuilding(buildingName), community, curatedDldArea]
+    .filter(Boolean) as string[];
+  for (const masterName of masterCandidates) {
+    const dldMaster = lookupDLDMaster(masterName, unitSize);
+    if (dldMaster) {
+      return {
+        rent: dldMaster.median,
+        source: `${dldMaster.n.toLocaleString()} registered DLD contracts · ${masterName}`,
+        sampleSize: dldMaster.n,
+        rangeLow: dldMaster.p25,
+        rangeHigh: dldMaster.p75,
+        asOf: dldMaster.asOf,
+        basis: "dld-master",
+      };
+    }
+  }
+
 
   // 2. Area-level actual rents from DLD
   //    Try the mapped community name, then the raw DLD area name, then the
@@ -799,7 +834,7 @@ export interface EstimatorOutput {
   ltrRangeLow?: number;     // DLD p25
   ltrRangeHigh?: number;    // DLD p75
   ltrAsOf?: string;         // latest DLD contract month used (YYYY-MM)
-  ltrBasis?: "dld-building" | "dld-area" | "table";
+  ltrBasis?: "dld-building" | "dld-master" | "dld-area" | "table";
   furnished: FurnishedStatus;
   annualRevenue: number;
   annualNetToLandlord: number;

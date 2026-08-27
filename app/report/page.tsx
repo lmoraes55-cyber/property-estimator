@@ -633,6 +633,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         if (sub) txt(sub, x + 14, yy + 48, { size: 6.2, color: LIGHT });
       }
       const ltrSub = result.ltrBasis === "dld-building" ? "DLD Ejari · building level"
+        : result.ltrBasis === "dld-master" ? "DLD Ejari · community level"
         : result.ltrBasis === "dld-area" ? "DLD Ejari · area level" : "AssetIntel market estimate";
       kpi(ml,            y, kw, "STR NET / YEAR",    money(result.annualNetToLandlord), "After all deductions", strBetter);
       kpi(ml + kw+kgap,  y, kw, "LTR / YEAR",        money(result.longTermRent),        ltrSub,                 !strBetter);
@@ -1599,6 +1600,11 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {result.ltrSampleSize?.toLocaleString()} DLD · building{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
                     </span>
+                  ) : result.ltrBasis === "dld-master" ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {result.ltrSampleSize?.toLocaleString()} DLD · community avg{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
+                    </span>
                   ) : result.ltrBasis === "dld-area" ? (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1747,7 +1753,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             const occBase = us === "STU" ? 2 : beds <= 2 ? 3 : 4;
             const adrBase = us === "STU" ? 15 : beds === 1 ? 25 : beds === 2 ? 35 : 50;
 
-            const confFactor = result.ltrBasis === "dld-building" ? 0.75 : result.ltrBasis === "dld-area" ? 1.0 : 1.25;
+            const confFactor = result.ltrBasis === "dld-building" ? 0.75
+              : result.ltrBasis === "dld-master" ? 0.9
+              : result.ltrBasis === "dld-area" ? 1.0 : 1.25;
             const moneyOffset = Math.min(5000, Math.round(moneyBase * confFactor));
 
             const roundTo = (v: number, step: number) => Math.round(v / step) * step;

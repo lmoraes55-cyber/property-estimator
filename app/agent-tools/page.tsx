@@ -387,7 +387,7 @@ export default function AgentToolsPage() {
         ensure(60);
         txt("LONG-TERM RENTAL BENCHMARK", ml, y, 10, true, bronze); y += 16;
         if (lStat) {
-          txt(`Median rent: ${money(lStat.median)}/yr  ·  Range: ${money(lStat.p25)} - ${money(lStat.p75)}  ·  Sample size: ${lStat.n}`, ml, y, 9); y += 14;
+          txt(`Median rent: ${money(lStat.median)}/yr${lStat.p25 != null && lStat.p75 != null ? `  ·  Range: ${money(lStat.p25)} - ${money(lStat.p75)}` : ""}  ·  Sample size: ${lStat.n}`, ml, y, 9); y += 14;
         } else {
           txt("Limited data available for this building/bedroom mix.", ml, y, 9, false, muted); y += 14;
         }
@@ -849,7 +849,7 @@ export default function AgentToolsPage() {
                 <p style={{ fontSize: 13, fontWeight: 700, color: colors.secondary, textTransform: "uppercase", marginBottom: 8 }}>Long-Term Rental Benchmark</p>
                 {ltrStat ? (
                   <p style={{ fontSize: 13, color: colors.textMuted }}>
-                    Median rent AED {Math.round(ltrStat.median).toLocaleString()}/yr · range AED {Math.round(ltrStat.p25).toLocaleString()} - {Math.round(ltrStat.p75).toLocaleString()} · sample size {ltrStat.n} · as of {ltrStat.asOf}
+                    Median rent AED {Math.round(ltrStat.median).toLocaleString()}/yr{ltrStat.p25 != null && ltrStat.p75 != null ? ` · range AED ${Math.round(ltrStat.p25).toLocaleString()} - ${Math.round(ltrStat.p75).toLocaleString()}` : ""} · sample size {ltrStat.n} · as of {ltrStat.asOf}
                   </p>
                 ) : <p style={{ fontSize: 13, color: colors.textMuted }}>Limited data available — showing area-level guidance only.</p>}
               </div>

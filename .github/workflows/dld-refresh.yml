@@ -1,0 +1,116 @@
+# Monthly refresh of the building-level DLD rent dataset.
+#
+# Streams the full Ejari rent-contract corpus from data.dubai straight into the
+# ingest — never writing the ~13.5 GB of NDJSON to disk, because a GitHub
+# runner only has ~14 GB free. The pull runs at roughly 6 pages/min over ~1,500
+# pages, so budget ~4 hours.
+#
+# The ingest refuses to write when building coverage drops more than
+# MAX_COVERAGE_DROP (default 20%), which is what stops a schema change upstream
+# from quietly committing a gutted dataset. Re-run with force: true from the
+# Actions tab once you have looked at why it dropped.
+
+name: Refresh DLD rents
+
+# NOTE: the monthly schedule is deliberately DISABLED.
+#
+# The data.dubai endpoint this workflow pulls from cannot produce a complete
+# extract. A full run returned 714,000 rows of which only 523,736 were distinct
+# (26.6% duplicates): from page ~19 onward it re-serves earlier pages' content
+# in ~1,984-row chunks, and the rows it does return skew to 2010-2013 — recent
+# months come back with 1-3 rows each. Sorting params are silently ignored and
+# filtering returns HTTP 400. It is a browsable preview API, not a bulk export.
+#
+# The mechanics below (streaming, pagination, checkpointing, the coverage
+# guard) are sound and worth keeping — they just need a source that can serve
+# the whole dataset. The likely candidate is the credentialed DDA API already
+# used by lib/dda-client.ts (dld_rent_contracts-open-api), which supports real
+# filtering. Re-enable the schedule once a source is verified end to end.
+#
+# Until then this is manual-dispatch only, so it cannot fail on a timer.
+on:
+  # schedule:
+  #   - cron: "0 2 1 * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Write even if coverage drops past the limit"
+        type: boolean
+        default: false
+      collect_window:
+        description: "Months of history to retain"
+        default: "24"
+
+# Never let a scheduled run overlap a manual one — they would fight over the
+# same commit.
+concurrency:
+  group: dld-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Record current coverage
+        id: before
+        run: |
+          node -e '
+            const m = require("./lib/data/building-ltr-rents.json").meta;
+            console.log(`generatedAt=${m.generatedAt} buildings=${m.buildingsCovered} areas=${m.areasCovered}`);
+          ' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Pull and ingest
+        env:
+          COLLECT_WINDOW: ${{ github.event.inputs.collect_window || '24' }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '1' || '0' }}
+        run: |
+          set -o pipefail
+          node scripts/pull-datadubai.mjs --stdout | node scripts/ingest-dld-rents.mjs -
+
+      - name: Verify the regenerated dataset
+        # Fails the run before anything is committed if the new file publishes a
+        # spread on too small a sample, or has percentiles that do not straddle
+        # their own median.
+        run: node scripts/test-rent-tiers.mjs lib/data/building-ltr-rents.json
+
+      - name: Summarise result
+        run: |
+          node -e '
+            const m = require("./lib/data/building-ltr-rents.json").meta;
+            const rows = [
+              ["generated", m.generatedAt],
+              ["source rows", m.sourceRows?.toLocaleString()],
+              ["used rows", m.usedRows?.toLocaleString()],
+              ["buildings", m.buildingsCovered],
+              ["masters", m.mastersCovered],
+              ["areas", m.areasCovered],
+              ["aliases", `${m.aliasesCovered} (${m.ambiguousAliases} ambiguous dropped)`],
+              ["basis new / all", `${m.buildingBedsFromNewLets} / ${m.buildingBedsFromAllContracts}`],
+              ["window / minSamples / recentN", `${m.collectWindow}mo / ${m.minSamples} / ${m.recentN}`],
+            ];
+            console.log("| field | value |\n| --- | --- |");
+            for (const [k, v] of rows) console.log(`| ${k} | ${v} |`);
+          ' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- lib/data/building-ltr-rents.json; then
+            echo "No change to the dataset — nothing to commit." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/data/building-ltr-rents.json
+          git commit -m "chore: refresh DLD building-level rents"
+          git push

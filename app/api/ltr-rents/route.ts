@@ -17,7 +17,9 @@ import {
 } from "@/lib/dda-client";
 import {
   lookupDLDBuilding,
+  lookupDLDMaster,
   lookupDLDArea,
+  getMasterForBuilding,
   normalizeName,
 } from "@/lib/building-rents";
 import type { UnitSize } from "@/lib/estimator";
@@ -218,8 +220,11 @@ export async function GET(request: Request) {
   }
 
   // ── 3. Static JSON fallback ────────────────────────────────────────────
+  // Same cascade as the estimator: building -> master community -> DLD area.
+  const master = getMasterForBuilding(project);
   const staticStat =
     lookupDLDBuilding(project, bedrooms as UnitSize) ??
+    (master ? lookupDLDMaster(master, bedrooms as UnitSize) : null) ??
     (area ? lookupDLDArea(area, bedrooms as UnitSize) : null);
 
   if (staticStat) {
