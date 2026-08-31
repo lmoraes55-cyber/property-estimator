@@ -147,7 +147,12 @@ async function fetchPage(page) {
       // Without a deterministic sort, offset paging is not reproducible here.
       url.searchParams.set("order_by", ORDER_BY);
       url.searchParams.set("order_dir", ORDER_DIR);
-      for (const f of FILTERS) url.searchParams.append("filter", f);
+      // MUST be one `filter` param joined with AND. Repeating the param does
+      // NOT AND the conditions — the API silently applies only the LAST one and
+      // drops the rest, with a 200 and plausible-looking rows. Measured: date
+      // THEN usage returned 0 rows matching the date; usage THEN date returned
+      // 0 matching the usage. `a AND b` in one param applies both.
+      if (FILTERS.length) url.searchParams.set("filter", FILTERS.join(" AND "));
 
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
@@ -180,7 +185,7 @@ const rowKey = r => `${r.contract_id ?? ""}|${r.line_number ?? ""}`;
 async function stabilityCheck() {
   const P = 700;
   console.log(`Stability check with order_by=${ORDER_BY} ${ORDER_DIR}, pageSize=${PAGE_SIZE}`);
-  if (FILTERS.length) console.log(`Filters: ${FILTERS.join("  AND  ")}`);
+  if (FILTERS.length) console.log(`Filter: ${FILTERS.join(" AND ")}`);
   console.log();
   const a = await fetchPage(P);
   const b = await fetchPage(P);
@@ -226,7 +231,7 @@ async function main() {
   } else {
     for (const f of [OUT, CKPT, SEEN]) if (fs.existsSync(f)) fs.unlinkSync(f);
     console.log(`Starting fresh. dataset=${DATASET} pageSize=${PAGE_SIZE} order_by=${ORDER_BY} ${ORDER_DIR}`);
-    console.log(FILTERS.length ? `Filters: ${FILTERS.join("  AND  ")}` : "Filters: none — pulling the ENTIRE corpus (~10,000 pages, ~17h). Consider --since.");
+    console.log(FILTERS.length ? `Filter: ${FILTERS.join(" AND ")}` : "Filter: none — pulling the ENTIRE corpus (~10,000 pages, ~17h). Consider --since.");
   }
 
   const out = fs.createWriteStream(OUT, { flags: "a" });

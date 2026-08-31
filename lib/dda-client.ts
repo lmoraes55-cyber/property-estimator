@@ -109,18 +109,29 @@ export async function ddaQuery<T = Record<string, unknown>>(
   if (opts.orderBy)  url.searchParams.set("order_by",  opts.orderBy);
   if (opts.orderDir) url.searchParams.set("order_dir", opts.orderDir);
 
-  // Exact-match: filter=col='value' — single quotes required when value contains spaces
+  // Filters MUST go out as ONE `filter` param joined with AND.
+  //
+  // Repeating the param does NOT AND the conditions — the API silently keeps
+  // only the LAST one and drops the rest, returning 200 with plausible-looking
+  // rows. Measured against dld_transactions: sending trans_group_en='Sales'
+  // and a project-name LIKE as two params dropped the Sales restriction, so
+  // 153 of 500 rows came back Mortgages and Gifts. Joined into one param, the
+  // same query returns 500 Sales and nothing else.
+  //
+  // Exact-match values are single-quoted so spaces are safe; LIKE patterns are
+  // supplied by the caller including their own % wildcards.
+  const filterExprs: string[] = [];
   if (opts.filters) {
     for (const [col, val] of Object.entries(opts.filters)) {
-      url.searchParams.append("filter", `${col}='${val}'`);
+      filterExprs.push(`${col}='${val}'`);
     }
   }
-  // LIKE: filter=col LIKE 'pattern'
   if (opts.likeFilters) {
     for (const [col, val] of Object.entries(opts.likeFilters)) {
-      url.searchParams.append("filter", `${col} LIKE '${val}'`);
+      filterExprs.push(`${col} LIKE '${val}'`);
     }
   }
+  if (filterExprs.length) url.searchParams.set("filter", filterExprs.join(" AND "));
 
   const res = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${token}` },
