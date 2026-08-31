@@ -390,7 +390,7 @@ async function fetchContractsForName(
   pageSize: number,
   maxRecords: number,
   exactMatch = false,  // true when using canonical DLD name from name map
-  field: "project_name_en" | "area_name_en" = "project_name_en"
+  field: "project_name_en" | "area_name_en" | "master_project_en" = "project_name_en"
 ): Promise<DLDRentContract[]> {
   const allContracts: DLDRentContract[] = [];
   let page = 1;
@@ -521,6 +521,51 @@ export async function fetchAreaContracts(
   // name with trailing whitespace or a minor variant (mirrors the project-name path).
   return fetchContractsForName(
     areaName, columns as string[], cutoffStr, 1000, maxRecords, false, "area_name_en"
+  );
+}
+
+/**
+ * Rent contracts for a MASTER COMMUNITY (master_project_en).
+ *
+ * Sits between the building and the DLD administrative area, because several
+ * areas pool genuinely different markets. Marsa Dubai alone covers Dubai
+ * Marina, JBR, Dubai Harbour and Bluewaters — measured medians 145,000 /
+ * 117,233 / 190,982 / 482,500 for a 2BR against a pooled area figure of
+ * 175,000, so an area fallback overstates JBR by ~49% and understates
+ * Bluewaters by ~64%.
+ *
+ * Still NOT building-specific: this is pooled across the community, so callers
+ * must surface it as such and never present it as the requested building.
+ */
+export async function fetchMasterContracts(
+  masterName: string,
+  options: { daysBack?: number; maxRecords?: number } = {}
+): Promise<DLDRentContract[]> {
+  if (!masterName) return [];
+  const { daysBack = 30, maxRecords = 2000 } = options;
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - daysBack);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  const columns: (keyof DLDRentContract)[] = [
+    "contract_id", "annual_amount", "actual_area",
+    "project_name_en", "area_name_en",
+    "ejari_property_type_en", "ejari_property_sub_type_en",
+    "property_usage_en", "contract_start_date", "contract_end_date", "is_free_hold",
+    "contract_reg_type_en",
+  ];
+
+  // Exact first. DLD's own spelling is inconsistent here — the JBR community is
+  // stored as "Jumeriah Beach Residence  - JBR", with their misspelling and a
+  // double space — so a caller passing a tidier name needs the LIKE retry.
+  const exact = await fetchContractsForName(
+    masterName, columns as string[], cutoffStr, 1000, maxRecords, true, "master_project_en"
+  );
+  if (exact.length > 0) return exact;
+
+  return fetchContractsForName(
+    masterName, columns as string[], cutoffStr, 1000, maxRecords, false, "master_project_en"
   );
 }
 

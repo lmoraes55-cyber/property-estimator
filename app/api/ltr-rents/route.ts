@@ -9,6 +9,7 @@
 import { NextResponse } from "next/server";
 import {
   fetchProjectContracts,
+  fetchMasterContracts,
   fetchAreaContracts,
   computeLTRStats,
   dldBedroomBucket,
@@ -20,9 +21,11 @@ import {
   lookupDLDMaster,
   lookupDLDArea,
   getMasterForBuilding,
+  resolveMasterName,
   normalizeName,
 } from "@/lib/building-rents";
 import type { UnitSize } from "@/lib/estimator";
+import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
 
 export const dynamic = "force-dynamic";
 export const preferredRegion = "dxb1";
@@ -40,7 +43,7 @@ export interface RecentContract {
 // average) is visible and debuggable, not hidden behind a plausible-looking
 // number. "area" means the figure is pooled across the whole community, not
 // specific to the requested building — never present that as building-level.
-type MatchLevel = "building-sized" | "building" | "area" | null;
+type MatchLevel = "building-sized" | "building" | "master" | "area" | null;
 
 interface CacheEntry {
   stat: LTRStat | null;
@@ -57,6 +60,33 @@ function cacheKey(project: string, bedrooms: string, sizeSqft: number) {
 }
 
 const SIZE_BAND_PCT = 0.12;
+
+/**
+ * Our curated community for a building ("Jumeirah Beach Residence (JBR)"),
+ * which is the only place that mapping exists.
+ *
+ * It cannot come from DLD: the buildings that most need a community fallback
+ * are precisely the ones DLD never gave a project tag, so they are absent from
+ * its project list and their master_project_en is unreachable by name. It
+ * cannot come from the `area` param either — that carries the DLD
+ * ADMINISTRATIVE area ("Marsa Dubai"), which pools Marina, JBR, Dubai Harbour
+ * and Bluewaters into one figure and is exactly what this tier exists to avoid.
+ *
+ * Resolved here rather than in the client so every caller of this route gets
+ * it, not just the report page.
+ */
+function curatedCommunity(project: string): string | null {
+  if (!project) return null;
+  const direct = BUILDINGS_DATABASE[project];
+  if (direct?.area) return direct.area;
+  const target = normalizeName(project);
+  if (!target) return null;
+  for (const rec of Object.values(BUILDINGS_DATABASE)) {
+    if (normalizeName(rec.name) === target) return rec.area || null;
+    if (rec.dldKey && rec.dldKey === project) return rec.area || null;
+  }
+  return null;
+}
 
 function withinSizeBand(c: DLDRentContract, sizeSqft: number): boolean {
   const areaSqft = c.actual_area > 0 ? c.actual_area * 10.764 : 0;
@@ -159,6 +189,7 @@ export async function GET(request: Request) {
       let windowUsed = 0;
       let sizeFilterApplied = false;
       let matchLevel: MatchLevel = null;
+      let masterUsed: string | null = null;
 
       // Pass 1: bedroom bucket + size band (if a size was given).
       if (sizeSqft > 0) {
@@ -193,6 +224,45 @@ export async function GET(request: Request) {
         }
       }
 
+      // Pass 2.5: community-level, between the building and the DLD area.
+      // Several DLD areas pool genuinely different markets — Marsa Dubai
+      // covers Dubai Marina, JBR, Dubai Harbour and Bluewaters, whose 2BR
+      // medians are 145,000 / 117,233 / 190,982 / 482,500 against a pooled
+      // area figure of 175,000. Falling straight from building to area
+      // overstates JBR by ~49% and understates Bluewaters by ~64%.
+      //
+      // The community is resolved from our own curated data, not from DLD:
+      // buildings DLD never project-tagged (all of JBR among them) are absent
+      // from its project list, so the master cannot be derived from the API
+      // for exactly the buildings that need it most.
+      //
+      // Like the area pass, this is POOLED, not building-specific — matchLevel
+      // says "master" so no caller can present it as the requested building.
+      if (!stat) {
+        // Order matters. The curated community is the most specific signal we
+        // have for an untagged building; `area` is the DLD administrative area
+        // and is tried last only because a few of them share a master's name.
+        const masterCandidates = [
+          getMasterForBuilding(project),
+          curatedCommunity(project),
+          area,
+        ].filter((m): m is string => Boolean(m));
+        for (const candidate of masterCandidates) {
+          const resolved = resolveMasterName(candidate);
+          if (!resolved) continue;
+          const contracts = await fetchMasterContracts(resolved, { daysBack: FETCH_WINDOW_DAYS });
+          const sorted = mostRecent(bedroomContractsFor(contracts));
+          if (sorted.length >= MIN_FOR_STAT) {
+            stat = computeLTRStats(sorted);
+            recent = toRecentContracts(sorted);
+            windowUsed = FETCH_WINDOW_DAYS;
+            matchLevel = "master";
+            masterUsed = resolved;
+            break;
+          }
+        }
+      }
+
       // Pass 3: project name matched nothing at all (e.g. Motor City — a
       // community of independently-named buildings, not one DLD project) —
       // fall back to a live area-level lookup instead of jumping to static JSON.
@@ -212,7 +282,7 @@ export async function GET(request: Request) {
 
       if (stat) {
         cache.set(key, { stat, recent, windowDays: windowUsed, matchLevel, ts: Date.now() });
-        return NextResponse.json({ stat, source: "dda-live", sizeFilterApplied, windowDays: windowUsed, matchLevel, recentContracts: recent });
+        return NextResponse.json({ stat, source: "dda-live", sizeFilterApplied, windowDays: windowUsed, matchLevel, master: masterUsed, recentContracts: recent });
       }
     } catch (err) {
       console.error("[ltr-rents] DDA API error:", (err as Error).message);

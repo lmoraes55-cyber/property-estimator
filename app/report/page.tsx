@@ -307,6 +307,11 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   const [ltrSource, setLtrSource] = useState<"static" | "dda-live">(
     snapshotResult ? "dda-live" : (lrOverride > 0 ? "dda-live" : "static")
   );
+  // "building-sized" | "building" | "master" | "area" — the tier the LIVE
+  // lookup resolved at. A live result is not automatically building-level:
+  // buildings DLD has no project tag for fall through to a pooled community
+  // or area figure, and the badge must say so.
+  const ltrMatch = params.get("lm") ?? "";
   const [pdfGenerating, setPdfGenerating] = useState(false);
   const [saved, setSaved] = useState(!!snapshotId);
   const [saving, setSaving] = useState(false);
@@ -1590,7 +1595,14 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   <svg aria-hidden="true" style={{ position: "absolute", bottom: -18, right: -18, opacity: 0.11, pointerEvents: "none" }} width="100" height="80" viewBox="0 0 100 80"><path d="M0 80 Q50 0 100 40" stroke="#B88A44" strokeWidth="1.4" fill="none"/></svg>
                   <p className="rc-label rc-label-bronze">LTR / Year</p>
                   <p className="rc-value rc-value-bronze" style={{ marginBottom: 8 }}>AED {fmt(result.longTermRent)}</p>
-                  {ltrSource === "dda-live" ? (
+                  {ltrSource === "dda-live" && (ltrMatch === "master" || ltrMatch === "area") ? (
+                    // Pooled, not building-specific — bronze like the other
+                    // non-building tiers, and labelled for what it is.
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      Live DLD · {ltrMatch === "master" ? "community avg" : "area avg"}
+                    </span>
+                  ) : ltrSource === "dda-live" ? (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.primary, background: "rgba(27,94,74,0.07)", border: "1px solid rgba(27,94,74,0.14)", borderRadius: 20, padding: "2px 8px" }}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       Live DLD · building
@@ -2449,6 +2461,10 @@ function ReportGate() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [lrParam, setLrParam] = useState("");
+  // Which tier the live lookup actually resolved at. Without this the report
+  // badges every dda-live result "building", including the ones the API
+  // explicitly returns as pooled area or community figures.
+  const [lmParam, setLmParam] = useState("");
 
   useEffect(() => {
     const existingLr = Number(params.get("lr")) || 0;
@@ -2474,13 +2490,14 @@ function ReportGate() {
 
     fetch(`/api/ltr-rents?${qs}`, { signal: controller.signal })
       .then(r => r.json())
-      .then((data: { stat: { median: number } | null; source: string }) => {
+      .then((data: { stat: { median: number } | null; source: string; matchLevel?: string | null }) => {
         clearTimeout(timeout);
         const median = data?.stat?.median;
         const isLive = data?.source === "dda-live" || data?.source === "dda-live-cached";
         // Batch both state updates together so ReportContent sees lrParam on first render
         if (median && isLive) {
           setLrParam(String(median));
+          if (data.matchLevel) setLmParam(data.matchLevel);
         }
         setReady(true);
       })
@@ -2509,6 +2526,7 @@ function ReportGate() {
   // Inject lr into search params so ReportContent initialises with live value
   const fullParams = new URLSearchParams(params.toString());
   if (lrParam) fullParams.set("lr", lrParam);
+  if (lmParam) fullParams.set("lm", lmParam);
 
   return <ReportContent overrideParams={fullParams} />;
 }

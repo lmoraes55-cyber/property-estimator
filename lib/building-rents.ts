@@ -229,21 +229,19 @@ for (const k of Object.keys(data.masters ?? {})) {
  * Bluewaters; Al Merkadh covers District One, Meydan One and Sobha Hartland.
  * Still NOT building-specific — callers must not present it as such.
  */
-export function lookupDLDMaster(masterName: string, unitSize: UnitSize): RentStat | null {
+function findMasterKey(
+  masterName: string,
+  accept: (key: string) => boolean = () => true
+): string | null {
   if (!masterName || !data.masters) return null;
-
-  const direct = data.masters[masterName]?.beds?.[unitSize];
-  if (direct) return { ...direct, match: "master" };
+  if (data.masters[masterName] && accept(masterName)) return masterName;
 
   const target = normalizeMaster(masterName);
   if (!target) return null;
 
   // Exact normalized hit.
   const key = masterIndex.get(target);
-  if (key) {
-    const s = data.masters[key]?.beds?.[unitSize];
-    if (s) return { ...s, match: "master" };
-  }
+  if (key && accept(key)) return key;
 
   // Token-subset: one side may carry extra qualifiers the other omits
   // ("Dubai Marina" vs "Marina", "... - JBR" vs "(JBR)"). Require every token
@@ -252,25 +250,41 @@ export function lookupDLDMaster(masterName: string, unitSize: UnitSize): RentSta
   const tTokens = target.split(" ").filter(Boolean);
   if (tTokens.length < 2) return null;
 
-  // Collect every subset match, then take the closest one — fewest extra
-  // tokens. Without this, "Dubai Hills" would match whichever of
-  // "DUBAI HILLS - MAPLE 1" / "Dubai Hills Estate" happened to be inserted
-  // first, rather than the least-qualified name.
+  // Take the CLOSEST subset match — fewest extra tokens. Without this,
+  // "Dubai Hills" would match whichever of "DUBAI HILLS - MAPLE 1" /
+  // "Dubai Hills Estate" happened to be inserted first, rather than the
+  // least-qualified name.
   let best: { orig: string; extra: number } | null = null;
   for (const [nk, orig] of masterIndex) {
     const kTokens = nk.split(" ").filter(Boolean);
     const [short, long] = tTokens.length <= kTokens.length ? [tTokens, kTokens] : [kTokens, tTokens];
     if (short.length < 2) continue;
     if (!short.every(t => long.includes(t))) continue;
-    if (!data.masters[orig]?.beds?.[unitSize]) continue;
+    if (!accept(orig)) continue;
     const extra = Math.abs(kTokens.length - tTokens.length);
     if (!best || extra < best.extra) best = { orig, extra };
   }
-  if (best) {
-    const s = data.masters[best.orig]?.beds?.[unitSize];
-    if (s) return { ...s, match: "master" };
-  }
-  return null;
+  return best ? best.orig : null;
+}
+
+/**
+ * Canonical DLD master-community name for a community as WE spell it, or null.
+ *
+ * The live path needs this because it queries DLD by master_project_en, and the
+ * two vocabularies disagree: ours says "Jumeirah Beach Residence (JBR)", DLD
+ * says "Jumeriah Beach Residence  - JBR" (their misspelling, their double
+ * space). Resolving against the ingested master list means the live query is
+ * sent a name DLD will actually match.
+ */
+export function resolveMasterName(name: string): string | null {
+  return findMasterKey(name);
+}
+
+export function lookupDLDMaster(masterName: string, unitSize: UnitSize): RentStat | null {
+  const key = findMasterKey(masterName, k => Boolean(data.masters?.[k]?.beds?.[unitSize]));
+  if (!key) return null;
+  const s = data.masters?.[key]?.beds?.[unitSize];
+  return s ? { ...s, match: "master" } : null;
 }
 
 /** Area-level actual rent (fallback when a specific building has too few contracts). */
