@@ -28,11 +28,23 @@
  *
  *     node --env-file=.env.dda scripts/pull-dda-bulk.mjs
  *
+ * SERVER-SIDE FILTERING — use it, the whole corpus is not worth pulling
+ *   The API caps every response at 1,000 rows no matter what pageSize asks for
+ *   (2000/5000/10000 all return 1000; 20000 is a 422), so a full ~10M-row pull
+ *   is ~10,000 requests, about 17 hours. But it DOES filter server-side,
+ *   including date comparisons, and the ingest only keeps a 24-month window
+ *   anyway. `--since` cuts the job by roughly 10x.
+ *
+ *   Verified working: `col >= 'value'`, `col LIKE 'pattern%'`, `col='value'`.
+ *   Avoid exact equality on a date — `contract_start_date='2026-08-01'`
+ *   returned HTTP 408 (gateway timeout) while `>=` on the same column is fine.
+ *
  * USAGE
- *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs                  # full, resumable
+ *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --since 2024-09-01 --residential
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --max-pages 5    # smoke test
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --check          # stability check only
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --restart
+ *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --filter "area_name_en='Marsa Dubai'"
  *
  * Then:
  *   node scripts/ingest-dld-rents.mjs data/raw/dda_rent_contracts.ndjson
@@ -58,6 +70,19 @@ const argVal = (f, d) => { const i = argv.indexOf(f); return i !== -1 && argv[i 
 const MAX_PAGES = argVal("--max-pages", Infinity);
 const RESTART = argv.includes("--restart");
 const CHECK_ONLY = argv.includes("--check");
+
+// Server-side filters, ANDed by the API (repeated `filter` query params).
+const FILTERS = [];
+{
+  const strVal = f => { const i = argv.indexOf(f); return i !== -1 && argv[i + 1] ? argv[i + 1] : null; };
+  const since = strVal("--since");
+  if (since) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) { console.error(`--since must be YYYY-MM-DD, got "${since}"`); process.exit(1); }
+    FILTERS.push(`contract_start_date >= '${since}'`);
+  }
+  if (argv.includes("--residential")) FILTERS.push("property_usage_en LIKE 'Residential%'");
+  for (let i = 0; i < argv.length; i++) if (argv[i] === "--filter" && argv[i + 1]) FILTERS.push(argv[i + 1]);
+}
 
 const OUT = path.join(ROOT, "data", "raw", "dda_rent_contracts.ndjson");
 const CKPT = path.join(ROOT, "data", "raw", "dda_rent_contracts.progress.json");
@@ -122,6 +147,7 @@ async function fetchPage(page) {
       // Without a deterministic sort, offset paging is not reproducible here.
       url.searchParams.set("order_by", ORDER_BY);
       url.searchParams.set("order_dir", ORDER_DIR);
+      for (const f of FILTERS) url.searchParams.append("filter", f);
 
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
@@ -153,21 +179,31 @@ const rowKey = r => `${r.contract_id ?? ""}|${r.line_number ?? ""}`;
 // repeat must be identical and the neighbour must not overlap.
 async function stabilityCheck() {
   const P = 700;
-  console.log(`Stability check with order_by=${ORDER_BY} ${ORDER_DIR}, pageSize=${PAGE_SIZE}\n`);
+  console.log(`Stability check with order_by=${ORDER_BY} ${ORDER_DIR}, pageSize=${PAGE_SIZE}`);
+  if (FILTERS.length) console.log(`Filters: ${FILTERS.join("  AND  ")}`);
+  console.log();
   const a = await fetchPage(P);
   const b = await fetchPage(P);
   const c = await fetchPage(P + 1);
 
   const ka = a.map(rowKey), kb = b.map(rowKey), kc = new Set(c.map(rowKey));
-  const identical = ka.length === kb.length && ka.every((k, i) => k === kb[i]);
+
+  // Compare as SETS, not sequences. Rows sharing a contract_id tie-break
+  // nondeterministically among themselves, so the order within a page can
+  // shuffle while the page's membership is perfectly stable — and membership
+  // is all a complete extract needs.
+  const setA = new Set(ka), setB = new Set(kb);
+  let shared = 0;
+  for (const k of setA) if (setB.has(k)) shared++;
+  const sameSet = setA.size === setB.size && shared === setA.size;
   const overlap = ka.filter(k => kc.has(k)).length;
 
   console.log(`  page ${P} fetch 1 : ${a.length} rows`);
   console.log(`  page ${P} fetch 2 : ${b.length} rows`);
-  console.log(`  identical        : ${identical ? "YES — pagination is stable" : "NO — ordering is NOT being honoured"}`);
+  console.log(`  same membership  : ${sameSet ? "YES — pagination is stable" : `NO — ${setA.size - shared} rows differ; ordering is NOT honoured`}`);
   console.log(`  overlap with ${P + 1}: ${overlap} rows ${overlap ? "— pages are not disjoint" : "— disjoint, good"}`);
   if (a[0]) console.log(`  first key        : ${rowKey(a[0])}`);
-  return identical && overlap === 0;
+  return sameSet && overlap === 0;
 }
 
 async function main() {
@@ -190,6 +226,7 @@ async function main() {
   } else {
     for (const f of [OUT, CKPT, SEEN]) if (fs.existsSync(f)) fs.unlinkSync(f);
     console.log(`Starting fresh. dataset=${DATASET} pageSize=${PAGE_SIZE} order_by=${ORDER_BY} ${ORDER_DIR}`);
+    console.log(FILTERS.length ? `Filters: ${FILTERS.join("  AND  ")}` : "Filters: none — pulling the ENTIRE corpus (~10,000 pages, ~17h). Consider --since.");
   }
 
   const out = fs.createWriteStream(OUT, { flags: "a" });
