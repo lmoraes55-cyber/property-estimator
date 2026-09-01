@@ -145,7 +145,7 @@ export default function AreaMap({
         el.style.borderRadius = "50%";
         el.style.background = color;
         el.style.opacity = isSelected ? "0.95" : "0.82";
-        el.style.border = `2px solid ${isSelected ? "#FDFBF7" : "rgba(255,255,255,0.65)"}`;
+        el.style.border = `2px solid ${isSelected ? "#FFFFFF" : "rgba(255,255,255,0.65)"}`;
         el.style.boxShadow = isSelected ? "0 6px 18px rgba(0,0,0,0.28)" : "0 2px 8px rgba(0,0,0,0.16)";
         el.style.display = "flex";
         el.style.alignItems = "center";
@@ -260,7 +260,7 @@ export default function AreaMap({
     return (
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        height: "100%", minHeight: 340, borderRadius: 12, border: "1px dashed #E6E1D8",
+        height: "100%", minHeight: 340, borderRadius: 12, border: "1px dashed #E2E8E5",
         background: "#F2EFE9", color: "#999", fontSize: 12.5, textAlign: "center", padding: 24,
       }}>
         {loadError ? "Map failed to load." : "Live map requires a Mapbox access token (NEXT_PUBLIC_MAPBOX_TOKEN)."}
@@ -273,7 +273,7 @@ export default function AreaMap({
       <div ref={containerRef} style={{ width: "100%", height: "100%", minHeight: 340, borderRadius: 12, overflow: "hidden" }} />
       <div style={{
         position: "absolute", top: 10, left: 10, zIndex: 2,
-        display: "flex", background: "#FDFBF7", border: "1px solid #E6E1D8",
+        display: "flex", background: "#FFFFFF", border: "1px solid #E2E8E5",
         borderRadius: 10, overflow: "hidden", boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
       }}>
         {(["heatmap", "clusters"] as const).map(mode => (
@@ -283,7 +283,7 @@ export default function AreaMap({
             style={{
               padding: "7px 14px", fontSize: 11.5, fontWeight: 700, border: "none", cursor: "pointer",
               background: viewMode === mode ? "#1B5E4A" : "transparent",
-              color: viewMode === mode ? "#fff" : "#6B6B6B",
+              color: viewMode === mode ? "#fff" : "#4E5D56",
               textTransform: "capitalize",
             }}
           >

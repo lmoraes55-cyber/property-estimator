@@ -18,11 +18,11 @@ import AccessGate from "@/components/AccessGate";
 const C = {
   primary: "#1B5E4A",
   bronze: "#B88A44",
-  bg: "#F8F4EE",
+  bg: "#F7F9F8",
   surface: "#FFFFFF",
-  border: "#E6E1D8",
-  text: "#1A1A1A",
-  muted: "#6B6B6B",
+  border: "#E2E8E5",
+  text: "#0F1D18",
+  muted: "#4E5D56",
   risk: {
     low: "#2D7A4F",
     medium: "#A37020",
@@ -31,7 +31,7 @@ const C = {
   },
 };
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 const stk = (c: string, w = 1.4) => ({
   stroke: c, strokeWidth: w, fill: "none",
@@ -389,7 +389,7 @@ function SubleasingEstimatorInner() {
                     </div>
                     <div>
                       <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: C.primary, marginBottom: "1px" }}>SECTION 1 OF 3</div>
-                      <div style={{ fontSize: "18px", fontWeight: 700, color: C.bronze, fontFamily: serif }}>Property Details</div>
+                      <div style={{ fontSize: "18px", fontWeight: 500, color: C.bronze, fontFamily: serif }}>Property Details</div>
                     </div>
                   </div>
 
@@ -510,7 +510,7 @@ function SubleasingEstimatorInner() {
                     </div>
                     <div>
                       <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: C.primary, marginBottom: "1px" }}>SECTION 2 OF 3</div>
-                      <div style={{ fontSize: "18px", fontWeight: 700, color: C.bronze, fontFamily: serif }}>Location & Unit Quality</div>
+                      <div style={{ fontSize: "18px", fontWeight: 500, color: C.bronze, fontFamily: serif }}>Location & Unit Quality</div>
                     </div>
                   </div>
 
@@ -652,7 +652,7 @@ function SubleasingEstimatorInner() {
                     </div>
                     <div>
                       <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: C.primary, marginBottom: "1px" }}>SECTION 3 OF 3</div>
-                      <div style={{ fontSize: "18px", fontWeight: 700, color: C.bronze, fontFamily: serif }}>Lease & Cost Assumptions</div>
+                      <div style={{ fontSize: "18px", fontWeight: 500, color: C.bronze, fontFamily: serif }}>Lease & Cost Assumptions</div>
                     </div>
                   </div>
 
@@ -784,7 +784,7 @@ function SubleasingEstimatorInner() {
               padding: "28px 26px",
             }}>
               <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "12px" }}>RISK ESTIMATOR</div>
-              <h3 style={{ fontFamily: serif, fontSize: "17px", fontWeight: 700, color: C.text, marginBottom: "10px", lineHeight: 1.35 }}>What This Estimator Checks</h3>
+              <h3 style={{ fontFamily: serif, fontSize: "17px", fontWeight: 500, color: C.text, marginBottom: "10px", lineHeight: 1.35 }}>What This Estimator Checks</h3>
               <p style={{ fontSize: "13px", color: C.muted, lineHeight: 1.65, marginBottom: "20px" }}>
                 Before signing a lease, AssetIntel analyses whether the unit&apos;s economics work in your favour.
               </p>
@@ -837,7 +837,7 @@ function SubleasingEstimatorInner() {
         {/* ─── Why This Matters section ─── */}
         <div style={{ marginTop: "52px", maxWidth: "860px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", color: C.bronze, marginBottom: "12px" }}>CONTEXT</div>
-          <h2 style={{ fontFamily: serif, fontSize: "26px", fontWeight: 700, color: C.text, marginBottom: "28px" }}>Why This Matters Before Signing</h2>
+          <h2 style={{ fontFamily: serif, fontSize: "26px", fontWeight: 500, color: C.text, marginBottom: "28px" }}>Why This Matters Before Signing</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
             {[
               { title: "Fixed Rent Risk", body: "Your rent is fixed every month even when STR demand drops in summer or during slower booking periods." },
@@ -846,7 +846,7 @@ function SubleasingEstimatorInner() {
             ].map(({ title, body }) => (
               <div key={title} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "22px 20px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.bronze, marginBottom: "12px" }} />
-                <h3 style={{ fontFamily: serif, fontSize: "15px", fontWeight: 700, color: C.text, marginBottom: "8px" }}>{title}</h3>
+                <h3 style={{ fontFamily: serif, fontSize: "15px", fontWeight: 500, color: C.text, marginBottom: "8px" }}>{title}</h3>
                 <p style={{ fontSize: "13px", color: C.muted, lineHeight: 1.65, margin: 0 }}>{body}</p>
               </div>
             ))}
@@ -864,7 +864,7 @@ function SubleasingEstimatorInner() {
 
 export default function SubleasingEstimatorPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F8F4EE" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F7F9F8" }} />}>
       <SubleasingEstimatorInner />
     </Suspense>
   );

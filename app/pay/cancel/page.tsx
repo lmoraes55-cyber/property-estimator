@@ -6,10 +6,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 const colors = {
   primary: "#1B5E4A",
   secondary: "#B88A44",
-  bgMain: "#F8F4EE",
-  textMain: "#1A1A1A",
-  textMuted: "#6B6B6B",
-  border: "#E6E1D8",
+  bgMain: "#F7F9F8",
+  textMain: "#0F1D18",
+  textMuted: "#4E5D56",
+  border: "#E2E8E5",
 };
 
 function PayCancelContent() {
@@ -26,7 +26,7 @@ function PayCancelContent() {
             <path d="M8 8L20 20M20 8L8 20" stroke={isDeclined ? "#C0392B" : colors.textMuted} strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </div>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: colors.textMain, fontFamily: "'Georgia', serif", margin: "0 0 12px" }}>
+        <h1 style={{ fontSize: 26, fontWeight: 500, color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", margin: "0 0 12px" }}>
           {isDeclined ? "Payment Declined" : "Payment Cancelled"}
         </h1>
         <p style={{ fontSize: 15, color: colors.textMuted, margin: "0 0 32px", lineHeight: 1.6 }}>

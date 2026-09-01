@@ -11,14 +11,14 @@ const C = {
   greenLight:  "#2A7A62",
   bronze:      "#B88A44",
   bronzeDark:  "#8B6F3F",
-  bg:          "#F8F4EE",
-  bgSection:   "#FDFBF7",
-  bgSage:      "#EFF4F0",
-  text:        "#1A1A1A",
-  textMuted:   "#6B6B6B",
-  textLight:   "#8E8E8E",
-  border:      "#E6E1D8",
-  borderSage:  "#C8DAD0",
+  bg:          "#F7F9F8",
+  bgSection:   "#FFFFFF",
+  bgSage:      "#EDF3F0",
+  text:        "#0F1D18",
+  textMuted:   "#4E5D56",
+  textLight:   "#66756D",
+  border:      "#E2E8E5",
+  borderSage:  "#C6D8CF",
 };
 
 // ── Icons ──────────────────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ function EnquiryModal({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.bronze, marginBottom: 8 }}>Speak To An Advisor</p>
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 6, fontFamily: "'Georgia', serif" }}>Get in touch</h3>
+            <h3 style={{ fontSize: 20, fontWeight: 500, color: C.text, marginBottom: 6, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Get in touch</h3>
             <p style={{ fontSize: 13, color: C.textMuted, marginBottom: 24, lineHeight: 1.6 }}>Tell us about your property and what you're trying to decide. We'll respond with practical guidance.</p>
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <input required placeholder="Your name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -236,7 +236,7 @@ export default function AboutPage() {
                 <h1 style={{
                   fontSize: "clamp(28px, 4vw, 50px)",
                   fontWeight: 700,
-                  fontFamily: "'Georgia', serif",
+                  fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
                   lineHeight: 1.15,
                   marginBottom: 20,
                   color: C.green,
@@ -301,7 +301,7 @@ export default function AboutPage() {
         <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.borderSage}` }}>
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Our Background</p>
-            <h2 style={{ fontSize: "clamp(24px, 3vw, 38px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 32, lineHeight: 1.2 }}>Why We Built AssetIntel</h2>
+            <h2 style={{ fontSize: "clamp(24px, 3vw, 38px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: C.text, marginBottom: 32, lineHeight: 1.2 }}>Why We Built AssetIntel</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75 }}>
                 AssetIntel was built after years of working inside Dubai's short-term rental and leasing market.
@@ -312,7 +312,7 @@ export default function AboutPage() {
               <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75 }}>
                 AssetIntel was created to bring this experience into one practical property intelligence platform.
               </p>
-              <p style={{ fontSize: 17, fontWeight: 600, color: C.green, lineHeight: 1.65, fontFamily: "'Georgia', serif", fontStyle: "italic", marginTop: 8 }}>
+              <p style={{ fontSize: 17, fontWeight: 600, color: C.green, lineHeight: 1.65, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontStyle: "italic", marginTop: 8 }}>
                 Our goal is simple: help owners, investors, and operators make smarter rental, investment, and STR setup decisions before they commit money, time, or contracts.
               </p>
             </div>
@@ -323,7 +323,7 @@ export default function AboutPage() {
         <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Operations Experience</p>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 40, lineHeight: 1.2 }}>Built On Real Short-Term Rental Operating Knowledge</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: C.text, marginBottom: 40, lineHeight: 1.2 }}>Built On Real Short-Term Rental Operating Knowledge</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 40, alignItems: "start" }}>
 
               {/* Left: copy */}
@@ -362,7 +362,7 @@ export default function AboutPage() {
         <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Scale & Experience</p>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 20, lineHeight: 1.2 }}>From Smaller Portfolios To Large-Scale STR Operations</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: C.text, marginBottom: 20, lineHeight: 1.2 }}>From Smaller Portfolios To Large-Scale STR Operations</h2>
             <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, maxWidth: 680, marginBottom: 56 }}>
               AssetIntel is built on <strong style={{ color: C.text, fontWeight: 700 }}>6+ years</strong> of hands-on Dubai STR, leasing, and onboarding experience — including <strong style={{ color: C.text, fontWeight: 700 }}>setting up STR sub-leasing operations from the ground up</strong> — across every portfolio size, from a single owner-managed unit to Dubai STR portfolios of <strong style={{ color: C.text, fontWeight: 700 }}>up to around 900 properties</strong>. That range gives us a practical, A–Z understanding of the full STR journey: onboarding, furnishing readiness, listings, PMS, housekeeping, maintenance, guest relations, and owner reporting — and what actually changes as a portfolio grows.
             </p>
@@ -382,7 +382,7 @@ export default function AboutPage() {
                   }}>
                     <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green }} />
                   </div>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: C.green, fontFamily: "'Georgia', serif", marginBottom: 3 }}>{stage.label}</p>
+                  <p style={{ fontSize: 17, fontWeight: 500, color: C.green, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", marginBottom: 3 }}>{stage.label}</p>
                   <p style={{ fontSize: 11.5, fontWeight: 700, color: C.bronzeDark, letterSpacing: "0.04em", marginBottom: 8 }}>{stage.range}</p>
                   <p style={{ fontSize: 14.5, color: C.textMuted, lineHeight: 1.65, maxWidth: 560 }}>{stage.desc}</p>
                 </div>
@@ -399,14 +399,14 @@ export default function AboutPage() {
               {/* Left: copy */}
               <div>
                 <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Sub-Leasing Knowledge</p>
-                <h2 style={{ fontSize: "clamp(22px, 3vw, 34px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 20, lineHeight: 1.2 }}>STR Sub-Leasing Setup Experience</h2>
+                <h2 style={{ fontSize: "clamp(22px, 3vw, 34px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: C.text, marginBottom: 20, lineHeight: 1.2 }}>STR Sub-Leasing Setup Experience</h2>
                 <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, marginBottom: 16 }}>
                   We have helped set up STR sub-leasing operations from the ground up, including businesses scaling to portfolios of around 20 units and 9 units.
                 </p>
                 <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, marginBottom: 28 }}>
                   This gives AssetIntel practical insight into what makes sub-leasing work — and what makes it risky.
                 </p>
-                <p style={{ fontSize: 15, color: C.textMuted, lineHeight: 1.65, fontStyle: "italic", fontFamily: "'Georgia', serif" }}>
+                <p style={{ fontSize: 15, color: C.textMuted, lineHeight: 1.65, fontStyle: "italic", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>
                   Sub-leasing can be profitable, but only when the unit, rent, approvals, and operating setup are right.
                 </p>
               </div>
@@ -432,7 +432,7 @@ export default function AboutPage() {
         <section style={{ padding: "72px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12, textAlign: "center" }}>Our Services</p>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 700, fontFamily: "'Georgia', serif", textAlign: "center", marginBottom: 48, color: C.text }}>What AssetIntel Helps You Decide</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", textAlign: "center", marginBottom: 48, color: C.text }}>What AssetIntel Helps You Decide</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
               {services.map(svc => (
                 <div key={svc.title} style={{ background: "rgba(253,251,247,0.55)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px 20px", transition: "transform 0.18s, box-shadow 0.18s, border-color 0.18s" }}
@@ -453,7 +453,7 @@ export default function AboutPage() {
         <section style={{ background: C.green, padding: "72px 24px", borderTop: `1px solid rgba(255,255,255,0.08)` }}>
           <div style={{ maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 12 }}>Our Approach</p>
-            <h2 style={{ fontSize: "clamp(24px, 3vw, 40px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: "#fff", marginBottom: 16, lineHeight: 1.2 }}>Independent Guidance Before You Commit</h2>
+            <h2 style={{ fontSize: "clamp(24px, 3vw, 40px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: "#fff", marginBottom: 16, lineHeight: 1.2 }}>Independent Guidance Before You Commit</h2>
             <p style={{ fontSize: 16, color: "rgba(255,255,255,0.72)", lineHeight: 1.75, maxWidth: 620, margin: "0 auto 48px" }}>
               AssetIntel is designed to help users understand the opportunity and the risk before making a decision. We focus on rental intelligence, strategy, and setup advisory — not pushing one route blindly.
             </p>
@@ -475,7 +475,7 @@ export default function AboutPage() {
         <section style={{ padding: "80px 24px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: C.bronze, marginBottom: 16 }}>Get Started</p>
-            <h2 style={{ fontSize: "clamp(24px, 3.5vw, 42px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: C.text, marginBottom: 16, lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: "clamp(24px, 3.5vw, 42px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: C.text, marginBottom: 16, lineHeight: 1.2 }}>
               Make Your Next Property Decision With More Confidence
             </h2>
             <p style={{ fontSize: 16, color: C.textMuted, lineHeight: 1.75, marginBottom: 40, maxWidth: 600, margin: "0 auto 40px" }}>

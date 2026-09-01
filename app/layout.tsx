@@ -1,19 +1,35 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID } from "@/lib/gtag";
 import WelcomeToast from "@/components/WelcomeToast";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Display: geometric, used at light weights. This is what carries the
+// "engineered" feel — the weight drop matters as much as the typeface.
+const display = Outfit({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Body: has real character and excellent tabular figures, which a page full of
+// rent tables needs.
+const body = IBM_Plex_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+// Figures, labels and eyebrows — the instrument-readout voice.
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono-ai",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +53,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {(GA_MEASUREMENT_ID || GOOGLE_ADS_ID) && (

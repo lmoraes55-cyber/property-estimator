@@ -71,7 +71,7 @@ export default function LeadModal({ open, target, targetType, property, context,
               <span className="inline-flex items-center justify-center rounded-full mb-4" style={{ width: "52px", height: "52px", background: `${colors.primary}12`, border: `1px solid ${colors.primary}30` }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke={colors.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </span>
-              <h3 className="text-xl font-bold mb-2" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>Request received</h3>
+              <h3 className="text-xl font-bold mb-2" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Request received</h3>
               <p className="text-sm mb-4" style={{ color: colors.textMuted, lineHeight: 1.6 }}>
                 Thanks{name ? `, ${name.split(" ")[0]}` : ""} — {isService
                   ? <>our team will be in touch shortly about <span style={{ color: colors.primary, fontWeight: 600 }}>{target}</span>.</>
@@ -91,7 +91,7 @@ export default function LeadModal({ open, target, targetType, property, context,
           ) : (
             <>
               <p className="text-xs font-bold uppercase mb-2" style={{ color: colors.secondary, letterSpacing: "0.14em" }}>{isService ? "Get started" : "Request an introduction"}</p>
-              <h3 className="text-xl font-bold mb-1.5" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>
+              <h3 className="text-xl font-bold mb-1.5" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>
                 {isService ? target : `Connect with ${target}`}
               </h3>
               <p className="text-sm mb-5" style={{ color: colors.textMuted, lineHeight: 1.55 }}>

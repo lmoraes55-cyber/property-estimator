@@ -133,7 +133,7 @@ export default function HowSTRWorksPage() {
         <div style={{ position: "relative", zIndex: 2, maxWidth: 1520, margin: "0 auto", padding: isMobile ? "0 20px" : "0 48px" }}>
           <div style={{ maxWidth: "640px" }}>
             <Eyebrow>Owner STR Guide</Eyebrow>
-            <h1 style={{ fontFamily: serif, fontSize: isMobile ? "30px" : "42px", lineHeight: 1.16, fontWeight: 700, color: colors.primary, margin: "0 0 18px" }}>
+            <h1 style={{ fontFamily: serif, fontSize: isMobile ? "30px" : "42px", lineHeight: 1.16, fontWeight: 500, color: colors.primary, margin: "0 0 18px" }}>
               How Short-Term Rental Works — From Property Setup To Owner Income
             </h1>
             <p style={{ fontSize: isMobile ? "14.5px" : "16px", color: colors.textMuted, lineHeight: 1.65, marginBottom: "28px" }}>
@@ -238,7 +238,7 @@ export default function HowSTRWorksPage() {
             {READINESS_CHECKLIST.map((group, i) => (
               <div key={group.title} style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "14px", padding: "20px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                  <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: i % 2 === 0 ? "rgba(27,94,74,0.10)" : "rgba(184,138,68,0.12)", color: i % 2 === 0 ? colors.primary : colors.secondary, fontFamily: serif, fontWeight: 700, fontSize: "12.5px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</div>
+                  <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: i % 2 === 0 ? "rgba(27,94,74,0.10)" : "rgba(184,138,68,0.12)", color: i % 2 === 0 ? colors.primary : colors.secondary, fontFamily: serif, fontWeight: 500, fontSize: "12.5px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</div>
                   <div style={{ fontSize: "13.5px", fontWeight: 700, color: colors.textMain }}>{group.title}</div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -350,7 +350,7 @@ export default function HowSTRWorksPage() {
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(6, 1fr)", gap: "14px", marginBottom: "32px" }}>
             {PERFORMANCE_FACTORS.map((f, i) => (
               <div key={f} style={{ textAlign: "center", padding: "18px 12px", background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "14px" }}>
-                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: i % 2 === 0 ? "rgba(27,94,74,0.10)" : "rgba(184,138,68,0.12)", color: i % 2 === 0 ? colors.primary : colors.secondary, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontFamily: serif, fontWeight: 700, fontSize: "13px" }}>{i + 1}</div>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: i % 2 === 0 ? "rgba(27,94,74,0.10)" : "rgba(184,138,68,0.12)", color: i % 2 === 0 ? colors.primary : colors.secondary, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontFamily: serif, fontWeight: 500, fontSize: "13px" }}>{i + 1}</div>
                 <div style={{ fontSize: "12.5px", fontWeight: 700, color: colors.textMain, lineHeight: 1.4 }}>{f}</div>
               </div>
             ))}

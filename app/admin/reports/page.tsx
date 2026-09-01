@@ -17,7 +17,7 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
 
   return (
     <div>
-      <h1 style={{ fontFamily: "Georgia, serif", fontSize: 28, color: "#1B5E4A", marginBottom: 16 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 28, color: "#1B5E4A", marginBottom: 16 }}>
         Reports ({reports?.length ?? 0})
       </h1>
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -28,7 +28,7 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
           </a>
         ))}
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "#E6E1D8" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "#E2E8E5" }}>
         {(reports ?? []).map(r => {
           const key = groupContactKey(r.email, r.phone);
           const netIncome = reportNetIncome(r);
@@ -36,17 +36,17 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
             <>
               <div>
                 <div style={{ fontWeight: 700 }}>{TYPE_LABELS[r.report_type] || r.report_type} — {r.building_name || "—"}</div>
-                <div style={{ fontSize: 12, color: "#6B6B6B" }}>{r.name || r.email || "—"}</div>
+                <div style={{ fontSize: 12, color: "#4E5D56" }}>{r.name || r.email || "—"}</div>
               </div>
               <div style={{ textAlign: "right" as const }}>
                 {netIncome !== null && (
                   <div style={{ fontWeight: 700, color: "#1B5E4A" }}>AED {netIncome.toLocaleString()}/yr</div>
                 )}
-                <div style={{ fontSize: 12, color: "#6B6B6B" }}>{new Date(r.created_at).toLocaleString()}</div>
+                <div style={{ fontSize: 12, color: "#4E5D56" }}>{new Date(r.created_at).toLocaleString()}</div>
               </div>
             </>
           );
-          const rowStyle = { display: "flex" as const, justifyContent: "space-between" as const, padding: "12px 16px", background: "#fff", textDecoration: "none", color: "#1A1A1A" };
+          const rowStyle = { display: "flex" as const, justifyContent: "space-between" as const, padding: "12px 16px", background: "#fff", textDecoration: "none", color: "#0F1D18" };
           return key ? (
             <a key={r.id} href={`/admin/people/${encodeURIComponent(key)}`} style={rowStyle}>
               {rowContent}
@@ -58,7 +58,7 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
           );
         })}
         {(reports ?? []).length === 0 && (
-          <div style={{ padding: 16, background: "#fff", color: "#6B6B6B" }}>No reports recorded yet.</div>
+          <div style={{ padding: 16, background: "#fff", color: "#4E5D56" }}>No reports recorded yet.</div>
         )}
       </div>
     </div>

@@ -3,7 +3,7 @@
   THESIS: One area, fully understood, before the next — not a dashboard-shell trying to
     show all of Dubai at once. Refuses the generic sidebar+grid analytics-tool default
     this page shipped with.
-  OWN-WORLD: The Chartered Estate (unchanged) — forest green/bronze on warm ivory, Georgia
+  OWN-WORLD: forest green/bronze on a cool near-white ground, geometric display face at light weight,
     serif numbers, restrained lift+shadow. No new palette, no new type, no new material.
   STORY: An owner scans ranked areas, opens the one they care about, and immediately sees
     which numbers are real (DLD/AirROI/Airbtics, sourced) versus AssetIntel's own directional
@@ -29,7 +29,7 @@ import AccessGate from "@/components/AccessGate";
 import { colors } from "@/lib/colors";
 import type { AreaStatsRow } from "@/lib/str-market-data";
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 // ── STATIC EDITORIAL CONTENT (AssetIntel's own directional model — kept
 // visually and textually distinct from live sourced data throughout) ──────
@@ -315,7 +315,7 @@ export default function STRMarketIntelPage() {
         <section style={{ padding: "48px 24px 0", maxWidth: 1200, margin: "0 auto" }}>
           <EyebrowLabel>DUBAI'S PROPERTY INTELLIGENCE PLATFORM</EyebrowLabel>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginTop: 10, marginBottom: 8 }}>
-            <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: 0, lineHeight: 1.15, maxWidth: 640 }}>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: 0, lineHeight: 1.15, maxWidth: 640 }}>
               Dubai STR Market Intelligence
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
@@ -368,7 +368,7 @@ export default function STRMarketIntelPage() {
             {kpiCards.map(card => (
               <div key={card.label} style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, padding: "20px 22px", boxShadow: colors.shadowSm }}>
                 <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, marginBottom: 10 }}>{card.label}</p>
-                <p style={{ fontSize: 26, fontFamily: serif, fontWeight: 700, color: colors.textMain, margin: "0 0 8px" }}>{card.value}</p>
+                <p style={{ fontSize: 26, fontFamily: serif, fontWeight: 500, color: colors.textMain, margin: "0 0 8px" }}>{card.value}</p>
                 <SourceChip>{card.source}</SourceChip>
               </div>
             ))}
@@ -379,7 +379,7 @@ export default function STRMarketIntelPage() {
         <section id="mi-areas" style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <EyebrowLabel>DUBAI AREAS</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 8px" }}>Area Performance</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 8px" }}>Area Performance</h2>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 26, maxWidth: 640 }}>
               Ranked by RevPAR by default. Open any area for its full live profile — and AssetIntel's own directional read, kept visibly separate from sourced data.
             </p>
@@ -431,7 +431,7 @@ export default function STRMarketIntelPage() {
                       <tr>
                         <th style={{ textAlign: "left", padding: "6px 10px 6px 0", color: colors.textLight, fontWeight: 700, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.05em" }}>Metric</th>
                         {compareAreas.map(a => (
-                          <th key={a} style={{ textAlign: "left", padding: "6px 10px", color: colors.textMain, fontFamily: serif, fontWeight: 700, fontSize: 13.5 }}>{a}</th>
+                          <th key={a} style={{ textAlign: "left", padding: "6px 10px", color: colors.textMain, fontFamily: serif, fontWeight: 500, fontSize: 13.5 }}>{a}</th>
                         ))}
                       </tr>
                     </thead>
@@ -506,20 +506,20 @@ export default function STRMarketIntelPage() {
                       >
                       <span style={{ fontSize: 13, fontWeight: 700, color: colors.textLight }}>{i + 1}</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                        <span style={{ fontSize: 15.5, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{row.area}</span>
+                        <span style={{ fontSize: 15.5, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{row.area}</span>
                         {approx && <span style={{ fontSize: 8.5, fontWeight: 700, color: colors.secondaryText, border: `1px solid ${colors.secondaryText}`, borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>APPROX.</span>}
                       </span>
                       <span className="mi-accordion-metric">
                         <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>ADR</span>
-                        <span style={{ fontSize: 15, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{fmtAED(row.adr)}</span>
+                        <span style={{ fontSize: 15, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{fmtAED(row.adr)}</span>
                       </span>
                       <span className="mi-accordion-metric">
                         <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>Occupancy</span>
-                        <span style={{ fontSize: 15, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{fmtPct(row.occupancy)}</span>
+                        <span style={{ fontSize: 15, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{fmtPct(row.occupancy)}</span>
                       </span>
                       <span className="mi-accordion-metric">
                         <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>RevPAR</span>
-                        <span style={{ fontSize: 15, fontWeight: 800, color: colors.primary, fontFamily: serif }}>{fmtAED(row.revpar)}</span>
+                        <span style={{ fontSize: 15, fontWeight: 500, color: colors.primary, fontFamily: serif }}>{fmtAED(row.revpar)}</span>
                       </span>
                       <span style={{
                         width: 26, height: 26, borderRadius: "50%", background: "rgba(27,94,74,0.07)",
@@ -565,7 +565,7 @@ export default function STRMarketIntelPage() {
         <section id="mi-signals" style={{ padding: pad }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <EyebrowLabel>SIGNALS TO WATCH</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 8px" }}>Market Signals To Watch</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 8px" }}>Market Signals To Watch</h2>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 28, maxWidth: 640 }}>
               STR performance is not only about location. Owners should review the signals that directly affect income, risk, and guest conversion.
             </p>
@@ -589,7 +589,7 @@ export default function STRMarketIntelPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }} className="mi-methodology-grid">
               <div>
                 <EyebrowLabel>DIRECTIONAL MODEL — NOT MEASURED DATA</EyebrowLabel>
-                <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 14px" }}>How AssetIntel Scores STR Potential</h2>
+                <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 14px" }}>How AssetIntel Scores STR Potential</h2>
                 <p style={{ fontSize: 14, color: colors.textMuted, lineHeight: 1.75, marginBottom: 16 }}>
                   AssetIntel does not rank properties only by headline revenue. We consider whether a unit can realistically perform after management fees, running costs, furnishing quality, seasonality, and operator execution.
                 </p>
@@ -698,7 +698,7 @@ function AreaProfile({
           {snapshotMetrics.map(m => (
             <div key={m.label} style={{ padding: "11px 13px", background: colors.bgSection, borderRadius: 12, border: `1px solid ${colors.border}` }}>
               <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 4px" }}>{m.label}</p>
-              <p style={{ fontSize: 14, fontWeight: 700, color: colors.textMain, margin: 0, fontFamily: serif }}>{m.value}</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: colors.textMain, margin: 0, fontFamily: serif }}>{m.value}</p>
             </div>
           ))}
         </div>

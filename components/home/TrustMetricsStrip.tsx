@@ -43,7 +43,7 @@ export default function TrustMetricsStrip({ isMobile }: { isMobile: boolean }) {
               }}
             >
               <MetricIcon index={i} />
-              <div style={{ fontFamily: serif, fontSize: "14px", fontWeight: 700, color: "#fff", marginTop: "12px", marginBottom: "5px", lineHeight: 1.3 }}>{m.title}</div>
+              <div style={{ fontFamily: serif, fontSize: "14px", fontWeight: 500, color: "#fff", marginTop: "12px", marginBottom: "5px", lineHeight: 1.3 }}>{m.title}</div>
               <div style={{ fontSize: "11.5px", color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{m.sub}</div>
             </div>
           ))}

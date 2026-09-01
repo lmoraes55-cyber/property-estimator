@@ -107,17 +107,17 @@ function AgentsContent() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="lg:pr-6" style={{ borderRight: `1px solid ${colors.border}` }}>
                 <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>PROPERTY</p>
-                <p className="text-lg font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{community || propertyName || "Your Property"}</p>
+                <p className="text-lg font-bold" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{community || propertyName || "Your Property"}</p>
                 <p className="text-xs mt-1" style={{ color: colors.textMuted }}>{unitSize} • Floor {floor} • {view}</p>
               </div>
               <div className="lg:px-6" style={{ borderRight: `1px solid ${colors.border}` }}>
                 <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>RENTAL STRATEGY</p>
-                <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "'Georgia', serif" }}>Long-Term Rental</p>
+                <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Long-Term Rental</p>
                 <p className="text-xs mt-1" style={{ color: colors.textMuted }}>Recommended for this property</p>
               </div>
               <div className="lg:px-6" style={{ borderRight: `1px solid ${colors.border}` }}>
                 <p className="text-xs font-semibold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.1em" }}>ESTIMATED LTR RANGE</p>
-                <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "'Georgia', serif" }}>{ltrRangeStr}</p>
+                <p className="text-lg font-bold" style={{ color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{ltrRangeStr}</p>
                 <p className="text-xs mt-1" style={{ color: colors.textMuted }}>per year</p>
               </div>
               <div className="lg:pl-6">
@@ -131,7 +131,7 @@ function AgentsContent() {
           {/* 2. TOP RECOMMENDED HEADING */}
           <div>
             <p className="text-[11px] font-bold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.14em" }}>LEASING AGENTS</p>
-            <h2 style={{ fontSize: "clamp(24px, 3.4vw, 34px)", fontWeight: 700, fontFamily: "'Georgia', serif", color: colors.textMain, lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: "clamp(24px, 3.4vw, 34px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.textMain, lineHeight: 1.2 }}>
               Top Recommended Leasing Agents
             </h2>
             <p className="text-sm mt-2 max-w-xl" style={{ color: colors.textMuted, lineHeight: 1.65 }}>Two strongest matches based on area expertise, leasing performance, listing quality, and landlord support.</p>
@@ -158,10 +158,10 @@ function AgentsContent() {
                   <div className="flex items-start gap-4">
                     <div className="flex items-center justify-center flex-shrink-0" style={{
                       width: "56px", height: "56px", borderRadius: "16px", background: accent, color: "#fff",
-                      fontWeight: 700, fontSize: "17px", fontFamily: "'Georgia', serif",
+                      fontWeight: 500, fontSize: "17px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
                     }}>{initialsOf(a.name)}</div>
                     <div className="min-w-0">
-                      <h3 className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif", lineHeight: 1.25 }}>{a.name}</h3>
+                      <h3 className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.25 }}>{a.name}</h3>
                       <p className="text-xs mt-1" style={{ color: colors.textMuted, lineHeight: 1.5 }}>{a.title}</p>
                     </div>
                   </div>
@@ -175,7 +175,7 @@ function AgentsContent() {
                     ].map(s => (
                       <div key={s.l} className="px-3 py-3 rounded-xl text-center" style={{ background: colors.bgMain, border: `1px solid ${colors.border}` }}>
                         <p className="text-[10px] font-semibold mb-1" style={{ color: colors.textMuted, letterSpacing: "0.06em" }}>{s.l}</p>
-                        <p className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>{s.v}</p>
+                        <p className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{s.v}</p>
                         <p className="text-[10px] font-sans" style={{ color: colors.textLight }}>{s.sub}</p>
                         <div className="mt-1.5 mx-auto rounded-full" style={{ width: "24px", height: "2px", background: accent }} />
                       </div>
@@ -209,7 +209,7 @@ function AgentsContent() {
         {/* 4. OTHER AGENTS TO CONSIDER */}
         {others.length > 0 && (
           <div>
-            <h3 className="text-xl font-bold mb-5" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>Other Agents to Consider</h3>
+            <h3 className="text-xl font-bold mb-5" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Other Agents to Consider</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {others.map((a) => {
                 const sc = agentScores(a);
@@ -238,7 +238,7 @@ function AgentsContent() {
         {/* 5. NEW & BOUTIQUE LEASING SPECIALISTS */}
         {boutique.length > 0 && (
           <div>
-            <h3 className="text-xl font-bold mb-1" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>New &amp; Boutique Leasing Specialists</h3>
+            <h3 className="text-xl font-bold mb-1" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>New &amp; Boutique Leasing Specialists</h3>
             <p className="text-sm mb-5" style={{ color: colors.textMuted }}>Promising leasing specialists and boutique agencies offering more personalized landlord support.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {boutique.map((a) => (
@@ -262,7 +262,7 @@ function AgentsContent() {
 
         {/* 6. HOW ASSETINTEL RANKS AGENTS */}
         <div className="rounded-3xl px-7 py-7" style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, boxShadow: colors.shadowSm }}>
-          <h3 className="text-lg font-bold mb-5" style={{ color: colors.textMain, fontFamily: "'Georgia', serif" }}>How AssetIntel Ranks Leasing Agents</h3>
+          <h3 className="text-lg font-bold mb-5" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>How AssetIntel Ranks Leasing Agents</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
             {[
               { t: "Landlord Score", d: "Communication, landlord support, transparency, tenant quality, and the leasing process." },

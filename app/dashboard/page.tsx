@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const C = {
-  bg: "#F8F4EE",
+  bg: "#F7F9F8",
   green: "#1B5E4A",
   greenDark: "#144538",
-  greenLight: "#EFF4F0",
+  greenLight: "#EDF3F0",
   greenMid: "#2D7A5E",
   bronze: "#B88A44",
   bronzeLight: "#FBF6EE",
-  border: "#E6E1D8",
+  border: "#E2E8E5",
   borderLight: "#F0EBE2",
   text: "#2A2A2A",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
   card: "#FFFFFF",
-  sage: "#EFF4F0",
+  sage: "#EDF3F0",
 };
 
 interface Counts {
@@ -240,7 +240,7 @@ export default function DashboardPage() {
 
         <div className="dash-hero-flex" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, position: "relative", zIndex: 1 }}>
           <div>
-            <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 25, fontWeight: 600, color: "#fff", marginBottom: 6, lineHeight: 1.2 }}>
+            <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 25, fontWeight: 600, color: "#fff", marginBottom: 6, lineHeight: 1.2 }}>
               {loading ? "Welcome back" : firstName ? `Welcome back, ${firstName}` : "Welcome back"}
             </h1>
             <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.5, marginBottom: 18 }}>
@@ -302,7 +302,7 @@ export default function DashboardPage() {
             }}>
               {m.icon}
             </div>
-            <div style={{ fontSize: 32, fontWeight: 800, color: C.text, fontFamily: "'Georgia', serif", lineHeight: 1, marginBottom: 8 }}>
+            <div style={{ fontSize: 32, fontWeight: 500, color: C.text, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1, marginBottom: 8 }}>
               {m.value}
             </div>
             <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.04em", color: C.muted }}>
@@ -314,7 +314,7 @@ export default function DashboardPage() {
 
       {/* ── Quick Actions ── */}
       <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 17, color: C.text, marginBottom: 12 }}>Quick Actions</h2>
+        <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 17, color: C.text, marginBottom: 12 }}>Quick Actions</h2>
         <div className="dash-actions-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
           {quickActions.map((a) => (
             <a
@@ -385,7 +385,7 @@ export default function DashboardPage() {
 
         {/* My Properties */}
         <div style={{ flex: "0 0 58%", width: "58%" }}>
-          <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 17, color: C.text, marginBottom: 12 }}>My Properties</h2>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 17, color: C.text, marginBottom: 12 }}>My Properties</h2>
 
           {loading ? (
             <div style={{ background: C.card, border: `1px solid ${C.borderLight}`, borderRadius: 20, padding: "32px", textAlign: "center", color: C.muted, fontSize: 13 }}>
@@ -438,7 +438,7 @@ export default function DashboardPage() {
 
         {/* Recent Activity */}
         <div style={{ flex: 1 }}>
-          <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 17, color: C.text, marginBottom: 12 }}>Recent Activity</h2>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 17, color: C.text, marginBottom: 12 }}>Recent Activity</h2>
 
           <div style={{
             background: C.card,

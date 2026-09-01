@@ -16,7 +16,7 @@ const colors = {
   shadowSm: "0 1px 2px rgba(0,0,0,0.05)",
   shadowMd: "0 4px 12px rgba(0,0,0,0.09)",
 };
-const serifHeading = "'Georgia', serif";
+const serifHeading = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 const sk = (c: string) => ({ stroke: c, strokeWidth: 1.4, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
 // Bronze fails AA contrast as small/bold TEXT on light backgrounds — swap to the AA-safe variant.
 // Backgrounds, borders, and icon fills are unaffected (those only need 3:1, which bronze clears).
@@ -95,7 +95,7 @@ function SubleasingReadinessScore() {
       <div style={{ padding: "18px 22px", background: labelBg, borderRadius: "12px", border: `2px solid ${labelColor}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
         <div>
           <div style={{ fontSize: "12px", color: colors.textMuted, marginBottom: "2px" }}>Your readiness score</div>
-          <div style={{ fontSize: "30px", fontWeight: 700, color: labelColor, fontFamily: serifHeading, lineHeight: 1 }}>{score} / 10</div>
+          <div style={{ fontSize: "30px", fontWeight: 500, color: labelColor, fontFamily: serifHeading, lineHeight: 1 }}>{score} / 10</div>
         </div>
         <div style={{ fontSize: "17px", fontWeight: 700, color: labelColor }}>{label}</div>
       </div>
@@ -124,7 +124,7 @@ function SectionLabel({ text }: { text: string }) {
 
 function SectionTitle({ children, size = "34px" }: { children: React.ReactNode; size?: string }) {
   return (
-    <h2 style={{ fontSize: size, fontFamily: serifHeading, fontWeight: 700, marginBottom: "14px", background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+    <h2 style={{ fontSize: size, fontFamily: serifHeading, fontWeight: 500, marginBottom: "14px", background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
       {children}
     </h2>
   );
@@ -159,7 +159,7 @@ function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
 
       <div style={{ background: colors.bgMain, borderRadius: "16px", border: `1px solid ${colors.border}`, padding: isMobile ? "24px 20px" : "30px 34px", margin: "24px 0" }}>
         <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "10px" }}>AREA & BUILDING RISK SCORING</div>
-        <h3 style={{ fontSize: "19px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>Score Any Unit Across 5 Dimensions</h3>
+        <h3 style={{ fontSize: "19px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "6px" }}>Score Any Unit Across 5 Dimensions</h3>
         <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "18px" }}>Before signing any lease, score the unit. Aim for 18+ points before proceeding.</p>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
           {[
@@ -185,7 +185,7 @@ function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
             { range: "Below 13", label: "Avoid", color: "#B83232", bg: "#FDE8E8" },
           ].map(({ range, label, color, bg }) => (
             <div key={range} style={{ padding: "12px", background: bg, borderRadius: "9px", textAlign: "center" }}>
-              <div style={{ fontSize: "13px", fontWeight: 700, color, fontFamily: serifHeading }}>{label}</div>
+              <div style={{ fontSize: "13px", fontWeight: 500, color, fontFamily: serifHeading }}>{label}</div>
               <div style={{ fontSize: "11px", color, marginTop: "3px", opacity: 0.8 }}>{range}</div>
             </div>
           ))}
@@ -299,7 +299,7 @@ function PillarFourDetail({ isMobile }: { isMobile: boolean }) {
             <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: `${color}12`, border: `1px solid ${color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "12px" }}>
               <IconSystem color={color} size={18} />
             </div>
-            <h3 style={{ fontSize: "14.5px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "5px" }}>{title}</h3>
+            <h3 style={{ fontSize: "14.5px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "5px" }}>{title}</h3>
             <div style={{ fontSize: "11px", color: textSafe(color), fontWeight: 600, background: `${color}0E`, borderRadius: "6px", padding: "3px 9px", display: "inline-block", marginBottom: "10px" }}>{examples}</div>
             <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{purpose}</p>
           </div>
@@ -363,7 +363,7 @@ export default function STRSubleasingPage() {
               <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondaryText }}>STR Sub-Leasing Risk Estimator</span>
             </div>
 
-            <h1 style={{ fontSize: isMobile ? "clamp(28px,9vw,40px)" : "clamp(34px,3.4vw,50px)", fontFamily: serifHeading, fontWeight: 700, lineHeight: isMobile ? 1.08 : 1.05, letterSpacing: isMobile ? "-0.02em" : "-0.03em", marginBottom: "16px", background: `linear-gradient(130deg, ${colors.primary} 0%, #2A7A58 42%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: "780px" }}>
+            <h1 style={{ fontSize: isMobile ? "clamp(28px,9vw,40px)" : "clamp(34px,3.4vw,50px)", fontFamily: serifHeading, fontWeight: 500, lineHeight: isMobile ? 1.08 : 1.05, letterSpacing: isMobile ? "-0.02em" : "-0.03em", marginBottom: "16px", background: `linear-gradient(130deg, ${colors.primary} 0%, #2A7A58 42%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: "780px" }}>
               Check The Unit Before You Sign The Lease
             </h1>
 
@@ -452,7 +452,7 @@ export default function STRSubleasingPage() {
                     <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Est. net profit / yr</span>
                     <span style={{ fontSize: "14px", fontWeight: 800, color: colors.secondaryText }}>AED 42,800</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#F8F4EE", borderRadius: "9px", border: `1px solid ${colors.border}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#F7F9F8", borderRadius: "9px", border: `1px solid ${colors.border}` }}>
                     <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Cash buffer required</span>
                     <span style={{ fontSize: "12.5px", fontWeight: 700, color: colors.textMain }}>AED 57,000</span>
                   </div>
@@ -514,7 +514,7 @@ export default function STRSubleasingPage() {
                   <Icon color={accentColor} size={20} />
                 </div>
                 <div style={{ fontSize: "10px", fontWeight: 700, color: colors.textMuted, letterSpacing: "0.1em", marginBottom: "6px" }}>{label}</div>
-                <h3 style={{ fontFamily: serifHeading, fontSize: "16px", fontWeight: 700, color: colors.textMain, marginBottom: "8px", lineHeight: 1.3 }}>{title}</h3>
+                <h3 style={{ fontFamily: serifHeading, fontSize: "16px", fontWeight: 500, color: colors.textMain, marginBottom: "8px", lineHeight: 1.3 }}>{title}</h3>
                 <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "12px" }}>{body}</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
                   {points.map(p => (
@@ -533,7 +533,7 @@ export default function STRSubleasingPage() {
               <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "5px 14px", background: `${PILLARS[openPillar].accentColor}10`, borderRadius: "20px", border: `1px solid ${PILLARS[openPillar].accentColor}25`, marginBottom: "18px" }}>
                 <span style={{ fontSize: "11px", fontWeight: 700, color: textSafe(PILLARS[openPillar].accentColor), letterSpacing: "0.1em" }}>PILLAR {PILLARS[openPillar].num}</span>
               </div>
-              <h3 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{PILLARS[openPillar].title}</h3>
+              <h3 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "6px" }}>{PILLARS[openPillar].title}</h3>
               {React.createElement(PILLARS[openPillar].Detail, { isMobile })}
             </div>
           )}
@@ -558,7 +558,7 @@ export default function STRSubleasingPage() {
               { title: "Cash Buffer", body: "How much reserve capital may be needed to survive low season and unexpected costs." },
             ].map(({ title, body }) => (
               <div key={title} style={{ padding: "20px 18px", background: colors.bgMain, borderRadius: "14px", border: `1px solid ${colors.border}` }}>
-                <h3 style={{ fontSize: "14px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "8px" }}>{title}</h3>
+                <h3 style={{ fontSize: "14px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "8px" }}>{title}</h3>
                 <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{body}</p>
               </div>
             ))}
@@ -682,7 +682,7 @@ export default function STRSubleasingPage() {
             ].map(({ title, body }, i, arr) => (
               <React.Fragment key={title}>
                 <div style={{ flex: 1, padding: "20px 18px", background: colors.bgSection, borderRadius: "14px", border: `1px solid ${colors.border}`, textAlign: "center" }}>
-                  <h3 style={{ fontSize: "14px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{title}</h3>
+                  <h3 style={{ fontSize: "14px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "6px" }}>{title}</h3>
                   <p style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.55, margin: 0 }}>{body}</p>
                 </div>
                 {i < arr.length - 1 && (
@@ -747,7 +747,7 @@ export default function STRSubleasingPage() {
       <section style={{ padding: pad, borderTop: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
           <div style={{ background: `linear-gradient(145deg, #1B5E4A 0%, #0F3E33 100%)`, borderRadius: "22px", padding: isMobile ? "40px 26px" : "56px 60px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.24)" }}>
-            <h2 style={{ fontSize: isMobile ? "24px" : "32px", fontFamily: serifHeading, fontWeight: 700, color: "#fff", marginBottom: "12px" }}>Ready To Evaluate Your First Unit?</h2>
+            <h2 style={{ fontSize: isMobile ? "24px" : "32px", fontFamily: serifHeading, fontWeight: 500, color: "#fff", marginBottom: "12px" }}>Ready To Evaluate Your First Unit?</h2>
             <p style={{ fontSize: "14.5px", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, marginBottom: "28px", maxWidth: "540px", margin: "0 auto 28px" }}>
               Run the risk estimator first. If the numbers work, AssetIntel can help you structure the setup behind it.
             </p>

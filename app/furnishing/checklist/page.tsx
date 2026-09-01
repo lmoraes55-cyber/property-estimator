@@ -9,11 +9,11 @@ const C = {
   green: "#1B5E4A",
   greenDark: "#133D30",
   gold: "#B88A44",
-  ivory: "#FDFBF7",
-  bg: "#F8F4EE",
-  border: "#E6E1D8",
+  ivory: "#FFFFFF",
+  bg: "#F7F9F8",
+  border: "#E2E8E5",
   text: "#1B2A1F",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
 };
 
 const CAT_ICONS: Record<string, string> = {
@@ -115,7 +115,7 @@ function ChecklistContent() {
               DET Dubai Holiday Homes · Inventory Compliance Checklist
             </span>
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: C.text, margin: "0 0 6px", fontFamily: "'Georgia', serif" }}>
+          <h1 style={{ fontSize: 28, fontWeight: 500, color: C.text, margin: "0 0 6px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>
             {UNIT_LABEL[unitKey]} Unit — DET Compliance Inventory
           </h1>
           {(propertyName || buildingName) && (
@@ -259,7 +259,7 @@ function ChecklistContent() {
 export default function ChecklistPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F8F4EE" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F7F9F8" }}>
         <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid #1B5E4A", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
       </div>
     }>

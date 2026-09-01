@@ -70,7 +70,7 @@ export default function HomeHero({ isMobile, onAnalyze, onExploreIntel }: { isMo
             Dubai&apos;s Property Intelligence Platform
           </div>
 
-          <h1 style={{ fontFamily: serif, fontSize: isMobile ? "34px" : "48px", lineHeight: 1.14, fontWeight: 700, color: colors.primary, margin: "0 0 20px" }}>
+          <h1 style={{ fontFamily: serif, fontSize: isMobile ? "34px" : "48px", lineHeight: 1.14, fontWeight: 500, color: colors.primary, margin: "0 0 20px" }}>
             Make Smarter Property Decisions With{" "}
             <span style={{ background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               Real Intelligence

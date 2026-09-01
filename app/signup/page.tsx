@@ -7,12 +7,12 @@ import AuthBackground from "@/components/AuthBackground";
 import { createClient } from "@/lib/supabase/client";
 
 const C = {
-  bg: "#F8F4EE",
+  bg: "#F7F9F8",
   green: "#1B5E4A",
   bronze: "#B88A44",
-  border: "#E6E1D8",
+  border: "#E2E8E5",
   text: "#2A2A2A",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
   error: "#C0392B",
 };
 
@@ -61,7 +61,7 @@ function SignupForm() {
     borderRadius: 8,
     fontSize: 15,
     color: C.text,
-    background: "#FDFBF7",
+    background: "#FFFFFF",
     outline: "none",
     boxSizing: "border-box",
   };
@@ -91,7 +91,7 @@ function SignupForm() {
         </div>
         <h1
           style={{
-            fontFamily: "'Georgia', serif",
+            fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
             fontSize: 22,
             fontWeight: 600,
             color: C.text,

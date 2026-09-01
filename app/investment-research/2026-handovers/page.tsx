@@ -4,7 +4,7 @@
     browse — this page leads with finding it, not filtering a grid. Refuses the generic
     filter-bar + card-grid + modal default this page shipped with.
   OWN-WORLD: The Chartered Estate (unchanged, established brand commitment per
-    PRODUCT.md) — forest green/bronze on warm ivory, Georgia serif, restrained
+    PRODUCT.md) — forest green/bronze on a cool near-white ground, geometric display, restrained
     lift+shadow. No new palette, no new type, no new material.
   STORY: A buyer searches for their project, and the page transforms into a dedicated
     handover-status focus view for it — real DLD handover date, construction progress,
@@ -36,7 +36,7 @@ import type { DLD2026Handover } from "@/lib/dld-2026-handovers";
 import type { STRTierCategory } from "@/lib/dld-area-tier";
 import { colors } from "@/lib/colors";
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 const TIER_LABELS: Record<STRTierCategory, string> = {
   "prime-str": "Prime STR Candidate",
@@ -151,7 +151,7 @@ function FocusPanel({ project, onClear, onRequestReview }: { project: DLD2026Han
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
         Your 2026 Handover · Live DLD Data
       </p>
-      <h2 style={{ fontFamily: serif, fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 700, color: colors.primary, lineHeight: 1.2, marginBottom: 6, maxWidth: 560 }}>
+      <h2 style={{ fontFamily: serif, fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 500, color: colors.primary, lineHeight: 1.2, marginBottom: 6, maxWidth: 560 }}>
         {name}
       </h2>
       <p style={{ fontSize: 13.5, color: colors.textMuted, marginBottom: 20 }}>{displaySubtitle(project)}</p>
@@ -166,22 +166,22 @@ function FocusPanel({ project, onClear, onRequestReview }: { project: DLD2026Han
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "16px 28px", marginBottom: 26, paddingBottom: 26, borderBottom: `1px solid ${colors.border}` }}>
         <div>
           <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Handover Window</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{quarterOf(project.project_end_date)}</p>
+          <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{quarterOf(project.project_end_date)}</p>
         </div>
         <div>
           <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>DLD Area</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{project.area_name_en}</p>
+          <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{project.area_name_en}</p>
         </div>
         {project.percent_completed != null && (
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Construction Progress</p>
-            <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{project.percent_completed.toFixed(0)}% complete</p>
+            <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{project.percent_completed.toFixed(0)}% complete</p>
           </div>
         )}
         {project.no_of_units != null && project.no_of_units > 0 && (
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Units</p>
-            <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{project.no_of_units.toLocaleString()}</p>
+            <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{project.no_of_units.toLocaleString()}</p>
           </div>
         )}
       </div>
@@ -205,19 +205,19 @@ function FocusPanel({ project, onClear, onRequestReview }: { project: DLD2026Han
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "16px 28px", marginBottom: 18 }}>
                 <div>
                   <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Median Resale Price</p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>AED {saleStat.medianPrice.toLocaleString()}</p>
+                  <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>AED {saleStat.medianPrice.toLocaleString()}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Price / sqft</p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>AED {saleStat.medianAedPerSqft.toLocaleString()}</p>
+                  <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>AED {saleStat.medianAedPerSqft.toLocaleString()}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Transactions (12mo)</p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{saleStat.n}</p>
+                  <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{saleStat.n}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: 10, fontWeight: 700, color: colors.textLight, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 4 }}>Off-Plan Share</p>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{Math.round(saleStat.offPlanShare * 100)}%</p>
+                  <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{Math.round(saleStat.offPlanShare * 100)}%</p>
                 </div>
               </div>
               {recentSales.length > 0 && (
@@ -405,7 +405,7 @@ function ProjectCard({ project, onClick }: { project: DLD2026Handover; onClick: 
         </span>
       </div>
       <div>
-        <h3 style={{ fontSize: 15.5, fontWeight: 700, color: colors.textMain, marginBottom: 3, lineHeight: 1.3, fontFamily: serif }}>
+        <h3 style={{ fontSize: 15.5, fontWeight: 500, color: colors.textMain, marginBottom: 3, lineHeight: 1.3, fontFamily: serif }}>
           {displayName(project)}
         </h3>
         <p style={{ fontSize: 12, color: colors.textLight, margin: 0 }}>{displaySubtitle(project)}</p>
@@ -483,7 +483,7 @@ export default function HandoversPage() {
         {/* ── HERO: the search itself is the thesis ── */}
         <div style={{ padding: "56px 0 44px", textAlign: "center" }}>
           <h1 style={{
-            fontFamily: serif, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 700, color: colors.primary,
+            fontFamily: serif, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 500, color: colors.primary,
             lineHeight: 1.2, marginBottom: 14, maxWidth: 640, margin: "0 auto 14px",
           }}>
             Your Dubai property hands over in 2026. Should you STR or LTR it?
@@ -518,7 +518,7 @@ export default function HandoversPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
               {selectedProject ? "Or Browse the Full Watchlist" : "Don't Know Your Project Yet?"}
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 700, color: colors.primary, marginBottom: 8 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 500, color: colors.primary, marginBottom: 8 }}>
               Browse tracked handover projects
             </h2>
             <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.6, maxWidth: 620 }}>
@@ -594,7 +594,7 @@ export default function HandoversPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 12 }}>
               Handover Strategy Advisory
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 700, color: colors.primary, marginBottom: 12 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 500, color: colors.primary, marginBottom: 12 }}>
               Need a strategy before handover?
             </h2>
             <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.65, maxWidth: 480, margin: "0 auto 26px" }}>
@@ -703,7 +703,7 @@ function LeadModal({ onClose, initialProject = "", initialArea = "" }: { onClose
                 <path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="10" />
               </svg>
             </div>
-            <h3 style={{ fontFamily: serif, fontSize: 22, fontWeight: 700, color: colors.primary, marginBottom: 12 }}>Enquiry Received</h3>
+            <h3 style={{ fontFamily: serif, fontSize: 22, fontWeight: 500, color: colors.primary, marginBottom: 12 }}>Enquiry Received</h3>
             <p style={{ fontSize: 14, color: colors.textMuted, lineHeight: 1.65, maxWidth: 360, margin: "0 auto" }}>
               Thank you — your enquiry has been received. AssetIntel will review your handover project and contact you with guidance on the right rental strategy.
             </p>
@@ -713,7 +713,7 @@ function LeadModal({ onClose, initialProject = "", initialArea = "" }: { onClose
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 6 }}>
               2026 Handover Strategy Enquiry
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: 22, fontWeight: 700, color: colors.primary, lineHeight: 1.25, marginBottom: 24 }}>
+            <h2 style={{ fontFamily: serif, fontSize: 22, fontWeight: 500, color: colors.primary, lineHeight: 1.25, marginBottom: 24 }}>
               Tell us about your property
             </h2>
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>

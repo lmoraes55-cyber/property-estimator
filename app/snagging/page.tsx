@@ -6,7 +6,7 @@ import SiteNav from "@/components/SiteNav";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import { colors } from "@/lib/colors";
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 // ── Sample report data — an illustrative example, not a real customer's unit ──
 type Severity = "Critical" | "Major" | "Minor" | "Cosmetic";
@@ -113,7 +113,7 @@ export default function SnaggingPage() {
               Pre-Handover Snagging Inspection
             </p>
             <h1 style={{
-              fontFamily: serif, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 700, color: colors.primary,
+              fontFamily: serif, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 500, color: colors.primary,
               lineHeight: 1.2, marginBottom: 16, maxWidth: 680, margin: "0 auto 16px",
             }}>
               Don't accept handover until a specialist has checked it for you
@@ -128,7 +128,7 @@ export default function SnaggingPage() {
             background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22,
             padding: "clamp(24px,4vw,36px)", boxShadow: colors.shadowMd, marginBottom: 40,
           }}>
-            <h2 style={{ fontFamily: serif, fontSize: 22, fontWeight: 700, color: colors.primary, marginBottom: 18 }}>
+            <h2 style={{ fontFamily: serif, fontSize: 22, fontWeight: 500, color: colors.primary, marginBottom: 18 }}>
               What's included
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "12px 24px" }}>
@@ -148,7 +148,7 @@ export default function SnaggingPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
               See What You Get
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 700, color: colors.primary, marginBottom: 20 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 500, color: colors.primary, marginBottom: 20 }}>
               Sample snagging report
             </h2>
 
@@ -166,7 +166,7 @@ export default function SnaggingPage() {
                   <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 4 }}>
                     Illustrative Example — Not a Real Property
                   </p>
-                  <p style={{ fontFamily: serif, fontSize: 18, fontWeight: 700, color: colors.primary }}>
+                  <p style={{ fontFamily: serif, fontSize: 18, fontWeight: 500, color: colors.primary }}>
                     AssetIntel Snagging Report — Sample 2BR Unit
                   </p>
                 </div>
@@ -186,7 +186,7 @@ export default function SnaggingPage() {
                   { label: "Cosmetic", value: SAMPLE_SUMMARY.cosmetic, color: SEVERITY_STYLE.Cosmetic.text },
                 ].map((s, i) => (
                   <div key={i} style={{ background: colors.bgSection, padding: "16px 12px", textAlign: "center" }}>
-                    <p style={{ fontFamily: serif, fontSize: 24, fontWeight: 700, color: s.color, marginBottom: 2 }}>{s.value}</p>
+                    <p style={{ fontFamily: serif, fontSize: 24, fontWeight: 500, color: s.color, marginBottom: 2 }}>{s.value}</p>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight }}>{s.label}</p>
                   </div>
                 ))}
@@ -234,7 +234,7 @@ export default function SnaggingPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10, textAlign: "center" }}>
               Below Standard Market Rates
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 700, color: colors.primary, marginBottom: 24, textAlign: "center" }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 500, color: colors.primary, marginBottom: 24, textAlign: "center" }}>
               Choose your unit size
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
@@ -246,7 +246,7 @@ export default function SnaggingPage() {
                   <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 8 }}>
                     {t.label}
                   </p>
-                  <p style={{ fontFamily: serif, fontSize: 32, fontWeight: 700, color: colors.primary, marginBottom: 4 }}>
+                  <p style={{ fontFamily: serif, fontSize: 32, fontWeight: 500, color: colors.primary, marginBottom: 4 }}>
                     AED {t.price.toLocaleString()}
                   </p>
                   <p style={{ fontSize: 12.5, color: colors.textMuted, marginBottom: 22, lineHeight: 1.5, flexGrow: 1 }}>
@@ -273,7 +273,7 @@ export default function SnaggingPage() {
 
           {/* ── FAQ ── */}
           <section style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 700, color: colors.primary, marginBottom: 20 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 500, color: colors.primary, marginBottom: 20 }}>
               Frequently asked questions
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

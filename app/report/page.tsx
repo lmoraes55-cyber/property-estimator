@@ -238,7 +238,7 @@ function PremiumCTACard({
 
         {/* Heading with green→bronze gradient */}
         <h2 className="font-bold mb-2" style={{
-          fontFamily: "'Georgia', serif",
+          fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
           fontSize: "26px",
           lineHeight: 1.18,
           background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
@@ -505,7 +505,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               c.height = Math.max(1, Math.round(im.height * scale));
               const ctx = c.getContext("2d");
               if (!ctx) return res(raw);
-              if (asJpeg) { ctx.fillStyle = "#F8F4EE"; ctx.fillRect(0, 0, c.width, c.height); }
+              if (asJpeg) { ctx.fillStyle = "#F7F9F8"; ctx.fillRect(0, 0, c.width, c.height); }
               ctx.drawImage(im, 0, 0, c.width, c.height);
               try { res(c.toDataURL(asJpeg ? "image/jpeg" : "image/png", asJpeg ? 0.82 : 1)); }
               catch { res(raw); }
@@ -1302,7 +1302,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           <div className="flex items-center gap-2 min-w-0" style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
             <AssetIntelLogo size={32} />
           </div>
-          <div className="hidden md:block" style={{ width: 1, height: 24, background: "#E6E1D8", flexShrink: 0 }} />
+          <div className="hidden md:block" style={{ width: 1, height: 24, background: "#E2E8E5", flexShrink: 0 }} />
           <div className="hidden md:block min-w-0">
             <p style={{ fontSize: 10, fontWeight: 600, color: "#888", letterSpacing: "0.1em", textTransform: "uppercase" }}>Rental Report</p>
             <p style={{ fontSize: 13, fontWeight: 600, color: "#2A2A2A" }} className="truncate">{result.propertyName}</p>
@@ -1312,11 +1312,11 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               {input.unitSize} · {input.unitType}
             </span>
             <button onClick={handleSave} disabled={saving || saved}
-              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: saved ? "#EFF4F0" : "#fff", color: saved ? "#1B5E4A" : "#1B5E4A", border: "1.5px solid #1B5E4A", cursor: (saving || saved) ? "default" : "pointer", fontWeight: 600, transition: "all 0.2s" }}>
+              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: saved ? "#EDF3F0" : "#fff", color: saved ? "#1B5E4A" : "#1B5E4A", border: "1.5px solid #1B5E4A", cursor: (saving || saved) ? "default" : "pointer", fontWeight: 600, transition: "all 0.2s" }}>
               {saved ? "✓ Saved" : saving ? "Saving…" : "Save to Dashboard"}
             </button>
             <button onClick={generatePDF} disabled={pdfGenerating}
-              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: pdfGenerating ? "#6B6B6B" : "linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 100%)", color: "#FFF", border: "none", cursor: pdfGenerating ? "not-allowed" : "pointer", fontWeight: 700, boxShadow: "0 4px 12px rgba(27,94,74,0.25)", transition: "background 0.2s" }}>
+              style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: pdfGenerating ? "#4E5D56" : "linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 100%)", color: "#FFF", border: "none", cursor: pdfGenerating ? "not-allowed" : "pointer", fontWeight: 700, boxShadow: "0 4px 12px rgba(27,94,74,0.25)", transition: "background 0.2s" }}>
               {pdfGenerating ? "Generating…" : "Download PDF"}
             </button>
           </div>
@@ -1327,13 +1327,13 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       <div className="print-only" id="pdf-header" style={{ display: "none", padding: "0 0 28px 0", borderBottom: "2px solid #1B5E4A", marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <p style={{ fontSize: 22, fontWeight: 700, color: "#1B5E4A", letterSpacing: "-0.01em", fontFamily: "'Georgia', serif" }}>AssetIntel</p>
+            <p style={{ fontSize: 22, fontWeight: 500, color: "#1B5E4A", letterSpacing: "-0.01em", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>AssetIntel</p>
             <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence. Smarter Decisions.</p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A" }}>STR vs LTR Rental Strategy Report</p>
-            <p style={{ fontSize: 12, color: "#6B6B6B", marginTop: 3 }}>{result.propertyName} · {input.unitSize} · {input.unitType}</p>
-            <p style={{ fontSize: 11, color: "#8E8E8E", marginTop: 2 }}>Generated {new Date().toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" })}</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#0F1D18" }}>STR vs LTR Rental Strategy Report</p>
+            <p style={{ fontSize: 12, color: "#4E5D56", marginTop: 3 }}>{result.propertyName} · {input.unitSize} · {input.unitType}</p>
+            <p style={{ fontSize: 11, color: "#66756D", marginTop: 2 }}>Generated {new Date().toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" })}</p>
           </div>
         </div>
       </div>
@@ -1379,7 +1379,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 <p style={{ fontSize: 13, fontWeight: 600, color: "#1B5E4A", marginBottom: 4, lineHeight: 1.3 }}>
                   Furnishing package required
                 </p>
-                <p style={{ fontSize: 12, color: "#6B6B6B", lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 12, color: "#4E5D56", lineHeight: 1.6, margin: 0 }}>
                   Your property is <span style={{ fontWeight: 600, color: "#3D3D3D" }}>currently unfurnished</span>. A <span style={{ fontWeight: 600, color: "#3D3D3D" }}>furnishing package is required</span> before listing on any short-term rental platform.
                 </p>
               </div>
@@ -1480,7 +1480,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               <p style={{ fontSize: 13, fontWeight: 600, color: "#1B5E4A", marginBottom: 4, lineHeight: 1.3 }}>
                 A modest uplift has been applied for your upgraded interior
               </p>
-              <p style={{ fontSize: 12, color: "#6B6B6B", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 12, color: "#4E5D56", lineHeight: 1.6, margin: 0 }}>
                 Interior upgrades improve marketability, but actual performance still depends on building, area, view, furnishing quality, pricing, reviews, and operator execution.
               </p>
             </div>
@@ -1512,7 +1512,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
                 </span>
 
-                <h1 style={{ fontSize: "clamp(22px, 2.2vw, 32px)", fontWeight: 700, fontFamily: "'Georgia', serif", lineHeight: 1.15, marginBottom: 6, background: `linear-gradient(120deg, ${colors.primary} 0%, #2A7A62 40%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <h1 style={{ fontSize: "clamp(22px, 2.2vw, 32px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.15, marginBottom: 6, background: `linear-gradient(120deg, ${colors.primary} 0%, #2A7A62 40%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
                 </h1>
 
@@ -1652,7 +1652,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         {/* ── COST & DEDUCTION SNAPSHOT ─────────────────────────── */}
         <div className="pdf-section" style={{ background: colors.bgSection, border: "1px solid " + colors.border, borderRadius: 28, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 12px 36px rgba(27,94,74,0.07)", padding: "28px 28px 24px" }}>
           <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>Financial Breakdown</p>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: colors.primary, marginBottom: 4, fontFamily: "'Georgia', serif" }}>Cost & Deduction Snapshot</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 500, color: colors.primary, marginBottom: 4, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Cost & Deduction Snapshot</h2>
           <p style={{ fontSize: 12, color: colors.textMuted, marginBottom: 24 }}>How gross STR revenue converts into estimated owner net income.</p>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto 1fr auto 1fr", gap: 0, alignItems: "stretch" }} className="rpt-waterfall">
@@ -1800,7 +1800,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 <div style={{ position: "relative", zIndex: 1, marginBottom: 20 }}>
                   <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>12-Month Rental Projection</p>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-                    <h2 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 700, fontFamily: "'Georgia', serif", background: `linear-gradient(120deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2, margin: 0 }}>
+                    <h2 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", background: `linear-gradient(120deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2, margin: 0 }}>
                       Monthly Breakdown
                     </h2>
                     <p style={{ fontSize: 12, color: colors.textMuted, margin: 0 }}>Full 12-month projection with all income and cost lines</p>
@@ -1998,7 +1998,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   </div>
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 4 }}>12-Month Rental Projection</p>
-                    <h2 style={{ fontSize: "clamp(17px, 2vw, 22px)", fontWeight: 700, fontFamily: "'Georgia', serif", background: `linear-gradient(120deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2, margin: 0 }}>
+                    <h2 style={{ fontSize: "clamp(17px, 2vw, 22px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", background: `linear-gradient(120deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2, margin: 0 }}>
                       12-Month STR Performance Overview
                     </h2>
                     <p style={{ fontSize: 12, color: colors.textMuted, marginTop: 3 }}>Compare monthly STR net performance vs. long-term rental equivalent</p>
@@ -2186,7 +2186,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 10 }}>
               Part 2 of 2
             </p>
-            <h3 style={{ fontFamily: "'Georgia', serif", fontSize: 22, fontWeight: 700, color: colors.primary, marginBottom: 8 }}>
+            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 22, fontWeight: 500, color: colors.primary, marginBottom: 8 }}>
               What matters most to you?
             </h3>
             <p style={{ fontSize: 13.5, color: colors.textMuted, marginBottom: 20, lineHeight: 1.55 }}>
@@ -2271,14 +2271,14 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         </div>
 
         {/* PDF-only footer — hidden on screen, visible in print */}
-        <div className="print-only" style={{ display: "none", borderTop: "1.5px solid #E6E1D8", paddingTop: 20, marginTop: 8 }}>
+        <div className="print-only" style={{ display: "none", borderTop: "1.5px solid #E2E8E5", paddingTop: 20, marginTop: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: "#1B5E4A" }}>AssetIntel</p>
               <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence. Smarter Decisions.</p>
-              <p style={{ fontSize: 10, color: "#8E8E8E", marginTop: 4 }}>assetintel.ae</p>
+              <p style={{ fontSize: 10, color: "#66756D", marginTop: 4 }}>assetintel.ae</p>
             </div>
-            <p style={{ fontSize: 9, color: "#8E8E8E", maxWidth: 360, textAlign: "right", lineHeight: 1.6 }}>
+            <p style={{ fontSize: 9, color: "#66756D", maxWidth: 360, textAlign: "right", lineHeight: 1.6 }}>
               This projection is based on Dubai market data and historical performance. Figures are indicative and may vary based on market conditions, property condition, furnishing quality, pricing, and operator performance. Always verify with current market data before making rental or investment decisions.
             </p>
           </div>
@@ -2314,7 +2314,7 @@ function ReportLoadingScreen({
   const progressPct = Math.round(((stepIndex + 1) / steps.length) * 92);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F8F4EE" }}>
+    <div style={{ minHeight: "100vh", background: "#F7F9F8" }}>
       <style>{`
         @keyframes ai-spin { to { transform: rotate(360deg); } }
         @keyframes ai-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
@@ -2336,7 +2336,7 @@ function ReportLoadingScreen({
             width: "100%",
             maxWidth: 460,
             background: "#fff",
-            border: "1px solid #E6E1D8",
+            border: "1px solid #E2E8E5",
             borderRadius: 16,
             padding: "28px 28px 24px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.04), 0 12px 32px rgba(27,94,74,0.06)",
@@ -2356,7 +2356,7 @@ function ReportLoadingScreen({
               fontSize: 15,
               fontWeight: 600,
               color: "#2A2A2A",
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
               marginBottom: 6,
               animation: "ai-pulse 1.6s ease-in-out infinite",
             }}
@@ -2364,7 +2364,7 @@ function ReportLoadingScreen({
             {steps[stepIndex]}
           </p>
           {subtitle && (
-            <p style={{ fontSize: 12.5, color: "#8E8E8E", marginBottom: 18 }}>{subtitle}</p>
+            <p style={{ fontSize: 12.5, color: "#66756D", marginBottom: 18 }}>{subtitle}</p>
           )}
 
           <div style={{ height: 6, borderRadius: 999, background: "#EFEAE0", overflow: "hidden", marginTop: subtitle ? 0 : 18 }}>
@@ -2387,7 +2387,7 @@ function ReportLoadingScreen({
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
-                  background: i <= stepIndex ? "#1B5E4A" : "#E6E1D8",
+                  background: i <= stepIndex ? "#1B5E4A" : "#E2E8E5",
                   transition: "background 0.4s ease",
                 }}
               />
@@ -2447,8 +2447,8 @@ function SavedReportGate({ savedId }: { savedId: string }) {
   );
 
   if (state.status === "not-found") return (
-    <div style={{ minHeight: "100vh", background: "#F8F4EE", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px" }}>
-      <p style={{ fontSize: "15px", color: "#6B6B6B", fontFamily: "'Georgia', serif" }}>This saved report could not be found.</p>
+    <div style={{ minHeight: "100vh", background: "#F7F9F8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px" }}>
+      <p style={{ fontSize: "15px", color: "#4E5D56", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>This saved report could not be found.</p>
     </div>
   );
 

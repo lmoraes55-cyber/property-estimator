@@ -469,7 +469,7 @@ function EstimatorPage() {
 
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight"
             style={{
-              fontFamily: "'Georgia', serif", maxWidth: "560px",
+              fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", maxWidth: "560px",
               color: colors.primary,
             }}>
             Generate Your STR vs LTR Report
@@ -535,7 +535,7 @@ function EstimatorPage() {
                     <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: colors.secondary, letterSpacing: "0.13em" }}>
                       Property Details
                     </div>
-                    <h2 className="text-2xl font-bold" style={{ fontFamily: "'Georgia', serif", color: colors.primary }}>
+                    <h2 className="text-2xl font-bold" style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary }}>
                       Tell Us About Your Property
                     </h2>
                     <p className="text-sm mt-1.5" style={{ color: colors.textMuted }}>Takes less than 60 seconds · Market-backed estimate · Private report</p>
@@ -918,7 +918,7 @@ function EstimatorPage() {
                 padding: "28px 26px",
               }}>
                 <div className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.secondary, letterSpacing: "0.13em" }}>What You&apos;ll Get</div>
-                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "'Georgia', serif", color: colors.primary }}>Your Indicative Rental Strategy Report</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary }}>Your Indicative Rental Strategy Report</h3>
                 <div className="space-y-3">
                   {[
                     "STR vs LTR income comparison",
@@ -946,7 +946,7 @@ function EstimatorPage() {
                 padding: "28px 26px",
               }}>
                 <div className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: colors.secondary, letterSpacing: "0.13em" }}>Assumptions Used</div>
-                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "'Georgia', serif", color: colors.primary }}>What We Assume In Your Report</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary }}>What We Assume In Your Report</h3>
                 <div className="space-y-2.5">
                   {[
                     { label: "Management Fee", value: "20% incl. VAT" },
@@ -1015,7 +1015,7 @@ function EstimatorPage() {
                   <span className="text-xs font-bold uppercase" style={{ color: colors.primary, letterSpacing: "0.16em" }}>Our Recommendation</span>
                 </div>
                 <h2 className="font-bold" style={{
-                  fontFamily: "'Georgia', serif",
+                  fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
                   fontSize: "clamp(28px, 4.2vw, 42px)", lineHeight: 1.12,
                   background: `linear-gradient(135deg, ${colors.primary} 0%, #6B7A45 50%, ${colors.secondary} 100%)`,
                   WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",

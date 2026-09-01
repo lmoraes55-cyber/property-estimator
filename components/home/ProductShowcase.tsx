@@ -10,7 +10,7 @@ function MockBars() {
       {bars.map(b => (
         <div key={b.label} style={{ flex: 1, background: "#fff", border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "14px 16px" }}>
           <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", color: colors.textMuted, marginBottom: "8px" }}>{b.label}</div>
-          <div style={{ fontFamily: serif, fontSize: "19px", fontWeight: 700, color: colors.textMain, marginBottom: "10px" }}>{b.v}</div>
+          <div style={{ fontFamily: serif, fontSize: "19px", fontWeight: 500, color: colors.textMain, marginBottom: "10px" }}>{b.v}</div>
           <div style={{ height: "6px", borderRadius: "3px", background: colors.bgSage, overflow: "hidden" }}>
             <div style={{ width: `${b.h + 30}%`, height: "100%", background: b.color, opacity: 0.75 }} />
           </div>
@@ -77,11 +77,11 @@ export default function ProductShowcase({ isMobile, onTryAnalyzer }: { isMobile:
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "14px" }}>
                 <div style={{ background: "#fff", border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "14px 16px" }}>
                   <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", color: colors.textMuted, marginBottom: "6px" }}>NET RETURN</div>
-                  <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 700, color: colors.textMain }}>8.7%</div>
+                  <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 500, color: colors.textMain }}>8.7%</div>
                 </div>
                 <div style={{ background: "#fff", border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "14px 16px" }}>
                   <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", color: colors.textMuted, marginBottom: "6px" }}>PRICE / SQFT</div>
-                  <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 700, color: colors.textMain }}>AED 2,450</div>
+                  <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 500, color: colors.textMain }}>AED 2,450</div>
                 </div>
               </div>
 

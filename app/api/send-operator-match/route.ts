@@ -136,7 +136,7 @@ export async function POST(request: Request) {
 
   const operatorCards = ranked.map((op, i) => `
     <tr><td style="padding:0 0 18px;">
-      <div style="background:#FCFAF6;border-radius:14px;padding:24px 26px;border:1px solid #E6E1D8;${i === 0 ? "box-shadow:0 4px 18px rgba(184,138,68,0.14);border-color:#D9BC88;" : ""}">
+      <div style="background:#FCFAF6;border-radius:14px;padding:24px 26px;border:1px solid #E2E8E5;${i === 0 ? "box-shadow:0 4px 18px rgba(184,138,68,0.14);border-color:#D9BC88;" : ""}">
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td>
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
         <div style="margin-bottom:10px;">
           ${op.matchReasons.slice(0, 3).map(r => `<p style="margin:0 0 5px;font-size:12.5px;color:#1B5E4A;">✓ &nbsp;${r}</p>`).join("")}
         </div>` : ""}
-        ${op.lockInPeriod || op.earlyTerminationFee ? `<p style="margin:10px 0 0;padding-top:10px;border-top:1px solid #EFEAE0;font-size:11.5px;color:#6B6B6B;">Contract: ${op.lockInPeriod ?? "not disclosed"}${op.earlyTerminationFee ? ` · Early exit: ${op.earlyTerminationFee}` : ""}</p>` : ""}
+        ${op.lockInPeriod || op.earlyTerminationFee ? `<p style="margin:10px 0 0;padding-top:10px;border-top:1px solid #EFEAE0;font-size:11.5px;color:#4E5D56;">Contract: ${op.lockInPeriod ?? "not disclosed"}${op.earlyTerminationFee ? ` · Early exit: ${op.earlyTerminationFee}` : ""}</p>` : ""}
       </div>
     </td></tr>`).join("");
 
@@ -199,14 +199,14 @@ export async function POST(request: Request) {
              leaving it unreadable against the (unchanged) dark background. A light
              background with dark brand-color text has nothing for that heuristic to
              break: light-on-light isn't a pairing Gmail "fixes" into dark-on-dark. -->
-        <tr><td bgcolor="#FBF7EF" style="background:#FBF7EF;padding:40px 44px 34px;border-bottom:1px solid #E6E1D8;">
+        <tr><td bgcolor="#FBF7EF" style="background:#FBF7EF;padding:40px 44px 34px;border-bottom:1px solid #E2E8E5;">
           <p style="margin:0 0 10px;color:#8B6F3F;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-family:system-ui,-apple-system,sans-serif;">AssetIntel · Private Operator Match</p>
           <h1 style="margin:0;color:#17301F;font-size:26px;font-weight:700;font-family:Georgia,serif;line-height:1.3;">${greetingName ? `${greetingName}, here` : "Here"} are your matched STR operators</h1>
-          ${buildingName ? `<p style="margin:10px 0 0;color:#6B6B6B;font-size:13.5px;font-family:system-ui,-apple-system,sans-serif;">${buildingName}</p>` : ""}
+          ${buildingName ? `<p style="margin:10px 0 0;color:#4E5D56;font-size:13.5px;font-family:system-ui,-apple-system,sans-serif;">${buildingName}</p>` : ""}
         </td></tr>
 
         <tr><td style="padding:36px 44px 0;font-family:system-ui,-apple-system,sans-serif;">
-          <p style="margin:0 0 6px;font-size:14.5px;color:#1A1A1A;line-height:1.65;">
+          <p style="margin:0 0 6px;font-size:14.5px;color:#0F1D18;line-height:1.65;">
             ${greetingName ? `Dear ${greetingName},` : "Hello,"}
           </p>
           <p style="margin:0 0 20px;font-size:14.5px;color:#4A4A4A;line-height:1.7;">
@@ -220,14 +220,14 @@ export async function POST(request: Request) {
         <tr><td style="padding:8px 44px 0;font-family:system-ui,-apple-system,sans-serif;">
           <div style="background:linear-gradient(135deg,rgba(23,48,31,0.05) 0%,rgba(184,138,68,0.08) 100%);border:1px solid rgba(217,188,136,0.35);border-radius:14px;padding:22px 26px;">
             <p style="margin:0 0 6px;font-size:11px;color:#B88A44;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Need help choosing?</p>
-            <p style="margin:0;font-size:14px;color:#1A1A1A;line-height:1.65;">
+            <p style="margin:0;font-size:14px;color:#0F1D18;line-height:1.65;">
               Reply directly to this email${greetingName ? `, ${greetingName}` : ""} — our team will help you negotiate terms and onboard with the right operator for your property, at no cost to you.
             </p>
           </div>
         </td></tr>
 
         <tr><td style="padding:28px 44px 36px;font-family:system-ui,-apple-system,sans-serif;">
-          <div style="height:1px;background:#E6E1D8;margin-bottom:20px;"></div>
+          <div style="height:1px;background:#E2E8E5;margin-bottom:20px;"></div>
           <p style="margin:0;font-size:11.5px;color:#8A8A8A;line-height:1.7;">
             Operator data is sourced from AssetIntel's direct outreach, published Airbtics figures, and (where noted) signed operator contracts — not guaranteed current. Always verify commission rates and terms directly with the operator before signing.
           </p>

@@ -7,14 +7,14 @@ import { createClient } from "@/lib/supabase/client";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 
 const C = {
-  bg: "#F8F4EE",
+  bg: "#F7F9F8",
   green: "#1B5E4A",
-  greenLight: "#EFF4F0",
+  greenLight: "#EDF3F0",
   bronze: "#B88A44",
-  border: "#E6E1D8",
+  border: "#E2E8E5",
   text: "#2A2A2A",
-  muted: "#6B6B6B",
-  sidebar: "#FDFBF7",
+  muted: "#4E5D56",
+  sidebar: "#FFFFFF",
 };
 
 const NAV_ITEMS = [

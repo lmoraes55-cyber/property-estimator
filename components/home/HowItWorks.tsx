@@ -26,7 +26,7 @@ export default function HowItWorks({ isMobile }: { isMobile: boolean }) {
                   marginBottom: isMobile && i < STEPS.length - 1 ? "0" : undefined,
                 }}
               >
-                <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: colors.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: serif, fontWeight: 700, fontSize: "14px", marginBottom: "14px" }}>
+                <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: colors.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: serif, fontWeight: 500, fontSize: "14px", marginBottom: "14px" }}>
                   {i + 1}
                 </div>
                 <div style={{ fontSize: "15px", fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{step.title}</div>

@@ -9,13 +9,13 @@ const C = {
   primary:   "#1B5E4A",
   secondary: "#B88A44",
   secondaryText: "#7D6338",
-  bg:        "#F8F4EE",
-  border:    "#E6E1D8",
-  text:      "#1A1A1A",
-  muted:     "#6B6B6B",
+  bg:        "#F7F9F8",
+  border:    "#E2E8E5",
+  text:      "#0F1D18",
+  muted:     "#4E5D56",
 };
 
-const serifFont = "'Georgia', serif";
+const serifFont = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 // ── Icons — 18px outline, single colour, consistent 1.6 stroke ──
 const iconProps = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -609,7 +609,7 @@ function MobileExpand({ label, open, toggle, children }: { label: string; open: 
       >
         <p style={{ fontSize: 14, fontWeight: 600, color: hov ? "#1B5E4A" : C.text }}>{label}</p>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "none" }}>
-          <path d="M2 3.5L5 6.5L8 3.5" stroke="#6B6B6B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M2 3.5L5 6.5L8 3.5" stroke="#4E5D56" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
       {open && <div>{children}</div>}

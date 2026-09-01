@@ -42,7 +42,7 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
               <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: "#D4A574", textTransform: "uppercase", marginBottom: "10px" }}>Independent &amp; Unbiased Guidance</div>
               <div style={{ fontFamily: serif, fontSize: "22px", marginBottom: "6px" }}>Independent Property Advisory</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "6px" }}>
-                <span style={{ fontFamily: serif, fontSize: "40px", fontWeight: 700 }}>AED 199</span>
+                <span style={{ fontFamily: serif, fontSize: "40px", fontWeight: 500 }}>AED 199</span>
               </div>
               <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginBottom: "20px" }}>20 Minute Private Consultation</div>
               <div style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.65)", marginBottom: "26px" }}>For owners, buyers, investors and agents.</div>

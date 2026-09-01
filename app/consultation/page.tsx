@@ -95,7 +95,7 @@ export default function ConsultationPage() {
                 <div style={{ fontFamily: serif, fontSize: "18px", color: colors.primary }}>Independent Property Advisory</div>
                 <div style={{ fontSize: "12.5px", color: colors.textMuted }}>20 Minute Private Consultation</div>
               </div>
-              <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 700, color: colors.secondary, whiteSpace: "nowrap" }}>AED 199</div>
+              <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 500, color: colors.secondary, whiteSpace: "nowrap" }}>AED 199</div>
             </div>
 
             {submitted ? (

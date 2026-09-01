@@ -9,13 +9,13 @@ import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 
 const C = {
   green: "#1B5E4A",
-  greenLight: "#EFF4F0",
+  greenLight: "#EDF3F0",
   bronze: "#B88A44",
-  border: "#E6E1D8",
+  border: "#E2E8E5",
   text: "#2A2A2A",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
   card: "#fff",
-  bg: "#F8F4EE",
+  bg: "#F7F9F8",
 };
 
 const DLD_BUILDINGS: DLDBuildingEntry[] = getDLDBuildingList();
@@ -56,7 +56,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 8,
   fontSize: 14,
   color: C.text,
-  background: "#FDFBF7",
+  background: "#FFFFFF",
   outline: "none",
   boxSizing: "border-box",
 };
@@ -181,7 +181,7 @@ export default function PropertiesPage() {
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
             Your Portfolio
           </p>
-          <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green }}>
+          <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, color: C.green }}>
             My Properties
           </h1>
         </div>
@@ -214,7 +214,7 @@ export default function PropertiesPage() {
             boxShadow: "0 2px 12px rgba(27,94,74,0.08)",
           }}
         >
-          <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 18, color: C.text, marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 18, color: C.text, marginBottom: 20 }}>
             Add a Property
           </h2>
           {saveError && (
@@ -229,7 +229,7 @@ export default function PropertiesPage() {
               <div style={{ position: "relative" }}>
                 {form.building_name ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ ...inputStyle, flex: 1, background: "#EFF4F0", color: C.green, fontWeight: 600 }}>
+                    <div style={{ ...inputStyle, flex: 1, background: "#EDF3F0", color: C.green, fontWeight: 600 }}>
                       {form.building_name}
                     </div>
                     <button type="button" onClick={() => { setForm(f => ({ ...f, building_name: "" })); setDldKey(""); setDldArea(""); }} style={{ padding: "10px 14px", border: `1px solid ${C.border}`, borderRadius: 8, background: "#fff", cursor: "pointer", fontSize: 13, color: C.muted }}>
@@ -403,7 +403,7 @@ export default function PropertiesPage() {
               }}
             >
               <div>
-                <div style={{ fontFamily: "'Georgia', serif", fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 6 }}>
+                <div style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 6 }}>
                   {p.building_name}
                 </div>
                 <div style={{ fontSize: 13, color: C.muted, display: "flex", gap: 12, flexWrap: "wrap" }}>

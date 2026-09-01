@@ -20,7 +20,7 @@ import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
 import { getDLDBuildingList, type DLDBuildingEntry } from "@/lib/building-rents";
 import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 const sans = "system-ui, -apple-system, sans-serif";
 
 const UNIT_SIZES: UnitSize[] = [
@@ -436,10 +436,10 @@ export default function AgentToolsPage() {
     setEmailStatus("sending");
     const money = (n: number) => "AED " + Math.round(n).toLocaleString();
     const rows: string[] = [];
-    rows.push(`<p style="font-size:13px;color:#1A1A1A;"><strong>Property:</strong> ${building || "-"}, ${area || "-"} · ${unitSize} · ${unitAreaSqft} sqft</p>`);
-    if (sStat) rows.push(`<p style="font-size:13px;color:#1A1A1A;"><strong>Recent Sales:</strong> Median ${money(sStat.medianPrice)} · ${sStat.medianAedPerSqft} AED/sqft (n=${sStat.n})</p>`);
-    if (lStat) rows.push(`<p style="font-size:13px;color:#1A1A1A;"><strong>LTR Benchmark:</strong> Median ${money(lStat.median)}/yr (n=${lStat.n})</p>`);
-    if (str) rows.push(`<p style="font-size:13px;color:#1A1A1A;"><strong>STR Estimate:</strong> ${money(str.annualRevenue)}/yr gross, ${money(str.annualNetToLandlord)}/yr net, ${(str.avgOccupancy * 100).toFixed(0)}% occupancy</p>`);
+    rows.push(`<p style="font-size:13px;color:#0F1D18;"><strong>Property:</strong> ${building || "-"}, ${area || "-"} · ${unitSize} · ${unitAreaSqft} sqft</p>`);
+    if (sStat) rows.push(`<p style="font-size:13px;color:#0F1D18;"><strong>Recent Sales:</strong> Median ${money(sStat.medianPrice)} · ${sStat.medianAedPerSqft} AED/sqft (n=${sStat.n})</p>`);
+    if (lStat) rows.push(`<p style="font-size:13px;color:#0F1D18;"><strong>LTR Benchmark:</strong> Median ${money(lStat.median)}/yr (n=${lStat.n})</p>`);
+    if (str) rows.push(`<p style="font-size:13px;color:#0F1D18;"><strong>STR Estimate:</strong> ${money(str.annualRevenue)}/yr gross, ${money(str.annualNetToLandlord)}/yr net, ${(str.avgOccupancy * 100).toFixed(0)}% occupancy</p>`);
 
     try {
       const res = await fetch("/api/send-agent-report", {
@@ -627,7 +627,7 @@ export default function AgentToolsPage() {
           <p style={{ fontSize: 12, fontWeight: 700, color: colors.secondary, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 16 }}>
             Agent Intelligence Platform
           </p>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(30px, 4.2vw, 46px)", color: colors.primary, fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
+          <h1 style={{ fontFamily: serif, fontSize: "clamp(30px, 4.2vw, 46px)", color: colors.primary, fontWeight: 500, lineHeight: 1.15, marginBottom: 20 }}>
             Data-Backed Property Reports For Dubai Agents
           </h1>
           <p style={{ fontSize: 17, color: colors.textMuted, lineHeight: 1.65, marginBottom: 10, maxWidth: isMobile ? "none" : 480 }}>

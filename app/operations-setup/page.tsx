@@ -10,17 +10,17 @@ const colors = {
   primary: "#1B5E4A",
   primaryDeep: "#0F3E33",
   secondary: "#B88A44",
-  bgMain: "#F8F4EE",
-  bgSection: "#FDFBF7",
-  bgSage: "#EFF4F0",
-  textMain: "#1A1A1A",
-  textMuted: "#6B6B6B",
-  border: "#E6E1D8",
+  bgMain: "#F7F9F8",
+  bgSection: "#FFFFFF",
+  bgSage: "#EDF3F0",
+  textMain: "#0F1D18",
+  textMuted: "#4E5D56",
+  border: "#E2E8E5",
   shadowSm: "0 1px 2px rgba(27,94,74,0.05)",
   shadowMd: "0 8px 28px rgba(27,94,74,0.08)",
 };
 
-const serifHeading = "'Georgia', serif";
+const serifHeading = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 const ip = (color: string, size = 20) => ({ width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
 
@@ -100,7 +100,7 @@ export default function OperationsSetupPage() {
             <div style={{ fontSize: "11.5px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: "16px" }}>
               Operations Setup
             </div>
-            <h1 style={{ fontSize: isMobile ? "28px" : "40px", fontFamily: serifHeading, fontWeight: 700, lineHeight: 1.2, marginBottom: "18px", color: colors.primary }}>
+            <h1 style={{ fontSize: isMobile ? "28px" : "40px", fontFamily: serifHeading, fontWeight: 500, lineHeight: 1.2, marginBottom: "18px", color: colors.primary }}>
               Build Your Holiday Home Operations the Right Way
             </h1>
             <p style={{ fontSize: isMobile ? "14.5px" : "16px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "640px", margin: "0 auto 30px" }}>
@@ -117,7 +117,7 @@ export default function OperationsSetupPage() {
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: isMobile ? "28px" : "40px" }}>
               <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "10px" }}>What AssetIntel Can Help Build</div>
-              <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 700, color: colors.primary }}>A Professional Operating Infrastructure</h2>
+              <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 500, color: colors.primary }}>A Professional Operating Infrastructure</h2>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "14px" }}>
               {BUILD_CARDS.map(c => (
@@ -147,7 +147,7 @@ export default function OperationsSetupPage() {
               <div aria-hidden style={{ position: "absolute", top: "-60px", right: "-60px", width: "200px", height: "200px", borderRadius: "50%", background: "rgba(184,138,68,0.14)" }} />
               <div style={{ position: "relative", zIndex: 1 }}>
                 <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: "12px" }}>Built Around Your Operation</div>
-                <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 700, color: "#FFFFFF", marginBottom: "14px", maxWidth: "680px", marginLeft: "auto", marginRight: "auto" }}>
+                <h2 style={{ fontSize: isMobile ? "22px" : "28px", fontFamily: serifHeading, fontWeight: 500, color: "#FFFFFF", marginBottom: "14px", maxWidth: "680px", marginLeft: "auto", marginRight: "auto" }}>
                   Your Setup Starts With Understanding What You Actually Need
                 </h2>
                 <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.82)", lineHeight: 1.65, maxWidth: "620px", margin: "0 auto 36px" }}>
@@ -158,7 +158,7 @@ export default function OperationsSetupPage() {
                   {PROCESS_STEPS.map(s => (
                     <div key={s.title} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: "16px", padding: "22px 20px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                        <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 800, color: "#D4A574", fontFamily: serifHeading }}>
+                        <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 500, color: "#D4A574", fontFamily: serifHeading }}>
                           {s.number}
                         </div>
                         {Icons[s.icon]("#D4A574", 16)}
@@ -189,7 +189,7 @@ export default function OperationsSetupPage() {
             <div style={{ background: "#FDFBF8", borderRadius: "24px", width: "100%", maxWidth: "600px", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", border: `1px solid ${colors.border}` }}>
               <div style={{ padding: isMobile ? "28px 24px 20px" : "36px 40px 24px", borderBottom: `1px solid ${colors.border}` }}>
                 <div style={{ fontSize: "11px", fontWeight: 700, color: colors.primary, letterSpacing: "0.12em", marginBottom: "10px" }}>OPERATIONS SETUP</div>
-                <h2 style={{ fontSize: isMobile ? "22px" : "26px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "10px", lineHeight: 1.25 }}>Speak to an Account Manager</h2>
+                <h2 style={{ fontSize: isMobile ? "22px" : "26px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "10px", lineHeight: 1.25 }}>Speak to an Account Manager</h2>
                 <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.65 }}>Tell us about your portfolio and an AssetIntel Account Manager will reach out to scope your setup and quotation.</p>
               </div>
 
@@ -200,7 +200,7 @@ export default function OperationsSetupPage() {
                     <circle cx="26" cy="26" r="20" fill={`${colors.primary}15`} />
                     <path d="M16 26L23 33L36 19" stroke={colors.primary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <h3 style={{ fontSize: "20px", fontFamily: serifHeading, fontWeight: 700, color: colors.textMain, marginBottom: "12px" }}>Thank you — your enquiry has been received.</h3>
+                  <h3 style={{ fontSize: "20px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "12px" }}>Thank you — your enquiry has been received.</h3>
                   <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.65, marginBottom: "28px" }}>An AssetIntel Account Manager will review your details and be in touch to schedule your discovery call.</p>
                   <button onClick={closeModal} style={{ padding: "12px 28px", background: colors.primary, color: "#fff", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Close</button>
                 </div>
@@ -264,7 +264,7 @@ export default function OperationsSetupPage() {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "11px 14px", fontSize: "14px", color: colors.textMain,
-  background: "#F8F4EE", border: `1.5px solid ${colors.border}`, borderRadius: "9px",
+  background: "#F7F9F8", border: `1.5px solid ${colors.border}`, borderRadius: "9px",
   outline: "none", fontFamily: "inherit", boxSizing: "border-box",
 };
 

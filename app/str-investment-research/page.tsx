@@ -5,7 +5,7 @@
     numbers, immediately, not a lead form promising an emailed report. Refuses the
     generic "submit your details, we'll get back to you" lead-gen page this shipped as.
   OWN-WORLD: The Chartered Estate (unchanged) — forest green/bronze on warm ivory,
-    Georgia serif numbers, restrained lift+shadow. No new palette, no new type.
+    tabular figures, flat surfaces. Palette and type come from lib/colors.ts + globals.css.
   STORY: A buyer enters their budget, sees which Dubai areas give the best STR gross
     yield at that budget (real DLD sale prices + blended AirROI/Airbtics STR data), then
     optionally drills into one area (e.g. Dubai Marina) to see a directional shortlist of
@@ -33,7 +33,7 @@ import { colors } from "@/lib/colors";
 import { getBuildingsByArea, type BuildingRecord } from "@/lib/buildings-data";
 import type { AreaStatsRow } from "@/lib/str-market-data";
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 
 // buildings-data.ts uses the long-form curated names; live area stats use the short ones.
 const AREA_TO_BUILDINGS_KEY: Record<string, string> = {
@@ -150,7 +150,7 @@ function LeadFormModal({ onClose, budget, goal, area }: { onClose: () => void; b
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <EyebrowLabel>STR Investment Research</EyebrowLabel>
-              <h3 style={{ fontSize: 19, fontWeight: 700, color: colors.textMain, margin: "8px 0 0", fontFamily: serif }}>Get Your Detailed Shortlist</h3>
+              <h3 style={{ fontSize: 19, fontWeight: 500, color: colors.textMain, margin: "8px 0 0", fontFamily: serif }}>Get Your Detailed Shortlist</h3>
             </div>
             <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: colors.textMuted, lineHeight: 1 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
@@ -163,7 +163,7 @@ function LeadFormModal({ onClose, budget, goal, area }: { onClose: () => void; b
             <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(27,94,74,0.10)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
             </div>
-            <h4 style={{ fontSize: 17, fontWeight: 700, color: colors.textMain, margin: "0 0 10px", fontFamily: serif }}>Request Received</h4>
+            <h4 style={{ fontSize: 17, fontWeight: 500, color: colors.textMain, margin: "0 0 10px", fontFamily: serif }}>Request Received</h4>
             <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.7, maxWidth: 360, margin: "0 auto 24px" }}>
               Thank you — AssetIntel will review your budget and goals and follow up with a detailed shortlist and next steps.
             </p>
@@ -293,7 +293,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: "56px 24px 0" }}>
           <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
             <EyebrowLabel>STR Investment Research</EyebrowLabel>
-            <h1 style={{ fontSize: "clamp(30px, 4.5vw, 46px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "12px 0 14px", lineHeight: 1.15 }}>
+            <h1 style={{ fontSize: "clamp(30px, 4.5vw, 46px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "12px 0 14px", lineHeight: 1.15 }}>
               What Will Your Budget Buy For STR?
             </h1>
             <p style={{ fontSize: 15.5, color: colors.textMuted, lineHeight: 1.7, maxWidth: 620, margin: "0 auto 36px" }}>
@@ -316,7 +316,7 @@ export default function STRInvestmentResearchPage() {
                   if (budgetError) setBudgetError(null);
                 }}
                 onKeyDown={e => { if (e.key === "Enter") runCalculator(); }}
-                style={{ flex: 1, minWidth: 200, padding: "15px 18px", borderRadius: 14, border: `1.5px solid ${budgetError ? colors.error : colors.border}`, background: colors.bgMain, fontSize: 20, fontFamily: serif, fontWeight: 700, color: colors.textMain, outline: "none" }}
+                style={{ flex: 1, minWidth: 200, padding: "15px 18px", borderRadius: 14, border: `1.5px solid ${budgetError ? colors.error : colors.border}`, background: colors.bgMain, fontSize: 20, fontFamily: serif, fontWeight: 500, color: colors.textMain, outline: "none" }}
               />
               <button
                 onClick={runCalculator}
@@ -364,7 +364,7 @@ export default function STRInvestmentResearchPage() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
                     <div>
                       <EyebrowLabel>YOUR RESULTS</EyebrowLabel>
-                      <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 6px" }}>
+                      <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 6px" }}>
                         Best Areas For {fmtAED(budget)}
                       </h2>
                       <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>Ranked by projected gross STR yield on this budget. Tap an area to see building options.</p>
@@ -387,7 +387,7 @@ export default function STRInvestmentResearchPage() {
                         className="sir-result-row"
                       >
                         <span style={{ fontSize: 13, fontWeight: 700, color: colors.textLight }}>{i + 1}</span>
-                        <span style={{ fontSize: 15, fontWeight: 700, color: colors.textMain, fontFamily: serif }}>{r.row.area}</span>
+                        <span style={{ fontSize: 15, fontWeight: 500, color: colors.textMain, fontFamily: serif }}>{r.row.area}</span>
                         <span className="sir-result-metric">
                           <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: colors.textLight }}>Buys You</span>
                           <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>{r.affordableSqft ? affordableSizeBand(r.affordableSqft) : "—"}</span>
@@ -398,7 +398,7 @@ export default function STRInvestmentResearchPage() {
                         </span>
                         <span className="sir-result-metric">
                           <span style={{ display: "block", fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: colors.textLight }}>Gross Yield*</span>
-                          <span style={{ fontSize: 16, fontWeight: 800, color: colors.primary, fontFamily: serif }}>{r.grossYieldPct != null ? `${r.grossYieldPct.toFixed(1)}%` : "—"}</span>
+                          <span style={{ fontSize: 16, fontWeight: 500, color: colors.primary, fontFamily: serif }}>{r.grossYieldPct != null ? `${r.grossYieldPct.toFixed(1)}%` : "—"}</span>
                         </span>
                         <span style={{ color: colors.secondaryText, fontSize: 13, fontWeight: 700, whiteSpace: "nowrap" }}>Buildings →</span>
                       </button>
@@ -415,7 +415,7 @@ export default function STRInvestmentResearchPage() {
                     ← Compare All Areas
                   </button>
                   <EyebrowLabel>AREA DETAIL</EyebrowLabel>
-                  <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 20px" }}>{selectedArea} At {fmtAED(budget)}</h2>
+                  <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 20px" }}>{selectedArea} At {fmtAED(budget)}</h2>
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginBottom: 8 }}>
                     {[
@@ -427,7 +427,7 @@ export default function STRInvestmentResearchPage() {
                     ].map(m => (
                       <div key={m.label} style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 16, padding: "16px 16px" }}>
                         <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>{m.label}</p>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: colors.textMain, margin: 0, fontFamily: serif }}>{m.value}</p>
+                        <p style={{ fontSize: 16, fontWeight: 500, color: colors.textMain, margin: 0, fontFamily: serif }}>{m.value}</p>
                       </div>
                     ))}
                   </div>
@@ -436,7 +436,7 @@ export default function STRInvestmentResearchPage() {
                   {/* Building shortlist — editorial zone */}
                   <div style={{ background: colors.bgSage, border: `1px solid ${colors.borderSage}`, borderRadius: 20, padding: "24px 26px" }}>
                     <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.secondaryText, margin: "0 0 4px" }}>AssetIntel View — Directional, Not Measured Data</p>
-                    <h3 style={{ fontSize: 18, fontFamily: serif, fontWeight: 700, color: colors.textMain, margin: "8px 0 6px" }}>Buildings To Consider In {selectedArea}</h3>
+                    <h3 style={{ fontSize: 18, fontFamily: serif, fontWeight: 500, color: colors.textMain, margin: "8px 0 6px" }}>Buildings To Consider In {selectedArea}</h3>
                     <p style={{ fontSize: 12.5, color: colors.textMuted, lineHeight: 1.6, marginBottom: 18, maxWidth: 640 }}>
                       Ranked by AssetIntel's building-quality tier — a proxy for guest appeal, not a live per-building STR performance measurement. Verify actual asking price and unit availability before committing.
                       {areaBuildingsBudgetLimited && " Shown buildings are narrowed to tiers realistic at your budget's affordable unit size — higher-tier buildings in this area are likely out of reach at this price point."}
@@ -460,7 +460,7 @@ export default function STRInvestmentResearchPage() {
               {/* Lead capture — appears after real value is shown */}
               <div style={{ marginTop: 32, background: `linear-gradient(145deg, ${colors.primary} 0%, #0F3E33 100%)`, borderRadius: 22, padding: "28px 30px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, boxShadow: "0 12px 36px rgba(27,94,74,0.24)" }}>
                 <div>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: "#fff", margin: "0 0 6px", fontFamily: serif }}>Want a detailed shortlist, not just an estimate?</p>
+                  <p style={{ fontSize: 16, fontWeight: 500, color: "#fff", margin: "0 0 6px", fontFamily: serif }}>Want a detailed shortlist, not just an estimate?</p>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", margin: 0, maxWidth: 480 }}>AssetIntel reviews furnishing cost, setup requirements, and risk — and can introduce a trusted real estate partner once you're ready.</p>
                 </div>
                 <button onClick={() => setFormOpen(true)} style={{ padding: "13px 26px", borderRadius: 12, background: colors.secondary, color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -476,7 +476,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <EyebrowLabel>PROPERTY TYPE</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 8px" }}>Ready Or Off-Plan — Both Change The STR Calculation</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 8px" }}>Ready Or Off-Plan — Both Change The STR Calculation</h2>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 28, maxWidth: 640 }}>The numbers above are area-level. Whether the specific unit is ready or off-plan changes what you can verify before you commit.</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="sir-comparison-grid">
               {[
@@ -484,7 +484,7 @@ export default function STRInvestmentResearchPage() {
                 { title: "Off-Plan Property", accent: colors.secondaryText, points: ["Handover timing and future supply must be considered", "Developer and building positioning affects guest appeal", "Projected STR demand should be treated as directional", "Best suited to a forward-looking STR strategy"] },
               ].map(col => (
                 <div key={col.title} style={{ background: colors.bgMain, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "26px 26px" }}>
-                  <h3 style={{ fontSize: 16.5, fontWeight: 700, color: colors.textMain, fontFamily: serif, margin: "0 0 16px" }}>{col.title}</h3>
+                  <h3 style={{ fontSize: 16.5, fontWeight: 500, color: colors.textMain, fontFamily: serif, margin: "0 0 16px" }}>{col.title}</h3>
                   {col.points.map((pt, i) => (
                     <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 11 }}>
                       <div style={{ width: 6, height: 6, borderRadius: "50%", background: col.accent, marginTop: 6, flexShrink: 0 }} />
@@ -501,7 +501,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: pad }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <EyebrowLabel>WHY IT MATTERS</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 700, color: colors.primary, margin: "10px 0 20px" }}>The Best Purchase Isn't Always The Highest-Grossing Unit</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "10px 0 20px" }}>The Best Purchase Isn't Always The Highest-Grossing Unit</h2>
             <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "26px 28px", maxWidth: 760 }}>
               {[
                 "Net income matters more than headline revenue.",
@@ -524,7 +524,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: pad, background: `linear-gradient(135deg, ${colors.primary} 0%, #0F3E33 100%)` }}>
           <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryOnDark, margin: "0 0 14px" }}>STR Investment Research</p>
-            <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontFamily: serif, fontWeight: 700, color: "#fff", margin: "0 0 14px" }}>Ready To Buy With STR In Mind?</h2>
+            <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontFamily: serif, fontWeight: 500, color: "#fff", margin: "0 0 14px" }}>Ready To Buy With STR In Mind?</h2>
             <p style={{ fontSize: 15, color: "rgba(255,255,255,0.75)", maxWidth: 480, margin: "0 auto 28px", lineHeight: 1.65 }}>Run the calculator above with your real budget, or request a detailed shortlist from AssetIntel directly.</p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <button onClick={() => { setFormOpen(true); }} style={{ padding: "14px 28px", borderRadius: 12, background: colors.secondary, color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}>

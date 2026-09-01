@@ -30,15 +30,15 @@ import type { AreaStatsRow, AirROISampleListingRow } from "@/lib/str-market-data
 const C = {
   primary: "#1B5E4A",
   bronze: "#B88A44",
-  bg: "#F8F4EE",
+  bg: "#F7F9F8",
   surface: "#FFFFFF",
-  border: "#E6E1D8",
-  text: "#1A1A1A",
-  muted: "#6B6B6B",
+  border: "#E2E8E5",
+  text: "#0F1D18",
+  muted: "#4E5D56",
   risk: { low: "#2D7A4F", medium: "#A37020", high: "#C25A1A", vhigh: "#B83232" },
 };
 
-const serif = "'Georgia', serif";
+const serif = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
 const stk = (c: string, w = 1.4) => ({ stroke: c, strokeWidth: w, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -890,7 +890,7 @@ function ResultInner() {
           <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: `${C.primary}12`, border: `1px solid ${C.primary}30`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={C.primary} strokeWidth="1.6" strokeLinejoin="round" /></svg>
           </div>
-          <h1 style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color: C.text, marginBottom: "10px" }}>No Analysis to Show</h1>
+          <h1 style={{ fontFamily: serif, fontSize: "22px", fontWeight: 500, color: C.text, marginBottom: "10px" }}>No Analysis to Show</h1>
           <p style={{ fontSize: "14px", color: C.muted, lineHeight: 1.65, marginBottom: "24px" }}>Fill in all property details in the estimator to generate your STR sub-leasing risk report.</p>
           <button
             onClick={() => router.push("/self-manage/str-subleasing/estimator")}
@@ -918,7 +918,7 @@ function ResultInner() {
           {/* Hero — Avoid */}
           <div style={{ marginBottom: "32px" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "10px" }}>ASSETINTEL STR SUB-LEASING RISK REPORT</div>
-            <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 700, color: C.text, marginBottom: "16px", lineHeight: 1.15 }}>{buildingName}</h1>
+            <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 500, color: C.text, marginBottom: "16px", lineHeight: 1.15 }}>{buildingName}</h1>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "24px" }}>
               {[community, unitSize, `Floor ${floor}`, view, fq + " Furnishing", `AED ${fmt(monthlyRent)}/mo`].filter(Boolean).map(chip => (
                 <span key={chip} style={{ fontSize: "12px", fontWeight: 600, color: C.muted, background: C.surface, border: `1px solid ${C.border}`, padding: "4px 12px", borderRadius: "20px" }}>{chip}</span>
@@ -926,7 +926,7 @@ function ResultInner() {
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#FDE8E8", border: `2px solid ${C.risk.vhigh}`, borderRadius: "14px", padding: "12px 20px" }}>
               <span style={{ fontSize: "20px", fontWeight: 700, color: C.risk.vhigh }}>✗</span>
-              <span style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color: C.risk.vhigh }}>Avoid</span>
+              <span style={{ fontFamily: serif, fontSize: "22px", fontWeight: 500, color: C.risk.vhigh }}>Avoid</span>
             </div>
           </div>
 
@@ -938,7 +938,7 @@ function ResultInner() {
               </div>
               <div>
                 <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: C.risk.vhigh, marginBottom: "4px" }}>AREA SUITABILITY GATE</div>
-                <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color: C.risk.vhigh }}>Not Suitable for STR Sub-Leasing</div>
+                <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 500, color: C.risk.vhigh }}>Not Suitable for STR Sub-Leasing</div>
               </div>
             </div>
             <p style={{ fontSize: "14px", color: "#5A1A1A", lineHeight: 1.7, marginBottom: "20px" }}>
@@ -1009,7 +1009,7 @@ function ResultInner() {
         {/* ── Hero ── */}
         <div style={{ marginBottom: "36px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "12px" }}>ASSETINTEL STR SUB-LEASING RISK REPORT</div>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 700, color: C.text, marginBottom: "8px", lineHeight: 1.15 }}>{r.buildingName}</h1>
+          <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 500, color: C.text, marginBottom: "8px", lineHeight: 1.15 }}>{r.buildingName}</h1>
           {r.community && <p style={{ fontSize: "15px", color: C.muted, marginBottom: "18px" }}>{r.community}</p>}
 
           {/* Property chips */}
@@ -1029,11 +1029,11 @@ function ResultInner() {
             <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: recCfg.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#fff", fontSize: "20px", fontWeight: 700 }}>{recCfg.icon}</div>
             <div>
               <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: recCfg.color, marginBottom: "2px" }}>ASSETINTEL RECOMMENDATION</div>
-              <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 700, color: recCfg.color, lineHeight: 1 }}>{r.recommendation}</div>
+              <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 500, color: recCfg.color, lineHeight: 1 }}>{r.recommendation}</div>
             </div>
             <div style={{ borderLeft: `1px solid ${recCfg.border}40`, paddingLeft: "16px", marginLeft: "4px" }}>
               <div style={{ fontSize: "10px", color: recCfg.color, fontWeight: 700, letterSpacing: "0.08em", marginBottom: "2px" }}>RISK</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: recCfg.color, fontFamily: serif }}>{r.riskLevel}</div>
+              <div style={{ fontSize: "18px", fontWeight: 500, color: recCfg.color, fontFamily: serif }}>{r.riskLevel}</div>
             </div>
           </div>
         </div>
@@ -1076,7 +1076,7 @@ function ResultInner() {
           ].map(({ label, value, color, note }) => (
             <div key={label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
               <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", color: C.muted, marginBottom: "8px" }}>{label.toUpperCase()}</div>
-              <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color, marginBottom: "4px" }}>{value}</div>
+              <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 500, color, marginBottom: "4px" }}>{value}</div>
               <div style={{ fontSize: "11px", color: C.muted, lineHeight: 1.4 }}>{note}</div>
             </div>
           ))}
@@ -1095,7 +1095,7 @@ function ResultInner() {
             <div style={{ background: cfg.bg, border: `1.5px solid ${cfg.border}`, borderRadius: "20px", padding: "26px 30px", marginBottom: "20px" }}>
               <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", color: cfg.color, marginBottom: "10px" }}>AREA SUITABILITY</div>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                <span style={{ fontSize: "20px", fontWeight: 700, color: cfg.color, fontFamily: serif }}>{cfg.label}</span>
+                <span style={{ fontSize: "20px", fontWeight: 500, color: cfg.color, fontFamily: serif }}>{cfg.label}</span>
                 <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: cfg.color, background: cfg.badgeBg, padding: "3px 10px", borderRadius: "20px" }}>{cfg.badge}</span>
               </div>
               <p style={{ fontSize: "13.5px", color: C.text, lineHeight: 1.65, margin: r.buildingProfile ? "0 0 14px" : "0" }}>{cfg.body}</p>
@@ -1197,7 +1197,7 @@ function ResultInner() {
                 </div>
                 <div style={{ background: appealCfg.bg, border: `1.5px solid ${appealCfg.border}`, borderRadius: "16px", padding: "14px 22px", textAlign: "center", minWidth: "140px" }}>
                   <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", color: appealCfg.color, marginBottom: "4px" }}>OVERALL APPEAL</div>
-                  <div style={{ fontSize: "22px", fontWeight: 700, color: appealCfg.color, fontFamily: serif }}>{r.guestAppeal}</div>
+                  <div style={{ fontSize: "22px", fontWeight: 500, color: appealCfg.color, fontFamily: serif }}>{r.guestAppeal}</div>
                   <div style={{ fontSize: "11px", color: C.muted, marginTop: "2px" }}>{r.guestAppealScore} / 11</div>
                 </div>
               </div>
@@ -1283,12 +1283,12 @@ function ResultInner() {
               <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "10px" }}>RISK ASSESSMENT</div>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <IconRisk color={RISK_COLOR[r.riskLevel]} />
-                <h2 style={{ fontFamily: serif, fontSize: "30px", fontWeight: 700, color: RISK_COLOR[r.riskLevel], margin: 0 }}>{r.riskLevel} Risk</h2>
+                <h2 style={{ fontFamily: serif, fontSize: "30px", fontWeight: 500, color: RISK_COLOR[r.riskLevel], margin: 0 }}>{r.riskLevel} Risk</h2>
               </div>
             </div>
             <div style={{ background: RISK_BG[r.riskLevel], borderRadius: "16px", padding: "18px 24px", textAlign: "center", minWidth: "164px" }}>
               <div style={{ fontSize: "10px", color: C.muted, fontWeight: 700, letterSpacing: "0.1em", marginBottom: "6px" }}>BREAK-EVEN OCCUPANCY</div>
-              <div style={{ fontSize: "40px", fontWeight: 700, color: RISK_COLOR[r.riskLevel], fontFamily: serif, lineHeight: 1 }}>{pct(r.breakEvenOcc)}</div>
+              <div style={{ fontSize: "40px", fontWeight: 500, color: RISK_COLOR[r.riskLevel], fontFamily: serif, lineHeight: 1 }}>{pct(r.breakEvenOcc)}</div>
               <div style={{ fontSize: "11px", color: C.muted, marginTop: "4px" }}>Realistic avg: {pct(r.avgOccupancy)}</div>
             </div>
           </div>
@@ -1344,16 +1344,16 @@ function ResultInner() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "flex-start", marginBottom: "20px" }}>
               <div style={{ flex: 1, minWidth: "200px" }}>
                 <div style={{ fontSize: "12px", color: C.muted, marginBottom: "4px" }}>Current Rent</div>
-                <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 700, color: C.risk.high }}>AED {fmt(r.monthlyRent)}/mo</div>
+                <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 500, color: C.risk.high }}>AED {fmt(r.monthlyRent)}/mo</div>
               </div>
               <div style={{ display: "flex", alignItems: "center", color: C.muted, fontSize: "20px", paddingTop: "18px" }}>→</div>
               <div style={{ flex: 1, minWidth: "200px" }}>
                 <div style={{ fontSize: "12px", color: C.muted, marginBottom: "4px" }}>Target Rent for Low Risk</div>
-                <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 700, color: C.risk.low }}>AED {fmt(targetMonthlyRent)}/mo</div>
+                <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 500, color: C.risk.low }}>AED {fmt(targetMonthlyRent)}/mo</div>
               </div>
               <div style={{ flex: 1, minWidth: "200px", padding: "14px 18px", background: `${C.bronze}12`, borderRadius: "12px", border: `1px solid ${C.bronze}30` }}>
                 <div style={{ fontSize: "11px", fontWeight: 700, color: C.bronze, letterSpacing: "0.08em", marginBottom: "4px" }}>REDUCTION NEEDED</div>
-                <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color: C.bronze }}>AED {fmt(rentGap)}/mo</div>
+                <div style={{ fontFamily: serif, fontSize: "22px", fontWeight: 500, color: C.bronze }}>AED {fmt(rentGap)}/mo</div>
                 <div style={{ fontSize: "11px", color: C.muted, marginTop: "2px" }}>{Math.round((rentGap / r.monthlyRent) * 100)}% below asking</div>
               </div>
             </div>
@@ -1387,7 +1387,7 @@ function ResultInner() {
             ].map(({ label, value, sub, color }) => (
               <div key={label} style={{ padding: "18px", background: C.bg, borderRadius: "14px", border: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: "11.5px", color: C.muted, marginBottom: "8px" }}>{label}</div>
-                <div style={{ fontSize: "19px", fontWeight: 700, color, fontFamily: serif, marginBottom: "4px" }}>{value}</div>
+                <div style={{ fontSize: "19px", fontWeight: 500, color, fontFamily: serif, marginBottom: "4px" }}>{value}</div>
                 <div style={{ fontSize: "11px", color: C.muted }}>{sub}</div>
               </div>
             ))}
@@ -1395,13 +1395,13 @@ function ResultInner() {
           <div style={{ borderTop: `2px solid ${r.annualNetProfit >= 0 ? C.risk.low : C.risk.vhigh}`, paddingTop: "22px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
             <div>
               <div style={{ fontSize: "12px", color: C.muted, marginBottom: "4px" }}>Estimated Annual Net Profit</div>
-              <div style={{ fontFamily: serif, fontSize: "34px", fontWeight: 700, color: r.annualNetProfit >= 0 ? C.risk.low : C.risk.vhigh }}>
+              <div style={{ fontFamily: serif, fontSize: "34px", fontWeight: 500, color: r.annualNetProfit >= 0 ? C.risk.low : C.risk.vhigh }}>
                 {r.annualNetProfit >= 0 ? "+" : ""}AED {fmt(r.annualNetProfit)}
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: "12px", color: C.muted, marginBottom: "4px" }}>vs. Landlord Rent Paid</div>
-              <div style={{ fontFamily: serif, fontSize: "20px", fontWeight: 700, color: C.text }}>
+              <div style={{ fontFamily: serif, fontSize: "20px", fontWeight: 500, color: C.text }}>
                 {r.annualNetProfit >= 0
                   ? `+${Math.round((r.annualNetProfit / r.annualLandlordRent) * 100)}% margin`
                   : `${Math.round((r.annualNetProfit / r.annualLandlordRent) * 100)}% shortfall`}
@@ -1466,7 +1466,7 @@ function ResultInner() {
           ) : (
             <>
               <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "10px" }}>GET YOUR REPORT + OPERATOR MATCHES</div>
-              <h2 style={{ fontFamily: serif, fontSize: "20px", fontWeight: 700, color: C.text, margin: "0 0 8px" }}>
+              <h2 style={{ fontFamily: serif, fontSize: "20px", fontWeight: 500, color: C.text, margin: "0 0 8px" }}>
                 Receive this report by email
               </h2>
               <p style={{ fontSize: "13.5px", color: C.muted, lineHeight: 1.65, margin: "0 0 24px", maxWidth: "520px" }}>
@@ -1510,7 +1510,7 @@ function ResultInner() {
           boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
         }}>
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.bronze, marginBottom: "12px" }}>NEXT STEPS</div>
-          <h2 style={{ fontFamily: serif, fontSize: "22px", fontWeight: 700, color: C.text, marginBottom: "8px" }}>
+          <h2 style={{ fontFamily: serif, fontSize: "22px", fontWeight: 500, color: C.text, marginBottom: "8px" }}>
             {r.recommendation === "Proceed" ? "Ready to move forward?" : r.recommendation === "Negotiate" ? "Need help with the negotiation?" : "Not the right deal — but the right one is out there."}
           </h2>
           <p style={{ fontSize: "13.5px", color: C.muted, lineHeight: 1.65, marginBottom: "24px", maxWidth: "560px" }}>
@@ -1549,7 +1549,7 @@ function ResultInner() {
 
 export default function SubleasingResultPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F8F4EE" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F7F9F8" }} />}>
       <ResultInner />
     </Suspense>
   );

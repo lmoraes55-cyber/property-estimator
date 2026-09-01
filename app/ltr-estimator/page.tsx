@@ -201,7 +201,7 @@ export default function RentEstimatorPage() {
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: C.secondary, marginBottom: 14 }}>
               Live DLD Rental Data
             </div>
-            <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 40, color: C.primary, marginBottom: 16, lineHeight: 1.2, maxWidth: 620 }}>
+            <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 40, color: C.primary, marginBottom: 16, lineHeight: 1.2, maxWidth: 620 }}>
               Long-Term Rental Estimator
             </h1>
             <p style={{ fontSize: 15.5, color: C.textMuted, maxWidth: 560, lineHeight: 1.7, marginBottom: 22 }}>
@@ -364,7 +364,7 @@ export default function RentEstimatorPage() {
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.mutedGreen, marginBottom: 10 }}>
               Estimated Annual Rent
             </div>
-            <div style={{ fontFamily: "'Georgia', serif", fontSize: 36, color: C.primary, marginBottom: 4 }}>
+            <div style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 36, color: C.primary, marginBottom: 4 }}>
               AED {estimate.mid.toLocaleString()}
             </div>
             <div style={{ fontSize: 14, color: C.textMuted, marginBottom: 20 }}>
@@ -429,7 +429,7 @@ export default function RentEstimatorPage() {
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: C.secondary, marginBottom: 12 }}>
             Methodology
           </div>
-          <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 30, color: C.primary, lineHeight: 1.3 }}>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 30, color: C.primary, lineHeight: 1.3 }}>
             How The LTR Estimate Works
           </h2>
         </div>
@@ -458,7 +458,7 @@ export default function RentEstimatorPage() {
               <div style={{
                 width: 34, height: 34, borderRadius: 9, marginBottom: 16,
                 background: C.bgSage, display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "'Georgia', serif", fontSize: 15, fontWeight: 700, color: C.primary,
+                fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 15, fontWeight: 500, color: C.primary,
               }}>
                 {i + 1}
               </div>

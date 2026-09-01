@@ -5,11 +5,11 @@ import { createClient } from "@/lib/supabase/client";
 
 const C = {
   green: "#1B5E4A",
-  greenLight: "#EFF4F0",
+  greenLight: "#EDF3F0",
   bronze: "#B88A44",
-  border: "#E6E1D8",
+  border: "#E2E8E5",
   text: "#2A2A2A",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
   card: "#fff",
 };
 
@@ -69,7 +69,7 @@ export default function ReportsPage() {
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
         Saved Analysis
       </p>
-      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green, marginBottom: 28 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, color: C.green, marginBottom: 28 }}>
         Reports
       </h1>
 
@@ -123,7 +123,7 @@ export default function ReportsPage() {
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                    <span style={{ fontFamily: "'Georgia', serif", fontSize: 16, fontWeight: 600, color: C.text }}>
+                    <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 16, fontWeight: 600, color: C.text }}>
                       {r.building_name}
                     </span>
                     {r.recommendation && (

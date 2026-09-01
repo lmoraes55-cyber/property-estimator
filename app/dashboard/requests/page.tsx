@@ -6,12 +6,12 @@ import { SERVICES, ServiceDef } from "@/lib/services";
 
 const C = {
   green: "#1B5E4A",
-  greenLight: "#EFF4F0",
+  greenLight: "#EDF3F0",
   bronze: "#B88A44",
   bronzeLight: "#FFF8EC",
-  border: "#E6E1D8",
+  border: "#E2E8E5",
   text: "#2A2A2A",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
   card: "#fff",
 };
 
@@ -76,7 +76,7 @@ function ServiceRequestModal({ service, properties, onClose, onSuccess }: ModalP
     borderRadius: 8,
     fontSize: 14,
     color: C.text,
-    background: "#FDFBF7",
+    background: "#FFFFFF",
     outline: "none",
     boxSizing: "border-box",
   };
@@ -206,7 +206,7 @@ function ServiceRequestModal({ service, properties, onClose, onSuccess }: ModalP
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
           <div>
-            <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 20, color: C.text, marginBottom: 4 }}>
+            <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 20, color: C.text, marginBottom: 4 }}>
               {service.title}
             </h2>
             <span style={{ fontSize: 12, background: C.bronzeLight, color: C.bronze, padding: "3px 8px", borderRadius: 4, fontWeight: 600 }}>
@@ -328,7 +328,7 @@ export default function RequestsPage() {
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
         Expert Support
       </p>
-      <h1 style={{ fontFamily: "'Georgia', serif", fontSize: 26, color: C.green, marginBottom: 8 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, color: C.green, marginBottom: 8 }}>
         Service Requests
       </h1>
       <p style={{ color: C.muted, fontSize: 14, marginBottom: 32 }}>
@@ -336,7 +336,7 @@ export default function RequestsPage() {
       </p>
 
       {/* Available services */}
-      <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 18, color: C.text, marginBottom: 16 }}>
+      <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 18, color: C.text, marginBottom: 16 }}>
         Available Services
       </h2>
       <div
@@ -365,7 +365,7 @@ export default function RequestsPage() {
                 Free during testing
               </span>
             </div>
-            <h3 style={{ fontFamily: "'Georgia', serif", fontSize: 15, color: C.text, marginBottom: 8, marginTop: 10 }}>
+            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 15, color: C.text, marginBottom: 8, marginTop: 10 }}>
               {service.title}
             </h3>
             <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, flex: 1, marginBottom: 12 }}>
@@ -394,7 +394,7 @@ export default function RequestsPage() {
       </div>
 
       {/* My Requests */}
-      <h2 style={{ fontFamily: "'Georgia', serif", fontSize: 18, color: C.text, marginBottom: 16 }}>
+      <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 18, color: C.text, marginBottom: 16 }}>
         My Requests
       </h2>
       {loading ? (

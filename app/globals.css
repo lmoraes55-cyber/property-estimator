@@ -13,24 +13,41 @@
   --ai-bronze-text:  #7D6338;   /* AA-compliant (4.5:1+) bronze for small/normal-weight text on light backgrounds */
 
   /* Backgrounds — warm ivory system */
-  --ai-bg:           #F8F4EE;   /* warm ivory — main page bg */
-  --ai-bg-section:   #FDFBF7;   /* soft warm white — card/section bg */
-  --ai-bg-sage:      #EFF4F0;   /* sage tint — advisory/trust sections */
+  /* Cool near-white with a faint green bias. Warm ivory competed with charts
+     and tables for attention; a data product needs a quieter ground. */
+  --ai-bg:           #F7F9F8;   /* page ground */
+  --ai-bg-section:   #FFFFFF;   /* card / section surface */
+  --ai-bg-sage:      #EDF3F0;   /* sage tint — advisory/trust sections */
   --ai-bg-white:     #FFFFFF;
+  --ai-bg-ink:       #0F1D18;   /* deep forest-ink panel — insight callouts */
 
   /* Text */
-  --ai-text:         #1A1A1A;
-  --ai-text-muted:   #6B6B6B;
-  --ai-text-light:   #8E8E8E;
+  /* Three steps, each AA (4.5:1) for SMALL text on both --ai-bg and white,
+     each visibly distinct from its neighbour. The previous --ai-text-light
+     (#66756D) was 2.99:1 and failed at the 10-12px sizes it is used at. */
+  --ai-text:         #0F1D18;   /* 16.42:1 */
+  --ai-text-muted:   #4E5D56;   /*  6.57:1 */
+  --ai-text-light:   #66756D;   /*  4.59:1 */
 
   /* Borders */
-  --ai-border:       #E6E1D8;   /* warm border */
-  --ai-border-sage:  #C8DAD0;
+  --ai-border:       #E2E8E5;
+  --ai-border-strong:#CFD9D4;
+  --ai-border-sage:  #C6D8CF;
+
+  /* Chart series — fixed order, never cycled. Validated for lightness band,
+     chroma floor, colourblind separation and contrast on both surfaces.
+     Do not substitute by eye. */
+  --ai-s1:           #12876A;
+  --ai-s2:           #D08A12;
+  --ai-s3:           #2E6FC4;
+  --ai-s4:           #A03D8F;
 
   /* Shadows — warm-tinted */
-  --ai-shadow-sm:    0 1px 2px rgba(27,94,74,.04);
-  --ai-shadow-md:    0 8px 28px rgba(27,94,74,.08);
-  --ai-shadow-lg:    0 20px 48px rgba(27,94,74,.07);
+  /* Flattened. Separation comes from surface tint and border, not elevation —
+     lifted cards read as document chrome rather than instrument panel. */
+  --ai-shadow-sm:    0 1px 2px rgba(15,29,24,.03);
+  --ai-shadow-md:    0 2px 8px rgba(15,29,24,.05);
+  --ai-shadow-lg:    0 8px 24px rgba(15,29,24,.06);
 
   /* Legacy slots (kept for Tailwind @theme) */
   --background: var(--ai-bg);
@@ -40,8 +57,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono-ai);
+  --font-display: var(--font-display);
 }
 
 /* ─── Base reset ────────────────────────────────────────────────────────────── */
@@ -59,7 +77,7 @@ html {
 body {
   background: var(--ai-bg);
   color: var(--ai-text);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
@@ -93,19 +111,26 @@ img, video, iframe {
   .ai-btn-full { width: 100% !important; }
 }
 
-/* Responsive hero typography */
+/* Responsive hero typography.
+   Georgia at 700 read editorial and traditional. A geometric display face at a
+   light weight is what makes a data product feel engineered rather than
+   published — the weight drop is doing as much work here as the typeface. */
 .ai-hero-h1 {
-  font-size: clamp(28px, 6vw, 56px);
-  line-height: 1.15;
-  font-family: 'Georgia', serif;
-  font-weight: 700;
+  font-size: clamp(30px, 6vw, 58px);
+  line-height: 1.08;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
 .ai-hero-h2 {
-  font-size: clamp(22px, 4vw, 40px);
-  line-height: 1.2;
-  font-family: 'Georgia', serif;
-  font-weight: 700;
+  font-size: clamp(23px, 4vw, 40px);
+  line-height: 1.15;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 /* Scoped transitions — avoid the global * transition which slows everything */
@@ -117,8 +142,16 @@ button, a, input, textarea, select, [data-interactive] {
 /* ─── Typography ────────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   color: var(--ai-text);
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
   line-height: 1.2;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* Digits that line up in columns must not jitter between rows. */
+.ai-figure, table td, table th, [data-figure] {
+  font-variant-numeric: tabular-nums;
 }
 
 p { line-height: 1.65; }
@@ -134,9 +167,8 @@ p { line-height: 1.65; }
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .ai-card:hover {
-  transform: translateY(-3px);
   box-shadow: var(--ai-shadow-md);
-  border-color: rgba(184,138,68,0.4);
+  border-color: var(--ai-border-strong);
 }
 
 /* Advisory / sage card */

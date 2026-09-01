@@ -50,8 +50,8 @@ export async function POST(request: Request) {
 <meta name="color-scheme" content="light"/>
 <meta name="supported-color-schemes" content="light"/>
 </head>
-<body style="margin:0;padding:0;background:#F8F4EE;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F4EE;padding:40px 0;">
+<body style="margin:0;padding:0;background:#F7F9F8;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F9F8;padding:40px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
 
@@ -61,54 +61,54 @@ export async function POST(request: Request) {
              live, the hook-based fix did not resolve it on a real iOS Gmail app. A
              light background with dark brand-color text has nothing for that
              heuristic to break. -->
-        <tr><td bgcolor="#F4F9F7" style="background:#F4F9F7;padding:32px 40px;border-bottom:1px solid #E6E1D8;">
+        <tr><td bgcolor="#F4F9F7" style="background:#F4F9F7;padding:32px 40px;border-bottom:1px solid #E2E8E5;">
           <p style="margin:0;color:#8B6F3F;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">AssetIntel · STR Sub-Leasing Report</p>
           <h1 style="margin:8px 0 0;color:#1B5E4A;font-size:24px;font-weight:700;font-family:Georgia,serif;">${building}${unitSize ? ` · ${unitSize}` : ""}</h1>
         </td></tr>
 
         <!-- Key metrics -->
         <tr><td style="padding:32px 40px 0;">
-          <p style="margin:0 0 20px;font-size:14px;color:#6B6B6B;line-height:1.6;">Your STR sub-leasing risk analysis is attached as a PDF. Here's a quick summary:</p>
+          <p style="margin:0 0 20px;font-size:14px;color:#4E5D56;line-height:1.6;">Your STR sub-leasing risk analysis is attached as a PDF. Here's a quick summary:</p>
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td style="padding:0 8px 16px 0;width:50%;vertical-align:top;">
-                <div style="background:#F8F4EE;border-radius:10px;padding:16px;">
-                  <p style="margin:0 0 4px;font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Verdict</p>
+                <div style="background:#F7F9F8;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;font-size:11px;color:#4E5D56;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Verdict</p>
                   <p style="margin:0;font-size:18px;font-weight:700;color:#1B5E4A;">${recLabel || "—"}</p>
                 </div>
               </td>
               <td style="padding:0 0 16px 8px;width:50%;vertical-align:top;">
-                <div style="background:#F8F4EE;border-radius:10px;padding:16px;">
-                  <p style="margin:0 0 4px;font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Risk Level</p>
-                  <p style="margin:0;font-size:18px;font-weight:700;color:#1A1A1A;">${riskLevel || "—"}</p>
+                <div style="background:#F7F9F8;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;font-size:11px;color:#4E5D56;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Risk Level</p>
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#0F1D18;">${riskLevel || "—"}</p>
                 </div>
               </td>
             </tr>
             <tr>
               <td style="padding:0 8px 16px 0;vertical-align:top;">
-                <div style="background:#F8F4EE;border-radius:10px;padding:16px;">
-                  <p style="margin:0 0 4px;font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Annual Net Profit</p>
-                  <p style="margin:0;font-size:18px;font-weight:700;color:#1A1A1A;">AED ${strNetPerYear || "—"}</p>
+                <div style="background:#F7F9F8;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;font-size:11px;color:#4E5D56;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Annual Net Profit</p>
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#0F1D18;">AED ${strNetPerYear || "—"}</p>
                 </div>
               </td>
               <td style="padding:0 0 16px 8px;vertical-align:top;">
-                <div style="background:#F8F4EE;border-radius:10px;padding:16px;">
-                  <p style="margin:0 0 4px;font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Market ADR</p>
-                  <p style="margin:0;font-size:18px;font-weight:700;color:#1A1A1A;">AED ${adr || "—"}/night</p>
+                <div style="background:#F7F9F8;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;font-size:11px;color:#4E5D56;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Market ADR</p>
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#0F1D18;">AED ${adr || "—"}/night</p>
                 </div>
               </td>
             </tr>
             <tr>
               <td style="padding:0 8px 0 0;vertical-align:top;">
-                <div style="background:#F8F4EE;border-radius:10px;padding:16px;">
-                  <p style="margin:0 0 4px;font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Avg Occupancy</p>
-                  <p style="margin:0;font-size:18px;font-weight:700;color:#1A1A1A;">${occupancy || "—"}</p>
+                <div style="background:#F7F9F8;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;font-size:11px;color:#4E5D56;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Avg Occupancy</p>
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#0F1D18;">${occupancy || "—"}</p>
                 </div>
               </td>
               <td style="padding:0 0 0 8px;vertical-align:top;">
-                <div style="background:#F8F4EE;border-radius:10px;padding:16px;">
-                  <p style="margin:0 0 4px;font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Break-Even Occupancy</p>
-                  <p style="margin:0;font-size:18px;font-weight:700;color:#1A1A1A;">${breakEvenOcc || "—"}</p>
+                <div style="background:#F7F9F8;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;font-size:11px;color:#4E5D56;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Break-Even Occupancy</p>
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#0F1D18;">${breakEvenOcc || "—"}</p>
                 </div>
               </td>
             </tr>
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
           <div style="background:linear-gradient(135deg,#1B5E4A12 0%,#B88A4412 100%);border:1px solid #1B5E4A30;border-radius:12px;padding:24px;">
             <p style="margin:0 0 8px;font-size:11px;color:#B88A44;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Operator Matching</p>
             <h2 style="margin:0 0 12px;font-size:18px;font-weight:700;color:#1B5E4A;font-family:Georgia,serif;">We'll find your best operator fit</h2>
-            <p style="margin:0;font-size:14px;color:#1A1A1A;line-height:1.7;">
+            <p style="margin:0;font-size:14px;color:#0F1D18;line-height:1.7;">
               Based on your property profile and this analysis, our team will match you with vetted STR operators who specialise in ${building ? building.split(" ").slice(-2).join(" ") : "your area"}.
               You'll receive a shortlist of 2–3 operators with their fees, strengths, and coverage — no commitment required.
             </p>
@@ -128,8 +128,8 @@ export async function POST(request: Request) {
         </td></tr>
 
         <!-- Footer -->
-        <tr><td style="padding:0 40px 32px;border-top:1px solid #E6E1D8;">
-          <p style="margin:24px 0 0;font-size:12px;color:#6B6B6B;line-height:1.6;">
+        <tr><td style="padding:0 40px 32px;border-top:1px solid #E2E8E5;">
+          <p style="margin:24px 0 0;font-size:12px;color:#4E5D56;line-height:1.6;">
             This report was generated by <strong>AssetIntel</strong> — Dubai's property intelligence platform.<br/>
             Report data is modelled and for indicative purposes only. Actual STR performance depends on management quality, market conditions, and regulatory approval.
           </p>

@@ -13,7 +13,7 @@ export default function AuthBackground({ children }: { children: React.ReactNode
         minHeight: "100vh",
         position: "relative",
         overflow: "hidden",
-        background: "#F8F4EE",
+        background: "#F7F9F8",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

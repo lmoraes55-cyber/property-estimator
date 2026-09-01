@@ -16,12 +16,12 @@ const C = {
   // `gold` fails WCAG AA (2.8-3.1:1) below ~18px bold. Use this for eyebrows,
   // captions, and links; reserve `gold` for large/bold text, fills, and borders.
   goldText: "#7D6338",
-  ivory: "#FDFBF7",
-  bg: "#F8F4EE",
-  border: "#E6E1D8",
+  ivory: "#FFFFFF",
+  bg: "#F7F9F8",
+  border: "#E2E8E5",
   borderLight: "#F0EDE8",
   text: "#1B2A1F",
-  muted: "#6B6B6B",
+  muted: "#4E5D56",
   subtle: "#888",
 };
 
@@ -263,7 +263,7 @@ function FurnishingGuideContent() {
             {!modalSubmitted ? (
               <>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel Advisory</p>
-                <h2 style={{ fontSize: 20, fontWeight: 700, color: C.green, marginBottom: 6, fontFamily: "'Georgia', serif" }}>Furnishing Guidance Request</h2>
+                <h2 style={{ fontSize: 20, fontWeight: 500, color: C.green, marginBottom: 6, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Furnishing Guidance Request</h2>
                 <p style={{ fontSize: 13, color: C.muted, marginBottom: 20, lineHeight: 1.6 }}>We&apos;ll match you with the right furnishing path for your property and budget.</p>
                 {[
                   { label: "Full Name", key: "name", type: "text", ph: "Your full name" },
@@ -337,7 +337,7 @@ function FurnishingGuideContent() {
             {!quoteSubmitted ? (
               <>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", marginBottom: 6 }}>AssetIntel · Furnishing</p>
-                <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, fontFamily: "'Georgia', serif", ...gradStyle }}>Furnishing Quote Request</h2>
+                <h2 style={{ fontSize: 20, fontWeight: 500, marginBottom: 16, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", ...gradStyle }}>Furnishing Quote Request</h2>
 
                 <div style={{ background: `linear-gradient(135deg, ${C.green} 0%, ${C.greenDark} 100%)`, borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
@@ -487,7 +487,7 @@ function FurnishingGuideContent() {
           }} />
           <div style={{ position: "relative", zIndex: 2, padding: "52px 44px", maxWidth: "52%", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: "center" }} className="fhg-hero-content">
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: C.goldText, textTransform: "uppercase", margin: "0 0 14px" }}>AssetIntel Service</p>
-            <h1 style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.08, fontFamily: "'Georgia', serif", margin: "0 0 16px", ...gradStyle }}>
+            <h1 style={{ fontSize: 44, fontWeight: 500, lineHeight: 1.08, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", margin: "0 0 16px", ...gradStyle }}>
               Furnishing &<br />STR Setup
             </h1>
             <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, maxWidth: 360, margin: "0 0 28px" }}>
@@ -545,7 +545,7 @@ function FurnishingGuideContent() {
             <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                 <div>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px", fontFamily: "'Georgia', serif", ...gradStyle }}>Furnishing Packages by AssetIntel</h2>
+                  <h2 style={{ fontSize: 22, fontWeight: 500, margin: "0 0 6px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", ...gradStyle }}>Furnishing Packages by AssetIntel</h2>
                   <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Choose your furnishing level and unit size. Our team handles the sourcing, coordination and setup to get your property STR-ready.</p>
                 </div>
                 {/* Bedroom selector */}
@@ -672,7 +672,7 @@ function FurnishingGuideContent() {
               {/* ── PROCESS STRIP ── */}
               <div style={{ background: C.ivory, border: `1px solid ${C.border}`, borderRadius: 20, padding: "24px 28px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
                 <div style={{ textAlign: "center", marginBottom: 20 }}>
-                  <p style={{ fontSize: 17, fontWeight: 700, margin: "0 0 4px", fontFamily: "'Georgia', serif", ...gradStyle }}>From Empty Unit to Guest-Ready</p>
+                  <p style={{ fontSize: 17, fontWeight: 500, margin: "0 0 4px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", ...gradStyle }}>From Empty Unit to Guest-Ready</p>
                   <p style={{ fontSize: 12.5, color: C.muted, margin: 0 }}>AssetIntel handles the furnishing process from start to finish.</p>
                 </div>
                 <div className="fhg-process-row" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 4 }}>
@@ -715,7 +715,7 @@ function FurnishingGuideContent() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                 <div>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px", fontFamily: "'Georgia', serif", ...gradStyle }}>Interior Design Support</h2>
+                  <h2 style={{ fontSize: 22, fontWeight: 500, margin: "0 0 6px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", ...gradStyle }}>Interior Design Support</h2>
                   <p style={{ fontSize: 13, color: C.muted, margin: 0, maxWidth: 560 }}>Work with selected interior design firms to create a guest-ready furnishing plan tailored to your property, budget, and STR positioning.</p>
                 </div>
                 <button onClick={() => openQuoteModal("", "Interior Design Firm")} style={{
@@ -770,7 +770,7 @@ function FurnishingGuideContent() {
             <div style={{ background: "#FFFEFA", border: "1px solid rgba(35,93,72,0.10)", borderRadius: 24, overflow: "hidden", boxShadow: "0 8px 32px rgba(20,48,38,0.06), 0 2px 8px rgba(20,48,38,0.03)" }}>
               <div style={{ padding: "28px 32px 20px" }}>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.goldText, textTransform: "uppercase", margin: "0 0 6px" }}>DET Compliance Checklist</p>
-                <p style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px", fontFamily: "'Georgia', serif", ...gradStyle }}>STR Furnishing Checklist</p>
+                <p style={{ fontSize: 18, fontWeight: 500, margin: "0 0 8px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", ...gradStyle }}>STR Furnishing Checklist</p>
                 <p style={{ fontSize: 13, color: C.subtle, margin: 0 }}>Key items required to make the property guest-ready and aligned with DET holiday home standards.</p>
               </div>
               <div className="fhg-det-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderTop: `1px solid ${C.borderLight}` }}>
@@ -841,7 +841,7 @@ function FurnishingGuideContent() {
 
           {/* ── WHAT EVERY OWNER SHOULD KNOW ── */}
           <div style={{ background: "#FFFEFA", border: "1px solid rgba(35,93,72,0.10)", borderRadius: 24, padding: "28px 32px", boxShadow: "0 8px 32px rgba(20,48,38,0.06), 0 2px 8px rgba(20,48,38,0.03)" }}>
-            <p style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px", fontFamily: "'Georgia', serif", ...gradStyle }}>What Every Owner Should Know</p>
+            <p style={{ fontSize: 18, fontWeight: 500, margin: "0 0 4px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", ...gradStyle }}>What Every Owner Should Know</p>
             <p style={{ fontSize: 13, color: C.subtle, margin: "0 0 22px" }}>Key guidelines that protect your investment and your guests.</p>
             <div className="fhg-owner-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
               {ownerCards.map(card => (
@@ -864,7 +864,7 @@ function FurnishingGuideContent() {
           }} className="fhg-cta-banner">
             <div style={{ position: "absolute", right: -60, top: -60, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
             <div style={{ position: "relative", zIndex: 1 }}>
-              <p style={{ fontSize: 22, fontWeight: 700, color: "#fff", margin: "0 0 8px", fontFamily: "'Georgia', serif", lineHeight: 1.2 }}>Let AssetIntel Furnish Your Property</p>
+              <p style={{ fontSize: 22, fontWeight: 500, color: "#fff", margin: "0 0 8px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.2 }}>Let AssetIntel Furnish Your Property</p>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", lineHeight: 1.65, margin: 0, maxWidth: 480 }}>Tell us your property size and budget. Our team can recommend the right furnishing package and handle the setup from design to guest-ready.</p>
             </div>
             <button onClick={openGuidanceModal} style={{
@@ -913,7 +913,7 @@ function FurnishingGuideContent() {
 export default function FurnishingGuidePage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F8F4EE" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F7F9F8" }}>
         <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid #1B5E4A", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
       </div>
     }>

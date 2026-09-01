@@ -18,11 +18,11 @@ const colors = {
   secondary: "#B88A44",
   secondaryText: "#7D6338",
   secondaryOnDark: "#E5C9AB",
-  bgMain: "#F8F4EE",
-  bgSection: "#FDFBF7",
-  textMain: "#1A1A1A",
-  textMuted: "#6B6B6B",
-  border: "#E6E1D8",
+  bgMain: "#F7F9F8",
+  bgSection: "#FFFFFF",
+  textMain: "#0F1D18",
+  textMuted: "#4E5D56",
+  border: "#E2E8E5",
 };
 
 export default function HomePage() {
@@ -106,7 +106,7 @@ export default function HomePage() {
           {/* Brand column */}
           <div>
             <div style={{ marginBottom: "18px" }}>
-              <div style={{ fontSize: "20px", fontFamily: "'Georgia', serif", fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>AssetIntel</div>
+              <div style={{ fontSize: "20px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 500, color: "#fff", letterSpacing: "-0.01em" }}>AssetIntel</div>
               <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: "3px" }}>Property Intelligence. Smarter Decisions.</div>
             </div>
             <p style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.6)", lineHeight: 1.75, maxWidth: "320px" }}>
@@ -201,7 +201,7 @@ export default function HomePage() {
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background:"#FDFBF7", borderRadius:"20px", boxShadow:"0 32px 80px rgba(27,94,74,0.22), 0 8px 24px rgba(27,94,74,0.12)", width:"100%", maxWidth:"560px", maxHeight:"90vh", overflowY:"auto", padding: isMobile ? "28px 20px" : "40px 36px", position:"relative" }}
+            style={{ background:"#FFFFFF", borderRadius:"20px", boxShadow:"0 32px 80px rgba(27,94,74,0.22), 0 8px 24px rgba(27,94,74,0.12)", width:"100%", maxWidth:"560px", maxHeight:"90vh", overflowY:"auto", padding: isMobile ? "28px 20px" : "40px 36px", position:"relative" }}
           >
             {/* Close */}
             <button
