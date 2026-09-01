@@ -25,6 +25,7 @@ import {
   normalizeName,
 } from "@/lib/building-rents";
 import type { UnitSize } from "@/lib/estimator";
+import { readCache, writeCache } from "@/lib/ltr-rent-cache";
 import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
 
 export const dynamic = "force-dynamic";
@@ -132,7 +133,10 @@ export async function GET(request: Request) {
 
   const key = cacheKey(project, bedrooms, sizeSqft);
 
-  // ── 1. Check in-process cache ──────────────────────────────────────────
+  // ── 1. Caches, in-process first then shared ────────────────────────────
+  // L1 is the module-level Map: free, but per-instance, and Vercel serves from
+  // whichever instance is warm — so it misses far more than it looks like it
+  // should. L2 is Postgres, shared across every instance.
   const cached = fromCache(key);
   if (cached) {
     return NextResponse.json({
@@ -141,6 +145,26 @@ export async function GET(request: Request) {
       windowDays: cached.windowDays,
       matchLevel: cached.matchLevel,
       recentContracts: cached.recent,
+    });
+  }
+
+  const shared = await readCache(key, CACHE_TTL);
+  if (shared) {
+    // Populate L1 so repeat hits on this instance skip the round trip.
+    cache.set(key, {
+      stat: shared.stat as LTRStat | null,
+      recent: shared.recent as RecentContract[],
+      windowDays: shared.windowDays,
+      matchLevel: shared.matchLevel as MatchLevel,
+      ts: Date.now(),
+    });
+    return NextResponse.json({
+      stat: shared.stat,
+      source: shared.stat ? "dda-live-cached" : "not-found",
+      windowDays: shared.windowDays,
+      matchLevel: shared.matchLevel,
+      master: shared.masterUsed,
+      recentContracts: shared.recent,
     });
   }
 
@@ -191,9 +215,21 @@ export async function GET(request: Request) {
       let matchLevel: MatchLevel = null;
       let masterUsed: string | null = null;
 
+      // Project contracts are fetched ONCE and shared by passes 1 and 2.
+      // Both used to call fetchProjectContracts with identical arguments, so a
+      // size-filtered request that came up short paid for the same multi-query
+      // lookup twice before falling back.
+      let projectContracts: DLDRentContract[] | null = null;
+      const getProjectContracts = async () => {
+        if (projectContracts === null) {
+          projectContracts = await fetchProjectContracts(project, { daysBack: FETCH_WINDOW_DAYS });
+        }
+        return projectContracts;
+      };
+
       // Pass 1: bedroom bucket + size band (if a size was given).
       if (sizeSqft > 0) {
-        const contracts = await fetchProjectContracts(project, { daysBack: FETCH_WINDOW_DAYS });
+        const contracts = await getProjectContracts();
         const sized = bedroomContractsFor(contracts).filter(c => withinSizeBand(c, sizeSqft));
         const sorted = mostRecent(sized);
         if (sorted.length >= MIN_FOR_STAT) {
@@ -214,7 +250,7 @@ export async function GET(request: Request) {
       // fetchProjectContracts' own live variant search (which tries the
       // name as-typed before falling to uppercase).
       if (!stat) {
-        const contracts = await fetchProjectContracts(project, { daysBack: FETCH_WINDOW_DAYS });
+        const contracts = await getProjectContracts();
         const sorted = mostRecent(bedroomContractsFor(contracts));
         if (sorted.length >= MIN_FOR_STAT) {
           stat = computeLTRStats(sorted);
@@ -282,6 +318,8 @@ export async function GET(request: Request) {
 
       if (stat) {
         cache.set(key, { stat, recent, windowDays: windowUsed, matchLevel, ts: Date.now() });
+        // Not awaited — the caller should not wait on a cache write.
+        void writeCache(key, { stat, recent, matchLevel, masterUsed, windowDays: windowUsed });
         return NextResponse.json({ stat, source: "dda-live", sizeFilterApplied, windowDays: windowUsed, matchLevel, master: masterUsed, recentContracts: recent });
       }
     } catch (err) {
@@ -301,6 +339,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ stat: { ...staticStat, source: "static-json" }, source: "static-json", recentContracts: [] });
   }
 
+  // Cache the miss too. Without this, a building DLD has no contracts for
+  // re-runs the entire cascade on every single view.
   cache.set(key, { stat: null, recent: [], windowDays: 0, matchLevel: null, ts: Date.now() });
+  void writeCache(key, { stat: null, recent: [], matchLevel: null, masterUsed: null, windowDays: 0 });
   return NextResponse.json({ stat: null, source: "not-found", recentContracts: [] });
 }

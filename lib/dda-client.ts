@@ -390,12 +390,18 @@ async function fetchContractsForName(
   pageSize: number,
   maxRecords: number,
   exactMatch = false,  // true when using canonical DLD name from name map
-  field: "project_name_en" | "area_name_en" | "master_project_en" = "project_name_en"
+  field: "project_name_en" | "area_name_en" | "master_project_en" = "project_name_en",
+  // Rows come back ordered contract_start_date DESC and callers only ever use
+  // the newest handful, so page one already holds what they need. The loop
+  // used to run until it had maxRecords POST-filter rows, which meant a full
+  // raw page always triggered another round trip — doubling latency to collect
+  // rows nobody reads.
+  maxPages = 1
 ): Promise<DLDRentContract[]> {
   const allContracts: DLDRentContract[] = [];
   let page = 1;
 
-  while (allContracts.length < maxRecords) {
+  while (allContracts.length < maxRecords && page <= maxPages) {
     const { results } = await ddaQuery<DLDRentContract>({
       entity:      "dld",
       dataset:     "dld_rent_contracts-open-api",
@@ -456,32 +462,53 @@ export async function fetchProjectContracts(
     "contract_reg_type_en",
   ];
 
-  // 1. Try the canonical DLD name — exact first, then LIKE (DLD sometimes stores trailing spaces)
+  // The candidates are independent lookups, so they run CONCURRENTLY and the
+  // winner is picked by priority afterwards. Running them in sequence was the
+  // single biggest source of report latency: one query takes ~2s, and a name
+  // generates up to 8 candidates (canonical exact + LIKE, then 6 variants), so
+  // a miss cost ~16s before master and area were even tried.
+  //
+  // Priority is preserved exactly as the old sequential order: canonical
+  // exact, canonical LIKE, then each variant in generation order.
+  // STAGED parallelism, not a single flat fan-out.
+  //
+  // The API queues concurrent requests server-side rather than serving them
+  // truly in parallel: measured 2026-09-01, six variants took 29.1s
+  // sequentially and 18.9s concurrently, and twelve concurrent took the same
+  // ~18s as six — with zero 429s. So fanning out helps, but throughput is
+  // capped, and firing every candidate at once would make the COMMON case
+  // worse: a building whose canonical name resolves used to return after one
+  // query, and would instead wait on the slowest of eight.
+  //
+  // So: try the canonical name first (exact and LIKE together, 2 queries), and
+  // only fan out to the speculative variants if that finds nothing. Fast path
+  // stays fast; slow path gets the concurrency.
+  const runAll = (names: Array<{ name: string; exact: boolean }>) =>
+    Promise.all(
+      names.map(c =>
+        fetchContractsForName(c.name, columns as string[], cutoffStr, 1000, maxRecords, c.exact)
+          // One failing candidate must not sink the lookup — it just loses.
+          .catch(() => [] as DLDRentContract[])
+      )
+    );
+
   const canonicalName = resolveDLDName(projectName);
   if (canonicalName) {
-    const exact = await fetchContractsForName(
-      canonicalName, columns as string[], cutoffStr, 1000, maxRecords, true
-    );
+    const [exact, like] = await runAll([
+      { name: canonicalName, exact: true },
+      { name: canonicalName, exact: false },
+    ]);
     if (exact.length > 0) return exact;
-
-    // Exact returned 0 — try LIKE in case DLD stored name has trailing space/suffix
-    const like = await fetchContractsForName(
-      canonicalName, columns as string[], cutoffStr, 1000, maxRecords, false
-    );
     if (like.length > 0) return like;
   }
 
-  // 2. Try name variants (LIKE prefix) as fallback for unmapped buildings
-  const variants = buildDLDVariants(projectName);
-  for (const variant of variants) {
-    // Skip if this variant is the same as canonical (already tried both ways)
-    if (canonicalName && variant.toUpperCase() === canonicalName.toUpperCase()) continue;
-    const contracts = await fetchContractsForName(
-      variant, columns as string[], cutoffStr, 1000, maxRecords
-    );
-    if (contracts.length > 0) return contracts;
-  }
+  const variants = buildDLDVariants(projectName).filter(
+    v => !canonicalName || v.toUpperCase() !== canonicalName.toUpperCase()
+  );
+  if (!variants.length) return [];
 
+  const results = await runAll(variants.map(name => ({ name, exact: false })));
+  for (const r of results) if (r.length > 0) return r;
   return [];
 }
 
@@ -512,16 +539,13 @@ export async function fetchAreaContracts(
     "contract_reg_type_en",
   ];
 
-  const exact = await fetchContractsForName(
-    areaName, columns as string[], cutoffStr, 1000, maxRecords, true, "area_name_en"
-  );
-  if (exact.length > 0) return exact;
-
-  // Exact returned nothing — retry with LIKE in case DLD stores the area
-  // name with trailing whitespace or a minor variant (mirrors the project-name path).
-  return fetchContractsForName(
-    areaName, columns as string[], cutoffStr, 1000, maxRecords, false, "area_name_en"
-  );
+  // Exact and LIKE run together; exact wins when both return. LIKE covers DLD
+  // storing the area name with trailing whitespace or a minor variant.
+  const [exact, like] = await Promise.all([
+    fetchContractsForName(areaName, columns as string[], cutoffStr, 1000, maxRecords, true, "area_name_en").catch(() => []),
+    fetchContractsForName(areaName, columns as string[], cutoffStr, 1000, maxRecords, false, "area_name_en").catch(() => []),
+  ]);
+  return exact.length > 0 ? exact : like;
 }
 
 /**
@@ -559,14 +583,11 @@ export async function fetchMasterContracts(
   // Exact first. DLD's own spelling is inconsistent here — the JBR community is
   // stored as "Jumeriah Beach Residence  - JBR", with their misspelling and a
   // double space — so a caller passing a tidier name needs the LIKE retry.
-  const exact = await fetchContractsForName(
-    masterName, columns as string[], cutoffStr, 1000, maxRecords, true, "master_project_en"
-  );
-  if (exact.length > 0) return exact;
-
-  return fetchContractsForName(
-    masterName, columns as string[], cutoffStr, 1000, maxRecords, false, "master_project_en"
-  );
+  const [exact, like] = await Promise.all([
+    fetchContractsForName(masterName, columns as string[], cutoffStr, 1000, maxRecords, true, "master_project_en").catch(() => []),
+    fetchContractsForName(masterName, columns as string[], cutoffStr, 1000, maxRecords, false, "master_project_en").catch(() => []),
+  ]);
+  return exact.length > 0 ? exact : like;
 }
 
 // ── Sale transactions (dld_transactions-open-api) ──────────────────────────
