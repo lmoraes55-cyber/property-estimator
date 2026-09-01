@@ -384,7 +384,10 @@ export function getLTRMarketRent(
   }
 
   // 1b. Fuzzy building-level lookup (free-typed building name)
-  const dldBuilding = lookupDLDBuilding(buildingName, unitSize);
+  // Area hint disambiguates the 11 normalized names that cover two distinct
+  // projects; without it those resolve to null rather than to a coin flip.
+  const buildingAreaHint = dldArea || curatedDldArea || undefined;
+  const dldBuilding = lookupDLDBuilding(buildingName, unitSize, buildingAreaHint);
   if (dldBuilding) {
     const adj = sizeAdjust(dldBuilding.median, dldBuilding.aedPerSqft, sizeSqft);
     return {
@@ -411,7 +414,7 @@ export function getLTRMarketRent(
   //     from the buildings block, so their master cannot be derived from the
   //     dataset — but our own curated `community` already names it. Try the
   //     derived master first, then the curated community.
-  const masterCandidates = [getMasterForBuilding(buildingName), community, curatedDldArea]
+  const masterCandidates = [getMasterForBuilding(buildingName, buildingAreaHint), community, curatedDldArea]
     .filter(Boolean) as string[];
   for (const masterName of masterCandidates) {
     const dldMaster = lookupDLDMaster(masterName, unitSize);

@@ -56,6 +56,15 @@ interface DLDData {
   masters?: Record<string, MasterEntry>;
   /** normalizeName(project_name_en) -> project_number. Absent until re-ingest. */
   aliases?: Record<string, string>;
+  /**
+   * Normalized names that cover MORE THAN ONE real project, mapped to the
+   * disambiguated keys that replaced them ("botanica" -> ["botanica#297",
+   * "botanica#1649"]). Only ambiguous names appear here; everything else keeps
+   * its plain name key.
+   */
+  nameIndex?: Record<string, string[]>;
+  /** project_number -> building key, for one-hop exact resolution. */
+  byProjectNumber?: Record<string, string>;
 }
 
 const data = dldData as unknown as DLDData;
@@ -97,26 +106,59 @@ for (const k of buildingKeys) {
 // project_number -> building key. DLD's project_number is an exact identifier
 // (measured: 1,557 distinct numbers over 1,553 names, zero numbers mapping to
 // more than one name), so resolving through it skips fuzzy matching entirely.
-const byProjectNumber = new Map<string, string>();
-for (const [k, b] of Object.entries(data.buildings)) {
-  if (b.projectNumber) byProjectNumber.set(b.projectNumber, k);
+const byProjectNumber = new Map<string, string>(Object.entries(data.byProjectNumber ?? {}));
+if (!byProjectNumber.size) {
+  for (const [k, b] of Object.entries(data.buildings)) {
+    if (b.projectNumber) byProjectNumber.set(b.projectNumber, k);
+  }
+}
+
+/**
+ * The building key for a display name, or null.
+ *
+ * Ambiguity is resolved by AREA, never by guessing. 11 normalized names cover
+ * two distinct projects each — INDIGO TOWER exists in both Wadi Al Safa 5 and
+ * Al Thanyah Fifth, BOTANICA in Marsa Dubai and Al Barsha South Fourth — and
+ * returning the wrong one silently prices a report off another building's
+ * contracts. With no area hint, or an area that matches none of the
+ * candidates, this returns null so the caller falls through to the community
+ * or area tier, which is pooled but at least honest.
+ */
+function resolveBuildingKey(name: string, areaHint?: string): string | null {
+  const norm = normalizeName(name);
+  if (!norm) return null;
+
+  if (data.buildings[norm]) return norm;
+
+  // Ambiguous name — disambiguate on area or refuse.
+  const candidates = data.nameIndex?.[norm];
+  if (candidates?.length) {
+    if (!areaHint) return null;
+    const hint = areaHint.toLowerCase().trim();
+    const hit = candidates.find(k => data.buildings[k]?.area?.toLowerCase().trim() === hint);
+    return hit ?? null;
+  }
+
+  // Exact DLD project_number via the alias index.
+  const pn = data.aliases?.[norm];
+  if (pn) {
+    const key = byProjectNumber.get(pn);
+    if (key && data.buildings[key]) return key;
+  }
+  return null;
 }
 
 /** DLD project_number for a display name, via the ingest-derived alias index. */
-export function resolveProjectNumber(name: string): string | null {
+export function resolveProjectNumber(name: string, areaHint?: string): string | null {
+  const key = resolveBuildingKey(name, areaHint);
+  if (key) return data.buildings[key]?.projectNumber ?? null;
   const norm = normalizeName(name);
-  if (!norm) return null;
-  return data.aliases?.[norm] ?? null;
+  return norm ? (data.aliases?.[norm] ?? null) : null;
 }
 
 /** The master community a building belongs to, if the ingest recorded one. */
-export function getMasterForBuilding(buildingName: string): string | null {
-  const norm = normalizeName(buildingName);
-  if (!norm) return null;
-  const direct = data.buildings[norm]?.master;
-  if (direct) return direct;
-  const pn = data.aliases?.[norm];
-  const key = pn ? byProjectNumber.get(pn) : undefined;
+export function getMasterForBuilding(buildingName: string, areaHint?: string): string | null {
+  const key = resolveBuildingKey(buildingName, areaHint);
   return (key && data.buildings[key]?.master) || null;
 }
 
@@ -152,23 +194,26 @@ function mergeStats(stats: RentStat[]): RentStat | null {
 }
 
 /** Building-level actual rent for a given building name + unit size. */
-export function lookupDLDBuilding(buildingName: string, unitSize: UnitSize): RentStat | null {
+export function lookupDLDBuilding(
+  buildingName: string,
+  unitSize: UnitSize,
+  areaHint?: string
+): RentStat | null {
   const norm = normalizeName(buildingName);
   if (!norm) return null;
 
-  // 1. Exact normalized key
-  const exact = data.buildings[norm]?.beds?.[unitSize];
-  if (exact) return { ...exact, match: "building" };
-
-  // 1b. Exact via DLD project_number. Catches the cases where our normalized
-  // key and DLD's differ but both resolve to the same registered project —
-  // an exact identity match, so it runs before anything fuzzy.
-  const pn = data.aliases?.[norm];
-  if (pn) {
-    const key = byProjectNumber.get(pn);
-    const s = key ? data.buildings[key]?.beds?.[unitSize] : undefined;
+  // 1. Exact key, or an ambiguous name disambiguated by area, or an exact
+  //    project_number hit — all identity matches, so all before anything fuzzy.
+  const key = resolveBuildingKey(buildingName, areaHint);
+  if (key) {
+    const s = data.buildings[key]?.beds?.[unitSize];
     if (s) return { ...s, match: "building" };
   }
+
+  // A name that is ambiguous and could not be pinned to one project must NOT
+  // fall through to fuzzy matching — that would reintroduce exactly the wrong
+  // building this split exists to prevent.
+  if (data.nameIndex?.[norm]) return null;
 
   // 2. Fuzzy / alias match via canonical names
   const t = canon(norm);

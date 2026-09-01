@@ -243,7 +243,7 @@ export async function GET(request: Request) {
         // have for an untagged building; `area` is the DLD administrative area
         // and is tried last only because a few of them share a master's name.
         const masterCandidates = [
-          getMasterForBuilding(project),
+          getMasterForBuilding(project, area || undefined),
           curatedCommunity(project),
           area,
         ].filter((m): m is string => Boolean(m));
@@ -291,9 +291,9 @@ export async function GET(request: Request) {
 
   // ── 3. Static JSON fallback ────────────────────────────────────────────
   // Same cascade as the estimator: building -> master community -> DLD area.
-  const master = getMasterForBuilding(project);
+  const master = getMasterForBuilding(project, area || undefined);
   const staticStat =
-    lookupDLDBuilding(project, bedrooms as UnitSize) ??
+    lookupDLDBuilding(project, bedrooms as UnitSize, area || undefined) ??
     (master ? lookupDLDMaster(master, bedrooms as UnitSize) : null) ??
     (area ? lookupDLDArea(area, bedrooms as UnitSize) : null);
 

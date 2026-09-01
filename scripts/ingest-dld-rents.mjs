@@ -401,9 +401,16 @@ async function ingestFile(filePath, ctx) {
     const entry = { ym, amt: annual, sqm, isNew };
 
     if (norm) {
-      const bKey = `${norm}||${bed}`;
+      // Group on DLD's project_number, falling back to the normalized name
+      // only when the row carries no number. Grouping on the name alone pooled
+      // genuinely different projects that normalize alike: measured on real
+      // data, 11 names covered 2 projects each — INDIGO TOWER exists in both
+      // Wadi Al Safa 5 and Al Thanyah Fifth, BOTANICA in Marsa Dubai and Al
+      // Barsha South Fourth — merging 7,786 contracts across 22 buildings.
+      const groupId = projNum || norm;
+      const bKey = `${groupId}||${bed}`;
       if (!buildingGroups.has(bKey)) {
-        buildingGroups.set(bKey, { displayName: projectRaw.trim(), area, areaId, master, projNum, entries: [] });
+        buildingGroups.set(bKey, { displayName: projectRaw.trim(), area, areaId, master, projNum, norm, entries: [] });
       }
       const g = buildingGroups.get(bKey);
       if (!g.projNum && projNum) g.projNum = projNum;
@@ -457,19 +464,42 @@ async function main() {
 
   // Build output — each group uses its FRESHEST reliable window, new lets preferred.
   let basisNew = 0, basisAll = 0;
+
+  // Which normalized names cover more than one project? Only those need a
+  // disambiguated key; everything else keeps the plain name it has always had,
+  // so existing dldKey values, autocomplete entries and saved report URLs keep
+  // resolving.
+  const normToGroups = new Map();
+  for (const key of buildingGroups.keys()) {
+    const groupId = key.slice(0, key.lastIndexOf("||"));
+    const g = buildingGroups.get(key);
+    const nk = g.norm || groupId;
+    if (!normToGroups.has(nk)) normToGroups.set(nk, new Set());
+    normToGroups.get(nk).add(groupId);
+  }
+
   const buildings = {};
+  const nameIndex = {}; // ambiguous normalized name -> [disambiguated keys]
   for (const [key, g] of buildingGroups) {
     const stat = freshestStats(g.entries);
     if (!stat) continue;
     if (stat.basis === "new") basisNew++; else basisAll++;
-    const [norm, bed] = key.split("||");
-    if (!buildings[norm]) {
-      buildings[norm] = { displayName: g.displayName, area: g.area, beds: {} };
-      if (g.projNum) buildings[norm].projectNumber = g.projNum;
-      if (g.areaId)  buildings[norm].areaId = g.areaId;
-      if (g.master)  buildings[norm].master = g.master;
+    const sep = key.lastIndexOf("||");
+    const groupId = key.slice(0, sep);
+    const bed = key.slice(sep + 2);
+    const nk = g.norm || groupId;
+
+    const ambiguous = (normToGroups.get(nk)?.size ?? 1) > 1;
+    const outKey = ambiguous ? `${nk}#${g.projNum || groupId}` : nk;
+
+    if (!buildings[outKey]) {
+      buildings[outKey] = { displayName: g.displayName, area: g.area, beds: {} };
+      if (g.projNum) buildings[outKey].projectNumber = g.projNum;
+      if (g.areaId)  buildings[outKey].areaId = g.areaId;
+      if (g.master)  buildings[outKey].master = g.master;
+      if (ambiguous) (nameIndex[nk] ??= []).push(outKey);
     }
-    buildings[norm].beds[bed] = stat;
+    buildings[outKey].beds[bed] = stat;
   }
 
   const areas = {};
@@ -504,6 +534,11 @@ async function main() {
     if (!nameToNums.has(k)) nameToNums.set(k, new Set());
     nameToNums.get(k).add(b.projectNumber);
   }
+  // projectNumber -> the key that holds it, so an exact id resolves in one hop.
+  const byProjectNumber = {};
+  for (const [k, b] of Object.entries(buildings)) {
+    if (b.projectNumber) byProjectNumber[b.projectNumber] = k;
+  }
   const aliases = {};
   let ambiguousAliases = 0;
   for (const [k, nums] of nameToNums) {
@@ -528,6 +563,7 @@ async function main() {
       mastersCovered: Object.keys(masters).length,
       aliasesCovered: Object.keys(aliases).length,
       ambiguousAliases,
+      ambiguousNames: Object.keys(nameIndex).length,
       buildingBedsFromNewLets: basisNew,
       buildingBedsFromAllContracts: basisAll,
     },
@@ -535,6 +571,8 @@ async function main() {
     masters,
     areas,
     aliases,
+    nameIndex,
+    byProjectNumber,
   };
 
   // ── Coverage guardrail ────────────────────────────────────────────────
@@ -571,6 +609,7 @@ async function main() {
   console.log(`  files: ${csvPaths.length} | rows seen: ${sourceRows.toLocaleString()} | used: ${usedRows.toLocaleString()} | dup skipped: ${dupRows.toLocaleString()}`);
   console.log(`  buildings: ${out.meta.buildingsCovered} | masters: ${out.meta.mastersCovered} | areas: ${out.meta.areasCovered}`);
   console.log(`  aliases: ${out.meta.aliasesCovered} (${out.meta.ambiguousAliases} ambiguous names dropped)`);
+  console.log(`  ambiguous names split by project_number: ${out.meta.ambiguousNames}`);
   console.log(`  basis — new lets: ${basisNew} | all contracts: ${basisAll}`);
 }
 

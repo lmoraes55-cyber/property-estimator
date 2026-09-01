@@ -226,6 +226,69 @@ assert.equal(findMaster("Nowhere Community", "2BR"), null);
 
 console.log("\u2713 all master-name matching checks passed");
 
+
+// ── Ambiguous-name resolution (project_number grouping) ─────────────────
+// Mirrors resolveBuildingKey() in lib/building-rents.ts. 11 normalized names
+// cover two distinct projects each, so they get split into "<norm>#<projNum>"
+// keys and must be pinned by area rather than guessed at.
+function makeResolver(ds) {
+  const byNum = new Map(Object.entries(ds.byProjectNumber ?? {}));
+  return (name, areaHint) => {
+    const norm = normalizeName(name);
+    if (!norm) return null;
+    if (ds.buildings[norm]) return norm;
+    const cands = ds.nameIndex?.[norm];
+    if (cands?.length) {
+      if (!areaHint) return null;
+      const hint = areaHint.toLowerCase().trim();
+      return cands.find(k => ds.buildings[k]?.area?.toLowerCase().trim() === hint) ?? null;
+    }
+    const pn = ds.aliases?.[norm];
+    if (pn) { const k = byNum.get(pn); if (k && ds.buildings[k]) return k; }
+    return null;
+  };
+}
+
+const AMBIG = {
+  buildings: {
+    "botanica#297":  { displayName: "BOTANICA", area: "Marsa Dubai",           projectNumber: "297",  beds: { "2BR": stat(150000, 12) } },
+    "botanica#1649": { displayName: "BOTANICA", area: "Al Barsha South Fourth", projectNumber: "1649", beds: { "2BR": stat(85000, 12) } },
+    "marina gate 1": { displayName: "MARINA GATE 1", area: "Marsa Dubai",       projectNumber: "742",  beds: { "1BR": stat(120000, 12) } },
+  },
+  nameIndex: { botanica: ["botanica#297", "botanica#1649"] },
+  byProjectNumber: { "297": "botanica#297", "1649": "botanica#1649", "742": "marina gate 1" },
+  aliases: { "marina gate 1": "742" },
+  areas: {}, masters: {},
+};
+const resolveKey = makeResolver(AMBIG);
+
+// Area pins the right one of two same-named projects.
+assert.equal(resolveKey("Botanica", "Marsa Dubai"), "botanica#297");
+assert.equal(resolveKey("Botanica", "Al Barsha South Fourth"), "botanica#1649");
+// Case and padding in the hint must not matter.
+assert.equal(resolveKey("Botanica", "  marsa dubai "), "botanica#297");
+
+// No hint, or a hint matching neither, must REFUSE rather than pick one.
+// Returning either would price a report off a different building's contracts.
+assert.equal(resolveKey("Botanica"), null);
+assert.equal(resolveKey("Botanica", "Business Bay"), null);
+
+// Unambiguous names are unaffected and still resolve without a hint.
+assert.equal(resolveKey("Marina Gate 1"), "marina gate 1");
+assert.equal(resolveKey("Marina Gate 1", "Marsa Dubai"), "marina gate 1");
+
+// The two projects really do carry different rents — that is the whole point.
+assert.notEqual(
+  AMBIG.buildings["botanica#297"].beds["2BR"].median,
+  AMBIG.buildings["botanica#1649"].beds["2BR"].median
+);
+
+// A dataset with no nameIndex (pre-split) must still work.
+const legacyDs = { buildings: { botanica: { displayName: "BOTANICA", area: "Marsa Dubai", beds: { "2BR": stat(150000, 12) } } }, areas: {}, masters: {} };
+assert.equal(makeResolver(legacyDs)("Botanica"), "botanica");
+
+console.log("\u2713 all ambiguous-name resolution checks passed");
+
 // ── Dataset invariant ───────────────────────────────────────────────────
 // Optionally validate a generated file:  node scripts/test-rent-tiers.mjs <path>
 const datasetPath = process.argv[2];
@@ -246,6 +309,24 @@ if (datasetPath) {
       }
     }
   }
+  // Every ambiguous name must be absent from buildings and present in
+  // nameIndex with >= 2 real entries — otherwise the split silently regressed.
+  const ambigProblems = [];
+  for (const [nk, keys] of Object.entries(d.nameIndex ?? {})) {
+    if (d.buildings[nk]) ambigProblems.push(`${nk} is both a plain key and in nameIndex`);
+    if (!Array.isArray(keys) || keys.length < 2) ambigProblems.push(`${nk} has < 2 candidates`);
+    for (const k of keys ?? []) {
+      if (!d.buildings[k]) ambigProblems.push(`${nk} -> missing key ${k}`);
+      else if (!d.buildings[k].area) ambigProblems.push(`${k} has no area, so it can never be disambiguated`);
+    }
+  }
+  if (ambigProblems.length) {
+    console.error(`\n  ${ambigProblems.length} nameIndex problems:`);
+    for (const x of ambigProblems.slice(0, 5)) console.error(`    ${x}`);
+  }
+  assert.equal(ambigProblems.length, 0, "nameIndex integrity");
+  if (d.nameIndex) console.log(`\u2713 nameIndex: ${Object.keys(d.nameIndex).length} ambiguous names, all area-resolvable`);
+
   const total = bad.thinSpread.length + bad.straddle.length;
   if (total) {
     if (bad.thinSpread.length) {
