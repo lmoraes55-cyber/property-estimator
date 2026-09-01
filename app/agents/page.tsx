@@ -131,7 +131,7 @@ function AgentsContent() {
           {/* 2. TOP RECOMMENDED HEADING */}
           <div>
             <p className="text-[11px] font-bold mb-2" style={{ color: colors.secondaryText, letterSpacing: "0.14em" }}>LEASING AGENTS</p>
-            <h2 style={{ fontSize: "clamp(24px, 3.4vw, 34px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.textMain, lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: "clamp(27px, 3.4vw, 38px)", fontWeight: 600, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.textMain, lineHeight: 1.2 }}>
               Top Recommended Leasing Agents
             </h2>
             <p className="text-sm mt-2 max-w-xl" style={{ color: colors.textMuted, lineHeight: 1.65 }}>Two strongest matches based on area expertise, leasing performance, listing quality, and landlord support.</p>
@@ -158,7 +158,7 @@ function AgentsContent() {
                   <div className="flex items-start gap-4">
                     <div className="flex items-center justify-center flex-shrink-0" style={{
                       width: "56px", height: "56px", borderRadius: "16px", background: accent, color: "#fff",
-                      fontWeight: 500, fontSize: "17px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
+                      fontWeight: 600, fontSize: "19px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
                     }}>{initialsOf(a.name)}</div>
                     <div className="min-w-0">
                       <h3 className="text-xl font-bold" style={{ color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.25 }}>{a.name}</h3>

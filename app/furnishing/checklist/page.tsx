@@ -115,7 +115,7 @@ function ChecklistContent() {
               DET Dubai Holiday Homes · Inventory Compliance Checklist
             </span>
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 500, color: C.text, margin: "0 0 6px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>
+          <h1 style={{ fontSize: 31, fontWeight: 600, color: C.text, margin: "0 0 6px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>
             {UNIT_LABEL[unitKey]} Unit — DET Compliance Inventory
           </h1>
           {(propertyName || buildingName) && (

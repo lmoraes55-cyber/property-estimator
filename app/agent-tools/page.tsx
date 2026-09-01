@@ -627,7 +627,7 @@ export default function AgentToolsPage() {
           <p style={{ fontSize: 12, fontWeight: 700, color: colors.secondary, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 16 }}>
             Agent Intelligence Platform
           </p>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(30px, 4.2vw, 46px)", color: colors.primary, fontWeight: 500, lineHeight: 1.15, marginBottom: 20 }}>
+          <h1 style={{ fontFamily: serif, fontSize: "clamp(34px, 4.2vw, 52px)", color: colors.primary, fontWeight: 600, lineHeight: 1.15, marginBottom: 20 }}>
             Data-Backed Property Reports For Dubai Agents
           </h1>
           <p style={{ fontSize: 17, color: colors.textMuted, lineHeight: 1.65, marginBottom: 10, maxWidth: isMobile ? "none" : 480 }}>
@@ -646,7 +646,7 @@ export default function AgentToolsPage() {
       {/* SECTION 3 — Report form */}
       <section id="report-form" style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }}>
         <div style={{ ...card, padding: 32 }}>
-          <h2 style={{ fontFamily: serif, fontSize: 24, color: colors.primary, marginBottom: 24 }}>Create Agent Report</h2>
+          <h2 style={{ fontFamily: serif, fontSize: 27, color: colors.primary, marginBottom: 24 }}>Create Agent Report</h2>
 
           {/* Report type */}
           <fieldset style={{ border: "none", padding: 0, marginBottom: 24 }}>
@@ -806,7 +806,7 @@ export default function AgentToolsPage() {
         {/* Results */}
         {hasResult && (
           <div id="report-results" style={{ ...card, padding: 32, marginTop: 24 }}>
-            <h3 style={{ fontFamily: serif, fontSize: 22, color: colors.primary, marginBottom: 16 }}>{reportTypeLabel()}</h3>
+            <h3 style={{ fontFamily: serif, fontSize: 25, color: colors.primary, marginBottom: 16 }}>{reportTypeLabel()}</h3>
 
             {reportType === "full" && strResult && (
               <div style={{ marginBottom: 24 }}>
@@ -888,7 +888,7 @@ export default function AgentToolsPage() {
       <section id="operator-match" style={{ background: colors.bgSage, padding: "56px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: colors.secondary, letterSpacing: "0.14em", textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>Post-Sale STR Support</p>
-          <h2 style={{ fontFamily: serif, fontSize: 28, color: colors.primary, textAlign: "center", marginBottom: 14 }}>After The Deal Closes, Bring The Property Back To AssetIntel</h2>
+          <h2 style={{ fontFamily: serif, fontSize: 31, color: colors.primary, textAlign: "center", marginBottom: 14 }}>After The Deal Closes, Bring The Property Back To AssetIntel</h2>
           <p style={{ fontSize: 15, color: colors.textMuted, textAlign: "center", maxWidth: 720, margin: "0 auto 8px", lineHeight: 1.6 }}>
             Once your buyer completes the purchase, AssetIntel can help review the property again and privately match it with suitable STR operators based on the building, unit type, furnishing status, expected performance, and owner priorities.
           </p>
@@ -922,7 +922,7 @@ export default function AgentToolsPage() {
 
           {/* Post-sale form */}
           <div id="operator-match-form" style={{ ...card, padding: 32, marginTop: 40, maxWidth: 900, marginLeft: "auto", marginRight: "auto" }}>
-            <h3 style={{ fontFamily: serif, fontSize: 22, color: colors.primary, marginBottom: 20 }}>Submit Property For Operator Match</h3>
+            <h3 style={{ fontFamily: serif, fontSize: 25, color: colors.primary, marginBottom: 20 }}>Submit Property For Operator Match</h3>
 
             {pmSubmitted ? (
               <p style={{ fontSize: 14, color: colors.success, lineHeight: 1.7 }}>

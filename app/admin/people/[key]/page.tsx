@@ -19,7 +19,7 @@ export default async function AdminPersonDetailPage({ params }: { params: Promis
   return (
     <div>
       <a href="/admin/people" style={{ fontSize: 13, color: "#4E5D56" }}>← Back to People</a>
-      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 28, color: "#1B5E4A", margin: "8px 0 4px" }}>{displayName}</h1>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 31, color: "#1B5E4A", margin: "8px 0 4px" }}>{displayName}</h1>
       <p style={{ color: "#4E5D56", marginBottom: 24 }}>{displayContact}</p>
 
       <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Reports ({reports.length})</h2>

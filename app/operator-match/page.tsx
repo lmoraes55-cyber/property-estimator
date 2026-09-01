@@ -132,7 +132,7 @@ function OperatorMatchContent() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 12 }}>
               STR Operator Matching
             </p>
-            <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 32, fontWeight: 500, color: colors.primary, marginBottom: 14, lineHeight: 1.2 }}>
+            <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 36, fontWeight: 600, color: colors.primary, marginBottom: 14, lineHeight: 1.2 }}>
               Get Matched With the Right STR Operator
             </h1>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, maxWidth: 520, margin: "0 auto" }}>
@@ -146,7 +146,7 @@ function OperatorMatchContent() {
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#EEF5F1", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
               </div>
-              <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 20, fontWeight: 500, color: colors.primary, marginBottom: 10 }}>Your operator matches are on the way</h2>
+              <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 22, fontWeight: 600, color: colors.primary, marginBottom: 10 }}>Your operator matches are on the way</h2>
               <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 24 }}>
                 We&apos;ve sent your top operator matches for {buildingName} to {email}. Want a full STR vs LTR income breakdown too?
               </p>
@@ -173,7 +173,7 @@ function OperatorMatchContent() {
                   <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 10 }}>
                     Private Operator Match
                   </p>
-                  <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 21, fontWeight: 500, color: colors.primary, marginBottom: 8, lineHeight: 1.25 }}>
+                  <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: colors.primary, marginBottom: 8, lineHeight: 1.25 }}>
                     Tell Us About Your Property
                   </h2>
                   <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.55 }}>

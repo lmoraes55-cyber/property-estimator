@@ -1345,7 +1345,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       <div className="print-only" id="pdf-header" style={{ display: "none", padding: "0 0 28px 0", borderBottom: "2px solid #1B5E4A", marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <p style={{ fontSize: 22, fontWeight: 500, color: "#1B5E4A", letterSpacing: "-0.01em", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>AssetIntel</p>
+            <p style={{ fontSize: 25, fontWeight: 600, color: "#1B5E4A", letterSpacing: "-0.01em", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>AssetIntel</p>
             <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence. Smarter Decisions.</p>
           </div>
           <div style={{ textAlign: "right" }}>
@@ -1530,7 +1530,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
                 </span>
 
-                <h1 style={{ fontSize: "clamp(23px, 2.3vw, 33px)", fontWeight: 300, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.12, letterSpacing: "-0.02em", marginBottom: 8, color: colors.textMain, textWrap: "balance" }}>
+                <h1 style={{ fontSize: "clamp(26px, 2.3vw, 37px)", fontWeight: 300, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.12, letterSpacing: "-0.02em", marginBottom: 8, color: colors.textMain, textWrap: "balance" }}>
                   {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
                 </h1>
 
@@ -1547,7 +1547,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     </svg>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: colors.textMain, lineHeight: 1 }}>
+                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 25, fontWeight: 400, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: colors.textMain, lineHeight: 1 }}>
                       AED {fmt(Math.abs(result.strVsLtrDelta))}
                     </p>
                     <p style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>{strBetter ? "more per year with STR" : "difference vs LTR"}</p>
@@ -1666,7 +1666,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         {/* ── COST & DEDUCTION SNAPSHOT ─────────────────────────── */}
         <div className="pdf-section" style={{ background: colors.bgSection, border: "1px solid " + colors.border, borderRadius: 22, padding: "28px 28px 24px" }}>
           <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: 6 }}>Financial breakdown</p>
-          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, letterSpacing: "-0.015em", color: colors.textMain, marginBottom: 4 }}>Cost &amp; Deduction Snapshot</h2>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(21px, 2.1vw, 28px)", fontWeight: 400, letterSpacing: "-0.015em", color: colors.textMain, marginBottom: 4 }}>Cost &amp; Deduction Snapshot</h2>
           <p style={{ fontSize: 12, color: colors.textMuted, marginBottom: 24 }}>How gross STR revenue converts into estimated owner net income.</p>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto 1fr auto 1fr", gap: 0, alignItems: "stretch" }} className="rpt-waterfall">
@@ -1814,7 +1814,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 <div style={{ position: "relative", zIndex: 1, marginBottom: 20 }}>
                   <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>12-Month Rental Projection</p>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-                    <h2 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
+                    <h2 style={{ fontSize: "clamp(22px, 2.2vw, 29px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
                       Monthly Breakdown
                     </h2>
                     <p style={{ fontSize: 12, color: colors.textMuted, margin: 0 }}>Full 12-month projection with all income and cost lines</p>
@@ -2012,7 +2012,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   </div>
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 4 }}>12-Month Rental Projection</p>
-                    <h2 style={{ fontSize: "clamp(17px, 2vw, 22px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
+                    <h2 style={{ fontSize: "clamp(19px, 2vw, 25px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
                       12-Month STR Performance Overview
                     </h2>
                     <p style={{ fontSize: 12, color: colors.textMuted, marginTop: 3 }}>Compare monthly STR net performance vs. long-term rental equivalent</p>
@@ -2212,7 +2212,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 10 }}>
               Part 2 of 2
             </p>
-            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 22, fontWeight: 500, color: colors.primary, marginBottom: 8 }}>
+            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 25, fontWeight: 600, color: colors.primary, marginBottom: 8 }}>
               What matters most to you?
             </h3>
             <p style={{ fontSize: 13.5, color: colors.textMuted, marginBottom: 20, lineHeight: 1.55 }}>
@@ -2474,7 +2474,7 @@ function SavedReportGate({ savedId }: { savedId: string }) {
 
   if (state.status === "not-found") return (
     <div style={{ minHeight: "100vh", background: "#F7F9F8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px" }}>
-      <p style={{ fontSize: "15px", color: "#4E5D56", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>This saved report could not be found.</p>
+      <p style={{ fontSize: "17px", color: "#4E5D56", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>This saved report could not be found.</p>
     </div>
   );
 

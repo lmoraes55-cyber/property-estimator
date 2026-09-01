@@ -186,7 +186,7 @@ function ComparisonCalculator() {
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 30 }}>
           <EyebrowLabel>RUN THE NUMBERS</EyebrowLabel>
-          <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 10px" }}>
+          <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>
             What Each Model Actually Nets You
           </h2>
           <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 620, margin: "0 auto", lineHeight: 1.65 }}>
@@ -278,7 +278,7 @@ function ComparisonCalculator() {
                     <th style={{ textAlign: "left", padding: "10px 12px 10px 0" }}></th>
                     {MODELS.map(m => (
                       <th key={m.key} style={{ textAlign: "left", padding: "10px 12px", background: m.highlight ? "rgba(184,138,68,0.07)" : "transparent", borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-                        <span style={{ display: "block", fontSize: 14.5, fontFamily: serif, fontWeight: 500, color: colors.textMain }}>{m.label}</span>
+                        <span style={{ display: "block", fontSize: 16, fontFamily: serif, fontWeight: 600, color: colors.textMain }}>{m.label}</span>
                         <span style={{ display: "block", fontSize: 11.5, color: m.highlight ? colors.secondaryText : colors.textMuted, fontWeight: 600, marginTop: 2 }}>
                           {m.fee === 0 ? "no fee" : `${Math.round(m.fee * 100)}% fee`}
                         </span>
@@ -329,7 +329,7 @@ function ComparisonCalculator() {
                     <td style={{ padding: "16px 12px 16px 0", fontSize: 13, color: colors.textMain, fontWeight: 700 }}>Net to you / year</td>
                     {MODELS.map(m => (
                       <td key={m.key} style={{ padding: "16px 12px", background: m.highlight ? "rgba(184,138,68,0.07)" : "transparent" }}>
-                        <span style={{ fontSize: 19, fontFamily: serif, fontWeight: 500, color: m.highlight ? colors.secondaryText : colors.primary }}>
+                        <span style={{ fontSize: 21, fontFamily: serif, fontWeight: 600, color: m.highlight ? colors.secondaryText : colors.primary }}>
                           {aed(netFor(m))}
                         </span>
                       </td>
@@ -341,7 +341,7 @@ function ComparisonCalculator() {
                     {MODELS.map(m => {
                       const d = netFor(m) - selfNet;
                       return (
-                        <td key={m.key} style={{ padding: "14px 12px", fontSize: 14, fontFamily: serif, fontWeight: 500, color: m.fee === 0 ? colors.textLight : (d >= 0 ? colors.primary : colors.error) }}>
+                        <td key={m.key} style={{ padding: "14px 12px", fontSize: 16, fontFamily: serif, fontWeight: 600, color: m.fee === 0 ? colors.textLight : (d >= 0 ? colors.primary : colors.error) }}>
                           {m.fee === 0 ? "—" : `${d >= 0 ? "+" : "−"} ${aed(Math.abs(d))}`}
                         </td>
                       );
@@ -469,7 +469,7 @@ export default function CoHostingPage() {
         <section style={{ padding: "64px 24px 0" }}>
           <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
             <EyebrowLabel>PROPERTY SOLUTIONS · CO-HOSTING</EyebrowLabel>
-            <h1 style={{ fontSize: "clamp(30px, 4.5vw, 46px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 16px", lineHeight: 1.15 }}>
+            <h1 style={{ fontSize: "clamp(34px, 4.5vw, 52px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 16px", lineHeight: 1.15 }}>
               Keep Your Permit. Hand Off The Daily Guest Work.
             </h1>
             <p style={{ fontSize: 15.5, color: colors.textMuted, lineHeight: 1.7, maxWidth: 620, margin: "0 auto 32px" }}>
@@ -483,7 +483,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <EyebrowLabel>WHERE THIS FITS</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: 0 }}>Three Ways To Run Your STR</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>Three Ways To Run Your STR</h2>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }} className="ch-ladder-grid">
               {LADDER.map(l => (
@@ -493,8 +493,8 @@ export default function CoHostingPage() {
                   boxShadow: l.highlight ? "0 8px 28px rgba(184,138,68,0.14)" : colors.shadowSm,
                   borderRadius: 20, padding: "26px 24px",
                 }}>
-                  <h3 style={{ fontSize: 17, fontFamily: serif, fontWeight: 500, color: colors.textMain, margin: "0 0 6px" }}>{l.title}</h3>
-                  <p style={{ fontSize: 16, fontWeight: 500, color: l.highlight ? colors.secondaryText : colors.primary, fontFamily: serif, margin: "0 0 12px" }}>{l.fee}</p>
+                  <h3 style={{ fontSize: 19, fontFamily: serif, fontWeight: 600, color: colors.textMain, margin: "0 0 6px" }}>{l.title}</h3>
+                  <p style={{ fontSize: 18, fontWeight: 600, color: l.highlight ? colors.secondaryText : colors.primary, fontFamily: serif, margin: "0 0 12px" }}>{l.fee}</p>
                   <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.6, margin: "0 0 14px" }}>{l.desc}</p>
                   {l.href && (
                     <a href={l.href} style={{ fontSize: 12.5, fontWeight: 700, color: colors.primary, textDecoration: "none" }}>Learn more →</a>
@@ -513,7 +513,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 1000, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <EyebrowLabel>SCOPE</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 10px" }}>What Co-Hosting Covers</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>What Co-Hosting Covers</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 620, margin: "0 auto", lineHeight: 1.65 }}>
                 Co-hosting covers the guest-facing work. Compliance and pricing strategy stay with you by design — that&apos;s what keeps the fee at 8–10% instead of 15–25%.
               </p>
@@ -563,7 +563,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 1000, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <EyebrowLabel>OUR STANDARD</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 10px" }}>What &ldquo;Vetted&rdquo; Actually Means</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>What &ldquo;Vetted&rdquo; Actually Means</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 600, margin: "0 auto", lineHeight: 1.65 }}>
                 AssetIntel earns nothing extra by steering you to any particular partner, so the bar is the only thing we&apos;re protecting. Every co-host we introduce must meet all four:
               </p>
@@ -584,7 +584,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 780, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <EyebrowLabel>YOUR PARTNER CO-HOST</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: 0 }}>Meet {COHOST_PARTNER.name}</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>Meet {COHOST_PARTNER.name}</h2>
             </div>
             <div
               style={{
@@ -599,7 +599,7 @@ export default function CoHostingPage() {
                 style={{ width: 140, height: 140, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `3px solid ${colors.bgMain}`, boxShadow: colors.shadowMd }}
               />
               <div>
-                <h3 style={{ fontSize: 19, fontFamily: serif, fontWeight: 500, color: colors.textMain, margin: "0 0 4px" }}>{COHOST_PARTNER.name}</h3>
+                <h3 style={{ fontSize: 21, fontFamily: serif, fontWeight: 600, color: colors.textMain, margin: "0 0 4px" }}>{COHOST_PARTNER.name}</h3>
                 <p style={{ fontSize: 13, fontWeight: 600, color: colors.secondaryText, margin: "0 0 14px" }}>{COHOST_PARTNER.title}</p>
                 {COHOST_PARTNER.points.map(pt => (
                   <div key={pt} style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: 8 }}>
@@ -620,7 +620,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <EyebrowLabel>PRICING</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 10px" }}>A Flat Percentage, Plus A One-Time Setup</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>A Flat Percentage, Plus A One-Time Setup</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 560, margin: "0 auto", lineHeight: 1.65 }}>
                 Set by the referred partner co-host, not AssetIntel. Figures below are indicative — your partner confirms exact terms before you commit to anything.
               </p>
@@ -628,7 +628,7 @@ export default function CoHostingPage() {
 
             <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "28px 30px", marginBottom: 20, textAlign: "center" }}>
               <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 8px" }}>Ongoing Co-Hosting Fee</p>
-              <p style={{ fontSize: 34, fontFamily: serif, fontWeight: 500, color: colors.primary, margin: 0 }}>8–10%</p>
+              <p style={{ fontSize: 38, fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>8–10%</p>
               <p style={{ fontSize: 12.5, color: colors.textMuted, margin: "6px 0 0" }}>of gross booking revenue</p>
               <p style={{ fontSize: 11.5, fontWeight: 600, color: colors.secondaryText, margin: "10px 0 0" }}>Charged on an ongoing basis, per booking</p>
             </div>
@@ -640,7 +640,7 @@ export default function CoHostingPage() {
                 {SETUP_FEES.map(({ unit, fee }) => (
                   <div key={unit} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: colors.bgMain, borderRadius: 10, border: `1px solid ${colors.border}` }}>
                     <span style={{ fontSize: 13.5, fontWeight: 600, color: colors.textMain }}>{unit}</span>
-                    <span style={{ fontSize: 14, fontWeight: 500, color: colors.secondaryText, fontFamily: serif }}>AED {fee.toLocaleString()}</span>
+                    <span style={{ fontSize: 16, fontWeight: 600, color: colors.secondaryText, fontFamily: serif }}>AED {fee.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -653,7 +653,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 560, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <EyebrowLabel>GET STARTED</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 10px" }}>Request A Co-Host Introduction</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>Request A Co-Host Introduction</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, lineHeight: 1.65 }}>Tell us about your property and we&apos;ll introduce you to our partner co-host.</p>
             </div>
 
@@ -690,7 +690,7 @@ export default function CoHostingPage() {
                 <div style={{ width: 56, height: 56, borderRadius: "50%", background: colors.bgSage, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
                 </div>
-                <h3 style={{ fontSize: 18, fontFamily: serif, fontWeight: 500, color: colors.primary, marginBottom: 8 }}>Request received</h3>
+                <h3 style={{ fontSize: 20, fontFamily: serif, fontWeight: 600, color: colors.primary, marginBottom: 8 }}>Request received</h3>
                 <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.7 }}>AssetIntel will introduce you to our partner co-host directly — they&apos;ll follow up to confirm terms and next steps.</p>
               </div>
             )}
@@ -701,7 +701,7 @@ export default function CoHostingPage() {
         <section style={{ padding: pad }}>
           <div style={{ maxWidth: 900, margin: "0 auto" }}>
             <div style={{ background: `linear-gradient(145deg, ${colors.primary} 0%, #0F3E33 100%)`, borderRadius: 22, padding: "48px 40px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.24)" }}>
-              <h2 style={{ fontSize: "clamp(22px, 3.5vw, 30px)", fontFamily: serif, fontWeight: 500, color: "#fff", margin: "0 0 12px" }}>Not Sure Which Option Fits?</h2>
+              <h2 style={{ fontSize: "clamp(25px, 3.5vw, 34px)", fontFamily: serif, fontWeight: 600, color: "#fff", margin: "0 0 12px" }}>Not Sure Which Option Fits?</h2>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", maxWidth: 480, margin: "0 auto 24px", lineHeight: 1.7 }}>
                 Run your numbers first — the Sub-Leasing Risk Estimator and Self-Manage guide can help you decide before you commit to a co-host or full operator.
               </p>

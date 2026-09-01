@@ -116,20 +116,24 @@ img, video, iframe {
    light weight is what makes a data product feel engineered rather than
    published — the weight drop is doing as much work here as the typeface. */
 .ai-hero-h1 {
-  font-size: clamp(30px, 6vw, 58px);
-  line-height: 1.08;
+  /* Sized up ~12% against the old Georgia scale. Outfit measures 0.86x the
+     width of Georgia at the same px, so matching cap-height alone left the
+     headline reading small. Weight 400 rather than 300: a narrow face at
+     hairline weight has too little presence at display size. */
+  font-size: clamp(34px, 6.6vw, 64px);
+  line-height: 1.06;
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 300;
-  letter-spacing: -0.025em;
+  font-weight: 400;
+  letter-spacing: -0.028em;
   text-wrap: balance;
 }
 
 .ai-hero-h2 {
-  font-size: clamp(23px, 4vw, 40px);
-  line-height: 1.15;
+  font-size: clamp(26px, 4.5vw, 45px);
+  line-height: 1.12;
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 300;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  letter-spacing: -0.022em;
   text-wrap: balance;
 }
 
@@ -143,8 +147,10 @@ button, a, input, textarea, select, [data-interactive] {
 h1, h2, h3, h4, h5, h6 {
   color: var(--ai-text);
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 400;
-  line-height: 1.2;
+  /* 500, not 400: at the 17-26px sizes most headings sit at, a geometric
+     sans needs more weight than a serif did to hold the same hierarchy. */
+  font-weight: 500;
+  line-height: 1.22;
   letter-spacing: -0.015em;
   text-wrap: balance;
 }

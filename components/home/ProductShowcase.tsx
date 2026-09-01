@@ -10,7 +10,7 @@ function MockBars() {
       {bars.map(b => (
         <div key={b.label} style={{ flex: 1, background: "#fff", border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "14px 16px" }}>
           <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", color: colors.textMuted, marginBottom: "8px" }}>{b.label}</div>
-          <div style={{ fontFamily: serif, fontSize: "19px", fontWeight: 500, color: colors.textMain, marginBottom: "10px" }}>{b.v}</div>
+          <div style={{ fontFamily: serif, fontSize: "21px", fontWeight: 600, color: colors.textMain, marginBottom: "10px" }}>{b.v}</div>
           <div style={{ height: "6px", borderRadius: "3px", background: colors.bgSage, overflow: "hidden" }}>
             <div style={{ width: `${b.h + 30}%`, height: "100%", background: b.color, opacity: 0.75 }} />
           </div>
@@ -30,7 +30,7 @@ export default function ProductShowcase({ isMobile, onTryAnalyzer }: { isMobile:
             <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "14px" }}>
               Rental Strategy Analyzer
             </div>
-            <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "36px", color: colors.primary, lineHeight: 1.16, margin: "0 0 18px" }}>
+            <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "40px", color: colors.primary, lineHeight: 1.16, margin: "0 0 18px" }}>
               Professional STR Analysis In Minutes
             </h2>
             <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "440px", marginBottom: "28px" }}>
@@ -68,7 +68,7 @@ export default function ProductShowcase({ isMobile, onTryAnalyzer }: { isMobile:
 
             <div style={{ padding: isMobile ? "20px" : "28px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-                <div style={{ fontFamily: serif, fontSize: "16px", color: colors.primary }}>Investment Overview</div>
+                <div style={{ fontFamily: serif, fontSize: "18px", color: colors.primary }}>Investment Overview</div>
                 <span style={{ fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", background: "rgba(27,94,74,0.10)", color: colors.primary }}>STR Recommended</span>
               </div>
 
@@ -77,11 +77,11 @@ export default function ProductShowcase({ isMobile, onTryAnalyzer }: { isMobile:
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "14px" }}>
                 <div style={{ background: "#fff", border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "14px 16px" }}>
                   <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", color: colors.textMuted, marginBottom: "6px" }}>NET RETURN</div>
-                  <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 500, color: colors.textMain }}>8.7%</div>
+                  <div style={{ fontFamily: serif, fontSize: "20px", fontWeight: 600, color: colors.textMain }}>8.7%</div>
                 </div>
                 <div style={{ background: "#fff", border: `1px solid ${colors.border}`, borderRadius: "12px", padding: "14px 16px" }}>
                   <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", color: colors.textMuted, marginBottom: "6px" }}>PRICE / SQFT</div>
-                  <div style={{ fontFamily: serif, fontSize: "18px", fontWeight: 500, color: colors.textMain }}>AED 2,450</div>
+                  <div style={{ fontFamily: serif, fontSize: "20px", fontWeight: 600, color: colors.textMain }}>AED 2,450</div>
                 </div>
               </div>
 

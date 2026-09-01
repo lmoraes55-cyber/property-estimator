@@ -17,7 +17,7 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
 
   return (
     <div>
-      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 28, color: "#1B5E4A", marginBottom: 16 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 31, color: "#1B5E4A", marginBottom: 16 }}>
         Reports ({reports?.length ?? 0})
       </h1>
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>

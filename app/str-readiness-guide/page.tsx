@@ -96,7 +96,7 @@ function ReadinessModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <p style={{ fontSize: 18, fontWeight: 500, color: C.green, marginBottom: 5, fontFamily: serif }}>STR Readiness Review</p>
+            <p style={{ fontSize: 20, fontWeight: 600, color: C.green, marginBottom: 5, fontFamily: serif }}>STR Readiness Review</p>
             <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.55, marginBottom: 20 }}>Tell us about your property and AssetIntel will help you review readiness, costs, and go-live preparation.</p>
             {[
               { label: "Full Name", key: "name", type: "text", placeholder: "Your full name", req: true },
@@ -264,7 +264,7 @@ export default function STRReadinessGuidePage() {
           {/* Left */}
           <div style={{ flex: "1 1 480px", minWidth: 0 }}>
             <Eyebrow>STR Readiness Guide</Eyebrow>
-            <h1 style={{ fontSize: "clamp(30px,4vw,52px)", fontFamily: serif, fontWeight: 500, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 18, background: `linear-gradient(130deg,${C.green} 0%,#2A7A58 44%,${C.bronze} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: 640 }}>
+            <h1 style={{ fontSize: "clamp(34px, 4vw, 58px)", fontFamily: serif, fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 18, background: `linear-gradient(130deg,${C.green} 0%,#2A7A58 44%,${C.bronze} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: 640 }}>
               Your Owner Checklist Before Going Live With An STR Operator
             </h1>
             <p style={{ fontSize: 15.5, color: "#4A4A42", lineHeight: 1.7, maxWidth: 580, marginBottom: 28 }}>
@@ -345,11 +345,11 @@ export default function STRReadinessGuidePage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginBottom: 32 }}>
             <div>
               <Eyebrow>Owner STR Readiness Checklist</Eyebrow>
-              <h2 style={{ fontSize: "clamp(22px,2.8vw,34px)", fontFamily: serif, fontWeight: 500, color: C.green, marginBottom: 6 }}>Use these checkpoints before going live</h2>
+              <h2 style={{ fontSize: "clamp(25px, 2.8vw, 38px)", fontFamily: serif, fontWeight: 600, color: C.green, marginBottom: 6 }}>Use these checkpoints before going live</h2>
               <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.6 }}>Tick each item as you review it. Use this during your operator call or before signing.</p>
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ fontSize: 28, fontWeight: 500, color: C.green, fontFamily: serif, lineHeight: 1 }}>{totalChecked}<span style={{ fontSize: 16, color: C.muted, fontWeight: 400 }}> / {totalItems}</span></div>
+              <div style={{ fontSize: 31, fontWeight: 600, color: C.green, fontFamily: serif, lineHeight: 1 }}>{totalChecked}<span style={{ fontSize: 18, color: C.muted, fontWeight: 400 }}> / {totalItems}</span></div>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>items confirmed</div>
               <div style={{ marginTop: 8, height: 6, width: 120, borderRadius: 3, background: C.border, overflow: "hidden" }}>
                 <div style={{ height: "100%", borderRadius: 3, background: `linear-gradient(90deg,${C.green},#2A7A58)`, width: `${(totalChecked / totalItems) * 100}%`, transition: "width 0.2s" }} />
@@ -418,7 +418,7 @@ export default function STRReadinessGuidePage() {
         <div style={{ maxWidth: 1120, margin: "0 auto" }}>
           <div style={{ marginBottom: 28 }}>
             <Eyebrow>Before Signing With An Operator</Eyebrow>
-            <h2 style={{ fontSize: "clamp(20px,2.6vw,30px)", fontFamily: serif, fontWeight: 500, color: C.green, marginBottom: 8 }}>Questions To Ask Before Signing</h2>
+            <h2 style={{ fontSize: "clamp(22px, 2.6vw, 34px)", fontFamily: serif, fontWeight: 600, color: C.green, marginBottom: 8 }}>Questions To Ask Before Signing</h2>
             <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.65 }}>Use these questions during your operator call or before signing the management agreement.</p>
           </div>
           <div style={{ background: C.white, borderRadius: 20, border: `1px solid ${C.sageBdr}`, padding: "24px 26px" }}>
@@ -448,7 +448,7 @@ export default function STRReadinessGuidePage() {
               </div>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.green, marginBottom: 4 }}>Owner Protection</p>
-                <h3 style={{ fontSize: "clamp(18px,2.2vw,24px)", fontFamily: serif, fontWeight: 500, color: C.green, lineHeight: 1.2 }}>Protect The Property Before You Chase Income</h3>
+                <h3 style={{ fontSize: "clamp(20px, 2.2vw, 27px)", fontFamily: serif, fontWeight: 600, color: C.green, lineHeight: 1.2 }}>Protect The Property Before You Chase Income</h3>
               </div>
             </div>
             <p style={{ fontSize: 14, color: C.text, lineHeight: 1.7, marginBottom: 22, maxWidth: 760 }}>
@@ -476,7 +476,7 @@ export default function STRReadinessGuidePage() {
       <section style={{ background: C.section, borderTop: `1px solid ${C.border}`, padding: "64px 24px" }}>
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <Eyebrow>Get Started</Eyebrow>
-          <h2 style={{ fontSize: "clamp(22px,3vw,34px)", fontFamily: serif, fontWeight: 500, color: C.green, marginBottom: 14, lineHeight: 1.25 }}>Need Help Reviewing Your STR Readiness?</h2>
+          <h2 style={{ fontSize: "clamp(25px, 3vw, 38px)", fontFamily: serif, fontWeight: 600, color: C.green, marginBottom: 14, lineHeight: 1.25 }}>Need Help Reviewing Your STR Readiness?</h2>
           <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.7, marginBottom: 28 }}>
             AssetIntel can help you review operator requirements, setup costs, insurance options, furnishing readiness, maintenance condition, utilities handling, and go-live preparation before you commit.
           </p>

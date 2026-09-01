@@ -181,7 +181,7 @@ export default function PropertiesPage() {
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
             Your Portfolio
           </p>
-          <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, color: C.green }}>
+          <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 29, color: C.green }}>
             My Properties
           </h1>
         </div>
@@ -214,7 +214,7 @@ export default function PropertiesPage() {
             boxShadow: "0 2px 12px rgba(27,94,74,0.08)",
           }}
         >
-          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 18, color: C.text, marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 20, color: C.text, marginBottom: 20 }}>
             Add a Property
           </h2>
           {saveError && (
@@ -403,7 +403,7 @@ export default function PropertiesPage() {
               }}
             >
               <div>
-                <div style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 6 }}>
+                <div style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 18, fontWeight: 600, color: C.text, marginBottom: 6 }}>
                   {p.building_name}
                 </div>
                 <div style={{ fontSize: 13, color: C.muted, display: "flex", gap: 12, flexWrap: "wrap" }}>

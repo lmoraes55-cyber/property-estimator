@@ -5,7 +5,7 @@ export default async function AdminPeoplePage() {
 
   return (
     <div>
-      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 28, color: "#1B5E4A", marginBottom: 16 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 31, color: "#1B5E4A", marginBottom: 16 }}>
         People ({people.length})
       </h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "#E2E8E5" }}>

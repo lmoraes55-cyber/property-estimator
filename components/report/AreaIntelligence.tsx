@@ -146,7 +146,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
       {/* Header */}
       <div>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 6 }}>Area Intelligence</p>
-        <h2 style={{ fontSize: "clamp(19px, 2.2vw, 26px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary, lineHeight: 1.2, margin: "0 0 6px" }}>
+        <h2 style={{ fontSize: "clamp(21px, 2.2vw, 29px)", fontWeight: 600, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary, lineHeight: 1.2, margin: "0 0 6px" }}>
           {area} Market Intelligence
         </h2>
         <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.6, maxWidth: 620 }}>
@@ -161,7 +161,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
           {snapshot.map(m => (
             <div key={m.label} style={{ padding: "14px 16px", borderRadius: 14, background: colors.bgSage, border: `1px solid ${colors.borderSage}` }}>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, marginBottom: 6 }}>{m.label}</p>
-              <p style={{ fontSize: 18, fontWeight: 500, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{m.value}</p>
+              <p style={{ fontSize: 20, fontWeight: 600, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{m.value}</p>
             </div>
           ))}
         </div>
@@ -256,7 +256,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
       {/* Forecast Confidence — solid cream information card */}
       <div style={{ borderRadius: 24, background: colors.bgSection, border: "1px solid rgba(27,94,74,0.14)", boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 10px 30px rgba(27,94,74,0.06)", padding: "22px 24px", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", breakInside: "avoid" as const }}>
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#fff", border: `2px solid ${colors.primary}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <span style={{ fontSize: 16, fontWeight: 500, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{confidence}%</span>
+          <span style={{ fontSize: 18, fontWeight: 600, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{confidence}%</span>
         </div>
         <div style={{ flex: 1, minWidth: 240 }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Forecast Confidence</p>
@@ -287,7 +287,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
           {/* Left — recommendation */}
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: 10 }}>AssetIntel Recommendation</p>
-            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 21, fontWeight: 500, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
+            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
               {ltrRecommended ? "Operate as a Long-Term Rental" : "Operate as a Short-Term Rental"}
             </h3>
             <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.65, margin: 0 }}>
@@ -304,7 +304,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <p style={{ fontSize: 10, color: "#D4A574", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Expected Net Income</p>
-              <p style={{ fontSize: 20, fontWeight: 500, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>AED {fmt(annualNetToLandlord)}</p>
+              <p style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>AED {fmt(annualNetToLandlord)}</p>
               <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>net / year</p>
             </div>
 
@@ -324,7 +324,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
 
             <div>
               <p style={{ fontSize: 10, color: "#D4A574", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Confidence Level</p>
-              <p style={{ fontSize: 20, fontWeight: 500, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>{confidence}%</p>
+              <p style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>{confidence}%</p>
             </div>
           </div>
         </div>

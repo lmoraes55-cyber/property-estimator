@@ -31,7 +31,7 @@ export default function AudienceCards({ isMobile, onOperationsClick }: { isMobil
     <section style={{ padding: isMobile ? "56px 20px" : "88px 48px" }}>
       <div style={{ maxWidth: 1520, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: isMobile ? "32px" : "48px" }}>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "32px", color: colors.primary, margin: "0 0 10px" }}>Who is AssetIntel built for?</h2>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "36px", color: colors.primary, margin: "0 0 10px" }}>Who is AssetIntel built for?</h2>
           <p style={{ fontSize: "15px", color: colors.textMuted, margin: 0 }}>Powerful tools and insights for every property decision-maker.</p>
         </div>
 
@@ -59,7 +59,7 @@ export default function AudienceCards({ isMobile, onOperationsClick }: { isMobil
                   <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: tintBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "18px" }}>
                     <CardIcon icon={card.icon} color={tintColor} />
                   </div>
-                  <h3 style={{ fontFamily: serif, fontSize: "18px", color: colors.textMain, margin: "0 0 10px" }}>{card.title}</h3>
+                  <h3 style={{ fontFamily: serif, fontSize: "20px", color: colors.textMain, margin: "0 0 10px" }}>{card.title}</h3>
                   <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, margin: "0 0 20px", flex: 1 }}>{card.text}</p>
                   <span style={{ fontSize: "13px", fontWeight: 700, color: tintColor, display: "inline-flex", alignItems: "center", gap: "6px" }}>
                     {card.cta}

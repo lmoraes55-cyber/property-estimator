@@ -9,7 +9,7 @@ export default function ConsultationBanner() {
         style={{ maxWidth: 1200, margin: "0 auto", background: colors.bgSage, border: `1px solid ${colors.border}`, borderRadius: "18px" }}
       >
         <div>
-          <div style={{ fontFamily: serif, fontSize: "16.5px", color: colors.primary, marginBottom: "4px" }}>Need independent, unbiased guidance?</div>
+          <div style={{ fontFamily: serif, fontSize: "18px", color: colors.primary, marginBottom: "4px" }}>Need independent, unbiased guidance?</div>
           <div style={{ fontSize: "13px", color: colors.textMuted }}>
             Book a 20-minute Property Advisory session. <span style={{ fontWeight: 700, color: colors.textMain }}>AED 199</span>
           </div>

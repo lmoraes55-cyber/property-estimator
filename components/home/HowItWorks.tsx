@@ -12,7 +12,7 @@ export default function HowItWorks({ isMobile }: { isMobile: boolean }) {
     <section style={{ padding: isMobile ? "56px 20px" : "88px 48px" }}>
       <div style={{ maxWidth: 1520, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: isMobile ? "32px" : "48px" }}>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "32px", color: colors.primary, margin: "0 0 10px" }}>How AssetIntel Works</h2>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "36px", color: colors.primary, margin: "0 0 10px" }}>How AssetIntel Works</h2>
           <p style={{ fontSize: "15px", color: colors.textMuted, margin: 0 }}>Four simple steps to better property decisions.</p>
         </div>
 
@@ -26,7 +26,7 @@ export default function HowItWorks({ isMobile }: { isMobile: boolean }) {
                   marginBottom: isMobile && i < STEPS.length - 1 ? "0" : undefined,
                 }}
               >
-                <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: colors.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: serif, fontWeight: 500, fontSize: "14px", marginBottom: "14px" }}>
+                <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: colors.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: serif, fontWeight: 600, fontSize: "16px", marginBottom: "16px" }}>
                   {i + 1}
                 </div>
                 <div style={{ fontSize: "15px", fontWeight: 700, color: colors.textMain, marginBottom: "6px" }}>{step.title}</div>

@@ -13,7 +13,7 @@ export default function SocialProof({ isMobile }: { isMobile: boolean }) {
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? "32px" : "0" }}>
           {STATS.map((s, i) => (
             <div key={s.label} style={{ borderLeft: !isMobile && i > 0 ? `1px solid ${colors.border}` : "none" }}>
-              <div style={{ fontFamily: serif, fontSize: isMobile ? "32px" : "40px", fontWeight: 500, color: colors.primary, marginBottom: "6px" }}>
+              <div style={{ fontFamily: serif, fontSize: isMobile ? "36px" : "45px", fontWeight: 600, color: colors.primary, marginBottom: "6px" }}>
                 {s.value}
               </div>
               <div style={{ fontSize: "12.5px", fontWeight: 600, letterSpacing: "0.06em", color: colors.textMuted, textTransform: "uppercase" }}>

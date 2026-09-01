@@ -39,7 +39,7 @@ export default function WhyAssetIntel({ isMobile }: { isMobile: boolean }) {
             <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "12px" }}>
               Why AssetIntel?
             </div>
-            <h2 style={{ fontFamily: serif, fontSize: isMobile ? "24px" : "30px", color: colors.primary, margin: 0 }}>
+            <h2 style={{ fontFamily: serif, fontSize: isMobile ? "27px" : "34px", color: colors.primary, margin: 0 }}>
               Property Intelligence You Can Trust
             </h2>
           </div>

@@ -24,7 +24,7 @@ export default function TrustMetricsStrip({ isMobile }: { isMobile: boolean }) {
     <section style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDeep})`, padding: isMobile ? "40px 20px" : "48px 48px" }}>
       <div style={{ maxWidth: 1520, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: isMobile ? "28px" : "36px" }}>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "20px" : "24px", color: "#fff", margin: 0 }}>Why Owners Trust AssetIntel</h2>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "22px" : "27px", color: "#fff", margin: 0 }}>Why Owners Trust AssetIntel</h2>
         </div>
         <div
           style={{
@@ -43,7 +43,7 @@ export default function TrustMetricsStrip({ isMobile }: { isMobile: boolean }) {
               }}
             >
               <MetricIcon index={i} />
-              <div style={{ fontFamily: serif, fontSize: "14px", fontWeight: 500, color: "#fff", marginTop: "12px", marginBottom: "5px", lineHeight: 1.3 }}>{m.title}</div>
+              <div style={{ fontFamily: serif, fontSize: "16px", fontWeight: 600, color: "#fff", marginTop: "12px", marginBottom: "5px", lineHeight: 1.3 }}>{m.title}</div>
               <div style={{ fontSize: "11.5px", color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{m.sub}</div>
             </div>
           ))}

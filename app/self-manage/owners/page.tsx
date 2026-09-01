@@ -67,12 +67,12 @@ function PaymentModal({ product, onClose, onCheckout }: { product: Product; onCl
       <div style={{ background: "#fff", borderRadius: "20px", padding: "40px", maxWidth: "440px", width: "100%", boxShadow: "0 24px 64px rgba(0,0,0,0.2)", position: "relative" }}>
         <button onClick={onClose} style={{ position: "absolute", top: "18px", right: "18px", background: "none", border: "none", cursor: "pointer", color: C.textMuted, fontSize: "22px", lineHeight: 1 }}>×</button>
         <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.12em", marginBottom: "14px" }}>ASSETINTEL</div>
-        <h2 style={{ fontSize: "22px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "8px" }}>Unlock Playbook</h2>
+        <h2 style={{ fontSize: "25px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "8px" }}>Unlock Playbook</h2>
         <p style={{ fontSize: "14px", color: C.textMuted, marginBottom: "28px" }}>You are about to unlock access to the following:</p>
         <div style={{ background: C.bgMain, borderRadius: "12px", border: `1px solid ${C.border}`, padding: "20px 22px", marginBottom: "28px" }}>
           <div style={{ fontSize: "13px", color: C.textMuted, marginBottom: "6px" }}>Selected product</div>
           <div style={{ fontSize: "16px", fontWeight: 700, color: C.textMain, marginBottom: "4px" }}>{product.name}</div>
-          <div style={{ fontSize: "28px", fontWeight: 500, color: C.primary, fontFamily: SF }}>{product.price}</div>
+          <div style={{ fontSize: "31px", fontWeight: 600, color: C.primary, fontFamily: SF }}>{product.price}</div>
           <div style={{ fontSize: "12px", color: C.textMuted }}>One-time access fee</div>
         </div>
         <div style={{ padding: "14px 16px", background: "#FFFBF5", borderRadius: "10px", border: "1px solid #E8D9BC", marginBottom: "24px" }}>
@@ -117,7 +117,7 @@ function LeadModal({ isMobile, onClose }: { isMobile: boolean; onClose: () => vo
       <div style={{ background: "#FDFBF8", borderRadius: "24px", width: "100%", maxWidth: "620px", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", border: `1px solid ${C.border}` }}>
         <div style={{ padding: isMobile ? "28px 24px 20px" : "36px 40px 24px", borderBottom: `1px solid ${C.border}` }}>
           <div style={{ fontSize: "11px", fontWeight: 700, color: C.secondary, letterSpacing: "0.12em", marginBottom: "10px" }}>OWNER SELF-MANAGEMENT</div>
-          <h2 style={{ fontSize: isMobile ? "21px" : "25px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "8px", lineHeight: 1.25 }}>Self-Management Setup Enquiry</h2>
+          <h2 style={{ fontSize: isMobile ? "24px" : "28px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "8px", lineHeight: 1.25 }}>Self-Management Setup Enquiry</h2>
           <p style={{ fontSize: "14px", color: C.textMuted, lineHeight: 1.65 }}>Tell us what you need help with and our account manager will guide you on the right setup and pricing.</p>
         </div>
         {submitted ? (
@@ -127,7 +127,7 @@ function LeadModal({ isMobile, onClose }: { isMobile: boolean; onClose: () => vo
               <circle cx="26" cy="26" r="20" fill={`${C.primary}15`} />
               <path d="M16 26L23 33L36 19" stroke={C.primary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <h3 style={{ fontSize: "20px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "12px" }}>Thank you — your enquiry has been received.</h3>
+            <h3 style={{ fontSize: "22px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "12px" }}>Thank you — your enquiry has been received.</h3>
             <p style={{ fontSize: "14px", color: C.textMuted, lineHeight: 1.65, marginBottom: "28px" }}>An AssetIntel account manager will review your details and contact you with guidance on the right setup and pricing.</p>
             <button onClick={onClose} style={{ padding: "12px 28px", background: C.primary, color: "#fff", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Close</button>
           </div>
@@ -214,7 +214,7 @@ function VendorModal({ isMobile, onClose }: { isMobile: boolean; onClose: () => 
       <div style={{ background: "#FDFBF8", borderRadius: "24px", width: "100%", maxWidth: "580px", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", border: `1px solid ${C.border}` }}>
         <div style={{ padding: isMobile ? "28px 24px 20px" : "36px 40px 24px", borderBottom: `1px solid ${C.border}` }}>
           <div style={{ fontSize: "11px", fontWeight: 700, color: C.secondary, letterSpacing: "0.12em", marginBottom: "10px" }}>STR OPERATIONS</div>
-          <h2 style={{ fontSize: isMobile ? "21px" : "24px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "8px", lineHeight: 1.25 }}>Request STR Vendor Contacts</h2>
+          <h2 style={{ fontSize: isMobile ? "24px" : "27px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "8px", lineHeight: 1.25 }}>Request STR Vendor Contacts</h2>
           <p style={{ fontSize: "14px", color: C.textMuted, lineHeight: 1.65 }}>Tell us what you need and we will share suitable STR vendor contact options where available.</p>
         </div>
         {submitted ? (
@@ -224,7 +224,7 @@ function VendorModal({ isMobile, onClose }: { isMobile: boolean; onClose: () => 
               <circle cx="26" cy="26" r="20" fill={`${C.primary}15`} />
               <path d="M16 26L23 33L36 19" stroke={C.primary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <h3 style={{ fontSize: "20px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "12px" }}>Thank you — request received.</h3>
+            <h3 style={{ fontSize: "22px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "12px" }}>Thank you — request received.</h3>
             <p style={{ fontSize: "14px", color: C.textMuted, lineHeight: 1.65, marginBottom: "28px" }}>AssetIntel will review your request and share suitable STR vendor contact options where available.</p>
             <button onClick={onClose} style={{ padding: "12px 28px", background: C.primary, color: "#fff", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Close</button>
           </div>
@@ -307,7 +307,7 @@ function SH({ label, title, subtitle }: { label: string; title: string; subtitle
   return (
     <div style={{ marginBottom: "40px", textAlign: "center" }}>
       <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "12px" }}>{label}</div>
-      <h2 style={{ fontSize: "34px", fontFamily: SF, fontWeight: 500, marginBottom: "12px", background: `linear-gradient(135deg, ${C.primary} 0%, ${C.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{title}</h2>
+      <h2 style={{ fontSize: "38px", fontFamily: SF, fontWeight: 600, marginBottom: "12px", background: `linear-gradient(135deg, ${C.primary} 0%, ${C.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{title}</h2>
       {subtitle && <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "600px", margin: "0 auto" }}>{subtitle}</p>}
     </div>
   );
@@ -324,7 +324,7 @@ function StepSection({ id, num, icon, title, subtitle, intro, children }: { id: 
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: "11px", fontWeight: 700, color: C.secondary, letterSpacing: "0.12em", marginBottom: "6px" }}>STEP {num} OF 6</div>
-            <h2 style={{ fontSize: "22px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "4px" }}>{title}</h2>
+            <h2 style={{ fontSize: "25px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "4px" }}>{title}</h2>
             <p style={{ fontSize: "14px", color: C.secondary, fontWeight: 600, marginBottom: "12px" }}>{subtitle}</p>
             <p style={{ fontSize: "14px", color: C.textMuted, lineHeight: 1.65, maxWidth: "680px" }}>{intro}</p>
           </div>
@@ -787,7 +787,7 @@ function TemplateModal({ template, isMobile, onClose }: { template: GuestTemplat
         <div style={{ padding: isMobile ? "24px 22px 18px" : "30px 36px 22px", borderBottom: "1px solid #E2E8E5", position: "relative" }}>
           <button onClick={onClose} style={{ position: "absolute", top: "18px", right: "18px", background: "none", border: "none", cursor: "pointer", color: "#4E5D56", fontSize: "20px", lineHeight: 1, padding: "4px 8px" }}>×</button>
           <div style={{ fontSize: "10px", fontWeight: 700, color: "#B88A44", letterSpacing: "0.14em", marginBottom: "10px" }}>GUEST COMMUNICATION TEMPLATE</div>
-          <h2 style={{ fontSize: isMobile ? "19px" : "22px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 500, color: "#1B5E4A", marginBottom: "14px", paddingRight: "32px" }}>{template.title}</h2>
+          <h2 style={{ fontSize: isMobile ? "21px" : "25px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 600, color: "#1B5E4A", marginBottom: "16px", paddingRight: "36px" }}>{template.title}</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", background: "#F0F8F4", borderRadius: "999px", border: "1px solid #1B5E4A20" }}>
               <span style={{ fontSize: "10px", fontWeight: 700, color: "#1B5E4A", letterSpacing: "0.08em" }}>BEST USED FOR</span>
@@ -909,7 +909,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "40px" : "72px", alignItems: "flex-start", position: "relative", zIndex: 1 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "14px" }}>OWNER SELF-MANAGEMENT PLAYBOOK</div>
-            <h1 style={{ fontSize: isMobile ? "30px" : "46px", fontFamily: SF, fontWeight: 500, lineHeight: 1.15, marginBottom: "18px", background: `linear-gradient(135deg, ${C.primary} 0%, ${C.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+            <h1 style={{ fontSize: isMobile ? "34px" : "52px", fontFamily: SF, fontWeight: 600, lineHeight: 1.15, marginBottom: "20px", background: `linear-gradient(135deg, ${C.primary} 0%, ${C.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               Set Up Your Short-Term Rental Like a Professional Operator
             </h1>
             <p style={{ fontSize: "16px", color: C.textMuted, lineHeight: 1.65, marginBottom: "28px", maxWidth: "520px" }}>
@@ -951,7 +951,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "44px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>OWNER SETUP OVERVIEW</div>
-            <h2 style={{ fontSize: isMobile ? "26px" : "34px", fontFamily: SF, fontWeight: 500, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>What You Need To Self-Manage Successfully</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "38px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "16px", lineHeight: 1.2 }}>What You Need To Self-Manage Successfully</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "680px", margin: 0 }}>Self-managing a Dubai short-term rental means handling licensing, listings, software, pricing, housekeeping, maintenance, guest communication, and monthly performance tracking.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px" }}>
@@ -965,7 +965,7 @@ export default function OwnersPage() {
             ].map(({ icon, title, desc }) => (
               <div key={title} style={{ background: C.bgMain, borderRadius: "16px", border: `1px solid ${C.border}`, borderTop: `3px solid ${C.secondary}`, padding: "22px 20px", boxShadow: C.shadowSm }}>
                 <div style={{ width: "40px", height: "40px", borderRadius: "11px", background: `${C.primary}09`, border: `1px solid ${C.primary}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>{icon}</div>
-                <h3 style={{ fontSize: "15px", fontFamily: SF, fontWeight: 500, color: C.primary, marginBottom: "7px" }}>{title}</h3>
+                <h3 style={{ fontSize: "17px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "7px" }}>{title}</h3>
                 <p style={{ fontSize: "13.5px", color: C.textMuted, lineHeight: 1.6, margin: 0 }}>{desc}</p>
               </div>
             ))}
@@ -978,7 +978,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "16px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>SETUP PLAYBOOK</div>
-            <h2 style={{ fontSize: isMobile ? "26px" : "34px", fontFamily: SF, fontWeight: 500, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>The Self-Manage Setup Playbook</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "38px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "16px", lineHeight: 1.2 }}>The Self-Manage Setup Playbook</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "620px", marginBottom: "24px" }}>Follow these core setup layers before listing your property as a short-term rental.</p>
             <div style={{ padding: "12px 18px", background: "#F5F1EA", borderRadius: "10px", border: "1px solid #DDD8CE", display: "flex", gap: "10px", alignItems: "flex-start" }}>
               <div style={{ marginTop: "1px", flexShrink: 0 }}><IconInfo color={C.secondary} /></div>
@@ -993,7 +993,7 @@ export default function OwnersPage() {
               <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.primary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>1</div>
                 <div>
-                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 500, color: C.primary, margin: 0 }}>DET Portal & Holiday Home Permit</h3>
+                  <h3 style={{ fontSize: isMobile ? "18px" : "20px", fontFamily: SF, fontWeight: 600, color: C.primary, margin: 0 }}>DET Portal & Holiday Home Permit</h3>
                   <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>The legal foundation — required before listing on any platform.</p>
                 </div>
               </div>
@@ -1030,7 +1030,7 @@ export default function OwnersPage() {
               <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.secondary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>2</div>
                 <div>
-                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 500, color: C.textMain, margin: 0 }}>OTA Listing Setup</h3>
+                  <h3 style={{ fontSize: isMobile ? "18px" : "20px", fontFamily: SF, fontWeight: 600, color: C.textMain, margin: 0 }}>OTA Listing Setup</h3>
                   <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Your listings are your storefront — set them up properly.</p>
                 </div>
               </div>
@@ -1055,7 +1055,7 @@ export default function OwnersPage() {
               <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.primary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>3</div>
                 <div>
-                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 500, color: C.primary, margin: 0 }}>PMS / Channel Manager</h3>
+                  <h3 style={{ fontSize: isMobile ? "18px" : "20px", fontFamily: SF, fontWeight: 600, color: C.primary, margin: 0 }}>PMS / Channel Manager</h3>
                   <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Essential once you are on 2+ platforms or managing multiple units.</p>
                 </div>
               </div>
@@ -1085,7 +1085,7 @@ export default function OwnersPage() {
               <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.secondary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>4</div>
                 <div>
-                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 500, color: C.textMain, margin: 0 }}>Dynamic Pricing Setup</h3>
+                  <h3 style={{ fontSize: isMobile ? "18px" : "20px", fontFamily: SF, fontWeight: 600, color: C.textMain, margin: 0 }}>Dynamic Pricing Setup</h3>
                   <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Pricing needs regular review — not a one-time decision.</p>
                 </div>
               </div>
@@ -1115,7 +1115,7 @@ export default function OwnersPage() {
               <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.primary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>5</div>
                 <div>
-                  <h3 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 500, color: C.primary, margin: 0 }}>Operations & SOP Setup</h3>
+                  <h3 style={{ fontSize: isMobile ? "18px" : "20px", fontFamily: SF, fontWeight: 600, color: C.primary, margin: 0 }}>Operations & SOP Setup</h3>
                   <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Self-managing means controlling the system — not doing everything yourself.</p>
                 </div>
               </div>
@@ -1151,7 +1151,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "40px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>OPERATIONS SUPPORT</div>
-            <h2 style={{ fontSize: isMobile ? "26px" : "32px", fontFamily: SF, fontWeight: 500, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>Need Reliable STR Vendors?</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "36px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "16px", lineHeight: 1.2 }}>Need Reliable STR Vendors?</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "660px", margin: 0 }}>Self-managing does not mean doing everything yourself. AssetIntel can help connect owners with experienced vendors already operating in Dubai short-term rentals.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px", marginBottom: "32px" }}>
@@ -1165,7 +1165,7 @@ export default function OwnersPage() {
             ].map(({ icon, title, desc }) => (
               <div key={title} style={{ background: C.bgSection, borderRadius: "14px", border: `1px solid ${C.border}`, padding: "20px 18px", boxShadow: C.shadowSm }}>
                 <div style={{ marginBottom: "12px" }}>{icon}</div>
-                <h3 style={{ fontSize: "14px", fontFamily: SF, fontWeight: 500, color: C.textMain, marginBottom: "7px" }}>{title}</h3>
+                <h3 style={{ fontSize: "16px", fontFamily: SF, fontWeight: 600, color: C.textMain, marginBottom: "7px" }}>{title}</h3>
                 <p style={{ fontSize: "13px", color: C.textMuted, lineHeight: 1.6, margin: 0 }}>{desc}</p>
               </div>
             ))}
@@ -1191,7 +1191,7 @@ export default function OwnersPage() {
             <div style={{ padding: isMobile ? "18px 20px" : "20px 28px", borderBottom: `1px solid ${C.border}`, background: `${C.secondary}04`, display: "flex", alignItems: "center", gap: "14px" }}>
               <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: C.secondary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>6</div>
               <div>
-                <h2 style={{ fontSize: isMobile ? "16px" : "18px", fontFamily: SF, fontWeight: 500, color: C.textMain, margin: 0 }}>Guest Communication Templates</h2>
+                <h2 style={{ fontSize: isMobile ? "18px" : "20px", fontFamily: SF, fontWeight: 600, color: C.textMain, margin: 0 }}>Guest Communication Templates</h2>
                 <p style={{ fontSize: "12.5px", color: C.textMuted, margin: "3px 0 0" }}>Ready-to-use Airbnb-style templates for key guest moments.</p>
               </div>
             </div>
@@ -1235,7 +1235,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "36px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>COST OVERVIEW</div>
-            <h2 style={{ fontSize: isMobile ? "26px" : "32px", fontFamily: SF, fontWeight: 500, color: C.primary, marginBottom: "12px", lineHeight: 1.2 }}>Approximate Self-Manage Cost Snapshot</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "36px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "12px", lineHeight: 1.2 }}>Approximate Self-Manage Cost Snapshot</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "640px", margin: 0 }}>A practical view of the setup and software cost categories owners should understand before going live.</p>
           </div>
           <CostSnapshot isMobile={isMobile} onVendor={() => setShowVendor(true)} />
@@ -1251,7 +1251,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, borderRadius: "20px", padding: isMobile ? "40px 24px" : "56px 64px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.20)" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, color: `${C.secondary}CC`, letterSpacing: "0.14em", marginBottom: "16px" }}>ASSETINTEL SUPPORT</div>
-            <h2 style={{ fontSize: isMobile ? "24px" : "32px", fontFamily: SF, fontWeight: 500, color: "#FFFFFF", marginBottom: "16px", lineHeight: 1.2 }}>Want AssetIntel To Help Handle The Setup?</h2>
+            <h2 style={{ fontSize: isMobile ? "27px" : "36px", fontFamily: SF, fontWeight: 600, color: "#FFFFFF", marginBottom: "18px", lineHeight: 1.2 }}>Want AssetIntel To Help Handle The Setup?</h2>
             <p style={{ fontSize: "15px", color: "rgba(253,251,247,0.75)", lineHeight: 1.65, maxWidth: "540px", margin: "0 auto 36px" }}>
               AssetIntel can help you understand the setup layers, coordinate the right STR vendors, and guide the practical steps needed before going live.
             </p>

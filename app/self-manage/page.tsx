@@ -236,7 +236,7 @@ export default function SelfManagePage() {
             <div style={{ fontSize: "11.5px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: "16px" }}>
               Self-Manage Your STR
             </div>
-            <h1 style={{ fontSize: isMobile ? "30px" : "44px", fontFamily: serifHeading, fontWeight: 500, lineHeight: 1.18, marginBottom: "18px", color: colors.primary, maxWidth: "820px", marginLeft: "auto", marginRight: "auto" }}>
+            <h1 style={{ fontSize: isMobile ? "34px" : "49px", fontFamily: serifHeading, fontWeight: 600, lineHeight: 1.18, marginBottom: "20px", color: colors.primary, maxWidth: "72px", marginLeft: "auto", marginRight: "auto" }}>
               Everything You Need to Run Your Holiday Home Yourself
             </h1>
             <p style={{ fontSize: isMobile ? "14.5px" : "16px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "680px", margin: "0 auto 30px" }}>
@@ -320,7 +320,7 @@ export default function SelfManagePage() {
             <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "22px", boxShadow: colors.shadowSm, padding: isMobile ? "26px 22px" : "32px 36px" }}>
               <div style={{ marginBottom: "20px" }}>
                 <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "6px" }}>03</div>
-                <h2 style={{ fontSize: isMobile ? "20px" : "24px", fontFamily: serifHeading, fontWeight: 500, color: colors.primary }}>Build Your Operations Team</h2>
+                <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 600, color: colors.primary }}>Build Your Operations Team</h2>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "14px" }}>
                 {TEAM_CARDS.map(t => (
@@ -344,7 +344,7 @@ export default function SelfManagePage() {
 
             <div style={{ marginBottom: isMobile ? "28px" : "36px", textAlign: "center" }}>
               <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "8px" }}>04</div>
-              <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 500, color: colors.primary, marginBottom: "10px" }}>Run Your Property Like an Operator</h2>
+              <h2 style={{ fontSize: isMobile ? "25px" : "30px", fontFamily: serifHeading, fontWeight: 600, color: colors.primary, marginBottom: "10px" }}>Run Your Property Like an Operator</h2>
               <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, maxWidth: "560px", margin: "0 auto" }}>
                 Once your property is live, these are the core systems that keep every booking, guest stay and payout running smoothly.
               </p>
@@ -387,7 +387,7 @@ export default function SelfManagePage() {
 
             {/* Insight strip */}
             <div style={{ marginTop: isMobile ? "30px" : "38px", background: colors.bgSage, border: `1px solid rgba(27,94,74,0.14)`, borderRadius: "16px", padding: isMobile ? "18px 20px" : "20px 28px", textAlign: "center" }}>
-              <p style={{ fontSize: "14px", fontWeight: 500, color: colors.primary, marginBottom: "6px", fontFamily: serifHeading }}>
+              <p style={{ fontSize: "16px", fontWeight: 600, color: colors.primary, marginBottom: "6px", fontFamily: serifHeading }}>
                 The goal of self-management isn&apos;t to do everything yourself.
               </p>
               <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, maxWidth: "640px", margin: "0 auto" }}>
@@ -439,7 +439,7 @@ export default function SelfManagePage() {
                 return (
                   <div key={t.range} style={{ display: "flex", flexDirection: "column", background: cardBg, border: cardBorder, borderRadius: "20px", padding: "26px 24px", boxShadow: colors.shadowSm }}>
                     <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.10em", color: labelColor, textTransform: "uppercase", marginBottom: "10px" }}>{t.range}</div>
-                    <div style={{ fontSize: "18px", fontWeight: 500, fontFamily: serifHeading, color: textColor, marginBottom: "12px" }}>{t.title}</div>
+                    <div style={{ fontSize: "20px", fontWeight: 600, fontFamily: serifHeading, color: textColor, marginBottom: "12px" }}>{t.title}</div>
 
                     <span style={{ alignSelf: "flex-start", fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: badgeText, background: badgeBg, border: badgeBorder, borderRadius: "999px", padding: "5px 12px", marginBottom: "14px" }}>
                       {t.badge}
@@ -473,7 +473,7 @@ export default function SelfManagePage() {
           <div style={{ maxWidth: "1200px", margin: "0 auto", background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "26px", boxShadow: colors.shadowMd, padding: isMobile ? "32px 22px" : "44px 40px" }}>
             <div style={{ marginBottom: "28px" }}>
               <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: "10px" }}>Setup Checklist</div>
-              <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 500, color: colors.primary }}>Your Self-Management Setup Checklist</h2>
+              <h2 style={{ fontSize: isMobile ? "25px" : "30px", fontFamily: serifHeading, fontWeight: 600, color: colors.primary }}>Your Self-Management Setup Checklist</h2>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(5, 1fr)", gap: "20px" }}>
               {CHECKLIST_GROUPS.map(g => (
@@ -503,7 +503,7 @@ export default function SelfManagePage() {
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
 
             <div style={{ textAlign: "center", marginBottom: "36px" }}>
-              <p style={{ fontSize: isMobile ? "15px" : "16.5px", color: colors.primary, fontFamily: serifHeading, lineHeight: 1.55, maxWidth: "760px", margin: "0 auto" }}>
+              <p style={{ fontSize: isMobile ? "17px" : "18px", color: colors.primary, fontFamily: serifHeading, lineHeight: 1.55, maxWidth: "72px", margin: "0 auto" }}>
                 Build your self-managed STR using the systems, technology and operational structure used by professional Dubai holiday-home operators — without giving away a percentage of your rental revenue.
               </p>
             </div>
@@ -513,11 +513,11 @@ export default function SelfManagePage() {
               <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "22px" }}>
                 <div>
                   <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: "10px" }}>Option 1 — Not Sure What You Need?</div>
-                  <h2 style={{ fontSize: isMobile ? "20px" : "24px", fontFamily: serifHeading, fontWeight: 500, color: colors.primary, marginBottom: "4px" }}>Self-Manage Guidance Call</h2>
+                  <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 600, color: colors.primary, marginBottom: "4px" }}>Self-Manage Guidance Call</h2>
                   <p style={{ fontSize: "13px", color: colors.textMuted }}>20-minute private session with AssetIntel</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "30px", fontWeight: 500, color: colors.primary, fontFamily: serifHeading, lineHeight: 1 }}>AED 199</div>
+                  <div style={{ fontSize: "34px", fontWeight: 600, color: colors.primary, fontFamily: serifHeading, lineHeight: 1 }}>AED 199</div>
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "8px 20px", marginBottom: "24px" }}>
@@ -541,7 +541,7 @@ export default function SelfManagePage() {
                 <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "18px" }}>
                   <div style={{ maxWidth: "560px" }}>
                     <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: "10px" }}>Done-For-You Setup</div>
-                    <h2 style={{ fontSize: isMobile ? "21px" : "26px", fontFamily: serifHeading, fontWeight: 500, color: "#FFFFFF", marginBottom: "10px", lineHeight: 1.2 }}>Complete A–Z Self-Manage Setup</h2>
+                    <h2 style={{ fontSize: isMobile ? "24px" : "29px", fontFamily: serifHeading, fontWeight: 600, color: "#FFFFFF", marginBottom: "10px", lineHeight: 1.2 }}>Complete A–Z Self-Manage Setup</h2>
                     <p style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.8)", lineHeight: 1.65 }}>
                       Want AssetIntel to help build the entire operating infrastructure for you? We can coordinate the setup required to get your property ready to operate professionally while you remain in control of the property and rental income.
                     </p>
@@ -550,7 +550,7 @@ export default function SelfManagePage() {
                   <div style={{ textAlign: isMobile ? "left" : "right", flexShrink: 0 }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "10px", justifyContent: isMobile ? "flex-start" : "flex-end" }}>
                       <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.55)", textDecoration: "line-through" }}>AED 1,427</span>
-                      <span style={{ fontSize: "36px", fontWeight: 500, color: "#fff", fontFamily: serifHeading, lineHeight: 1 }}>AED 999</span>
+                      <span style={{ fontSize: "40px", fontWeight: 600, color: "#fff", fontFamily: serifHeading, lineHeight: 1 }}>AED 999</span>
                     </div>
                     <div style={{ display: "flex", gap: "8px", marginTop: "8px", justifyContent: isMobile ? "flex-start" : "flex-end", flexWrap: "wrap" }}>
                       <span style={{ fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", background: colors.secondary, color: "#fff" }}>30% OFF</span>
@@ -644,7 +644,7 @@ export default function SelfManagePage() {
               <div style={{ background: "#FDFBF8", borderRadius: "24px", width: "100%", maxWidth: "600px", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", border: `1px solid ${colors.border}` }}>
                 <div style={{ padding: isMobile ? "28px 24px 20px" : "36px 40px 24px", borderBottom: `1px solid ${colors.border}` }}>
                   <div style={{ fontSize: "11px", fontWeight: 700, color: colors.primary, letterSpacing: "0.12em", marginBottom: "10px" }}>{eyebrow}</div>
-                  <h2 style={{ fontSize: isMobile ? "22px" : "26px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "10px", lineHeight: 1.25 }}>{title}</h2>
+                  <h2 style={{ fontSize: isMobile ? "25px" : "29px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "10px", lineHeight: 1.25 }}>{title}</h2>
                   <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.65 }}>{subtitle}</p>
                 </div>
 
@@ -655,7 +655,7 @@ export default function SelfManagePage() {
                       <circle cx="26" cy="26" r="20" fill={`${colors.primary}15`} />
                       <path d="M16 26L23 33L36 19" stroke={colors.primary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <h3 style={{ fontSize: "20px", fontFamily: serifHeading, fontWeight: 500, color: colors.textMain, marginBottom: "12px" }}>Thank you — your enquiry has been received.</h3>
+                    <h3 style={{ fontSize: "22px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "12px" }}>Thank you — your enquiry has been received.</h3>
                     <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.65, marginBottom: "28px" }}>AssetIntel will review your details and contact you with guidance on the right setup.</p>
                     <button onClick={closeModal} style={{ padding: "12px 28px", background: colors.primary, color: "#fff", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Close</button>
                   </div>
@@ -737,7 +737,7 @@ function SectionHeading({ label, title, subtitle }: { label: string; title: stri
   return (
     <div style={{ marginBottom: "36px", textAlign: "center" }}>
       <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "12px" }}>{label}</div>
-      <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serifHeading, fontWeight: 500, marginBottom: subtitle ? "12px" : 0, color: colors.primary }}>{title}</h2>
+      <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serifHeading, fontWeight: 600, marginBottom: subtitle ? "12px" : 0, color: colors.primary }}>{title}</h2>
       {subtitle && <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "600px", margin: "0 auto" }}>{subtitle}</p>}
     </div>
   );
@@ -761,7 +761,7 @@ function SummaryCard({ label, value, sub, icon }: { label: string; value: string
         {Icons[icon](colors.primary, 16)}
       </div>
       <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textMuted, marginBottom: "6px" }}>{label}</div>
-      <div style={{ fontSize: "17px", fontWeight: 500, color: colors.textMain, fontFamily: serifHeading, lineHeight: 1.15, marginBottom: "4px" }}>{value}</div>
+      <div style={{ fontSize: "19px", fontWeight: 600, color: colors.textMain, fontFamily: serifHeading, lineHeight: 1.15, marginBottom: "4px" }}>{value}</div>
       <div style={{ fontSize: "11px", color: colors.textMuted, lineHeight: 1.4 }}>{sub}</div>
     </div>
   );
@@ -778,11 +778,11 @@ function StageSection({ number, title, items, isMobile, footLabel, footValue }: 
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "20px", flexWrap: "wrap", marginBottom: "20px" }}>
             <div>
               <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "6px" }}>{number}</div>
-              <h2 style={{ fontSize: isMobile ? "20px" : "24px", fontFamily: serifHeading, fontWeight: 500, color: colors.primary }}>{title}</h2>
+              <h2 style={{ fontSize: isMobile ? "22px" : "27px", fontFamily: serifHeading, fontWeight: 600, color: colors.primary }}>{title}</h2>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.textMuted, marginBottom: "3px" }}>{footLabel}</div>
-              <div style={{ fontSize: "16px", fontWeight: 500, color: colors.textMain, fontFamily: serifHeading }}>{footValue}</div>
+              <div style={{ fontSize: "18px", fontWeight: 600, color: colors.textMain, fontFamily: serifHeading }}>{footValue}</div>
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: "10px 16px" }}>

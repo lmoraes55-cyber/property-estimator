@@ -54,7 +54,7 @@ export default function AccessGate({
         <div style={{ position: "sticky", top: 110, display: "flex", justifyContent: "center", padding: 24 }}>
           <div style={{ maxWidth: 400, width: "100%", background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, padding: "30px 28px", boxShadow: colors.shadowLg, textAlign: "center" }}>
             <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.secondaryText, margin: "0 0 8px" }}>Free Access</p>
-            <h3 style={{ fontSize: 21, fontFamily: serif, fontWeight: 500, color: colors.primary, margin: "0 0 8px" }}>{title}</h3>
+            <h3 style={{ fontSize: 24, fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 8px" }}>{title}</h3>
             <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.55, margin: "0 0 22px" }}>{subtitle}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <a

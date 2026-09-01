@@ -113,7 +113,7 @@ export default function AccountPage() {
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
         Your Profile
       </p>
-      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, color: C.green, marginBottom: 28 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 29, color: C.green, marginBottom: 28 }}>
         Account
       </h1>
 
@@ -127,7 +127,7 @@ export default function AccountPage() {
           marginBottom: 20,
         }}
       >
-        <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 17, color: C.text, marginBottom: 20 }}>
+        <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, color: C.text, marginBottom: 20 }}>
           Profile
         </h2>
 
@@ -197,7 +197,7 @@ export default function AccountPage() {
           marginBottom: 20,
         }}
       >
-        <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 17, color: C.text, marginBottom: 12 }}>
+        <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, color: C.text, marginBottom: 12 }}>
           Change Password
         </h2>
         {resetSent ? (

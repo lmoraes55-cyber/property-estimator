@@ -106,7 +106,7 @@ export default function HomePage() {
           {/* Brand column */}
           <div>
             <div style={{ marginBottom: "18px" }}>
-              <div style={{ fontSize: "20px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 500, color: "#fff", letterSpacing: "-0.01em" }}>AssetIntel</div>
+              <div style={{ fontSize: "22px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 600, color: "#fff", letterSpacing: "-0.01em" }}>AssetIntel</div>
               <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: "3px" }}>Property Intelligence. Smarter Decisions.</div>
             </div>
             <p style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.6)", lineHeight: 1.75, maxWidth: "320px" }}>

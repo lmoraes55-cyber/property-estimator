@@ -20,7 +20,7 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
           <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "14px" }}>
             Independent Property Advisory
           </div>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "34px", color: colors.primary, margin: "0 auto 16px", maxWidth: "760px" }}>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "38px", color: colors.primary, margin: "0 auto 16px", maxWidth: "72px" }}>
             Get Unbiased Property Guidance Before You Make A Decision
           </h2>
           <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "680px", margin: "0 auto 12px" }}>
@@ -40,9 +40,9 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
             <div aria-hidden style={{ position: "absolute", top: "-50px", right: "-50px", width: "160px", height: "160px", borderRadius: "50%", background: "rgba(184,138,68,0.14)" }} />
             <div style={{ position: "relative", zIndex: 1 }}>
               <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: "#D4A574", textTransform: "uppercase", marginBottom: "10px" }}>Independent &amp; Unbiased Guidance</div>
-              <div style={{ fontFamily: serif, fontSize: "22px", marginBottom: "6px" }}>Independent Property Advisory</div>
+              <div style={{ fontFamily: serif, fontSize: "25px", marginBottom: "6px" }}>Independent Property Advisory</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "6px" }}>
-                <span style={{ fontFamily: serif, fontSize: "40px", fontWeight: 500 }}>AED 199</span>
+                <span style={{ fontFamily: serif, fontSize: "45px", fontWeight: 600 }}>AED 199</span>
               </div>
               <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginBottom: "20px" }}>20 Minute Private Consultation</div>
               <div style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.65)", marginBottom: "26px" }}>For owners, buyers, investors and agents.</div>
@@ -64,7 +64,7 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
 
           {/* Checklist */}
           <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "22px", padding: isMobile ? "28px 24px" : "36px 34px" }}>
-            <div style={{ fontFamily: serif, fontSize: "18px", color: colors.primary, marginBottom: "6px" }}>A personalised property strategy session.</div>
+            <div style={{ fontFamily: serif, fontSize: "20px", color: colors.primary, marginBottom: "6px" }}>A personalised property strategy session.</div>
             <p style={{ fontSize: "13px", color: colors.textMuted, marginBottom: "20px" }}>During your consultation we&apos;ll cover:</p>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "12px 20px" }}>
               {CHECKLIST.map(item => (

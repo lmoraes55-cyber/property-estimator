@@ -85,7 +85,7 @@ export default function AdminDataSyncPage() {
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh", padding: "64px 24px" }}>
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <h1 style={{ fontFamily: serif, fontSize: 26, color: colors.primary, marginBottom: 8 }}>Data Sync Status</h1>
+        <h1 style={{ fontFamily: serif, fontSize: 29, color: colors.primary, marginBottom: 8 }}>Data Sync Status</h1>
         <p style={{ fontSize: 13, color: colors.textMuted, marginBottom: 28 }}>Internal view of the weekly AirROI / DLD refresh pipeline. Not linked from the public site.</p>
 
         {!status && (

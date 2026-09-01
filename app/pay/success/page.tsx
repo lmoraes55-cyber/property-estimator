@@ -74,7 +74,7 @@ function PaySuccessContent() {
             </svg>
           )}
         </div>
-        <h1 style={{ fontSize: 26, fontWeight: 500, color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", margin: "0 0 12px" }}>
+        <h1 style={{ fontSize: 29, fontWeight: 600, color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", margin: "0 0 12px" }}>
           {heading}
         </h1>
         <p style={{ fontSize: 15, color: colors.textMuted, margin: "0 0 24px", lineHeight: 1.6 }}>

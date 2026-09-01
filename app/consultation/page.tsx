@@ -75,7 +75,7 @@ export default function ConsultationPage() {
           <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondary, textTransform: "uppercase", marginBottom: "14px" }}>
             Independent Property Advisory
           </div>
-          <h1 style={{ fontFamily: serif, fontSize: isMobile ? "28px" : "38px", color: colors.primary, lineHeight: 1.2, margin: "0 0 16px" }}>
+          <h1 style={{ fontFamily: serif, fontSize: isMobile ? "31px" : "43px", color: colors.primary, lineHeight: 1.2, margin: "0 0 16px" }}>
             Book Your Independent Property Consultation
           </h1>
           <p style={{ fontSize: isMobile ? "14.5px" : "15.5px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "600px", margin: "0 auto" }}>
@@ -92,10 +92,10 @@ export default function ConsultationPage() {
             {/* Price header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px", paddingBottom: "22px", borderBottom: `1px solid ${colors.border}` }}>
               <div>
-                <div style={{ fontFamily: serif, fontSize: "18px", color: colors.primary }}>Independent Property Advisory</div>
+                <div style={{ fontFamily: serif, fontSize: "20px", color: colors.primary }}>Independent Property Advisory</div>
                 <div style={{ fontSize: "12.5px", color: colors.textMuted }}>20 Minute Private Consultation</div>
               </div>
-              <div style={{ fontFamily: serif, fontSize: "26px", fontWeight: 500, color: colors.secondary, whiteSpace: "nowrap" }}>AED 199</div>
+              <div style={{ fontFamily: serif, fontSize: "29px", fontWeight: 600, color: colors.secondary, whiteSpace: "nowrap" }}>AED 199</div>
             </div>
 
             {submitted ? (

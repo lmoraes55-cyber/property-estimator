@@ -9,7 +9,7 @@ export default function HowSTRWorksSection({ isMobile }: { isMobile: boolean }) 
         <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "12px" }}>
           New To Short-Term Rental?
         </div>
-        <h2 style={{ fontFamily: serif, fontSize: isMobile ? "24px" : "28px", color: colors.primary, margin: "0 0 32px" }}>
+        <h2 style={{ fontFamily: serif, fontSize: isMobile ? "27px" : "31px", color: colors.primary, margin: "0 0 32px" }}>
           The STR Owner Journey
         </h2>
 

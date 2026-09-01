@@ -469,7 +469,7 @@ function EstimatorPage() {
 
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight"
             style={{
-              fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", maxWidth: "560px",
+              fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", maxWidth: "72px",
               color: colors.primary,
             }}>
             Generate Your STR vs LTR Report

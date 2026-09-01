@@ -69,7 +69,7 @@ export default function ReportsPage() {
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7D6338", marginBottom: 10 }}>
         Saved Analysis
       </p>
-      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, color: C.green, marginBottom: 28 }}>
+      <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 29, color: C.green, marginBottom: 28 }}>
         Reports
       </h1>
 
@@ -123,7 +123,7 @@ export default function ReportsPage() {
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                    <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 16, fontWeight: 600, color: C.text }}>
+                    <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 18, fontWeight: 600, color: C.text }}>
                       {r.building_name}
                     </span>
                     {r.recommendation && (

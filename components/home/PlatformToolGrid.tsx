@@ -23,7 +23,7 @@ export default function PlatformToolGrid({ isMobile }: { isMobile: boolean }) {
     <section style={{ padding: isMobile ? "56px 20px" : "80px 48px" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: isMobile ? "28px" : "48px" }}>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "32px", color: colors.primary, margin: "0 0 10px" }}>Core Solutions</h2>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "36px", color: colors.primary, margin: "0 0 10px" }}>Core Solutions</h2>
           <p style={{ fontSize: "15px", color: colors.textMuted, margin: 0 }}>The tools most owners and investors start with.</p>
         </div>
 

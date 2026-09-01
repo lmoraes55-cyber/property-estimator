@@ -16,7 +16,7 @@ export default function FinalHomeCTA({ isMobile, onAnalyze, onBookConsultation }
         <div aria-hidden style={{ position: "absolute", bottom: "-80px", left: "-40px", width: "180px", height: "180px", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
 
         <div style={{ position: "relative", zIndex: 1 }}>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "26px" : "34px", color: "#fff", lineHeight: 1.2, margin: "0 0 32px", maxWidth: "560px", marginLeft: "auto", marginRight: "auto" }}>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "38px", color: "#fff", lineHeight: 1.2, margin: "0 0 32px", maxWidth: "72px", marginLeft: "auto", marginRight: "auto" }}>
             Ready To Make Smarter Property Decisions?
           </h2>
 
