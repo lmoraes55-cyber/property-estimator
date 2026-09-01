@@ -33,7 +33,17 @@ const mapTierAndPremium = (
 };
 
 // Outskirt areas for long-term rental suggestions
-export const OUTSKIRT_AREAS = ["Dubai South", "JVT", "Town Square & JVT", "DAMAC Hills 2"];
+// "Town Square" and "JVT" are separate communities and are listed separately.
+// They were previously collapsed into one "Town Square & JVT" label, which
+// resolved to the TOWN SQUARE master for everything under it — harmless while
+// only Town Square buildings used it, but silently wrong for any JVT building
+// added later (JVT sits in Al Barsha South Fifth, Town Square in Al Yelayiss 2).
+//
+// NOTE for adding JVT buildings: set `area` to "Jumeirah Village Triangle (JVT)",
+// the same shape as the JBR entries. A bare "JVT" is a single token and the
+// master matcher deliberately refuses those as too collision-prone, so it would
+// fall through to the pooled area figure instead of the JVT community.
+export const OUTSKIRT_AREAS = ["Dubai South", "JVT", "Town Square", "DAMAC Hills 2"];
 
 /**
  * Check if an area is considered an outskirt
@@ -2505,16 +2515,16 @@ export const BUILDINGS_DATABASE: Record<string, BuildingRecord> = {
     ...mapTierAndPremium("Medium"),
   },
 
-  // Town Square & JVT (Low-to-Medium tier)
+  // Town Square (Low-to-Medium tier)
   "Zahra Apartments": {
     name: "Zahra Apartments",
-    area: "Town Square & JVT",
+    area: "Town Square",
     dldArea: "Al Yelayiss 2",
     ...mapTierAndPremium("Low-to-Medium"),
   },
   "Nshama Town Square Shams": {
     name: "Nshama Town Square Shams",
-    area: "Town Square & JVT",
+    area: "Town Square",
     dldArea: "Al Yelayiss 2",
     ...mapTierAndPremium("Low-to-Medium"),
   },

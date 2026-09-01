@@ -136,5 +136,6 @@ reports which tier answered in `matchLevel`. A `master` or `area` result is
   `MARINA RESIDENCE` in Palm Jumeirah).
 - Only ~23% of residential contracts carry a building tag at all — a source-side
   ceiling. In the core investor areas it is ~71%.
-- The curated community `"Town Square & JVT"` names two communities and resolves
-  to `TOWN SQUARE`, which is wrong for the JVT buildings (2 of 403).
+- A community label must be at least two tokens to resolve to a DLD master —
+  single generic tokens are refused as too collision-prone. Use
+  `"Jumeirah Village Triangle (JVT)"`, not `"JVT"`.
