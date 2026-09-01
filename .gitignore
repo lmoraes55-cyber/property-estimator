@@ -53,3 +53,6 @@ scratch/
 
 # Local-only DDA credentials (Vercel marks these Secret; never commit)
 .env.dda
+
+# Supabase CLI version cache
+supabase/.temp/
