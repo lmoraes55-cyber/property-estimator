@@ -20,6 +20,7 @@ import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import AreaIntelligence from "@/components/report/AreaIntelligence";
 import AccessGate from "@/components/AccessGate";
 import RecentTransactions from "@/components/report/RecentTransactions";
+import RentProvenance from "@/components/report/RentProvenance";
 import { createClient } from "@/lib/supabase/client";
 import { PRIORITY_OPTIONS, Priority } from "@/lib/operator-match";
 
@@ -83,33 +84,37 @@ function StatCard({ label, value, sub, highlight, icon }: { label: string; value
   };
 
   return (
-    <div className="group rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+    // Flat by design: three stacked shadows plus a hover lift read as document
+    // chrome. Separation comes from the surface tint and border instead, and
+    // the figure carries the card rather than the icon.
+    <div className="group rounded-2xl p-6 transition-colors duration-200"
       style={{
         background: colors.bgSection,
         border: `1px solid ${colors.border}`,
-        boxShadow: `${colors.shadowSm}, ${colors.shadowMd}, ${colors.shadowLg}`,
-        backdropFilter: "blur(10px)"
       }}>
-      <div className="flex items-start justify-between mb-4">
-        <p className="text-xs font-semibold tracking-widest" style={{ color: colors.textMuted, letterSpacing: "0.1em" }}>{label}</p>
-        {/* Professional Icon Circle */}
-        <div className="transition-transform duration-300 group-hover:scale-110"
-          style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "50%",
-            background: "#E8F3EE",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#1B5E4A",
-            flexShrink: 0
-          }}>
-          {iconSVGs[getIcon()]}
+      <div className="flex items-start justify-between mb-3" style={{ gap: 12 }}>
+        <p style={{
+          fontFamily: "var(--font-mono-ai), ui-monospace, monospace",
+          fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase",
+          color: colors.textLight, lineHeight: 1.4, margin: 0,
+        }}>{label}</p>
+        <div style={{
+          width: 34, height: 34, borderRadius: 9,
+          background: highlight ? "rgba(27,94,74,0.10)" : "rgba(15,29,24,0.045)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: highlight ? colors.primary : colors.textMuted, flexShrink: 0,
+        }}>
+          <span style={{ display: "flex", transform: "scale(0.72)" }}>{iconSVGs[getIcon()]}</span>
         </div>
       </div>
-      <p className="text-3xl font-bold mb-2" style={{ color: colors.primary }}>{value}</p>
-      {sub && <p className="text-xs" style={{ color: colors.textMuted }}>{sub}</p>}
+      <p style={{
+        fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
+        fontSize: 30, fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.05,
+        fontVariantNumeric: "tabular-nums",
+        color: highlight ? colors.primary : colors.textMain,
+        margin: "0 0 6px",
+      }}>{value}</p>
+      {sub && <p style={{ fontSize: 12, color: colors.textLight, margin: 0, lineHeight: 1.5 }}>{sub}</p>}
     </div>
   );
 }
@@ -2150,6 +2155,19 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           />
           );
         })()}
+
+        {/* ── RENT PROVENANCE — which DLD tier produced the LTR figure ─────── */}
+        {/* Sits directly above the contract list: the reader sees which tier
+            was used, then the contracts behind it. Renders nothing when fewer
+            than two tiers have data, since one bar is not a comparison. */}
+        <div className="no-print" style={{ marginTop: 4 }}>
+          <RentProvenance
+            buildingName={result.buildingName || result.propertyName}
+            unitSize={result.unitSize}
+            dldArea={input.dldArea}
+            usedBasis={result.ltrBasis}
+          />
+        </div>
 
         {/* ── RECENT LTR TRANSACTIONS — live DLD Ejari data for this building ── */}
         <RecentTransactions
