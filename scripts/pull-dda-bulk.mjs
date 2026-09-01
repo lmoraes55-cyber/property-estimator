@@ -4,13 +4,18 @@
  * ==========================================================
  * Pages dld_rent_contracts-open-api to NDJSON for scripts/ingest-dld-rents.mjs.
  *
- * WHY NOT scripts/pull-datadubai.mjs
- *   That one targets the unauthenticated data.dubai portal endpoint, which
- *   cannot serve a complete extract: a full run returned 714,000 rows of which
- *   only 523,736 were distinct, it re-serves earlier pages from ~page 19, and
- *   what it does return skews to 2010-2013. This API reaches the whole ~10M-row
- *   corpus (verified: page 9,000 returns data, page 12,000 is empty) and is
- *   current to today.
+ * WHY THE CREDENTIALED API AND NOT THE PUBLIC PORTAL
+ *   The unauthenticated data.dubai portal endpoint
+ *   (/o/dda/data-services/dataset-metadata) cannot serve a complete extract and
+ *   was removed after being tried: a full run returned 714,000 rows of which
+ *   only 523,736 were distinct, it re-serves earlier pages from around page 19,
+ *   and what it does return skews to 2010-2013. This API reaches the whole
+ *   ~10M-row corpus (verified: page 9,000 returns data, page 12,000 is empty)
+ *   and is current to today.
+ *
+ *   NOTE: access is restricted to within the UAE, so this cannot run on CI
+ *   runners outside the country. Run it locally, or from a Vercel function
+ *   pinned to dxb1.
  *
  * STABLE PAGINATION
  *   Offset paging without a sort is NOT reproducible here — the same page
@@ -44,7 +49,7 @@
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --max-pages 5    # smoke test
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --check          # stability check only
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --restart
- *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --since 2024-08-01 --residential \\
+ *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --since-months 24 --residential \\
  *     --after CRT2132084406        # keyset resume — use when deep offsets start timing out
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --filter "area_name_en='Marsa Dubai'"
  *
@@ -85,12 +90,19 @@ const CHECK_ONLY = argv.includes("--check");
 const FILTERS = [];
 {
   const strVal = f => { const i = argv.indexOf(f); return i !== -1 && argv[i + 1] ? argv[i + 1] : null; };
+  // Relative window, so a saved command does not rot the way a hardcoded date
+  // does. --since still wins if both are given.
+  const sinceMonths = Number(strVal("--since-months") ?? NaN);
   const after = strVal("--after");
   if (after) FILTERS.push(`contract_id > '${after}'`);
   const since = strVal("--since");
   if (since) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) { console.error(`--since must be YYYY-MM-DD, got "${since}"`); process.exit(1); }
     FILTERS.push(`contract_start_date >= '${since}'`);
+  } else if (Number.isFinite(sinceMonths) && sinceMonths > 0) {
+    const c = new Date();
+    c.setMonth(c.getMonth() - sinceMonths);
+    FILTERS.push(`contract_start_date >= '${c.toISOString().slice(0, 10)}'`);
   }
   if (argv.includes("--residential")) FILTERS.push("property_usage_en LIKE 'Residential%'");
   for (let i = 0; i < argv.length; i++) if (argv[i] === "--filter" && argv[i + 1]) FILTERS.push(argv[i + 1]);

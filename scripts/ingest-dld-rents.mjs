@@ -72,7 +72,8 @@ if (csvPaths.length === 0 && process.env.DLD_CSV) csvPaths.push(process.env.DLD_
 if (csvPaths.length === 0) {
   console.error("Usage: node scripts/ingest-dld-rents.mjs <part1.csv> [part2.csv] ...");
   console.error("   or: DLD_CSV=/path/to/rent_contracts.csv node scripts/ingest-dld-rents.mjs");
-  console.error("   or: node scripts/pull-datadubai.mjs --stdout | node scripts/ingest-dld-rents.mjs -");
+  console.error("   or: node --env-file=.env.dda scripts/pull-dda-bulk.mjs --since-months 24 --residential");
+  console.error("       then: node scripts/ingest-dld-rents.mjs data/raw/dda_rent_contracts.ndjson");
   process.exit(1);
 }
 for (const p of csvPaths) {
