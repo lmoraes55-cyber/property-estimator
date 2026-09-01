@@ -44,6 +44,8 @@
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --max-pages 5    # smoke test
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --check          # stability check only
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --restart
+ *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --since 2024-08-01 --residential \\
+ *     --after CRT2132084406        # keyset resume — use when deep offsets start timing out
  *   node --env-file=.env.dda scripts/pull-dda-bulk.mjs --filter "area_name_en='Marsa Dubai'"
  *
  * Then:
@@ -69,12 +71,22 @@ const argv = process.argv.slice(2);
 const argVal = (f, d) => { const i = argv.indexOf(f); return i !== -1 && argv[i + 1] ? Number(argv[i + 1]) : d; };
 const MAX_PAGES = argVal("--max-pages", Infinity);
 const RESTART = argv.includes("--restart");
+// Keyset resume. Offset paging degrades badly with depth here: throughput fell
+// from ~19 pages/min at the start to 3/min around page 1,490, then page 1,499
+// timed out five times and the run died. Restarting at page 1 with
+// `contract_id > <last seen>` keeps every offset shallow, so the query stays
+// fast no matter how far through the dataset we are. Safe because results come
+// back ordered by contract_id ascending, so everything at or below that id has
+// already been written.
+const AFTER = (() => { const i = argv.indexOf("--after"); return i !== -1 ? argv[i + 1] : null; })();
 const CHECK_ONLY = argv.includes("--check");
 
 // Server-side filters, ANDed by the API (repeated `filter` query params).
 const FILTERS = [];
 {
   const strVal = f => { const i = argv.indexOf(f); return i !== -1 && argv[i + 1] ? argv[i + 1] : null; };
+  const after = strVal("--after");
+  if (after) FILTERS.push(`contract_id > '${after}'`);
   const since = strVal("--since");
   if (since) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) { console.error(`--since must be YYYY-MM-DD, got "${since}"`); process.exit(1); }
@@ -223,7 +235,17 @@ async function main() {
   let page = 1, rowsWritten = 0, dupRows = 0;
   const seen = new Set();
 
-  if (!RESTART && fs.existsSync(CKPT)) {
+  if (AFTER) {
+    // Keep everything already downloaded; restart paging from 1 behind the
+    // contract_id cursor rather than resuming a deep offset.
+    if (fs.existsSync(CKPT)) {
+      const ck = JSON.parse(fs.readFileSync(CKPT, "utf8"));
+      rowsWritten = ck.rowsWritten; dupRows = ck.dupRows ?? 0;
+    }
+    if (fs.existsSync(SEEN)) for (const k of fs.readFileSync(SEEN, "utf8").split("\n")) if (k) seen.add(k);
+    page = 1;
+    console.log(`Keyset resume after contract_id ${AFTER} — page 1 (${rowsWritten.toLocaleString()} rows kept, ${seen.size.toLocaleString()} keys)`);
+  } else if (!RESTART && fs.existsSync(CKPT)) {
     const ck = JSON.parse(fs.readFileSync(CKPT, "utf8"));
     page = ck.nextPage; rowsWritten = ck.rowsWritten; dupRows = ck.dupRows ?? 0;
     if (fs.existsSync(SEEN)) for (const k of fs.readFileSync(SEEN, "utf8").split("\n")) if (k) seen.add(k);
