@@ -151,7 +151,7 @@ function PremiumCTACard({
   const isBronze = theme === "bronze";
   const accent = isBronze ? colors.secondary : colors.primary;
   const bg = isBronze
-    ? `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.secondary}12 0%, transparent 70%), linear-gradient(135deg, #FCF8F1 0%, #FBF6EE 100%)`
+    ? `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.secondary}12 0%, transparent 70%), linear-gradient(135deg, #FCF8F1 0%, rgba(184,138,68,0.07) 100%)`
     : `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.primary}0E 0%, transparent 70%), linear-gradient(135deg, #F7FAF8 0%, #FAFBF9 100%)`;
 
   return (
@@ -1203,16 +1203,17 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           }
         }
         /* ── Shared Report Card Design System ───────────────────────── */
+        /* Flat by construction. The stacked 45px/14px shadows read as document
+           chrome; separation now comes from the border and surface tint. */
         .rc {
           position: relative;
           overflow: hidden;
           display: flex;
           flex-direction: column;
           background: #FFFFFF;
-          border: 1px solid rgba(35,93,72,0.10);
-          border-radius: 22px;
+          border: 1px solid var(--ai-border);
+          border-radius: 20px;
           padding: 22px 20px 20px;
-          box-shadow: 0 18px 45px rgba(20,48,38,0.07), 0 4px 14px rgba(20,48,38,0.035);
           min-height: 150px;
           break-inside: avoid;
           page-break-inside: avoid;
@@ -1226,8 +1227,10 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           height: 3px;
           border-radius: 0;
         }
-        .rc-bar-green  { background: linear-gradient(90deg, rgba(27,94,74,0.70), rgba(27,94,74,0.18)); }
-        .rc-bar-bronze { background: linear-gradient(90deg, rgba(184,138,68,0.70), rgba(184,138,68,0.18)); }
+        /* A solid 2px rule reads as a deliberate marker; a fading gradient
+           reads as decoration. */
+        .rc-bar-green  { background: var(--ai-green); opacity: 0.85; height: 2px; }
+        .rc-bar-bronze { background: var(--ai-bronze); opacity: 0.85; height: 2px; }
         .rc-icon {
           width: 40px;
           height: 40px;
@@ -1240,22 +1243,31 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           flex-shrink: 0;
         }
         .rc-icon-green  { background: #EEF5F1; border: 1px solid rgba(27,94,74,0.12); color: #1B5E4A; }
-        .rc-icon-bronze { background: #FBF6EE; border: 1px solid rgba(184,138,68,0.18); color: #B88A44; }
+        .rc-icon-bronze { background: rgba(184,138,68,0.07); border: 1px solid rgba(184,138,68,0.18); color: #B88A44; }
+        /* Labels are instrument annotation: mono, quiet, one accessible ink.
+           The old #7A9A8A / #9A8A6A were decorative tints below AA. */
         .rc-label {
-          font-size: 11px;
-          font-weight: 700;
+          font-family: var(--font-mono-ai), ui-monospace, monospace;
+          font-size: 10.5px;
+          font-weight: 400;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          margin-bottom: 8px;
-          line-height: 1.2;
+          margin-bottom: 10px;
+          line-height: 1.3;
+          color: var(--ai-text-light);
         }
-        .rc-label-green  { color: #7A9A8A; }
-        .rc-label-bronze { color: #9A8A6A; }
-        .rc-label-result { color: #1B5E4A; }
+        .rc-label-green  { color: var(--ai-text-light); }
+        .rc-label-bronze { color: var(--ai-text-light); }
+        .rc-label-result { color: var(--ai-green); }
+        /* The figure carries the card: display face, light weight, and tabular
+           digits so values line up between cards in a grid. */
         .rc-value {
-          font-size: clamp(18px, 1.9vw, 24px);
-          font-weight: 800;
-          line-height: 1.15;
+          font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+          font-size: clamp(19px, 2vw, 26px);
+          font-weight: 400;
+          letter-spacing: -0.02em;
+          font-variant-numeric: tabular-nums;
+          line-height: 1.1;
           margin-bottom: 6px;
           word-break: break-word;
         }
@@ -1266,16 +1278,15 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           line-height: 1.45;
           margin-top: auto;
         }
-        .rc-helper-muted  { color: #9A9A8A; }
-        .rc-helper-green  { color: #6A9A82; }
+        .rc-helper-muted  { color: var(--ai-text-light); }
+        .rc-helper-green  { color: var(--ai-text-muted); }
         /* Glassy variant — exec summary 2×2 */
+        /* Was a frosted-glass panel — blur, warm tint, inset highlight and a
+           55px drop. Now a plain surface; the numbers are the subject. */
         .rc-glassy {
-          background: rgba(255,254,250,0.90);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          box-shadow: 0 22px 55px rgba(20,48,38,0.08), 0 6px 18px rgba(20,48,38,0.04), inset 0 1px 0 rgba(255,255,255,0.80);
-          border-radius: 26px;
-          padding: 26px 22px 22px;
+          background: #FFFFFF;
+          border-radius: 20px;
+          padding: 24px 22px 22px;
         }
         .rc-glassy .rc-value { font-size: clamp(20px, 2.2vw, 28px); }
         /* Waterfall variant — slightly compact */
@@ -1299,9 +1310,11 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       <div className="no-print" style={{ position: "sticky", top: 0, zIndex: 200, padding: "12px 16px" }}>
         <div style={{
           maxWidth: 1152, margin: "0 auto",
-          background: "#FAFAF7F2", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
-          border: "1px solid #E3DED6", borderRadius: 24,
-          boxShadow: "0 2px 4px rgba(0,0,0,0.03), 0 8px 28px rgba(27,94,74,0.09)",
+          // Frosted sticky bar is kept — it earns the blur by sitting over
+          // scrolling content — but on the cool ground and with a lighter drop.
+          background: "rgba(247,249,248,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
+          border: `1px solid ${colors.border}`, borderRadius: 20,
+          boxShadow: "0 1px 2px rgba(15,29,24,.03), 0 6px 20px rgba(15,29,24,.06)",
           display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 12,
         }}>
           <div className="flex items-center gap-2 min-w-0" style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
@@ -1459,7 +1472,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         {/* Interior Upgrade Adjustment card */}
         {result.propertyCondition !== "Standard" && (
           <div style={{
-            background: "#FBF6EE",
+            background: "rgba(184,138,68,0.07)",
             border: "1px solid rgba(184,138,68,0.30)",
             borderLeft: "3px solid #B88A44",
             borderRadius: 18,
@@ -1511,17 +1524,17 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }} className="rpt-summary-wrap">
 
               {/* ── Left verdict panel ── */}
-              <div style={{ borderRadius: 22, background: "rgba(27,94,74,0.045)", border: "1px solid rgba(27,94,74,0.10)", padding: "22px 24px", display: "flex", flexDirection: "column", gap: 0 }} className="rpt-verdict">
+              <div style={{ borderRadius: 20, background: colors.bgWhite, border: `1px solid ${colors.border}`, borderTop: `2px solid ${colors.primary}`, padding: "22px 24px", display: "flex", flexDirection: "column", gap: 0 }} className="rpt-verdict">
 
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.primary, opacity: 0.65, marginBottom: 10 }}>
+                <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: 12 }}>
                   12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
                 </span>
 
-                <h1 style={{ fontSize: "clamp(22px, 2.2vw, 32px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.15, marginBottom: 6, background: `linear-gradient(120deg, ${colors.primary} 0%, #2A7A62 40%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <h1 style={{ fontSize: "clamp(23px, 2.3vw, 33px)", fontWeight: 300, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.12, letterSpacing: "-0.02em", marginBottom: 8, color: colors.textMain, textWrap: "balance" }}>
                   {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
                 </h1>
 
-                <div style={{ height: 1, background: `linear-gradient(90deg, ${colors.secondary}50, transparent)`, marginBottom: 12 }} />
+                <div style={{ height: 1, background: colors.border, marginBottom: 14 }} />
 
                 {/* Delta with icon */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -1534,7 +1547,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     </svg>
                   </div>
                   <div>
-                    <p style={{ fontSize: 20, fontWeight: 800, color: colors.secondary, lineHeight: 1 }}>
+                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: colors.textMain, lineHeight: 1 }}>
                       AED {fmt(Math.abs(result.strVsLtrDelta))}
                     </p>
                     <p style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>{strBetter ? "more per year with STR" : "difference vs LTR"}</p>
@@ -1556,7 +1569,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     {result.view}
                   </span>
                   {result.propertyCondition !== "Standard" && (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.secondary, background: "#FBF6EE", border: "1px solid rgba(184,138,68,0.25)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.25)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                       {result.propertyCondition}
                     </span>
@@ -1589,7 +1602,6 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 {/* STR Net / Year */}
                 <div className="rc rc-glassy rc-accent-green">
                   <span className="rc-bar rc-bar-green" />
-                  <svg aria-hidden="true" style={{ position: "absolute", bottom: -18, right: -18, opacity: 0.11, pointerEvents: "none" }} width="100" height="80" viewBox="0 0 100 80"><path d="M0 80 Q50 0 100 40" stroke="#1B5E4A" strokeWidth="1.4" fill="none"/></svg>
                   <p className="rc-label rc-label-green">STR Net / Year</p>
                   <p className="rc-value rc-value-green">AED {fmt(result.annualNetToLandlord)}</p>
                 </div>
@@ -1597,7 +1609,6 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 {/* LTR / Year */}
                 <div className="rc rc-glassy rc-accent-bronze">
                   <span className="rc-bar rc-bar-bronze" />
-                  <svg aria-hidden="true" style={{ position: "absolute", bottom: -18, right: -18, opacity: 0.11, pointerEvents: "none" }} width="100" height="80" viewBox="0 0 100 80"><path d="M0 80 Q50 0 100 40" stroke="#B88A44" strokeWidth="1.4" fill="none"/></svg>
                   <p className="rc-label rc-label-bronze">LTR / Year</p>
                   <p className="rc-value rc-value-bronze" style={{ marginBottom: 8 }}>AED {fmt(result.longTermRent)}</p>
                   {ltrSource === "dda-live" && (ltrMatch === "master" || ltrMatch === "area") ? (
@@ -1635,7 +1646,6 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 {/* Avg Occupancy */}
                 <div className="rc rc-glassy rc-accent-green">
                   <span className="rc-bar rc-bar-green" />
-                  <svg aria-hidden="true" style={{ position: "absolute", bottom: -18, right: -18, opacity: 0.11, pointerEvents: "none" }} width="100" height="80" viewBox="0 0 100 80"><path d="M0 80 Q50 0 100 40" stroke="#1B5E4A" strokeWidth="1.4" fill="none"/></svg>
                   <p className="rc-label rc-label-green">Avg Occupancy</p>
                   <p className="rc-value rc-value-green">{(result.avgOccupancy * 100).toFixed(0)}%</p>
                 </div>
@@ -1643,7 +1653,6 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 {/* Avg Daily Rate */}
                 <div className="rc rc-glassy rc-accent-bronze">
                   <span className="rc-bar rc-bar-bronze" />
-                  <svg aria-hidden="true" style={{ position: "absolute", bottom: -18, right: -18, opacity: 0.11, pointerEvents: "none" }} width="100" height="80" viewBox="0 0 100 80"><path d="M0 80 Q50 0 100 40" stroke="#B88A44" strokeWidth="1.4" fill="none"/></svg>
                   <p className="rc-label rc-label-bronze">Avg Daily Rate</p>
                   <p className="rc-value rc-value-bronze">AED {fmt(result.avgADR)}</p>
                 </div>
@@ -1655,9 +1664,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         </div>
 
         {/* ── COST & DEDUCTION SNAPSHOT ─────────────────────────── */}
-        <div className="pdf-section" style={{ background: colors.bgSection, border: "1px solid " + colors.border, borderRadius: 28, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 12px 36px rgba(27,94,74,0.07)", padding: "28px 28px 24px" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>Financial Breakdown</p>
-          <h2 style={{ fontSize: 18, fontWeight: 500, color: colors.primary, marginBottom: 4, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>Cost & Deduction Snapshot</h2>
+        <div className="pdf-section" style={{ background: colors.bgSection, border: "1px solid " + colors.border, borderRadius: 22, padding: "28px 28px 24px" }}>
+          <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: 6 }}>Financial breakdown</p>
+          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, letterSpacing: "-0.015em", color: colors.textMain, marginBottom: 4 }}>Cost &amp; Deduction Snapshot</h2>
           <p style={{ fontSize: 12, color: colors.textMuted, marginBottom: 24 }}>How gross STR revenue converts into estimated owner net income.</p>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto 1fr auto 1fr", gap: 0, alignItems: "stretch" }} className="rpt-waterfall">
@@ -1805,7 +1814,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 <div style={{ position: "relative", zIndex: 1, marginBottom: 20 }}>
                   <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>12-Month Rental Projection</p>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-                    <h2 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", background: `linear-gradient(120deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2, margin: 0 }}>
+                    <h2 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
                       Monthly Breakdown
                     </h2>
                     <p style={{ fontSize: 12, color: colors.textMuted, margin: 0 }}>Full 12-month projection with all income and cost lines</p>
@@ -1815,7 +1824,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 {/* Cards */}
                 <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(175px, 1fr))", gap: 12, marginBottom: 16 }}>
                   {cards.map((c) => (
-                    <div key={c.label} className={`rc ${c.isGreen ? "rc-accent-green" : "rc-accent-bronze"}`} style={{ backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", background: "rgba(255,254,250,0.92)", boxShadow: "0 18px 45px rgba(20,48,38,0.07), 0 4px 14px rgba(20,48,38,0.035), inset 0 1px 0 rgba(255,255,255,0.80)" }}>
+                    <div key={c.label} className={`rc ${c.isGreen ? "rc-accent-green" : "rc-accent-bronze"}`}>
                       <span className={`rc-bar ${c.isGreen ? "rc-bar-green" : "rc-bar-bronze"}`} />
                       <div className={`rc-icon ${c.isGreen ? "rc-icon-green" : "rc-icon-bronze"}`} style={{ borderRadius: "50%", width: 38, height: 38 }}>
                         {c.icon}
@@ -2003,7 +2012,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   </div>
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 4 }}>12-Month Rental Projection</p>
-                    <h2 style={{ fontSize: "clamp(17px, 2vw, 22px)", fontWeight: 500, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", background: `linear-gradient(120deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2, margin: 0 }}>
+                    <h2 style={{ fontSize: "clamp(17px, 2vw, 22px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
                       12-Month STR Performance Overview
                     </h2>
                     <p style={{ fontSize: 12, color: colors.textMuted, marginTop: 3 }}>Compare monthly STR net performance vs. long-term rental equivalent</p>
@@ -2011,12 +2020,12 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 </div>
 
                 {/* Metric tabs */}
-                <div style={{ display: "flex", gap: 4, background: "#EDEAE4", borderRadius: 12, padding: 4 }} className="no-print">
+                <div style={{ display: "flex", gap: 4, background: colors.bgMain, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 4 }} className="no-print">
                   {tabs.map(t => (
                     <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ padding: "7px 14px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, transition: "all 0.2s",
                       background: activeTab === t.id ? colors.primary : "transparent",
                       color: activeTab === t.id ? "#fff" : colors.textMuted,
-                      boxShadow: activeTab === t.id ? "0 2px 8px rgba(27,94,74,0.22)" : "none",
+                      boxShadow: "none",
                     }}>
                       {t.label}
                     </button>
@@ -2027,8 +2036,12 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               {/* Filter pill row */}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }} className="no-print">
                 {filters.map(f => {
-                  const isToggle = f === "vs LTR" || f === "Benchmark";
                   const isActive = f === "12M View" || (f === "vs LTR" && showLTR) || (f === "Benchmark" && showBenchmark);
+                  // A control that changes nothing on the current tab is worse
+                  // than no control: "vs LTR" only plots on the net chart, and
+                  // "Benchmark" only draws the 75% line on the occupancy chart.
+                  if (f === "vs LTR" && activeTab !== "net") return null;
+                  if (f === "Benchmark" && activeTab !== "occupancy") return null;
                   return (
                     <button key={f} onClick={() => { if (f === "vs LTR") setShowLTR(v => !v); if (f === "Benchmark") setShowBenchmark(v => !v); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 99, fontSize: 11, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
                       background: isActive ? "rgba(27,94,74,0.08)" : "#fff",
@@ -2060,55 +2073,50 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   <ComposedChart data={chartData} margin={{ top: 10, right: 50, left: 10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="strAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={colors.primary} stopOpacity={0.22} />
-                        <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
+                        <stop offset="5%" stopColor={colors.series[0]} stopOpacity={0.18} />
+                        <stop offset="95%" stopColor={colors.series[0]} stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
+                    <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
                     <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="aed" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={40} />
-                    <YAxis yAxisId="pct" orientation="right" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0,100]} width={38} />
-                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.primary, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.4 }} />
-                    <Area yAxisId="aed" type="monotone" dataKey="STR Net" stroke={colors.primary} strokeWidth={2.5} fill="url(#strAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.primary, stroke: "#fff", strokeWidth: 2 }} />
-                    {showLTR && <Line yAxisId="aed" type="monotone" dataKey="LTR Equivalent" stroke={colors.secondary} strokeWidth={1.8} strokeDasharray="6 4" dot={false} activeDot={{ r: 4, fill: colors.secondary, stroke: "#fff", strokeWidth: 2 }} />}
-                    {showBenchmark && <Line yAxisId="pct" type="monotone" dataKey="Occupancy" stroke="#7EB09A" strokeWidth={1.6} dot={{ r: 3, fill: "#7EB09A", stroke: "#fff", strokeWidth: 1.5 }} activeDot={{ r: 5 }} />}
+                    <YAxis yAxisId="aed" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={40} />
+                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
+                    <Area yAxisId="aed" type="monotone" dataKey="STR Net" stroke={colors.series[0]} strokeWidth={2} fill="url(#strAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.series[0], stroke: "#fff", strokeWidth: 2 }} />
+                    {showLTR && <Line yAxisId="aed" type="monotone" dataKey="LTR Equivalent" stroke={colors.series[1]} strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 5, fill: colors.series[1], stroke: "#fff", strokeWidth: 2 }} />}
                   </ComposedChart>
                 ) : activeTab === "revenue" ? (
                   <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="revAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={colors.primary} stopOpacity={0.20} />
-                        <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
+                        <stop offset="5%" stopColor={colors.series[0]} stopOpacity={0.18} />
+                        <stop offset="95%" stopColor={colors.series[0]} stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
+                    <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
                     <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="aed" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={40} />
-                    <YAxis yAxisId="pct" orientation="right" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0,100]} width={38} />
-                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.primary, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.4 }} />
-                    <Area yAxisId="aed" type="monotone" dataKey="Revenue" stroke={colors.primary} strokeWidth={2.5} fill="url(#revAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.primary, stroke: "#fff", strokeWidth: 2 }} />
-                    {showBenchmark && <Line yAxisId="pct" type="monotone" dataKey="Occupancy" stroke="#7EB09A" strokeWidth={1.6} dot={{ r: 3, fill: "#7EB09A", stroke: "#fff", strokeWidth: 1.5 }} activeDot={{ r: 5 }} />}
+                    <YAxis yAxisId="aed" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={40} />
+                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
+                    <Area yAxisId="aed" type="monotone" dataKey="Revenue" stroke={colors.series[0]} strokeWidth={2} fill="url(#revAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.series[0], stroke: "#fff", strokeWidth: 2 }} />
                   </ComposedChart>
                 ) : (
                   <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
-                    <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="pct" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0,100]} width={40} />
-                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.secondary, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.4 }} />
-                    {showBenchmark && <ReferenceLine yAxisId="pct" y={75} stroke={colors.secondary} strokeDasharray="6 4" label={{ value: "75% target", position: "right", fill: colors.secondary, fontSize: 10 }} />}
-                    <Line yAxisId="pct" type="monotone" dataKey="Occupancy" stroke={colors.secondary} strokeWidth={2.5} dot={{ r: 4, fill: colors.secondary, stroke: "#fff", strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                    <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
+                    <XAxis dataKey="month" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis yAxisId="pct" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0,100]} width={40} />
+                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
+                    {showBenchmark && <ReferenceLine yAxisId="pct" y={75} stroke={colors.textLight} strokeDasharray="6 4" label={{ value: "75% target", position: "right", fill: colors.textLight, fontSize: 10 }} />}
+                    <Line yAxisId="pct" type="monotone" dataKey="Occupancy" stroke={colors.series[2]} strokeWidth={2} dot={{ r: 3.5, fill: colors.series[2], stroke: "#fff", strokeWidth: 1.5 }} activeDot={{ r: 6 }} />
                   </ComposedChart>
                 )}
               </ResponsiveContainer>
 
               {/* Legend */}
               <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginTop: 14, marginBottom: 20 }}>
-                {activeTab !== "occupancy" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:2.5, background: colors.primary, borderRadius:2 }}/><span style={{ fontSize:11, color:colors.textMuted }}>STR Net Income</span></div>}
-                {activeTab === "revenue" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:2.5, background: colors.primary, borderRadius:2 }}/><span style={{ fontSize:11, color:colors.textMuted }}>Gross Revenue</span></div>}
-                {activeTab === "net" && showLTR && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:0, borderTop:`2px dashed ${colors.secondary}` }}/><span style={{ fontSize:11, color:colors.textMuted }}>LTR Equivalent</span></div>}
-                {(activeTab === "net" || activeTab === "revenue") && showBenchmark && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:8, height:8, borderRadius:"50%", background:"#7EB09A" }}/><span style={{ fontSize:11, color:colors.textMuted }}>Occupancy %</span></div>}
-                {activeTab === "occupancy" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:8, height:8, borderRadius:"50%", background: colors.secondary }}/><span style={{ fontSize:11, color:colors.textMuted }}>Occupancy Rate</span></div>}
-                {activeTab === "occupancy" && showBenchmark && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:0, borderTop:`2px dashed ${colors.secondary}` }}/><span style={{ fontSize:11, color:colors.textMuted }}>75% Benchmark</span></div>}
+                {activeTab === "net" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:2, background: colors.series[0], borderRadius:2 }}/><span style={{ fontSize:11, color:colors.textMuted }}>STR Net Income</span></div>}
+                {activeTab === "revenue" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:2, background: colors.series[0], borderRadius:2 }}/><span style={{ fontSize:11, color:colors.textMuted }}>Gross Revenue</span></div>}
+                {activeTab === "net" && showLTR && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:0, borderTop:`2px dashed ${colors.series[1]}` }}/><span style={{ fontSize:11, color:colors.textMuted }}>LTR Equivalent</span></div>}
+                {activeTab === "occupancy" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:8, height:8, borderRadius:"50%", background: colors.series[2] }}/><span style={{ fontSize:11, color:colors.textMuted }}>Occupancy Rate</span></div>}
+                {activeTab === "occupancy" && showBenchmark && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:0, borderTop:`2px dashed ${colors.textLight}` }}/><span style={{ fontSize:11, color:colors.textMuted }}>75% Benchmark</span></div>}
               </div>
 
               {/* Bottom insight strip */}
@@ -2196,7 +2204,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             className="relative overflow-hidden text-left"
             style={{
               borderRadius: "28px", padding: "32px 32px",
-              background: `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.secondary}12 0%, transparent 70%), linear-gradient(135deg, #FCF8F1 0%, #FBF6EE 100%)`,
+              background: `radial-gradient(ellipse 700px 400px at 50% 0%, ${colors.secondary}12 0%, transparent 70%), linear-gradient(135deg, #FCF8F1 0%, rgba(184,138,68,0.07) 100%)`,
               border: `1px solid ${colors.secondary}33`,
               boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 14px 40px rgba(0,0,0,0.06)",
             }}
@@ -2338,7 +2346,7 @@ function ReportLoadingScreen({
         @keyframes ai-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
         @keyframes ai-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
         .ai-skel {
-          background: linear-gradient(90deg, #EFEAE0 25%, #F5F1E8 37%, #EFEAE0 63%);
+          background: linear-gradient(90deg, #EFEAE0 25%, rgba(184,138,68,0.10) 37%, #EFEAE0 63%);
           background-size: 800px 100%;
           animation: ai-shimmer 1.6s linear infinite;
           border-radius: 8px;
