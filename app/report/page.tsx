@@ -1053,26 +1053,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   const strBetter = result.strVsLtrDelta > 0;
 
   // Get location-specific hero image (premium Dubai photos)
-  const getLocationImage = (buildingName: string, buildingArea: string | undefined): string => {
-    const areaLower = (buildingArea || "").toLowerCase();
 
-    // Direct area-based mapping with exact area names from database
-    if (areaLower.includes("marina")) return "/Locations/Marina.png";
-    if (areaLower.includes("downtown")) return "/Locations/Downtown.png";
-    if (areaLower.includes("burj")) return "/Locations/Downtown.png";
-    if (areaLower.includes("palm")) return "/Locations/Palm.png";
-    if (areaLower.includes("jbr") || areaLower.includes("jumeirah beach")) return "/Locations/JBR.png";
-    if (areaLower.includes("jumeirah") && !areaLower.includes("village")) return "/Locations/JBR.png";
-    if (areaLower.includes("business")) return "/Locations/Downtown.png";
-    if (areaLower.includes("creek")) return "/Locations/Downtown.png";
-    if (areaLower.includes("emaar")) return "/Locations/Marina.png";
-    if (areaLower.includes("beach")) return "/Locations/Marina.png";
-
-    // Fallback: Marina image as default
-    return "/Locations/Marina.png";
-  };
-
-  const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
 
   return (
     <div className="min-h-screen" style={{ position: "relative", background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(247, 249, 248,0.9) 35%, rgba(255, 255, 255,0.94) 100%)` }}>
@@ -1840,9 +1821,6 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             const moneyOffset = Math.min(5000, Math.round(moneyBase * confFactor));
 
             const roundTo = (v: number, step: number) => Math.round(v / step) * step;
-            const moneyRange = (base: number) => `AED ${fmt(roundTo(base - moneyOffset, 1000))}–${fmt(roundTo(base + moneyOffset, 1000))}`;
-            const occRange = (pct: number) => `${Math.max(0, Math.round(pct - occBase))}%–${Math.min(100, Math.round(pct + occBase))}%`;
-            const adrRange = (adr: number) => `AED ${fmt(roundTo(adr - adrBase, 5))}–${fmt(roundTo(adr + adrBase, 5))}`;
 
             // Each row keeps its centre and its bounds so the spread can be
             // drawn. The width is not decorative: moneyOffset/occBase/adrBase
