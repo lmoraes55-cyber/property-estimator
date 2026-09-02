@@ -1286,7 +1286,15 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         .rc-glassy {
           background: #FFFFFF;
           border-radius: 20px;
-          padding: 24px 22px 22px;
+          padding: 22px 22px 20px;
+          /* Drop the 150px floor inherited from .rc: it was sized for the old
+             card, which carried a 40px icon block. These hold a label and a
+             figure — 46px of content — so 150px left 61% of each card empty,
+             and flex-start dumped all of it at the bottom. Letting the grid
+             size the row to its tallest card and centring the contents makes
+             the remaining slack read as breathing room rather than a gap. */
+          min-height: 0;
+          justify-content: center;
         }
         .rc-glassy .rc-value { font-size: clamp(20px, 2.2vw, 28px); }
         /* Waterfall variant — slightly compact */
@@ -1597,7 +1605,10 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               </div>
 
               {/* ── Right 2×2 metrics ── */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="rpt-metrics-grid">
+              {/* Equal rows. Left to `auto`, the grid gave the row holding the
+                  taller LTR card (it carries a provenance badge) 154px and the
+                  other 130px, which reads as a mistake rather than a rhythm. */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 12 }} className="rpt-metrics-grid">
 
                 {/* STR Net / Year */}
                 <div className="rc rc-glassy rc-accent-green">
