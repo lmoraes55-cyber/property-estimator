@@ -1,484 +1,531 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { createClient } from "@/lib/supabase/client";
+import { colors } from "@/lib/colors";
 
-const C = {
-  bg: "#F7F9F8",
-  green: "#1B5E4A",
-  greenDark: "#144538",
-  greenLight: "#EDF3F0",
-  greenMid: "#2D7A5E",
-  bronze: "#B88A44",
-  bronzeLight: "#FBF6EE",
-  border: "#E2E8E5",
-  borderLight: "#F0EBE2",
-  text: "#2A2A2A",
-  muted: "#4E5D56",
-  card: "#FFFFFF",
-  sage: "#EDF3F0",
-};
+const DISPLAY = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
+const MONO = "var(--font-mono-ai), ui-monospace, monospace";
 
-interface Counts {
-  properties: number;
-  reports: number;
-  requests: number;
-  portfolioValue: number;
-}
-
-interface ActivityItem {
-  type: "report" | "property" | "request";
-  label: string;
-  date: string;
-  href: string;
-}
-
-interface PropertyCard {
+interface PropertyRow {
   id: string;
-  building_name: string;
-  unit_size: string;
-  unit_type: string;
+  building_name: string | null;
+  area: string | null;
+  unit_size: string | null;
+  unit_type: string | null;
   floor: number | null;
-}
-
-interface LatestReport {
-  building_name: string;
-  recommendation: string;
-  str_net_annual: number;
-  ltr_annual: number;
+  property_value: number | null;
   created_at: string;
 }
 
-function PropertyIcon() {
+interface ReportRow {
+  id: string;
+  building_name: string | null;
+  unit_size: string | null;
+  floor: number | null;
+  recommendation: string | null;
+  str_net_annual: number | null;
+  ltr_annual: number | null;
+  created_at: string;
+}
+
+interface RequestRow {
+  id: string;
+  service_type: string | null;
+  status: string | null;
+  created_at: string;
+}
+
+const fmtAED = (n: number) => `AED ${Math.round(n).toLocaleString("en-US")}`;
+const fmtCompact = (n: number) =>
+  n >= 1_000_000 ? `AED ${(n / 1_000_000).toFixed(1)}M`
+  : n >= 1_000 ? `AED ${Math.round(n / 1000)}K`
+  : `AED ${Math.round(n)}`;
+
+/** The saved column is free text ("LTR", "Long-Term Rental", …) — match, don't equal. */
+const isLTR = (rec: string | null) => /ltr|long/i.test(rec || "");
+
+function relativeDate(iso: string) {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
+    <p style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>
+      {children}
+    </p>
   );
 }
 
-function ReportIcon() {
+function Section({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
+    <section style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 22, padding: "24px 26px", ...style }}>
+      {children}
+    </section>
   );
 }
 
-function ServiceIcon() {
+/** Donut whose segments filter the report table. A legend row carries the
+ *  count, because a slice angle alone answers "roughly how much", never
+ *  "how many" — and these datasets are small enough that the count is
+ *  the thing worth reading. */
+function FilterDonut({
+  title, data, active, onToggle, emptyNote,
+}: {
+  title: string;
+  data: { id: string; label: string; value: number; color: string }[];
+  active: string | null;
+  onToggle: (key: string) => void;
+  emptyNote: string;
+}) {
+  const total = data.reduce((s, d) => s + d.value, 0);
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
+    <Section>
+      <Eyebrow>{title}</Eyebrow>
+      {total === 0 ? (
+        <p style={{ fontSize: 13.5, color: colors.textMuted, margin: "10px 0 0" }}>{emptyNote}</p>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+          <div style={{ width: 150, height: 150, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data} dataKey="value" nameKey="label"
+                  innerRadius={44} outerRadius={70} paddingAngle={2} stroke="none"
+                  // The slice payload types `key` as React's reserved Key, so the
+                  // series carries `id` and the handler resolves it by index.
+                  onClick={(_, index) => onToggle(data[index].id)}
+                >
+                  {data.map(d => (
+                    <Cell
+                      key={d.id}
+                      fill={d.color}
+                      opacity={active && active !== d.id ? 0.28 : 1}
+                      style={{ cursor: "pointer", outline: "none" }}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(v, n) => [`${v} of ${total}`, String(n)]}
+                  contentStyle={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 12, fontSize: 12 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
+            {data.map(d => {
+              const on = active === d.id;
+              return (
+                <button
+                  key={d.id}
+                  onClick={() => onToggle(d.id)}
+                  aria-pressed={on}
+                  style={{
+                    display: "grid", gridTemplateColumns: "10px 1fr auto auto", alignItems: "center", gap: 10,
+                    padding: "6px 8px", borderRadius: 8, cursor: "pointer", textAlign: "left",
+                    background: on ? "rgba(27,94,74,0.06)" : "transparent",
+                    border: `1px solid ${on ? "rgba(27,94,74,0.22)" : "transparent"}`,
+                  }}
+                >
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: d.color }} />
+                  <span style={{ fontSize: 13, color: colors.textMain, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.label}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 12.5, color: colors.primary, fontVariantNumeric: "tabular-nums" }}>{d.value}</span>
+                  <span style={{ fontSize: 11.5, color: colors.textLight, fontVariantNumeric: "tabular-nums", minWidth: 38, textAlign: "right" }}>
+                    {Math.round((d.value / total) * 100)}%
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </Section>
   );
 }
 
-function ValueIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23" />
-      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-    </svg>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-
-function formatAED(n: number) {
-  if (n >= 1_000_000) return `AED ${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
-  if (n >= 1_000) return `AED ${Math.round(n / 1000)}K`;
-  return `AED ${n}`;
-}
+type SortKey = "date" | "delta" | "net";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
-  const [counts, setCounts] = useState<Counts>({ properties: 0, reports: 0, requests: 0, portfolioValue: 0 });
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
-  const [properties, setProperties] = useState<PropertyCard[]>([]);
-  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [properties, setProperties] = useState<PropertyRow[]>([]);
+  const [reports, setReports] = useState<ReportRow[]>([]);
+  const [requests, setRequests] = useState<RequestRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<{ is_admin: boolean } | null>(null);
+
+  const [verdictFilter, setVerdictFilter] = useState<string | null>(null);
+  const [sizeFilter, setSizeFilter] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortKey>("date");
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
+      if (cancelled) return;
 
       const fullName = user.user_metadata?.full_name || user.email || "";
       setFirstName(fullName.split(" ")[0] || "");
 
-      const { data: profileData } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-      setProfile(profileData);
-
-      const [
-        { count: pCount },
-        { count: rCount },
-        { count: reqCount },
-        { data: allProps },
-        { data: recentReports },
-        { data: recentProps },
-        { data: recentReqs },
-      ] = await Promise.all([
-        supabase.from("properties").select("*", { count: "exact", head: true }),
-        supabase.from("saved_reports").select("*", { count: "exact", head: true }),
-        supabase.from("service_requests").select("*", { count: "exact", head: true }).neq("status", "completed"),
-        supabase.from("properties").select("id, building_name, unit_size, unit_type, floor, property_value").order("created_at", { ascending: false }).limit(3),
-        supabase.from("saved_reports").select("id, building_name, recommendation, str_net_annual, ltr_annual, created_at").order("created_at", { ascending: false }).limit(3),
-        supabase.from("properties").select("id, name, created_at").order("created_at", { ascending: false }).limit(2),
-        supabase.from("service_requests").select("id, service_name, status, created_at").order("created_at", { ascending: false }).limit(2),
+      const [profileRes, propsRes, reportsRes, reqRes] = await Promise.all([
+        supabase.from("profiles").select("is_admin").eq("id", user.id).single(),
+        supabase.from("properties").select("id, building_name, area, unit_size, unit_type, floor, property_value, created_at").order("created_at", { ascending: false }),
+        supabase.from("saved_reports").select("id, building_name, unit_size, floor, recommendation, str_net_annual, ltr_annual, created_at").order("created_at", { ascending: false }),
+        supabase.from("service_requests").select("id, service_type, status, created_at").order("created_at", { ascending: false }),
       ]);
+      if (cancelled) return;
 
-      const portfolioValue = (allProps || []).reduce((sum: number, p: { property_value: number | null }) => sum + (p.property_value || 0), 0);
-      setCounts({ properties: pCount || 0, reports: rCount || 0, requests: reqCount || 0, portfolioValue });
-      setProperties(allProps || []);
-      if (recentReports && recentReports.length > 0) setLatestReport(recentReports[0]);
-
-      const items: ActivityItem[] = [];
-      (recentReports || []).forEach((r: { building_name: string; created_at: string }) => {
-        items.push({ type: "report", label: `${r.building_name || "Property"} report generated`, date: r.created_at, href: "/dashboard/reports" });
-      });
-      (recentProps || []).forEach((p: { name: string; created_at: string }) => {
-        items.push({ type: "property", label: `${p.name || "Property"} added`, date: p.created_at, href: "/dashboard/properties" });
-      });
-      (recentReqs || []).forEach((r: { service_name: string; created_at: string }) => {
-        items.push({ type: "request", label: `${r.service_name || "Service"} request submitted`, date: r.created_at, href: "/dashboard/requests" });
-      });
-      items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setActivity(items.slice(0, 4));
-
+      setIsAdmin(!!profileRes.data?.is_admin);
+      setProperties(propsRes.data || []);
+      setReports(reportsRes.data || []);
+      setRequests(reqRes.data || []);
       setLoading(false);
     }
     load();
+    return () => { cancelled = true; };
   }, [router]);
 
-  const metrics = [
-    { label: "Properties", value: loading ? "—" : counts.properties, icon: <PropertyIcon />, accent: C.green },
-    { label: "Reports", value: loading ? "—" : counts.reports, icon: <ReportIcon />, accent: C.green },
-    { label: "Requests", value: loading ? "—" : counts.requests, icon: <ServiceIcon />, accent: C.bronze },
-    { label: "Portfolio Value", value: loading ? "—" : counts.portfolioValue > 0 ? formatAED(counts.portfolioValue) : "—", icon: <ValueIcon />, accent: C.bronze },
+  const portfolioValue = properties.reduce((s, p) => s + (p.property_value || 0), 0);
+  const openRequests = requests.filter(r => r.status !== "completed").length;
+
+  // The headline figure follows each report's own verdict, so a portfolio of
+  // mixed recommendations totals what it would actually earn if followed.
+  const projectedNet = reports.reduce(
+    (s, r) => s + ((isLTR(r.recommendation) ? r.ltr_annual : r.str_net_annual) || 0), 0
+  );
+
+  const verdictData = useMemo(() => {
+    const str = reports.filter(r => !isLTR(r.recommendation)).length;
+    const ltr = reports.length - str;
+    return [
+      { id: "str", label: "Short-term", value: str, color: colors.series[0] },
+      { id: "ltr", label: "Long-term", value: ltr, color: colors.series[1] },
+    ].filter(d => d.value > 0);
+  }, [reports]);
+
+  const sizeData = useMemo(() => {
+    const counts = new Map<string, number>();
+    reports.forEach(r => {
+      const k = r.unit_size || "Unspecified";
+      counts.set(k, (counts.get(k) || 0) + 1);
+    });
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([k, v], i) => ({ id: k, label: k, value: v, color: colors.series[i % colors.series.length] }));
+  }, [reports]);
+
+  const visibleReports = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const rows = reports.filter(r => {
+      if (verdictFilter === "str" && isLTR(r.recommendation)) return false;
+      if (verdictFilter === "ltr" && !isLTR(r.recommendation)) return false;
+      if (sizeFilter && (r.unit_size || "Unspecified") !== sizeFilter) return false;
+      if (q && !(r.building_name || "").toLowerCase().includes(q)) return false;
+      return true;
+    });
+    const delta = (r: ReportRow) =>
+      r.ltr_annual ? ((r.str_net_annual || 0) - r.ltr_annual) / r.ltr_annual : -Infinity;
+    return [...rows].sort((a, b) =>
+      sort === "date" ? +new Date(b.created_at) - +new Date(a.created_at)
+      : sort === "net" ? ((b.str_net_annual || 0) - (a.str_net_annual || 0))
+      : delta(b) - delta(a)
+    );
+  }, [reports, verdictFilter, sizeFilter, query, sort]);
+
+  const activeFilters = [
+    verdictFilter && { label: verdictFilter === "str" ? "Short-term" : "Long-term", clear: () => setVerdictFilter(null) },
+    sizeFilter && { label: sizeFilter, clear: () => setSizeFilter(null) },
+    query.trim() && { label: `“${query.trim()}”`, clear: () => setQuery("") },
+  ].filter(Boolean) as { label: string; clear: () => void }[];
+
+  const kpis = [
+    { label: "Properties", value: loading ? "—" : String(properties.length) },
+    { label: "Saved reports", value: loading ? "—" : String(reports.length) },
+    { label: "Projected annual net", value: loading ? "—" : projectedNet > 0 ? fmtCompact(projectedNet) : "—", note: "Following each report's verdict" },
+    { label: "Portfolio value", value: loading ? "—" : portfolioValue > 0 ? fmtCompact(portfolioValue) : "—" },
+    { label: "Open requests", value: loading ? "—" : String(openRequests) },
   ];
-
-  const quickActions = [
-    { label: "Add Property", desc: "Add a new Dubai property to your portfolio.", href: "/dashboard/properties", icon: <PropertyIcon /> },
-    { label: "Generate Report", desc: "Compare STR vs LTR performance.", href: "/estimator", icon: <ReportIcon /> },
-    { label: "Support & Services", desc: "Operator matching, furnishing and setup assistance.", href: "/dashboard/requests", icon: <ServiceIcon /> },
-  ];
-
-  const insightDelta = latestReport && latestReport.ltr_annual
-    ? Math.round(((latestReport.str_net_annual - latestReport.ltr_annual) / latestReport.ltr_annual) * 1000) / 10
-    : null;
-
-  function relativeDate(iso: string) {
-    const diff = Date.now() - new Date(iso).getTime();
-    const days = Math.floor(diff / 86400000);
-    if (days === 0) return "Today";
-    if (days === 1) return "Yesterday";
-    if (days < 7) return `${days} days ago`;
-    return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  }
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div style={{ maxWidth: 1180, display: "flex", flexDirection: "column", gap: 20 }}>
       <style>{`
-        .dash-metric-card { transition: box-shadow 0.18s, transform 0.18s; }
-        .dash-metric-card:hover { box-shadow: 0 6px 22px rgba(27,94,74,0.10) !important; transform: translateY(-2px); }
-        .dash-action-card { transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s; cursor: pointer; }
-        .dash-action-card:hover { box-shadow: 0 8px 24px rgba(27,94,74,0.10) !important; transform: translateY(-2px); border-color: rgba(184,138,68,0.32) !important; }
-        .dash-action-card:hover .dash-arrow { transform: translateX(3px); }
-        .dash-arrow { transition: transform 0.18s; }
-        .dash-prop-card { transition: box-shadow 0.18s, border-color 0.18s; }
-        .dash-prop-card:hover { box-shadow: 0 8px 24px rgba(27,94,74,0.09) !important; border-color: rgba(27,94,74,0.20) !important; }
-        @media (max-width: 900px) {
-          .dash-two-col { flex-direction: column !important; }
-          .dash-two-col > * { width: 100% !important; }
+        .dash-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 26px; }
+        .dash-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .dash-split { display: grid; grid-template-columns: 1.55fr 1fr; gap: 20px; align-items: start; }
+        .dash-rrow { display: grid; grid-template-columns: minmax(0,1.6fr) 92px 1fr 1fr 96px 62px; gap: 12px; align-items: baseline; }
+        .dash-rrow-h { color: ${colors.textLight}; }
+        .dash-report-row { border-radius: 8px; }
+        .dash-report-row:hover { background: rgba(27,94,74,0.035); }
+        .dash-qa:hover { border-color: rgba(27,94,74,0.28) !important; }
+        @media (max-width: 1000px) {
+          .dash-kpis { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+          .dash-charts, .dash-split { grid-template-columns: 1fr; }
+          .dash-rrow { grid-template-columns: minmax(0,1.4fr) 1fr 1fr 84px; }
+          .dash-col-date, .dash-col-open { display: none; }
         }
-        @media (max-width: 768px) {
-          .dash-metrics-grid { grid-template-columns: 1fr 1fr !important; }
-          .dash-actions-grid { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 640px) {
-          .dash-hero-flex { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+        @media (max-width: 560px) {
+          .dash-kpis { grid-template-columns: 1fr 1fr; }
+          .dash-rrow { grid-template-columns: minmax(0,1fr) 1fr 78px; }
+          .dash-col-ltr { display: none; }
         }
       `}</style>
 
       {/* ── Hero ── */}
-      <div style={{
-        position: "relative",
-        overflow: "hidden",
-        background: `linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 60%, #1B5E4A 100%)`,
-        borderRadius: 20,
-        padding: "26px 32px",
-        marginBottom: 24,
-        boxShadow: "0 4px 20px rgba(27,94,74,0.18)",
-      }}>
-        <svg aria-hidden="true" style={{ position: "absolute", right: 0, top: 0, bottom: 0, opacity: 0.07, pointerEvents: "none" }} width="380" height="120" viewBox="0 0 380 120">
-          <g stroke="#fff" strokeWidth="0.8" fill="none">
-            {[[60,20],[160,15],[280,35],[120,55],[240,60],[70,85],[200,90],[340,70],[380,30]].map((p, i, arr) => (
+      <div style={{ position: "relative", overflow: "hidden", borderRadius: 22, background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)`, padding: "28px 30px" }}>
+        <svg aria-hidden="true" width="360" height="200" viewBox="0 0 360 200" style={{ position: "absolute", right: -30, top: "50%", transform: "translateY(-50%)", opacity: 0.09, pointerEvents: "none" }}>
+          <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+            {[[40,30],[150,20],[260,55],[80,100],[200,120],[320,90],[120,170],[280,165]].map((p, i, arr) => (
               <g key={i}>
-                <circle cx={p[0]} cy={p[1]} r="2.2" fill="#fff" stroke="none" />
+                <circle cx={p[0]} cy={p[1]} r="2.4" fill="#D4A574" stroke="none" />
                 {arr.slice(i + 1).map((q, j) => {
                   const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
-                  return d < 110 ? <line key={j} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} /> : null;
+                  return d < 120 ? <line key={j} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} /> : null;
                 })}
               </g>
             ))}
           </g>
         </svg>
 
-        <div className="dash-hero-flex" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, position: "relative", zIndex: 1 }}>
+        <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 24, flexWrap: "wrap" }}>
           <div>
-            <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: "#fff", marginBottom: 6, lineHeight: 1.2 }}>
-              {loading ? "Welcome back" : firstName ? `Welcome back, ${firstName}` : "Welcome back"}
+            <p style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "#EAD2A0", margin: "0 0 8px" }}>Your portfolio</p>
+            <h1 className="ai-title-grad-i" style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 2.6vw, 34px)", fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#FFFFFF", margin: "0 0 8px" }}>
+              {firstName ? `Welcome back, ${firstName}` : "Welcome back"}
             </h1>
-            <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.5, marginBottom: 18 }}>
-              Everything related to your Dubai property in one place.
+            <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, margin: 0, maxWidth: "56ch" }}>
+              Every property, report and request you have with AssetIntel, in one place.
             </p>
-            <a
-              href="/dashboard/properties"
-              className="dash-cta-primary"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                fontSize: 13, fontWeight: 700, padding: "10px 18px",
-                borderRadius: 10, background: "#fff", color: C.green,
-                textDecoration: "none", boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-              }}
-            >
-              Add Property <ArrowIcon />
+          </div>
+
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <a href="/estimator" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, padding: "10px 18px", borderRadius: 10, background: "#fff", color: colors.primary, textDecoration: "none" }}>
+              New report
             </a>
-            {profile?.is_admin && (
-              <a href="/admin/people" style={{ fontSize: 13, fontWeight: 600, color: "#B88A44", marginLeft: 14 }}>
+            <a href="/dashboard/properties" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, padding: "10px 18px", borderRadius: 10, background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.26)", color: "#fff", textDecoration: "none" }}>
+              Add property
+            </a>
+            {isAdmin && (
+              <Link href="/admin/people" style={{ display: "inline-flex", alignItems: "center", padding: "10px 14px", fontSize: 13, fontWeight: 500, color: "#EAD2A0", textDecoration: "none" }}>
                 Admin
-              </a>
+              </Link>
             )}
           </div>
-
-          <div style={{
-            flexShrink: 0,
-            display: "flex", alignItems: "center", gap: 8,
-            background: "rgba(255,255,255,0.10)",
-            border: "1px solid rgba(255,255,255,0.18)",
-            borderRadius: 999,
-            padding: "7px 14px",
-          }}>
-            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.10em", color: "#B88A44", textTransform: "uppercase" }}>Beta</span>
-            <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.4)" }} />
-            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>Free Access</span>
-          </div>
         </div>
       </div>
 
-      {/* ── KPI cards ── */}
-      <div className="dash-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
-        {metrics.map((m) => (
-          <div
-            key={m.label}
-            className="dash-metric-card"
-            style={{
-              background: C.card,
-              border: `1px solid ${C.borderLight}`,
-              borderRadius: 20,
-              padding: "22px 22px",
-              boxShadow: "0 2px 10px rgba(27,94,74,0.05)",
-            }}
-          >
-            <div style={{
-              width: 34, height: 34, borderRadius: 9,
-              background: m.accent === C.green ? C.greenLight : C.bronzeLight,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: m.accent, marginBottom: 16,
-            }}>
-              {m.icon}
+      {/* ── KPIs ── */}
+      <Section>
+        <div className="dash-kpis">
+          {kpis.map(k => (
+            <div key={k.label}>
+              <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>{k.label}</p>
+              <p style={{ fontFamily: DISPLAY, fontSize: 26, fontWeight: 500, color: colors.primary, fontVariantNumeric: "tabular-nums", lineHeight: 1.1, margin: 0 }}>{k.value}</p>
+              {k.note && <p style={{ fontSize: 11, color: colors.textLight, margin: "4px 0 0", lineHeight: 1.4 }}>{k.note}</p>}
             </div>
-            <div style={{ fontSize: 36, fontWeight: 600, color: C.text, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1, marginBottom: 8 }}>
-              {m.value}
-            </div>
-            <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.04em", color: C.muted }}>
-              {m.label}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Quick Actions ── */}
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, color: C.text, marginBottom: 12 }}>Quick Actions</h2>
-        <div className="dash-actions-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-          {quickActions.map((a) => (
-            <a
-              key={a.label}
-              href={a.href}
-              className="dash-action-card"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-                background: C.card,
-                border: `1px solid ${C.borderLight}`,
-                borderRadius: 20,
-                padding: "22px",
-                textDecoration: "none",
-                boxShadow: "0 2px 10px rgba(27,94,74,0.05)",
-              }}
-            >
-              <div style={{
-                width: 38, height: 38, borderRadius: 10, background: C.greenLight,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: C.green,
-              }}>
-                {a.icon}
-              </div>
-              <div>
-                <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>{a.label}</div>
-                <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{a.desc}</div>
-              </div>
-              <div className="dash-arrow" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: C.bronze, marginTop: 2 }}>
-                <ArrowIcon />
-              </div>
-            </a>
           ))}
         </div>
+      </Section>
+
+      {/* ── Donuts ── */}
+      <div className="dash-charts">
+        <FilterDonut
+          title="Recommendation mix"
+          data={verdictData}
+          active={verdictFilter}
+          onToggle={k => setVerdictFilter(v => (v === k ? null : k))}
+          emptyNote="Generate a report and the split between short- and long-term verdicts appears here."
+        />
+        <FilterDonut
+          title="Reports by unit size"
+          data={sizeData}
+          active={sizeFilter}
+          onToggle={k => setSizeFilter(v => (v === k ? null : k))}
+          emptyNote="Unit sizes across your saved reports will appear here."
+        />
       </div>
 
-      {/* ── Portfolio Insight ── */}
-      {latestReport && insightDelta !== null && (
-        <div style={{
-          position: "relative",
-          overflow: "hidden",
-          background: `linear-gradient(135deg, ${C.greenLight} 0%, #fff 65%)`,
-          border: `1px solid rgba(27,94,74,0.16)`,
-          borderRadius: 20,
-          padding: "24px 26px",
-          marginBottom: 24,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green }} />
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: C.green }}>Portfolio Insight</span>
+      {/* ── Saved reports ── */}
+      <Section>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
+          <div>
+            <Eyebrow>Saved reports</Eyebrow>
+            <h2 className="ai-title-grad" style={{ fontFamily: DISPLAY, fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, letterSpacing: "-0.015em", lineHeight: 1.2, margin: 0 }}>
+              Every analysis you have run
+            </h2>
           </div>
-          <p style={{ fontSize: 16, color: C.text, lineHeight: 1.55, maxWidth: 640, marginBottom: 14 }}>
-            {latestReport.building_name || "Your property"} is currently estimated to generate{" "}
-            <strong style={{ color: C.green }}>
-              {insightDelta > 0 ? `${insightDelta}% higher` : `${Math.abs(insightDelta)}% lower`}
-            </strong>{" "}
-            returns on STR than LTR based on current Dubai market conditions.
-          </p>
-          <a href="/dashboard/reports" style={{ fontSize: 13, fontWeight: 700, color: C.green, textDecoration: "none" }}>
-            View latest report →
-          </a>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search building…"
+              style={{ fontSize: 12.5, padding: "7px 12px", borderRadius: 99, border: `1px solid ${colors.border}`, background: colors.bgMain, color: colors.textMain, minWidth: 170, outline: "none" }}
+            />
+            {([["date", "Newest"], ["delta", "Best vs LTR"], ["net", "Highest net"]] as [SortKey, string][]).map(([k, label]) => (
+              <button key={k} onClick={() => setSort(k)} style={{
+                fontSize: 11.5, fontWeight: 500, padding: "6px 12px", borderRadius: 99, cursor: "pointer",
+                background: sort === k ? "rgba(27,94,74,0.06)" : "transparent",
+                border: `1px solid ${sort === k ? "rgba(27,94,74,0.22)" : colors.border}`,
+                color: sort === k ? colors.primary : colors.textMuted,
+              }}>{label}</button>
+            ))}
+          </div>
         </div>
-      )}
 
-      {/* ── Two-column: My Properties + Recent Activity ── */}
-      <div className="dash-two-col" style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+        {activeFilters.length > 0 && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+            {activeFilters.map(f => (
+              <button key={f.label} onClick={f.clear} style={{
+                display: "inline-flex", alignItems: "center", gap: 7, fontSize: 11.5, padding: "5px 10px",
+                borderRadius: 99, cursor: "pointer", background: "rgba(27,94,74,0.06)",
+                border: "1px solid rgba(27,94,74,0.22)", color: colors.primary,
+              }}>
+                {f.label} <span aria-hidden="true" style={{ fontSize: 13, lineHeight: 1 }}>×</span>
+              </button>
+            ))}
+            <span style={{ fontSize: 11.5, color: colors.textLight, alignSelf: "center" }}>
+              {visibleReports.length} of {reports.length}
+            </span>
+          </div>
+        )}
 
-        {/* My Properties */}
-        <div style={{ flex: "0 0 58%", width: "58%" }}>
-          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, color: C.text, marginBottom: 12 }}>My Properties</h2>
-
-          {loading ? (
-            <div style={{ background: C.card, border: `1px solid ${C.borderLight}`, borderRadius: 20, padding: "32px", textAlign: "center", color: C.muted, fontSize: 13 }}>
-              Loading…
+        {loading ? (
+          <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>Loading…</p>
+        ) : reports.length === 0 ? (
+          <div style={{ padding: "28px 0" }}>
+            <p style={{ fontSize: 13.5, color: colors.textMuted, margin: "0 0 14px" }}>No reports yet. Run an estimate and it is saved here automatically.</p>
+            <a href="/estimator" style={{ display: "inline-block", fontSize: 12.5, fontWeight: 500, padding: "9px 18px", borderRadius: 99, background: colors.primary, color: "#fff", textDecoration: "none" }}>
+              Generate your first report
+            </a>
+          </div>
+        ) : visibleReports.length === 0 ? (
+          <p style={{ fontSize: 13.5, color: colors.textMuted, margin: "12px 0" }}>No reports match these filters.</p>
+        ) : (
+          <>
+            <div className="dash-rrow dash-rrow-h" style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", paddingBottom: 8 }}>
+              <span>Property</span>
+              <span className="dash-col-date">Saved</span>
+              <span style={{ textAlign: "right" }}>STR net</span>
+              <span style={{ textAlign: "right" }} className="dash-col-ltr">LTR</span>
+              <span style={{ textAlign: "right" }}>Verdict</span>
+              <span style={{ textAlign: "right" }} className="dash-col-open" />
             </div>
-          ) : properties.length === 0 ? (
-            <div style={{ background: C.card, border: `1px solid ${C.borderLight}`, borderRadius: 20, padding: "32px", textAlign: "center" }}>
-              <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 14 }}>No properties saved yet.</p>
-              <a href="/dashboard/properties" style={{ fontSize: 12.5, fontWeight: 700, padding: "8px 16px", borderRadius: 999, background: C.green, color: "#fff", textDecoration: "none" }}>
-                Add Your First Property
-              </a>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {properties.map((p) => (
-                <div
-                  key={p.id}
-                  className="dash-prop-card"
-                  style={{
-                    background: C.card,
-                    border: `1px solid ${C.borderLight}`,
-                    borderRadius: 20,
-                    padding: "20px 22px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 16,
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 6 }}>
-                      {p.building_name || "Unnamed Property"}
-                    </div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      {[p.unit_size, p.unit_type, p.floor != null ? `Floor ${p.floor}` : null].filter(Boolean).map((tag) => (
-                        <span key={tag} style={{ fontSize: 11, fontWeight: 600, color: C.muted, background: C.sage, padding: "3px 9px", borderRadius: 6 }}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <a href="/dashboard/properties" style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, color: C.green, textDecoration: "none", whiteSpace: "nowrap" }}>
-                    View Details →
+            {visibleReports.map(r => {
+              const ltr = isLTR(r.recommendation);
+              const delta = r.ltr_annual ? Math.round((((r.str_net_annual || 0) - r.ltr_annual) / r.ltr_annual) * 100) : null;
+              return (
+                <div key={r.id} className="dash-rrow dash-report-row" style={{ padding: "12px 6px", borderTop: `1px solid ${colors.border}` }}>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13.5, color: colors.textMain, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {r.building_name || "Unnamed property"}
+                    </span>
+                    <span style={{ fontSize: 11.5, color: colors.textLight }}>
+                      {[r.unit_size, r.floor != null ? `Floor ${r.floor}` : null].filter(Boolean).join(" · ") || "—"}
+                    </span>
+                  </span>
+                  <span className="dash-col-date" style={{ fontSize: 12, color: colors.textLight }}>{relativeDate(r.created_at)}</span>
+                  <span style={{ textAlign: "right", fontSize: 13, color: colors.primary, fontVariantNumeric: "tabular-nums" }}>
+                    {r.str_net_annual ? fmtAED(r.str_net_annual) : "—"}
+                  </span>
+                  <span className="dash-col-ltr" style={{ textAlign: "right", fontSize: 13, color: colors.textMuted, fontVariantNumeric: "tabular-nums" }}>
+                    {r.ltr_annual ? fmtAED(r.ltr_annual) : "—"}
+                  </span>
+                  <span style={{ textAlign: "right" }}>
+                    <span style={{ fontSize: 12, color: ltr ? colors.secondaryText : colors.primary }}>{ltr ? "Long-term" : "Short-term"}</span>
+                    {delta !== null && (
+                      <span style={{ display: "block", fontSize: 11, color: colors.textLight, fontVariantNumeric: "tabular-nums" }}>
+                        {delta >= 0 ? "+" : ""}{delta}% vs LTR
+                      </span>
+                    )}
+                  </span>
+                  {/* savedId loads the frozen snapshot rather than recomputing. */}
+                  <a className="dash-col-open" href={`/report?savedId=${r.id}`} style={{ textAlign: "right", fontSize: 12.5, color: colors.primary, textDecoration: "none", whiteSpace: "nowrap" }}>
+                    Open →
                   </a>
+                </div>
+              );
+            })}
+          </>
+        )}
+      </Section>
+
+      {/* ── Properties + activity ── */}
+      <div className="dash-split">
+        <Section>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+            <Eyebrow>Your properties</Eyebrow>
+            <a href="/dashboard/properties" style={{ fontSize: 12.5, color: colors.primary, textDecoration: "none" }}>Manage →</a>
+          </div>
+          {loading ? (
+            <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>Loading…</p>
+          ) : properties.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>
+              No properties saved yet. <a href="/dashboard/properties" style={{ color: colors.primary }}>Add your first</a>.
+            </p>
+          ) : (
+            <div>
+              {properties.slice(0, 5).map((p, i) => (
+                <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "11px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13.5, color: colors.textMain, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {p.building_name || "Unnamed property"}
+                    </span>
+                    <span style={{ fontSize: 11.5, color: colors.textLight }}>
+                      {[p.area, p.unit_size, p.unit_type].filter(Boolean).join(" · ") || "—"}
+                    </span>
+                  </span>
+                  {p.property_value ? (
+                    <span style={{ fontSize: 13, color: colors.primary, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{fmtCompact(p.property_value)}</span>
+                  ) : null}
+                </div>
+              ))}
+              {properties.length > 5 && (
+                <p style={{ fontSize: 12, color: colors.textLight, margin: "12px 0 0" }}>+{properties.length - 5} more</p>
+              )}
+            </div>
+          )}
+        </Section>
+
+        <Section>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+            <Eyebrow>Service requests</Eyebrow>
+            <a href="/dashboard/requests" style={{ fontSize: 12.5, color: colors.primary, textDecoration: "none" }}>All →</a>
+          </div>
+          {loading ? (
+            <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>Loading…</p>
+          ) : requests.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>
+              No requests yet. <a href="/dashboard/requests" style={{ color: colors.primary }}>Browse services</a>.
+            </p>
+          ) : (
+            <div>
+              {requests.slice(0, 5).map((r, i) => (
+                <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "11px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13.5, color: colors.textMain, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {r.service_type || "Service request"}
+                    </span>
+                    <span style={{ fontSize: 11.5, color: colors.textLight }}>{relativeDate(r.created_at)}</span>
+                  </span>
+                  <span style={{ fontSize: 11.5, whiteSpace: "nowrap", color: r.status === "completed" ? colors.textLight : colors.primary }}>
+                    {r.status || "submitted"}
+                  </span>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Recent Activity */}
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, color: C.text, marginBottom: 12 }}>Recent Activity</h2>
-
-          <div style={{
-            background: C.card,
-            border: `1px solid ${C.borderLight}`,
-            borderRadius: 20,
-            padding: "22px 22px 20px",
-          }}>
-            {loading ? (
-              <div style={{ textAlign: "center", color: C.muted, fontSize: 13, padding: "10px 0" }}>Loading…</div>
-            ) : activity.length === 0 ? (
-              <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
-                Once you generate reports or add properties, activity will appear here.
-              </p>
-            ) : (
-              <div>
-                {activity.map((item, i) => (
-                  <div key={i} style={{ display: "flex", gap: 12, paddingBottom: i < activity.length - 1 ? 16 : 0 }}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                      <div style={{
-                        width: 20, height: 20, borderRadius: "50%", background: C.greenLight,
-                        display: "flex", alignItems: "center", justifyContent: "center", color: C.green,
-                      }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      </div>
-                      {i < activity.length - 1 && <div style={{ width: 1.5, flex: 1, background: C.borderLight, marginTop: 2, minHeight: 18 }} />}
-                    </div>
-                    <a href={item.href} style={{ textDecoration: "none", paddingTop: 1 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: C.bronze, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 3 }}>
-                        {relativeDate(item.date)}
-                      </div>
-                      <div style={{ fontSize: 13, color: C.text, lineHeight: 1.4 }}>{item.label}</div>
-                    </a>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        </Section>
       </div>
     </div>
   );
