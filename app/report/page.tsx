@@ -2070,9 +2070,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             if (!active || !payload?.length) return null;
             const d = payload[0]?.payload;
             const season = seasons[label] ?? "Shoulder";
-            const seasonColor = season === "Peak" ? colors.primary : season === "Low" ? "#A0826D" : colors.secondary;
+            const seasonColor = season === "Peak" ? colors.primary : season === "Low" ? colors.secondaryText : colors.secondary;
             return (
-              <div style={{ background: "#FDFCF9", border: `1px solid ${colors.border}`, borderRadius: 14, padding: "14px 16px", boxShadow: "0 8px 28px rgba(20,48,38,0.13)", minWidth: 170 }}>
+              <div style={{ background: colors.bgWhite, border: `1px solid ${colors.border}`, borderRadius: 14, padding: "14px 16px", boxShadow: colors.shadowMd, minWidth: 170 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain }}>{label}</p>
                   <span style={{ fontSize: 10, fontWeight: 700, background: seasonColor + "18", color: seasonColor, borderRadius: 99, padding: "2px 8px", letterSpacing: "0.08em" }}>{season}</span>
