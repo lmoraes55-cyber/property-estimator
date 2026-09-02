@@ -1075,7 +1075,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   const heroImage = getLocationImage(input.buildingName, result.buildingInfo?.area);
 
   return (
-    <div className="min-h-screen" style={{ position: "relative", background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(248,244,238,0.9) 35%, rgba(253,251,247,0.94) 100%)` }}>
+    <div className="min-h-screen" style={{ position: "relative", background: `radial-gradient(ellipse 800px 600px at 50% 40%, rgba(201, 167, 125, 0.25) 0%, transparent 60%), linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(247, 249, 248,0.9) 35%, rgba(255, 255, 255,0.94) 100%)` }}>
       <DecorativeBackdrop />
       <div style={{ position: "relative", zIndex: 1 }}>
       <style>{`
@@ -1514,17 +1514,41 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         )}
 
         {/* ── EXECUTIVE SUMMARY ─────────────────────────────────────────── */}
-        <div className="pdf-section" style={{ position: "relative", overflow: "hidden", borderRadius: 28, border: "1px solid #D8D4CC", boxShadow: "0 2px 6px rgba(0,0,0,0.03), 0 12px 40px rgba(27,94,74,0.09)", background: "#FAFAF6" }}>
+        {/* Deep-green ground with the bronze constellation, matching the
+            AssetIntel Recommendation card in AreaIntelligence. The building
+            photo, ivory fade, bottom fade and warm glow it replaces were four
+            stacked layers competing with the figures sitting on top of them. */}
+        <div className="pdf-section" style={{ position: "relative", overflow: "hidden", borderRadius: 28, background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)` }}>
 
-          {/* Background image — blended right side */}
           <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-            <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "58%", backgroundImage: `url("${heroImage}")`, backgroundSize: "cover", backgroundPosition: "center right", opacity: 0.72 }} />
-            {/* Left ivory fade */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #FAFAF6 0%, #FAFAF6 32%, rgba(250,250,246,0.85) 46%, rgba(250,250,246,0.3) 62%, transparent 80%)" }} />
-            {/* Bottom fade */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(250,250,246,0.5) 80%, #FAFAF6 100%)" }} />
-            {/* Warm glow centre-right */}
-            <div style={{ position: "absolute", top: "-20%", right: "10%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(184,138,68,0.06) 0%, transparent 70%)" }} />
+            {/* Same node/edge field as the recommendation card, mirrored to the
+                left so it reads as one family without being a copy. */}
+            <svg aria-hidden="true" width="300" height="300" viewBox="0 0 260 260" style={{ position: "absolute", left: "-50px", top: "50%", transform: "translateY(-50%)", opacity: 0.08, pointerEvents: "none" }}>
+              <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+                {[[40,40],[120,20],[200,60],[70,120],[180,140],[30,190],[140,210],[220,180]].map((pt, i, arr) => (
+                  <g key={i}>
+                    <circle cx={pt[0]} cy={pt[1]} r="2.4" fill="#D4A574" stroke="none" />
+                    {arr.slice(i + 1).map((q, j) => {
+                      const d = Math.hypot(pt[0] - q[0], pt[1] - q[1]);
+                      return d < 110 ? <line key={j} x1={pt[0]} y1={pt[1]} x2={q[0]} y2={q[1]} /> : null;
+                    })}
+                  </g>
+                ))}
+              </g>
+            </svg>
+            <svg aria-hidden="true" width="300" height="300" viewBox="0 0 260 260" style={{ position: "absolute", right: "-60px", top: "50%", transform: "translateY(-50%) scaleX(-1)", opacity: 0.06, pointerEvents: "none" }}>
+              <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+                {[[40,40],[120,20],[200,60],[70,120],[180,140],[30,190],[140,210],[220,180]].map((pt, i, arr) => (
+                  <g key={i}>
+                    <circle cx={pt[0]} cy={pt[1]} r="2.4" fill="#D4A574" stroke="none" />
+                    {arr.slice(i + 1).map((q, j) => {
+                      const d = Math.hypot(pt[0] - q[0], pt[1] - q[1]);
+                      return d < 110 ? <line key={j} x1={pt[0]} y1={pt[1]} x2={q[0]} y2={q[1]} /> : null;
+                    })}
+                  </g>
+                ))}
+              </g>
+            </svg>
           </div>
 
           {/* Content */}

@@ -83,7 +83,7 @@ function AgentsContent() {
       <div style={{ position: "sticky", top: 0, zIndex: 200, padding: "12px 16px" }}>
         <div style={{
           maxWidth: 1152, margin: "0 auto",
-          background: "rgba(253,251,247,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
+          background: "rgba(255, 255, 255,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
           border: `1px solid ${colors.border}`, borderRadius: 24,
           boxShadow: "0 8px 28px rgba(27,94,74,0.09)",
           display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 12,

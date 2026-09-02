@@ -441,7 +441,7 @@ function EstimatorPage() {
             {/* Left panel: ivory for text legibility. Right panel: clear image */}
             <div style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(to right, rgba(248,244,238,0.95) 0%, rgba(248,244,238,0.90) 35%, rgba(248,244,238,0.50) 52%, rgba(248,244,238,0.10) 65%, rgba(248,244,238,0.0) 100%)",
+              background: "linear-gradient(to right, rgba(247, 249, 248,0.95) 0%, rgba(247, 249, 248,0.90) 35%, rgba(247, 249, 248,0.50) 52%, rgba(247, 249, 248,0.10) 65%, rgba(247, 249, 248,0.0) 100%)",
             }} />
           </div>
           {/* Faint wash matching the page tone, layered on top of the masked

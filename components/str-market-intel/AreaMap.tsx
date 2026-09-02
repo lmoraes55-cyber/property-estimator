@@ -242,7 +242,7 @@ export default function AreaMap({
             "heatmap-opacity": 0.75,
             "heatmap-color": [
               "interpolate", ["linear"], ["heatmap-density"],
-              0, "rgba(253,251,247,0)",
+              0, "rgba(255, 255, 255,0)",
               0.2, "rgba(200,218,208,0.55)",
               0.45, "rgba(184,138,68,0.65)",
               0.7, "rgba(45,122,94,0.75)",

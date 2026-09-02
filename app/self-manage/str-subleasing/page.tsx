@@ -421,7 +421,7 @@ export default function STRSubleasingPage() {
                 </div>
               </div>
 
-              <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid rgba(230,225,216,0.65)" }}>
+              <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid rgba(226, 232, 229,0.65)" }}>
                 <div style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9A9A8A", marginBottom: "10px" }}>Inputs</div>
                 {[
                   { label: "Building", value: "Marina Gate 2" },
@@ -430,7 +430,7 @@ export default function STRSubleasingPage() {
                   { label: "View", value: "Marina View" },
                   { label: "Asking rent", value: "AED 9,500 / month" },
                 ].map(({ label, value }, i, arr) => (
-                  <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(230,225,216,0.55)" : "none" }}>
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(226, 232, 229,0.55)" : "none" }}>
                     <span style={{ fontSize: "11.5px", color: colors.textMuted }}>{label}</span>
                     <span style={{ fontSize: "12px", fontWeight: 600, color: colors.textMain }}>{value}</span>
                   </div>

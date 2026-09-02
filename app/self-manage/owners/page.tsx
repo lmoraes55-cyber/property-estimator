@@ -1252,7 +1252,7 @@ export default function OwnersPage() {
           <div style={{ background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, borderRadius: "20px", padding: isMobile ? "40px 24px" : "56px 64px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.20)" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, color: `${C.secondary}CC`, letterSpacing: "0.14em", marginBottom: "16px" }}>ASSETINTEL SUPPORT</div>
             <h2 style={{ fontSize: isMobile ? "27px" : "36px", fontFamily: SF, fontWeight: 600, color: "#FFFFFF", marginBottom: "16px", lineHeight: 1.2 }}>Want AssetIntel To Help Handle The Setup?</h2>
-            <p style={{ fontSize: "15px", color: "rgba(253,251,247,0.75)", lineHeight: 1.65, maxWidth: "540px", margin: "0 auto 36px" }}>
+            <p style={{ fontSize: "15px", color: "rgba(255, 255, 255,0.75)", lineHeight: 1.65, maxWidth: "540px", margin: "0 auto 36px" }}>
               AssetIntel can help you understand the setup layers, coordinate the right STR vendors, and guide the practical steps needed before going live.
             </p>
             <button

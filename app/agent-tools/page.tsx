@@ -586,7 +586,7 @@ export default function AgentToolsPage() {
             {/* Bottom fade into page background */}
             <div style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(180deg, rgba(248,244,238,0) 55%, rgba(248,244,238,0.75) 82%, rgba(248,244,238,1) 100%)",
+              background: "linear-gradient(180deg, rgba(247, 249, 248,0) 55%, rgba(247, 249, 248,0.75) 82%, rgba(247, 249, 248,1) 100%)",
             }} />
           </div>
         )}
@@ -599,7 +599,7 @@ export default function AgentToolsPage() {
               alt="Real estate agents reviewing an investor property report"
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "60% center" }}
             />
-            <div style={{ position: "absolute", inset: 0, background: "rgba(248,244,238,0.90)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "rgba(247, 249, 248,0.90)" }} />
           </>
         )}
 
@@ -607,7 +607,7 @@ export default function AgentToolsPage() {
         {!isMobile && (
           <div style={{
             position: "absolute", inset: 0, zIndex: 1,
-            background: "linear-gradient(90deg, rgba(248,244,238,0.98) 0%, rgba(248,244,238,0.92) 28%, rgba(248,244,238,0.70) 48%, rgba(248,244,238,0.22) 70%, rgba(248,244,238,0) 100%)",
+            background: "linear-gradient(90deg, rgba(247, 249, 248,0.98) 0%, rgba(247, 249, 248,0.92) 28%, rgba(247, 249, 248,0.70) 48%, rgba(247, 249, 248,0.22) 70%, rgba(247, 249, 248,0) 100%)",
           }} />
         )}
 

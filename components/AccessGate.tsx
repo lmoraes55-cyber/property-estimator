@@ -44,7 +44,7 @@ export default function AccessGate({
       <div
         style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(248,244,238,0.4) 0%, rgba(248,244,238,0.92) 30%, rgba(248,244,238,0.97) 100%)",
+          background: "linear-gradient(180deg, rgba(247, 249, 248,0.4) 0%, rgba(247, 249, 248,0.92) 30%, rgba(247, 249, 248,0.97) 100%)",
         }}
       >
         {/* Sticky, not centered-in-content: gated sections can be very tall (a full

@@ -62,7 +62,7 @@ function ChecklistContent() {
       <div className="no-print" style={{ position: "sticky", top: 0, zIndex: 100, padding: "12px 16px" }}>
         <div style={{
           maxWidth: 900, margin: "0 auto",
-          background: "rgba(253,251,247,0.96)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
+          background: "rgba(255, 255, 255,0.96)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
           border: `1px solid ${C.border}`, borderRadius: 24,
           boxShadow: "0 2px 4px rgba(0,0,0,0.03), 0 8px 28px rgba(27,94,74,0.09)",
           display: "flex", alignItems: "center", justifyContent: "space-between",

@@ -270,7 +270,7 @@ export default function AboutPage() {
 
               {/* Right: experience card — elevated against image */}
               <div style={{
-                background: "rgba(253,251,247,0.85)",
+                background: "rgba(255, 255, 255,0.85)",
                 border: `1px solid ${C.border}`,
                 borderRadius: 24,
                 padding: "30px 26px",
@@ -435,7 +435,7 @@ export default function AboutPage() {
             <h2 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 600, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", textAlign: "center", marginBottom: 48, color: C.text }}>What AssetIntel Helps You Decide</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
               {services.map(svc => (
-                <div key={svc.title} style={{ background: "rgba(253,251,247,0.55)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px 20px", transition: "transform 0.18s, box-shadow 0.18s, border-color 0.18s" }}
+                <div key={svc.title} style={{ background: "rgba(255, 255, 255,0.55)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px 20px", transition: "transform 0.18s, box-shadow 0.18s, border-color 0.18s" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 20px rgba(27,94,74,0.07)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(184,138,68,0.35)"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "none"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; (e.currentTarget as HTMLDivElement).style.borderColor = C.border; }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(238,245,241,0.8)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>

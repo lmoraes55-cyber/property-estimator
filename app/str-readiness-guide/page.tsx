@@ -390,7 +390,7 @@ export default function STRReadinessGuidePage() {
                   {/* Checklist items */}
                   <div style={{ padding: "12px 18px 4px" }}>
                     {cat.items.map((item, i) => (
-                      <div key={item} style={{ borderBottom: i < cat.items.length - 1 ? `1px solid rgba(230,225,216,0.5)` : "none" }}>
+                      <div key={item} style={{ borderBottom: i < cat.items.length - 1 ? `1px solid rgba(226, 232, 229,0.5)` : "none" }}>
                         <CheckItem label={item} checked={checked[offset + i]} onToggle={() => toggle(offset + i)} />
                       </div>
                     ))}
@@ -425,7 +425,7 @@ export default function STRReadinessGuidePage() {
             <style>{`.rg-q2 { display:grid; grid-template-columns:repeat(2,1fr); gap:6px 28px; } @media(max-width:620px){.rg-q2{grid-template-columns:1fr;}}`}</style>
             <div className="rg-q2">
               {OPERATOR_QUESTIONS.map((q, i) => (
-                <div key={q} style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "9px 0", borderBottom: `1px solid rgba(230,225,216,0.5)` }}>
+                <div key={q} style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "9px 0", borderBottom: `1px solid rgba(226, 232, 229,0.5)` }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><circle cx="7" cy="7" r="6" stroke={C.green} strokeWidth="1.1" opacity="0.35" /><path d="M4.5 7L6.5 9L9.5 5" stroke={C.green} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   <span style={{ fontSize: 13, color: C.muted, lineHeight: 1.55 }}>{q}</span>
                 </div>

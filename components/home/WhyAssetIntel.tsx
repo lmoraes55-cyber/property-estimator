@@ -28,7 +28,7 @@ export default function WhyAssetIntel({ isMobile }: { isMobile: boolean }) {
         <div
           className="why-assetintel-card"
           style={{
-            background: "rgba(253,251,247,0.97)",
+            background: "rgba(255, 255, 255,0.97)",
             border: `1px solid ${colors.border}`,
             borderRadius: "28px",
             boxShadow: colors.shadowMd,
