@@ -309,6 +309,13 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
     lrOverride > 0 ? { ...input, longTermRentOverride: lrOverride } : input
   );
   const [result, setResult] = useState<EstimatorOutput>(staticResult);
+  // Resolved once: the market-context section and the closing recommendation
+  // card both key off it.
+  const resolvedArea =
+    result.buildingInfo?.area
+    || getBuildingInfo(result.buildingName)?.area
+    || (input.dldArea ? (DLD_AREA_TO_COMMUNITY[input.dldArea] ?? input.dldArea) : undefined);
+
   const [ltrSource, setLtrSource] = useState<"static" | "dda-live">(
     snapshotResult ? "dda-live" : (lrOverride > 0 ? "dda-live" : "static")
   );
@@ -2223,13 +2230,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         })()}
 
         {/* ── AREA INTELLIGENCE — market context powered by AirROI ── */}
-        {(() => {
-          const resolvedArea =
-            result.buildingInfo?.area
-            || getBuildingInfo(result.buildingName)?.area
-            || (input.dldArea ? (DLD_AREA_TO_COMMUNITY[input.dldArea] ?? input.dldArea) : undefined);
-          if (!resolvedArea) return null;
-          return (
+        {resolvedArea && (
           <AreaIntelligence
             area={resolvedArea}
             propertyName={result.buildingName || result.propertyName}
@@ -2240,9 +2241,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             annualNetToLandlord={result.annualNetToLandlord}
             longTermRent={result.longTermRent}
             ltrRecommended={ltrRecommended}
+            variant="body"
           />
-          );
-        })()}
+        )}
 
         {/* ── RENT PROVENANCE — which DLD tier produced the LTR figure ─────── */}
         {/* Sits directly above the contract list: the reader sees which tier
@@ -2264,6 +2265,22 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           dldArea={input.dldArea}
           unitSize={result.unitSize}
         />
+
+        {/* ── ASSETINTEL RECOMMENDATION — the verdict that closes the report ── */}
+        {resolvedArea && (
+          <AreaIntelligence
+            area={resolvedArea}
+            propertyName={result.buildingName || result.propertyName}
+            unitSize={result.unitSize}
+            avgADR={result.avgADR}
+            avgOccupancy={result.avgOccupancy}
+            annualRevenue={result.annualRevenue}
+            annualNetToLandlord={result.annualNetToLandlord}
+            longTermRent={result.longTermRent}
+            ltrRecommended={ltrRecommended}
+            variant="recommendation"
+          />
+        )}
 
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
         <div className="no-print" style={{ display: "flex", flexDirection: "column", gap: 28, marginTop: 4 }}>

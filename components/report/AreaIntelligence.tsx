@@ -15,6 +15,8 @@ interface Props {
   annualNetToLandlord: number;
   longTermRent: number;
   ltrRecommended: boolean;
+  /** "body" is the market context; "recommendation" is the closing verdict card. */
+  variant?: "body" | "recommendation";
 }
 
 // "STU" -> 0 bedrooms, "1BR" -> 1, "4BR APT"/"4BR VILLA" -> 4, etc. — matches
@@ -85,7 +87,7 @@ function buildInsights(row: AreaStatsRow, area: string): string[] {
   return insights.slice(0, 5);
 }
 
-export default function AreaIntelligence({ area, propertyName, unitSize, avgADR, avgOccupancy, annualRevenue, annualNetToLandlord, longTermRent, ltrRecommended }: Props) {
+export default function AreaIntelligence({ area, propertyName, unitSize, avgADR, avgOccupancy, annualRevenue, annualNetToLandlord, longTermRent, ltrRecommended, variant = "body" }: Props) {
   const [row, setRow] = useState<AreaStatsRow | null | undefined>(undefined);
 
   useEffect(() => {
@@ -132,6 +134,84 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
   const sourceLabel = row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics";
 
   const strVsLtrPct = longTermRent > 0 ? Math.round(((annualNetToLandlord - longTermRent) / longTermRent) * 100) : null;
+
+  // The recommendation card closes the report, so it renders apart from
+  // the market-context body above it.
+  if (variant === "recommendation") {
+    return (
+      <div className="pdf-section">
+        {/* AssetIntel Recommendation — executive decision card */}
+        <div className="rpt-reco-card" style={{ position: "relative", overflow: "hidden", borderRadius: 24, background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)`, padding: "26px 28px", color: "#fff", breakInside: "avoid" as const }}>
+          {/* Faint decorative network pattern, far right edge, behind content */}
+          <svg aria-hidden="true" width="260" height="260" viewBox="0 0 260 260" style={{ position: "absolute", right: "-40px", top: "50%", transform: "translateY(-50%)", opacity: 0.08, pointerEvents: "none", zIndex: 0 }}>
+            <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+              {[[40,40],[120,20],[200,60],[70,120],[180,140],[30,190],[140,210],[220,180]].map((p, i, arr) => (
+                <g key={i}>
+                  <circle cx={p[0]} cy={p[1]} r="2.4" fill="#D4A574" stroke="none" />
+                  {arr.slice(i + 1).map((q, j) => {
+                    const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+                    return d < 110 ? <line key={j} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} /> : null;
+                  })}
+                </g>
+              ))}
+            </g>
+          </svg>
+  
+          <div className="rpt-reco-grid" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.5fr 1px 1fr", gap: 24, alignItems: "center" }}>
+            {/* Left — recommendation */}
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: 10 }}>AssetIntel Recommendation</p>
+              <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
+                {ltrRecommended ? "Operate as a Long-Term Rental" : "Operate as a Short-Term Rental"}
+              </h3>
+              <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.65, margin: 0 }}>
+                {ltrRecommended
+                  ? <>Based on projected revenue, market demand, occupancy and comparable buildings in {area}, long-term leasing is expected to offer a more stable and lower-effort return for this property.</>
+                  : <>Based on projected revenue, market demand, occupancy and comparable buildings in {area}, short-term rental is expected to outperform long-term leasing for this property.</>}
+              </p>
+            </div>
+  
+            {/* Divider */}
+            <div className="rpt-reco-divider" style={{ alignSelf: "stretch", background: "rgba(255,255,255,0.16)" }} />
+  
+            {/* Right — structured data */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <p style={{ fontSize: 10, color: "#D4A574", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Expected Net Income</p>
+                <p style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>AED {fmt(annualNetToLandlord)}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>net / year</p>
+              </div>
+  
+              {strVsLtrPct !== null && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 10, background: "rgba(184,138,68,0.16)", border: "1px solid rgba(184,138,68,0.32)" }}>
+                  <TrendIcon />
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#EAD2A0", lineHeight: 1.2 }}>
+                      {strVsLtrPct >= 0 ? "+" : ""}{strVsLtrPct}% vs Long-Term Rental
+                    </p>
+                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.62)", marginTop: 1 }}>
+                      {strVsLtrPct >= 0 ? "Higher annual net income" : "Lower annual net income"}
+                    </p>
+                  </div>
+                </div>
+              )}
+  
+              <div>
+                <p style={{ fontSize: 10, color: "#D4A574", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Confidence Level</p>
+                <p style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>{confidence}%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @media (max-width: 700px) {
+            .rpt-reco-grid { grid-template-columns: 1fr !important; }
+            .rpt-reco-divider { display: none !important; }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="pdf-section" style={{ display: "flex", flexDirection: "column", gap: 28 }}>
@@ -249,88 +329,10 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
         </div>
       )}
 
-      {/* Forecast Confidence — solid cream information card */}
-      <div style={{ borderRadius: 24, background: colors.bgSection, border: "1px solid rgba(27,94,74,0.14)", boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 10px 30px rgba(27,94,74,0.06)", padding: "22px 24px", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", breakInside: "avoid" as const }}>
-        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#fff", border: `2px solid ${colors.primary}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <span style={{ fontSize: 18, fontWeight: 600, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{confidence}%</span>
-        </div>
-        <div style={{ flex: 1, minWidth: 240 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Forecast Confidence</p>
-          <p style={{ fontSize: 12.5, color: colors.textMain, opacity: 0.75, lineHeight: 1.6, margin: 0 }}>
-            Forecast generated using {sourceLabel} market performance, comparable buildings, seasonal demand, property characteristics, and historical market behaviour.
-          </p>
-        </div>
-      </div>
-
-      {/* AssetIntel Recommendation — executive decision card */}
-      <div className="rpt-reco-card" style={{ position: "relative", overflow: "hidden", borderRadius: 24, background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)`, padding: "26px 28px", color: "#fff", breakInside: "avoid" as const }}>
-        {/* Faint decorative network pattern, far right edge, behind content */}
-        <svg aria-hidden="true" width="260" height="260" viewBox="0 0 260 260" style={{ position: "absolute", right: "-40px", top: "50%", transform: "translateY(-50%)", opacity: 0.08, pointerEvents: "none", zIndex: 0 }}>
-          <g stroke="#D4A574" strokeWidth="0.9" fill="none">
-            {[[40,40],[120,20],[200,60],[70,120],[180,140],[30,190],[140,210],[220,180]].map((p, i, arr) => (
-              <g key={i}>
-                <circle cx={p[0]} cy={p[1]} r="2.4" fill="#D4A574" stroke="none" />
-                {arr.slice(i + 1).map((q, j) => {
-                  const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
-                  return d < 110 ? <line key={j} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} /> : null;
-                })}
-              </g>
-            ))}
-          </g>
-        </svg>
-
-        <div className="rpt-reco-grid" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.5fr 1px 1fr", gap: 24, alignItems: "center" }}>
-          {/* Left — recommendation */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: 10 }}>AssetIntel Recommendation</p>
-            <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
-              {ltrRecommended ? "Operate as a Long-Term Rental" : "Operate as a Short-Term Rental"}
-            </h3>
-            <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.65, margin: 0 }}>
-              {ltrRecommended
-                ? <>Based on projected revenue, market demand, occupancy and comparable buildings in {area}, long-term leasing is expected to offer a more stable and lower-effort return for this property.</>
-                : <>Based on projected revenue, market demand, occupancy and comparable buildings in {area}, short-term rental is expected to outperform long-term leasing for this property.</>}
-            </p>
-          </div>
-
-          {/* Divider */}
-          <div className="rpt-reco-divider" style={{ alignSelf: "stretch", background: "rgba(255,255,255,0.16)" }} />
-
-          {/* Right — structured data */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div>
-              <p style={{ fontSize: 10, color: "#D4A574", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Expected Net Income</p>
-              <p style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>AED {fmt(annualNetToLandlord)}</p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>net / year</p>
-            </div>
-
-            {strVsLtrPct !== null && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 10, background: "rgba(184,138,68,0.16)", border: "1px solid rgba(184,138,68,0.32)" }}>
-                <TrendIcon />
-                <div>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: "#EAD2A0", lineHeight: 1.2 }}>
-                    {strVsLtrPct >= 0 ? "+" : ""}{strVsLtrPct}% vs Long-Term Rental
-                  </p>
-                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.62)", marginTop: 1 }}>
-                    {strVsLtrPct >= 0 ? "Higher annual net income" : "Lower annual net income"}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div>
-              <p style={{ fontSize: 10, color: "#D4A574", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Confidence Level</p>
-              <p style={{ fontSize: 22, fontWeight: 600, color: "#FFFFFF", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.1 }}>{confidence}%</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <style>{`
         @media (max-width: 700px) {
           .rpt-area-snapshot-grid { grid-template-columns: 1fr 1fr !important; }
-          .rpt-reco-grid { grid-template-columns: 1fr !important; }
-          .rpt-reco-divider { display: none !important; }
         }
         .rpt-comp-card { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
         .rpt-comp-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(27,94,74,0.10); border-color: rgba(184,138,68,0.35); }
