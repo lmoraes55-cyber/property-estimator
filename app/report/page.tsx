@@ -1145,6 +1145,10 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           .rpt-insight-strip > div {
             border-right: none !important;
             border-bottom: 1px solid var(--border, #E0DBD2);
+            padding-bottom: 14px;
+          }
+          .rpt-insight-strip > div:nth-last-child(-n+2) {
+            padding-bottom: 0;
           }
           .rpt-insight-strip > div:nth-child(odd) {
             border-right: 1px solid var(--border, #E0DBD2) !important;
@@ -2091,36 +2095,36 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             { id: "occupancy" as const, label: "Occupancy" },
           ];
 
-          const filters = ["12M View", "vs LTR", "Benchmark", "Seasonality"];
+          const peaks = Object.keys(seasons).filter(k => seasons[k] === "Peak");
+          const lowMonth = chartData.reduce((w, m) => m["STR Net"] < w["STR Net"] ? m : w, chartData[0]);
+
+          // One config drives the single chart below; the three tabs differed
+          // only in series and axis, not in structure.
+          const view =
+            activeTab === "net" ? { key: "STR Net", label: "STR Net Income", pct: false }
+            : activeTab === "revenue" ? { key: "Revenue", label: "Gross Revenue", pct: false }
+            : { key: "Occupancy", label: "Occupancy Rate", pct: true };
+          const withLTR = activeTab === "net" && showLTR;
 
           return (
-            <div className="pdf-section" style={{ position: "relative", borderRadius: 30, background: "linear-gradient(145deg, #FAFAF6 0%, #F5F2EE 100%)", border: `1px solid ${colors.border}`, boxShadow: "0 2px 6px rgba(0,0,0,0.03), 0 16px 48px rgba(27,94,74,0.08)", padding: "28px 28px 24px", breakInside: "avoid" as const }}>
+            <div className="pdf-section" style={{ position: "relative", borderRadius: 22, background: colors.bgSection, border: `1px solid ${colors.border}`, padding: "24px 26px", breakInside: "avoid" as const }}>
 
               {/* Header row */}
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 18 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                  {/* Icon badge */}
-                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#EEF5F1", border: `1px solid rgba(27,94,74,0.14)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, marginBottom: 4 }}>12-Month Rental Projection</p>
-                    <h2 style={{ fontSize: "clamp(17px, 2vw, 22px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
-                      12-Month STR Performance Overview
-                    </h2>
-                    <p style={{ fontSize: 12, color: colors.textMuted, marginTop: 3 }}>Compare monthly STR net performance vs. long-term rental equivalent</p>
-                  </div>
+                <div>
+                  <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>12-Month Rental Projection</p>
+                  <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, letterSpacing: "-0.015em", lineHeight: 1.2, color: colors.textMain, margin: "0 0 6px" }}>
+                    12-Month STR Performance Overview
+                  </h2>
+                  <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0, maxWidth: "62ch", lineHeight: 1.55 }}>Monthly short-term net against the long-term rental equivalent.</p>
                 </div>
 
                 {/* Metric tabs */}
                 <div style={{ display: "flex", gap: 4, background: colors.bgMain, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 4 }} className="no-print">
                   {tabs.map(t => (
-                    <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ padding: "7px 14px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, transition: "all 0.2s",
+                    <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ padding: "7px 14px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 500,
                       background: activeTab === t.id ? colors.primary : "transparent",
                       color: activeTab === t.id ? "#fff" : colors.textMuted,
-                      boxShadow: "none",
                     }}>
                       {t.label}
                     </button>
@@ -2128,34 +2132,31 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 </div>
               </div>
 
-              {/* Filter pill row */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }} className="no-print">
-                {filters.map(f => {
-                  const isActive = f === "12M View" || (f === "vs LTR" && showLTR) || (f === "Benchmark" && showBenchmark);
-                  // A control that changes nothing on the current tab is worse
-                  // than no control: "vs LTR" only plots on the net chart, and
-                  // "Benchmark" only draws the 75% line on the occupancy chart.
-                  if (f === "vs LTR" && activeTab !== "net") return null;
-                  if (f === "Benchmark" && activeTab !== "occupancy") return null;
-                  return (
-                    <button key={f} onClick={() => { if (f === "vs LTR") setShowLTR(v => !v); if (f === "Benchmark") setShowBenchmark(v => !v); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 99, fontSize: 11, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
-                      background: isActive ? "rgba(27,94,74,0.08)" : "#fff",
-                      border: isActive ? `1px solid rgba(27,94,74,0.22)` : `1px solid ${colors.border}`,
-                      color: isActive ? colors.primary : colors.textMuted,
-                    }}>
-                      {f}
-                    </button>
-                  );
-                })}
+              {/* Toggle + annual figure */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 18, paddingBottom: 14, borderBottom: `1px solid ${colors.border}` }}>
+                {/* Only real controls appear: each one changes what is plotted. */}
+                {activeTab === "net" && (
+                  <button onClick={() => setShowLTR(v => !v)} className="no-print" style={{ padding: "5px 12px", borderRadius: 99, fontSize: 11, fontWeight: 500, cursor: "pointer",
+                    background: showLTR ? "rgba(27,94,74,0.06)" : "transparent",
+                    border: `1px solid ${showLTR ? "rgba(27,94,74,0.22)" : colors.border}`,
+                    color: showLTR ? colors.primary : colors.textMuted }}>
+                    vs LTR
+                  </button>
+                )}
+                {activeTab === "occupancy" && (
+                  <button onClick={() => setShowBenchmark(v => !v)} className="no-print" style={{ padding: "5px 12px", borderRadius: 99, fontSize: 11, fontWeight: 500, cursor: "pointer",
+                    background: showBenchmark ? "rgba(27,94,74,0.06)" : "transparent",
+                    border: `1px solid ${showBenchmark ? "rgba(27,94,74,0.22)" : colors.border}`,
+                    color: showBenchmark ? colors.primary : colors.textMuted }}>
+                    75% benchmark
+                  </button>
+                )}
 
-                {/* Top-right KPI */}
-                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 10, color: colors.textLight, marginBottom: 1 }}>Annual STR Net</p>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: colors.primary, lineHeight: 1 }}>AED {fmt(annualSTRNet)}</p>
-                  </div>
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "baseline", gap: 10 }}>
+                  <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight }}>Annual STR net</span>
+                  <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 20, fontWeight: 500, color: colors.textMain, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>AED {fmt(annualSTRNet)}</span>
                   {outperf !== 0 && (
-                    <span style={{ fontSize: 11, fontWeight: 700, background: outperf > 0 ? "#EEF5F1" : "#FBF0EE", color: outperf > 0 ? colors.primary : "#A05030", border: `1px solid ${outperf > 0 ? "rgba(27,94,74,0.18)" : "rgba(160,80,48,0.18)"}`, borderRadius: 99, padding: "4px 10px" }}>
+                    <span style={{ fontSize: 11, fontWeight: 500, color: outperf > 0 ? colors.primary : "#A05030", fontVariantNumeric: "tabular-nums" }}>
                       {outperf > 0 ? "+" : ""}{outperf}% vs LTR
                     </span>
                   )}
@@ -2163,72 +2164,56 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               </div>
 
               {/* Chart */}
-              <ResponsiveContainer width="100%" height={420}>
-                {activeTab === "net" ? (
-                  <ComposedChart data={chartData} margin={{ top: 10, right: 50, left: 10, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="strAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={colors.series[0]} stopOpacity={0.18} />
-                        <stop offset="95%" stopColor={colors.series[0]} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
-                    <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="aed" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={40} />
-                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
-                    <Area yAxisId="aed" type="monotone" dataKey="STR Net" stroke={colors.series[0]} strokeWidth={2} fill="url(#strAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.series[0], stroke: "#fff", strokeWidth: 2 }} />
-                    {showLTR && <Line yAxisId="aed" type="monotone" dataKey="LTR Equivalent" stroke={colors.series[1]} strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 5, fill: colors.series[1], stroke: "#fff", strokeWidth: 2 }} />}
-                  </ComposedChart>
-                ) : activeTab === "revenue" ? (
-                  <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="revAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={colors.series[0]} stopOpacity={0.18} />
-                        <stop offset="95%" stopColor={colors.series[0]} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
-                    <XAxis dataKey="month" tick={{ fill: colors.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="aed" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={40} />
-                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
-                    <Area yAxisId="aed" type="monotone" dataKey="Revenue" stroke={colors.series[0]} strokeWidth={2} fill="url(#revAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.series[0], stroke: "#fff", strokeWidth: 2 }} />
-                  </ComposedChart>
-                ) : (
-                  <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
-                    <XAxis dataKey="month" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="pct" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0,100]} width={40} />
-                    <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
-                    {showBenchmark && <ReferenceLine yAxisId="pct" y={75} stroke={colors.textLight} strokeDasharray="6 4" label={{ value: "75% target", position: "right", fill: colors.textLight, fontSize: 10 }} />}
-                    <Line yAxisId="pct" type="monotone" dataKey="Occupancy" stroke={colors.series[2]} strokeWidth={2} dot={{ r: 3.5, fill: colors.series[2], stroke: "#fff", strokeWidth: 1.5 }} activeDot={{ r: 6 }} />
-                  </ComposedChart>
-                )}
+              <ResponsiveContainer width="100%" height={380}>
+                <ComposedChart data={chartData} margin={{ top: 10, right: withLTR ? 50 : 20, left: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="strAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={colors.series[0]} stopOpacity={0.14} />
+                      <stop offset="95%" stopColor={colors.series[0]} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="2 4" stroke={colors.border} vertical={false} />
+                  <XAxis dataKey="month" tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={{ fill: colors.textLight, fontSize: 11 }} axisLine={false} tickLine={false} width={44}
+                    domain={view.pct ? [0, 100] : undefined}
+                    tickFormatter={v => view.pct ? `${v}%` : `${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip content={<PremiumTooltip />} cursor={{ stroke: colors.textLight, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.5 }} />
+                  {view.pct && showBenchmark && <ReferenceLine y={75} stroke={colors.textLight} strokeDasharray="6 4" label={{ value: "75% target", position: "right", fill: colors.textLight, fontSize: 10 }} />}
+                  {view.pct ? (
+                    <Line type="monotone" dataKey={view.key} stroke={colors.series[2]} strokeWidth={2} dot={false} activeDot={{ r: 5, fill: colors.series[2], stroke: "#fff", strokeWidth: 2 }} />
+                  ) : (
+                    <Area type="monotone" dataKey={view.key} stroke={colors.series[0]} strokeWidth={2} fill="url(#strAreaGrad)" dot={false} activeDot={{ r: 5, fill: colors.series[0], stroke: "#fff", strokeWidth: 2 }} />
+                  )}
+                  {withLTR && <Line type="monotone" dataKey="LTR Equivalent" stroke={colors.series[1]} strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 5, fill: colors.series[1], stroke: "#fff", strokeWidth: 2 }} />}
+                </ComposedChart>
               </ResponsiveContainer>
 
-              {/* Legend */}
-              <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginTop: 14, marginBottom: 20 }}>
-                {activeTab === "net" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:2, background: colors.series[0], borderRadius:2 }}/><span style={{ fontSize:11, color:colors.textMuted }}>STR Net Income</span></div>}
-                {activeTab === "revenue" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:2, background: colors.series[0], borderRadius:2 }}/><span style={{ fontSize:11, color:colors.textMuted }}>Gross Revenue</span></div>}
-                {activeTab === "net" && showLTR && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:0, borderTop:`2px dashed ${colors.series[1]}` }}/><span style={{ fontSize:11, color:colors.textMuted }}>LTR Equivalent</span></div>}
-                {activeTab === "occupancy" && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:8, height:8, borderRadius:"50%", background: colors.series[2] }}/><span style={{ fontSize:11, color:colors.textMuted }}>Occupancy Rate</span></div>}
-                {activeTab === "occupancy" && showBenchmark && <div style={{ display:"flex", alignItems:"center", gap:6 }}><div style={{ width:20, height:0, borderTop:`2px dashed ${colors.textLight}` }}/><span style={{ fontSize:11, color:colors.textMuted }}>75% Benchmark</span></div>}
-              </div>
+              {/* Legend — only earns its place when two series share the plot. */}
+              {withLTR && (
+                <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: colors.textMuted }}>
+                    <span style={{ width: 16, height: 2, borderRadius: 2, background: colors.series[0] }} />STR net income
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: colors.textMuted }}>
+                    <span style={{ width: 16, height: 0, borderTop: `2px dashed ${colors.series[1]}` }} />LTR equivalent
+                  </span>
+                </div>
+              )}
 
               {/* Bottom insight strip */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, background: "#fff", borderRadius: 16, border: `1px solid ${colors.border}`, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }} className="rpt-insight-strip">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, marginTop: 20, paddingTop: 18, borderTop: `1px solid ${colors.border}` }} className="rpt-insight-strip">
                 {[
-                  { icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6l4-4 4 4"/><path d="M12 2v10.5"/><path d="M20 17.5A8 8 0 0 1 4 17.5"/></svg>, label: "Peak Season", value: "Nov – Feb", sub: "Highest demand & yields", accent: colors.primary },
-                  { icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>, label: "Outperformance", value: `${outperf > 0 ? "+" : ""}${outperf}%`, sub: "vs LTR annual net", accent: colors.primary },
-                  { icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={colors.secondary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>, label: "Expense Buffer", value: "Well Covered", sub: "Operating costs buffer", accent: colors.secondary },
-                  { icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={colors.secondary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>, label: "Best Month", value: bestMonth.month, sub: `AED ${fmt(bestMonth["STR Net"])} net`, accent: colors.secondary },
+                  { label: "Peak season", value: peaks.length ? `${peaks[0]} – ${peaks[peaks.length - 1]}` : "—", sub: "Highest demand and rates" },
+                  { label: "Vs long-term", value: `${outperf > 0 ? "+" : ""}${outperf}%`, sub: "On annual net" },
+                  { label: "Best month", value: bestMonth.month, sub: `AED ${fmt(bestMonth["STR Net"])} net` },
+                  { label: "Weakest month", value: lowMonth.month, sub: `AED ${fmt(lowMonth["STR Net"])} net` },
                 ].map((item, i, arr) => (
-                  <div key={item.label} style={{ padding: "14px 16px", borderRight: i < arr.length - 1 ? `1px solid ${colors.border}` : "none", display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ width: 26, height: 26, borderRadius: "50%", background: item.accent + "14", border: `1px solid ${item.accent}20`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
-                      {item.icon}
-                    </div>
-                    <p style={{ fontSize: 10, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.09em", fontWeight: 600 }}>{item.label}</p>
-                    <p style={{ fontSize: 15, fontWeight: 800, color: item.accent, lineHeight: 1.1 }}>{item.value}</p>
-                    <p style={{ fontSize: 10, color: colors.textLight, lineHeight: 1.4 }}>{item.sub}</p>
+                  <div key={item.label} style={{ padding: "0 16px", borderRight: i < arr.length - 1 ? `1px solid ${colors.border}` : "none" }}>
+                    <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>{item.label}</p>
+                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, fontWeight: 500, color: colors.textMain, lineHeight: 1.1, fontVariantNumeric: "tabular-nums", margin: "0 0 4px" }}>{item.value}</p>
+                    <p style={{ fontSize: 11.5, color: colors.textLight, lineHeight: 1.4, margin: 0 }}>{item.sub}</p>
                   </div>
                 ))}
               </div>
