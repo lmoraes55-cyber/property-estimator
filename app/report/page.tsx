@@ -1286,6 +1286,8 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         }
         .rc-wf .rc-icon { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 10px; }
         .rc-wf .rc-value { font-size: clamp(17px, 1.7vw, 21px); }
+        .rpt-month-row { background: #fff; transition: background 140ms ease; }
+        .rpt-month-row:hover { background: rgba(15,29,24,0.025); }
         /* Grid gap standard */
         .rc-grid { display: grid; gap: 20px; }
         @media (max-width: 767px) { .rc-grid { gap: 16px; } }
@@ -1917,73 +1919,103 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           <div style={{ borderRadius: 24, overflow: "hidden", border: `1px solid ${colors.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 8px 24px rgba(27,94,74,0.06)", marginTop: 0 }}>
             {/* Desktop table */}
             <div className="rpt-table-desktop" style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#F5F2ED", borderBottom: `1px solid ${colors.border}` }}>
-                    {["Month", "Revenue", "Occupancy", "ADR", "Total Costs", "Net to Landlord"].map(h => (
-                      <th key={h} style={{
-                        padding: "11px 16px", textAlign: "left", fontSize: 10, fontWeight: 700, textTransform: "uppercase", whiteSpace: "nowrap",
-                        letterSpacing: h === "Net to Landlord" ? "0.13em" : "0.10em",
-                        color: h === "Net to Landlord" ? colors.primary : colors.textMuted,
-                        background: h === "Net to Landlord" ? "rgba(27,94,74,0.07)" : undefined,
-                        borderLeft: h === "Net to Landlord" ? `2px solid rgba(27,94,74,0.18)` : undefined,
-                      }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.months.map((m, i) => {
-                    const occupancyRate = m.occupancy * 100;
-                    const occupancyColor = occupancyRate >= 75 ? colors.primary : occupancyRate >= 67 ? colors.secondary : "#A0826D";
-                    const barColor = occupancyRate >= 75 ? colors.primary : colors.secondary;
-                    const totalCosts = m.managementFee + m.utilities + m.maintenance + m.furnitureAmort;
+              {(() => {
+                const ms = result.months;
+                const maxNet = Math.max(...ms.map(x => x.netToLandlord));
+                const peak = ms.reduce((a, b) => (b.netToLandlord > a.netToLandlord ? b : a));
+                const low  = ms.reduce((a, b) => (b.netToLandlord < a.netToLandlord ? b : a));
+                // Maintenance and furniture amortisation are usually flat across
+                // the year. Repeating identical figures twelve times is noise, so
+                // constant components move to a footnote and the row shows only
+                // what actually moves.
+                const constant = (get: (m: typeof ms[number]) => number) =>
+                  ms.every(x => get(x) === get(ms[0])) ? get(ms[0]) : null;
+                const constMaint = constant(x => x.maintenance);
+                const constFurn = constant(x => x.furnitureAmort);
 
-                    return (
-                      <tr key={m.month}
-                        style={{ borderBottom: i < result.months.length - 1 ? `1px solid ${colors.border}60` : "none", background: "#FFFFFF", transition: "background 0.15s" }}
-                        onMouseEnter={e => (e.currentTarget.style.background = `${colors.primary}05`)}
-                        onMouseLeave={e => (e.currentTarget.style.background = "#FFFFFF")}>
+                const numTd: React.CSSProperties = {
+                  padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap",
+                  fontFamily: "var(--font-mono-ai), ui-monospace, monospace",
+                  fontSize: 12.5, fontVariantNumeric: "tabular-nums", color: colors.textMain,
+                };
+                const numTh: React.CSSProperties = {
+                  padding: "11px 16px", textAlign: "right", whiteSpace: "nowrap",
+                  fontFamily: "var(--font-mono-ai), ui-monospace, monospace",
+                  fontSize: 10, fontWeight: 400, letterSpacing: "0.1em",
+                  textTransform: "uppercase", color: colors.textLight,
+                };
 
-                        {/* Month */}
-                        <td style={{ padding: "13px 16px", fontWeight: 700, fontSize: 13, color: colors.primary, whiteSpace: "nowrap" }}>{m.month}</td>
+                return (
+                  <>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ background: colors.bgMain, borderBottom: `1px solid ${colors.border}` }}>
+                          <th style={{ ...numTh, textAlign: "left" }}>Month</th>
+                          <th style={numTh}>Revenue</th>
+                          <th style={numTh}>Occupancy</th>
+                          <th style={numTh}>ADR</th>
+                          <th style={numTh}>Costs</th>
+                          <th style={{ ...numTh, color: colors.primary, background: "rgba(27,94,74,0.06)", borderLeft: "1px solid rgba(27,94,74,0.14)" }}>Net to Landlord</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ms.map((m, i) => {
+                          const isPeak = m.month === peak.month;
+                          const isLow = m.month === low.month;
+                          const totalCosts = m.managementFee + m.utilities + m.maintenance + m.furnitureAmort;
+                          const varying = [
+                            `Mgmt ${fmt(m.managementFee)}`,
+                            `Util ${fmt(m.utilities)}`,
+                            constMaint === null ? `Maint ${fmt(m.maintenance)}` : null,
+                            constFurn === null ? `Furn ${fmt(m.furnitureAmort)}` : null,
+                          ].filter(Boolean).join(" · ");
 
-                        {/* Revenue — clean, no % bar */}
-                        <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: colors.primary }}>AED {fmt(m.revenue)}</p>
-                        </td>
-
-                        {/* Occupancy + compact bar */}
-                        <td style={{ padding: "13px 16px", minWidth: 90 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: occupancyColor, marginBottom: 4 }}>{occupancyRate.toFixed(0)}%</p>
-                          <div style={{ width: "100%", height: 3, background: `${colors.border}99`, borderRadius: 99, overflow: "hidden" }}>
-                            <div style={{ width: `${Math.min(occupancyRate, 100)}%`, height: "100%", background: barColor, borderRadius: 99 }} />
-                          </div>
-                        </td>
-
-                        {/* ADR */}
-                        <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
-                          <p style={{ fontSize: 13, color: colors.secondary, fontWeight: 500 }}>AED {fmt(m.adr)}</p>
-                        </td>
-
-                        {/* Total Costs — grouped inline */}
-                        <td style={{ padding: "13px 16px" }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: colors.textMuted, marginBottom: 3 }}>AED {fmt(totalCosts)}</p>
-                          <p style={{ fontSize: 10, color: colors.textLight, lineHeight: 1.5 }}>
-                            Mgmt {fmt(m.managementFee)} · Util {fmt(m.utilities)} · Maint {fmt(m.maintenance)} · Furn {fmt(m.furnitureAmort)}
-                          </p>
-                        </td>
-
-                        {/* Net to Landlord — highlighted */}
-                        <td style={{ padding: "13px 18px", background: "rgba(27,94,74,0.055)", borderLeft: `2px solid rgba(27,94,74,0.20)`, boxShadow: "inset 2px 0 8px rgba(27,94,74,0.04)" }}>
-                          <p style={{ fontSize: 15, fontWeight: 800, color: colors.primary, whiteSpace: "nowrap", letterSpacing: "0.01em" }}>AED {fmt(m.netToLandlord)}</p>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          return (
+                            <tr key={m.month} className="rpt-month-row" style={{ borderBottom: i < ms.length - 1 ? `1px solid ${colors.border}` : "none" }}>
+                              <td style={{ padding: "12px 16px", fontSize: 13, color: colors.textMain, whiteSpace: "nowrap" }}>
+                                {m.month}
+                                {/* The swing across the year is the story in this
+                                    table and it took reading twelve rows to find. */}
+                                {(isPeak || isLow) && (
+                                  <span style={{ marginLeft: 8, fontSize: 9.5, fontFamily: "var(--font-mono-ai), ui-monospace, monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: isPeak ? colors.primary : colors.textLight, border: `1px solid ${isPeak ? "rgba(27,94,74,0.28)" : colors.border}`, borderRadius: 20, padding: "1px 7px", whiteSpace: "nowrap" }}>
+                                    {isPeak ? "Peak" : "Low"}
+                                  </span>
+                                )}
+                              </td>
+                              <td style={numTd}>{fmt(m.revenue)}</td>
+                              {/* Plain number. The old micro-bar ran 63-81% full,
+                                  so every row looked identical, and its green/
+                                  bronze switch implied a pass/fail with no key. */}
+                              <td style={{ ...numTd, color: colors.textMuted }}>{(m.occupancy * 100).toFixed(0)}%</td>
+                              <td style={{ ...numTd, color: colors.textMuted }}>{fmt(m.adr)}</td>
+                              <td style={{ ...numTd, color: colors.textMuted }}>
+                                {fmt(totalCosts)}
+                                <span style={{ display: "block", fontSize: 10, color: colors.textLight, letterSpacing: 0 }}>{varying}</span>
+                              </td>
+                              <td style={{ padding: "12px 16px", textAlign: "right", background: "rgba(27,94,74,0.045)", borderLeft: "1px solid rgba(27,94,74,0.14)", whiteSpace: "nowrap" }}>
+                                <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 13.5, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: colors.primary }}>
+                                  {fmt(m.netToLandlord)}
+                                </span>
+                                {/* Bar-in-cell, scaled across the twelve months, so
+                                    seasonality is visible without reading each row. */}
+                                <span style={{ display: "block", marginTop: 5, height: 3, background: colors.border, borderRadius: 2, overflow: "hidden" }}>
+                                  <span style={{ display: "block", width: `${(m.netToLandlord / maxNet) * 100}%`, height: "100%", background: colors.primary, borderRadius: 2, opacity: isPeak ? 1 : 0.55 }} />
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    {(constMaint !== null || constFurn !== null) && (
+                      <p style={{ padding: "10px 16px 0", fontSize: 11, color: colors.textLight, margin: 0 }}>
+                        {[constMaint !== null ? `Maintenance AED ${fmt(constMaint)}` : null, constFurn !== null ? `furniture amortisation AED ${fmt(constFurn)}` : null].filter(Boolean).join(" and ")}
+                        {" "}are flat every month and are included in the cost totals above.
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             {/* Mobile cards — shown below 640px, hidden above */}
