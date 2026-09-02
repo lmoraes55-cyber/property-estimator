@@ -1305,6 +1305,8 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         }
         .rc-wf .rc-icon { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 10px; }
         .rc-wf .rc-value { font-size: clamp(17px, 1.7vw, 21px); }
+        .rpt-range-row { transition: background 140ms ease; }
+        .rpt-range-row:hover { background: rgba(15,29,24,0.03); }
         /* Grid gap standard */
         .rc-grid { display: grid; gap: 20px; }
         @media (max-width: 767px) { .rc-grid { gap: 16px; } }
@@ -1842,30 +1844,33 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             const occRange = (pct: number) => `${Math.max(0, Math.round(pct - occBase))}%–${Math.min(100, Math.round(pct + occBase))}%`;
             const adrRange = (adr: number) => `AED ${fmt(roundTo(adr - adrBase, 5))}–${fmt(roundTo(adr + adrBase, 5))}`;
 
-            const cards = [
-              { label: "Net to Landlord", value: moneyRange(result.annualNetToLandlord), helper: "After all deductions", accent: colors.secondary, isGreen: false,
-                icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
-              { label: "Annual Revenue", value: moneyRange(result.annualRevenue), helper: "Gross projected revenue", accent: colors.primary, isGreen: true,
-                icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> },
-              { label: "Average Occupancy", value: occRange(result.avgOccupancy * 100), helper: "Expected occupancy range", accent: colors.primary, isGreen: true,
-                icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10M12 12h10a10 10 0 0 0-10-10z"/></svg> },
-              { label: "Average ADR", value: adrRange(result.avgADR), helper: "Average daily rate", accent: colors.secondary, isGreen: false,
-                icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
+            // Each row keeps its centre and its bounds so the spread can be
+            // drawn. The width is not decorative: moneyOffset/occBase/adrBase
+            // are scaled by confFactor, which comes straight off ltrBasis — a
+            // building-level DLD match narrows every range on this section,
+            // a table fallback widens it. That was invisible when these were
+            // four pre-formatted strings.
+            const rows = [
+              { label: "Net to Landlord", centre: result.annualNetToLandlord, lo: roundTo(result.annualNetToLandlord - moneyOffset, 1000), hi: roundTo(result.annualNetToLandlord + moneyOffset, 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "After all deductions", accent: colors.primary },
+              { label: "Annual Revenue", centre: result.annualRevenue, lo: roundTo(result.annualRevenue - moneyOffset, 1000), hi: roundTo(result.annualRevenue + moneyOffset, 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Gross projected revenue", accent: colors.primary },
+              { label: "Average Occupancy", centre: result.avgOccupancy * 100, lo: Math.max(0, Math.round(result.avgOccupancy * 100 - occBase)), hi: Math.min(100, Math.round(result.avgOccupancy * 100 + occBase)), fmtV: (v: number) => `${Math.round(v)}%`, helper: "Expected occupancy range", accent: colors.primary },
+              { label: "Average ADR", centre: result.avgADR, lo: roundTo(result.avgADR - adrBase, 5), hi: roundTo(result.avgADR + adrBase, 5), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Average daily rate", accent: colors.primary },
             ];
 
-            return (
-              <div className="mb-8 pdf-section" style={{ position: "relative", overflow: "hidden", borderRadius: 28, background: "#FAFAF6", border: "1px solid #E0DBD2", boxShadow: "0 2px 6px rgba(0,0,0,0.03), 0 12px 36px rgba(27,94,74,0.07)", padding: "28px 26px 24px" }}>
+            const basisLabel = result.ltrBasis === "dld-building" ? "building-level DLD contracts"
+              : result.ltrBasis === "dld-master" ? "community-level DLD contracts"
+              : result.ltrBasis === "dld-area" ? "area-level DLD contracts"
+              : "AssetIntel's internal benchmark table";
 
-                {/* Faint background image */}
-                <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-                  <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "48%", backgroundImage: `url("${heroImage}")`, backgroundSize: "cover", backgroundPosition: "center right", opacity: 0.10 }} />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #FAFAF6 0%, #FAFAF6 35%, rgba(250,250,246,0.95) 52%, rgba(250,250,246,0.60) 72%, rgba(250,250,246,0.15) 90%)" }} />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(250,250,246,0.5) 75%, #FAFAF6 100%)" }} />
-                </div>
+            return (
+              // Flat surface matching the Cost & Deduction Snapshot above, so
+              // the two sections read as siblings rather than two unrelated
+              // treatments. The photo and its two fade layers are gone.
+              <div className="mb-8 pdf-section" style={{ position: "relative", borderRadius: 22, background: colors.bgSection, border: `1px solid ${colors.border}`, padding: "28px 28px 24px" }}>
 
                 {/* Header */}
                 <div style={{ position: "relative", zIndex: 1, marginBottom: 20 }}>
-                  <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondary, marginBottom: 6 }}>12-Month Rental Projection</p>
+                  <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: 6 }}>12-month rental projection</p>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
                     <h2 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: 0 }}>
                       Monthly Breakdown
@@ -1874,19 +1879,56 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   </div>
                 </div>
 
-                {/* Cards */}
-                <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(175px, 1fr))", gap: 12, marginBottom: 16 }}>
-                  {cards.map((c) => (
-                    <div key={c.label} className={`rc ${c.isGreen ? "rc-accent-green" : "rc-accent-bronze"}`}>
-                      <span className={`rc-bar ${c.isGreen ? "rc-bar-green" : "rc-bar-bronze"}`} />
-                      <div className={`rc-icon ${c.isGreen ? "rc-icon-green" : "rc-icon-bronze"}`} style={{ borderRadius: "50%", width: 38, height: 38 }}>
-                        {c.icon}
+                {/* Each metric is an interval, so it is drawn as one. The track
+                    spans the centre +/-14%, identical in relative terms for
+                    every row, so the bands are comparable across metrics on
+                    different scales: a visibly narrow band means a confident
+                    number, not merely a small one. */}
+                <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 2, marginBottom: 18 }}>
+                  {rows.map((r) => {
+                    // +/-10% of the centre. Wide enough for the worst case
+                    // (a table-fallback estimate on low occupancy approaches
+                    // +/-8%, and pos() clamps beyond that), tight enough that a
+                    // +/-1.2% band is still a visible mark rather than a sliver.
+                    const span = r.centre * 0.10;
+                    const tLo = r.centre - span, tHi = r.centre + span;
+                    const pos = (v: number) => Math.min(100, Math.max(0, ((v - tLo) / (tHi - tLo)) * 100));
+                    const spreadPct = r.centre > 0 ? ((r.hi - r.lo) / 2 / r.centre) * 100 : 0;
+                    return (
+                      <div
+                        key={r.label}
+                        title={`${r.label} — central estimate ${r.fmtV(r.centre)}, range ${r.fmtV(r.lo)} to ${r.fmtV(r.hi)}`}
+                        style={{ display: "grid", gridTemplateColumns: "minmax(0,168px) 1fr minmax(0,190px)", alignItems: "center", gap: 18, padding: "12px 10px", borderRadius: 10 }}
+                        className="rpt-range-row"
+                      >
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, margin: 0, lineHeight: 1.4 }}>{r.label}</p>
+                          <p style={{ fontSize: 11.5, color: colors.textLight, margin: "2px 0 0", lineHeight: 1.4 }}>{r.helper}</p>
+                        </div>
+
+                        <div style={{ position: "relative", height: 22 }}>
+                          {/* track */}
+                          <div style={{ position: "absolute", top: 10, left: 0, right: 0, height: 2, borderRadius: 1, background: colors.border }} />
+                          {/* the interval */}
+                          <div style={{ position: "absolute", top: 7, left: `${pos(r.lo)}%`, width: `${pos(r.hi) - pos(r.lo)}%`, height: 8, borderRadius: 4, background: r.accent, opacity: 0.28 }} />
+                          {/* bounds */}
+                          <div style={{ position: "absolute", top: 5, left: `${pos(r.lo)}%`, width: 2, height: 12, borderRadius: 1, background: r.accent }} />
+                          <div style={{ position: "absolute", top: 5, left: `calc(${pos(r.hi)}% - 2px)`, width: 2, height: 12, borderRadius: 1, background: r.accent }} />
+                          {/* central estimate */}
+                          <div style={{ position: "absolute", top: 5, left: `calc(${pos(r.centre)}% - 5px)`, width: 10, height: 10, borderRadius: "50%", background: r.accent, border: "2px solid #fff" }} />
+                        </div>
+
+                        <div style={{ textAlign: "right" }}>
+                          <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 13.5, fontVariantNumeric: "tabular-nums", color: colors.textMain, margin: 0, whiteSpace: "nowrap" }}>
+                            {r.fmtV(r.lo)} – {r.fmtV(r.hi)}
+                          </p>
+                          <p style={{ fontSize: 11, color: colors.textLight, margin: "2px 0 0", whiteSpace: "nowrap" }}>
+                            {r.fmtV(r.centre)} central · ±{spreadPct.toFixed(1)}%
+                          </p>
+                        </div>
                       </div>
-                      <p className={`rc-label ${c.isGreen ? "rc-label-green" : "rc-label-bronze"}`}>{c.label}</p>
-                      <p className={`rc-value ${c.isGreen ? "rc-value-green" : "rc-value-bronze"}`} style={{ fontSize: "clamp(14px, 1.6vw, 19px)" }}>{c.value}</p>
-                      <p className="rc-helper rc-helper-muted">{c.helper}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Info note */}
@@ -1895,7 +1937,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                   </svg>
                   <p style={{ fontSize: 11, color: colors.textMuted, lineHeight: 1.55 }}>
-                    Forecast ranges reflect expected variation based on property type, building demand, and short-term rental market conditions.
+                    Range width reflects the evidence behind the estimate, not just market variation. This projection is anchored to{" "}
+                    <span style={{ color: colors.textMain, fontWeight: 500 }}>{basisLabel}</span>
+                    {result.ltrBasis === "dld-building" ? ", the narrowest band we publish." : "; a building-level DLD match would narrow it further."}
                   </p>
                 </div>
 
