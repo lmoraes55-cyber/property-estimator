@@ -105,6 +105,7 @@ export default function RentProvenance({
         Where this rent comes from
       </p>
       <h2
+        className="ai-title-grad"
         style={{
           fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif",
           fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400,

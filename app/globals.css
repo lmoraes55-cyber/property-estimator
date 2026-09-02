@@ -310,3 +310,39 @@ p { line-height: 1.65; }
 
 .animate-fade-in  { animation: fadeIn  0.5s ease-out; }
 .animate-slide-up { animation: slideUp 0.5s ease-out; }
+
+/* ── Gradient section titles ───────────────────────────────────────────────
+   Both endpoints of each gradient clear WCAG AA on the surfaces they sit on,
+   and a linear ramp never leaves the band between them, so every pixel of the
+   text passes:
+     .ai-title-grad   #0F3E33 (11.95:1) -> #0B7C80 (4.99:1 on white,
+                      4.72:1 on the #F7F9F8 page ground)
+     .ai-title-grad-i  #FFFFFF (11.95:1) -> #EAD2A0 (8.10:1) on #0F3E33
+   Guarded by @supports because -webkit-text-fill-color: transparent without
+   background-clip support renders the heading invisible, not unstyled. */
+.ai-title-grad   { color: #0F3E33; }
+.ai-title-grad-i { color: #FFFFFF; }
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .ai-title-grad,
+  .ai-title-grad-i {
+    /* The clipped box is the block, not the glyphs — left as display:block a
+       short title in a wide section shows only the first few percent of the
+       ramp and reads as flat. inline-block shrinks the box to the text. */
+    display: inline-block;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .ai-title-grad   { background-image: linear-gradient(100deg, #0F3E33 0%, #0B7C80 100%); }
+  .ai-title-grad-i { background-image: linear-gradient(100deg, #FFFFFF 0%, #EAD2A0 100%); }
+}
+
+/* Printers drop the clipped background and would print nothing. */
+@media print {
+  .ai-title-grad,
+  .ai-title-grad-i {
+    background-image: none !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+}

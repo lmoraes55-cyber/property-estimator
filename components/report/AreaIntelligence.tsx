@@ -161,7 +161,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
             {/* Left — recommendation */}
             <div>
               <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: 10 }}>AssetIntel Recommendation</p>
-              <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
+              <h3 className="ai-title-grad-i" style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
                 {ltrRecommended ? "Operate as a Long-Term Rental" : "Operate as a Short-Term Rental"}
               </h3>
               <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.65, margin: 0 }}>
@@ -219,7 +219,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
       {/* Header */}
       <div>
         <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>Area Intelligence</p>
-        <h2 style={{ fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: "0 0 6px" }}>
+        <h2 className="ai-title-grad" style={{ fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: "0 0 6px" }}>
           {area} Market Intelligence
         </h2>
         <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.55, maxWidth: "62ch", margin: 0 }}>
