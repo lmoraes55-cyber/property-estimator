@@ -1704,82 +1704,100 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           <h2 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, letterSpacing: "-0.015em", color: colors.textMain, marginBottom: 4 }}>Cost &amp; Deduction Snapshot</h2>
           <p style={{ fontSize: 12, color: colors.textMuted, marginBottom: 24 }}>How gross STR revenue converts into estimated owner net income.</p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr auto 1fr auto 1fr", gap: 0, alignItems: "stretch" }} className="rpt-waterfall">
+          {/* Gross revenue as one proportional bar, then the figures as a
+              statement. The four-card row this replaces spelled the arithmetic
+              out in words — "minus / minus / equals" — and gave the gross, the
+              two deductions and the net identical weight, so nothing on it read
+              as the answer. Here the split is visible before a digit is read,
+              and the rule above the total does what "equals" was doing. */}
+          {(() => {
+            const gross = result.annualRevenue;
+            const mgmt = result.annualManagementFee;
+            const running = result.annualUtilities + result.annualMaintenance + result.annualFurnitureAmort;
+            const net = result.annualNetToLandlord;
+            const pct = (v: number) => gross > 0 ? (v / gross) * 100 : 0;
+            const keepPct = Math.round(pct(net));
 
-            {/* Gross Revenue */}
-            <div className="rc rc-wf rc-accent-green">
-              <span className="rc-bar rc-bar-green" />
-              <div className="rc-icon rc-icon-green">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 1 18"/><polyline points="16 7 22 7 22 13"/></svg>
-              </div>
-              <p className="rc-label rc-label-green">Gross Revenue</p>
-              <p className="rc-value rc-value-green">AED {fmt(result.annualRevenue)}</p>
-              <p className="rc-helper rc-helper-muted">Total STR gross income</p>
-            </div>
+            const segs = [
+              // Brand primary rather than series[0]: this segment carries a
+              // white in-bar label, and #12876A gave it only 4.47:1 — just
+              // under AA at 12px. #1B5E4A takes it to 7.65:1 and reads as the
+              // answer colour. Still clearly separable from the amber and blue
+              // in both hue and lightness.
+              { label: "Net to owner", value: net, color: colors.primary },
+              { label: "Management fees", value: mgmt, color: colors.series[1] },
+              { label: "Running costs", value: running, color: colors.series[2] },
+            ];
 
-            {/* Arrow divider */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 10px" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <div style={{ width: 1, flex: 1, background: colors.border, minHeight: 20 }} />
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.textLight} strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <p style={{ fontSize: 9, color: colors.textLight, fontWeight: 600, letterSpacing: "0.06em" }}>minus</p>
-                <div style={{ width: 1, flex: 1, background: colors.border, minHeight: 20 }} />
-              </div>
-            </div>
+            return (
+              <>
+                {/* Proportional bar. 2px surface gaps keep adjacent fills from
+                    reading as one mass. */}
+                <div style={{ display: "flex", gap: 2, height: 46, borderRadius: 8, overflow: "hidden", marginBottom: 10 }}>
+                  {segs.map(sg => (
+                    <div
+                      key={sg.label}
+                      title={`${sg.label} — AED ${fmt(sg.value)} (${pct(sg.value).toFixed(1)}% of gross)`}
+                      style={{
+                        width: `${pct(sg.value)}%`, background: sg.color,
+                        display: "flex", alignItems: "center", paddingLeft: 12,
+                        minWidth: 2,
+                      }}
+                    >
+                      {/* Direct-label only the segment wide enough to hold text;
+                          the legend carries the rest. */}
+                      {pct(sg.value) > 22 && (
+                        <span style={{ fontSize: 12, fontWeight: 500, color: "#FFFFFF", whiteSpace: "nowrap" }}>
+                          {Math.round(pct(sg.value))}% {sg.label.toLowerCase()}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
 
-            {/* Mgmt Fees */}
-            <div className="rc rc-wf rc-accent-bronze">
-              <span className="rc-bar rc-bar-bronze" />
-              <div className="rc-icon rc-icon-bronze">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-              </div>
-              <p className="rc-label rc-label-bronze">Management Fees</p>
-              <p className="rc-value rc-value-bronze">AED {fmt(result.annualManagementFee)}</p>
-              <p className="rc-helper rc-helper-muted">{(input.managementFee * 100).toFixed(0)}% of gross revenue</p>
-            </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 22 }}>
+                  {segs.map(sg => (
+                    <span key={sg.label} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: colors.textMuted }}>
+                      <span style={{ width: 9, height: 9, borderRadius: 2, background: sg.color, flexShrink: 0 }} />
+                      {sg.label}
+                    </span>
+                  ))}
+                </div>
 
-            {/* Arrow divider */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 10px" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <div style={{ width: 1, flex: 1, background: colors.border, minHeight: 20 }} />
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.textLight} strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <p style={{ fontSize: 9, color: colors.textLight, fontWeight: 600, letterSpacing: "0.06em" }}>minus</p>
-                <div style={{ width: 1, flex: 1, background: colors.border, minHeight: 20 }} />
-              </div>
-            </div>
+                {/* Statement. Figures right-aligned on tabular digits so they
+                    align on the decimal, with a rule above the total. */}
+                <div style={{ maxWidth: 560 }}>
+                  {[
+                    { k: "Gross revenue", note: "Total STR gross income", v: gross, sign: "" },
+                    { k: "Management fees", note: "20% of gross revenue", v: mgmt, sign: "\u2212" },
+                    { k: "Running costs", note: "DEWA, upkeep, furniture", v: running, sign: "\u2212" },
+                  ].map(row => (
+                    <div key={row.k} style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 20, padding: "9px 0" }}>
+                      <span style={{ fontSize: 13.5, color: colors.textMain }}>
+                        {row.k}
+                        <span style={{ fontSize: 12, color: colors.textLight, marginLeft: 8 }}>{row.note}</span>
+                      </span>
+                      <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 13.5, fontVariantNumeric: "tabular-nums", color: row.sign ? colors.textMuted : colors.textMain, whiteSpace: "nowrap" }}>
+                        {row.sign}{row.sign ? " " : ""}AED {fmt(row.v)}
+                      </span>
+                    </div>
+                  ))}
 
-            {/* Running Costs */}
-            <div className="rc rc-wf rc-accent-bronze">
-              <span className="rc-bar rc-bar-bronze" />
-              <div className="rc-icon rc-icon-bronze">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14.4 14.4L9.6 9.6M18.9 4.9a2.828 2.828 0 1 0 4 4l-12 12a4 4 0 0 1-2 1l-3 .5.5-3a4 4 0 0 1 1-2l12-12z"/></svg>
-              </div>
-              <p className="rc-label rc-label-bronze">Running Costs</p>
-              <p className="rc-value rc-value-bronze">AED {fmt(result.annualUtilities + result.annualMaintenance + result.annualFurnitureAmort)}</p>
-              <p className="rc-helper rc-helper-muted">DEWA, upkeep, furniture</p>
-            </div>
+                  <div style={{ height: 1, background: colors.borderStrong, margin: "6px 0 2px" }} />
 
-            {/* Arrow divider */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 10px" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <div style={{ width: 1, flex: 1, background: colors.border, minHeight: 20 }} />
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <p style={{ fontSize: 9, color: colors.primary, fontWeight: 700, letterSpacing: "0.06em" }}>equals</p>
-                <div style={{ width: 1, flex: 1, background: colors.border, minHeight: 20 }} />
-              </div>
-            </div>
-
-            {/* Net to Owner — result cell */}
-            <div className="rc rc-wf rc-accent-result">
-              <span className="rc-bar rc-bar-green" />
-              <div className="rc-icon rc-icon-green">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <p className="rc-label rc-label-result">Net to Owner</p>
-              <p className="rc-value rc-value-green">AED {fmt(result.annualNetToLandlord)}</p>
-              <p className="rc-helper rc-helper-green">After all deductions</p>
-            </div>
-          </div>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 20, padding: "10px 0 0" }}>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: colors.textMain }}>
+                      Net to owner
+                      <span style={{ fontSize: 12, color: colors.textLight, marginLeft: 8, fontWeight: 400 }}>{keepPct}% of gross, after all deductions</span>
+                    </span>
+                    <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 26, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: colors.primary, whiteSpace: "nowrap" }}>
+                      AED {fmt(net)}
+                    </span>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
 
           {/* Yield row — only if property value was entered */}
           {(result.grossYield !== undefined || result.netYield !== undefined) && (
