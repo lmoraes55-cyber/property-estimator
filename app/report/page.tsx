@@ -1286,8 +1286,6 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         }
         .rc-wf .rc-icon { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 10px; }
         .rc-wf .rc-value { font-size: clamp(17px, 1.7vw, 21px); }
-        .rpt-range-row { transition: background 140ms ease; }
-        .rpt-range-row:hover { background: rgba(15,29,24,0.03); }
         /* Grid gap standard */
         .rc-grid { display: grid; gap: 20px; }
         @media (max-width: 767px) { .rc-grid { gap: 16px; } }
@@ -1831,7 +1829,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             const rows = [
               { label: "Net to Landlord", centre: result.annualNetToLandlord, lo: roundTo(result.annualNetToLandlord - moneyOffset, 1000), hi: roundTo(result.annualNetToLandlord + moneyOffset, 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "After all deductions", accent: colors.primary },
               { label: "Annual Revenue", centre: result.annualRevenue, lo: roundTo(result.annualRevenue - moneyOffset, 1000), hi: roundTo(result.annualRevenue + moneyOffset, 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Gross projected revenue", accent: colors.primary },
-              { label: "Average Occupancy", centre: result.avgOccupancy * 100, lo: Math.max(0, Math.round(result.avgOccupancy * 100 - occBase)), hi: Math.min(100, Math.round(result.avgOccupancy * 100 + occBase)), fmtV: (v: number) => `${Math.round(v)}%`, helper: "Expected occupancy range", accent: colors.primary },
+              { label: "Average Occupancy", centre: result.avgOccupancy * 100, lo: Math.max(0, Math.round(result.avgOccupancy * 100 - occBase)), hi: Math.min(100, Math.round(result.avgOccupancy * 100 + occBase)), fmtV: (v: number) => `${Math.round(v)}%`, helper: "Averaged across the 12 months", accent: colors.primary },
               { label: "Average ADR", centre: result.avgADR, lo: roundTo(result.avgADR - adrBase, 5), hi: roundTo(result.avgADR + adrBase, 5), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Average daily rate", accent: colors.primary },
             ];
 
@@ -1857,56 +1855,46 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                   </div>
                 </div>
 
-                {/* Each metric is an interval, so it is drawn as one. The track
-                    spans the centre +/-14%, identical in relative terms for
-                    every row, so the bands are comparable across metrics on
-                    different scales: a visibly narrow band means a confident
-                    number, not merely a small one. */}
-                <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 2, marginBottom: 18 }}>
-                  {rows.map((r) => {
-                    // +/-10% of the centre. Wide enough for the worst case
-                    // (a table-fallback estimate on low occupancy approaches
-                    // +/-8%, and pos() clamps beyond that), tight enough that a
-                    // +/-1.2% band is still a visible mark rather than a sliver.
-                    const span = r.centre * 0.10;
-                    const tLo = r.centre - span, tHi = r.centre + span;
-                    const pos = (v: number) => Math.min(100, Math.max(0, ((v - tLo) / (tHi - tLo)) * 100));
-                    const spreadPct = r.centre > 0 ? ((r.hi - r.lo) / 2 / r.centre) * 100 : 0;
-                    return (
-                      <div
-                        key={r.label}
-                        title={`${r.label} — central estimate ${r.fmtV(r.centre)}, range ${r.fmtV(r.lo)} to ${r.fmtV(r.hi)}`}
-                        style={{ display: "grid", gridTemplateColumns: "minmax(0,168px) 1fr minmax(0,190px)", alignItems: "center", gap: 18, padding: "12px 10px", borderRadius: 10 }}
-                        className="rpt-range-row"
-                      >
-                        <div style={{ minWidth: 0 }}>
-                          <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, margin: 0, lineHeight: 1.4 }}>{r.label}</p>
-                          <p style={{ fontSize: 11.5, color: colors.textLight, margin: "2px 0 0", lineHeight: 1.4 }}>{r.helper}</p>
-                        </div>
-
-                        <div style={{ position: "relative", height: 22 }}>
-                          {/* track */}
-                          <div style={{ position: "absolute", top: 10, left: 0, right: 0, height: 2, borderRadius: 1, background: colors.border }} />
-                          {/* the interval */}
-                          <div style={{ position: "absolute", top: 7, left: `${pos(r.lo)}%`, width: `${pos(r.hi) - pos(r.lo)}%`, height: 8, borderRadius: 4, background: r.accent, opacity: 0.28 }} />
-                          {/* bounds */}
-                          <div style={{ position: "absolute", top: 5, left: `${pos(r.lo)}%`, width: 2, height: 12, borderRadius: 1, background: r.accent }} />
-                          <div style={{ position: "absolute", top: 5, left: `calc(${pos(r.hi)}% - 2px)`, width: 2, height: 12, borderRadius: 1, background: r.accent }} />
-                          {/* central estimate */}
-                          <div style={{ position: "absolute", top: 5, left: `calc(${pos(r.centre)}% - 5px)`, width: 10, height: 10, borderRadius: "50%", background: r.accent, border: "2px solid #fff" }} />
-                        </div>
-
-                        <div style={{ textAlign: "right" }}>
-                          <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 13.5, fontVariantNumeric: "tabular-nums", color: colors.textMain, margin: 0, whiteSpace: "nowrap" }}>
-                            {r.fmtV(r.lo)} – {r.fmtV(r.hi)}
-                          </p>
-                          <p style={{ fontSize: 11, color: colors.textLight, margin: "2px 0 0", whiteSpace: "nowrap" }}>
-                            {r.fmtV(r.centre)} central · ±{spreadPct.toFixed(1)}%
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                {/* Three named scenarios rather than an interval plot. The
+                    bars this replaces were a confidence interval — accurate,
+                    but they assume chart literacy an owner has no reason to
+                    have, and four floating bands do not tell you what to do.
+                    "Conservative / Expected / Optimistic" needs no explaining
+                    and is the language investment memos already use. The
+                    spread still carries the same information: it is derived
+                    from confFactor, so better evidence visibly narrows it. */}
+                <div style={{ position: "relative", zIndex: 1, overflowX: "auto", marginBottom: 18 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 520 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: "0 0 10px", fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight }} />
+                        <th style={{ textAlign: "right", padding: "0 16px 10px", fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, whiteSpace: "nowrap" }}>Conservative</th>
+                        <th style={{ textAlign: "right", padding: "0 16px 10px", fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.primary, whiteSpace: "nowrap" }}>Expected</th>
+                        <th style={{ textAlign: "right", padding: "0 0 10px 16px", fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, whiteSpace: "nowrap" }}>Optimistic</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r, idx) => (
+                        <tr key={r.label} style={{ borderTop: `1px solid ${colors.border}` }}>
+                          <td style={{ padding: "13px 0", verticalAlign: "middle" }}>
+                            <p style={{ fontSize: 13.5, color: colors.textMain, margin: 0, lineHeight: 1.3 }}>{r.label}</p>
+                            <p style={{ fontSize: 11.5, color: colors.textLight, margin: "2px 0 0", lineHeight: 1.3 }}>{r.helper}</p>
+                          </td>
+                          <td style={{ padding: "13px 16px", textAlign: "right", fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 13, fontVariantNumeric: "tabular-nums", color: colors.textLight, whiteSpace: "nowrap" }}>
+                            {r.fmtV(r.lo)}
+                          </td>
+                          {/* Expected is the answer, so it is the only column
+                              at full weight and on a tinted ground. */}
+                          <td style={{ padding: "13px 16px", textAlign: "right", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 17, fontWeight: 500, letterSpacing: "-0.01em", fontVariantNumeric: "tabular-nums", color: colors.primary, whiteSpace: "nowrap", background: "rgba(27,94,74,0.045)", borderTop: idx === 0 ? `1px solid ${colors.border}` : undefined }}>
+                            {r.fmtV(r.centre)}
+                          </td>
+                          <td style={{ padding: "13px 0 13px 16px", textAlign: "right", fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 13, fontVariantNumeric: "tabular-nums", color: colors.textLight, whiteSpace: "nowrap" }}>
+                            {r.fmtV(r.hi)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
 
                 {/* Info note */}
@@ -1915,9 +1903,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                   </svg>
                   <p style={{ fontSize: 11, color: colors.textMuted, lineHeight: 1.55 }}>
-                    Range width reflects the evidence behind the estimate, not just market variation. This projection is anchored to{" "}
+                    How far the conservative and optimistic cases sit from the expected one depends on the evidence behind the estimate, not just market swing. This projection is anchored to{" "}
                     <span style={{ color: colors.textMain, fontWeight: 500 }}>{basisLabel}</span>
-                    {result.ltrBasis === "dld-building" ? ", the narrowest band we publish." : "; a building-level DLD match would narrow it further."}
+                    {result.ltrBasis === "dld-building" ? ", so these are the tightest cases we publish." : "; a building-level DLD match would tighten them."}
                   </p>
                 </div>
 
