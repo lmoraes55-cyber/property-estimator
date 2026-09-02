@@ -1524,10 +1524,10 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             {/* Same node/edge field as the recommendation card, mirrored to the
                 left so it reads as one family without being a copy. */}
             <svg aria-hidden="true" width="300" height="300" viewBox="0 0 260 260" style={{ position: "absolute", left: "-50px", top: "50%", transform: "translateY(-50%)", opacity: 0.08, pointerEvents: "none" }}>
-              <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+              <g stroke="#EAD2A0" strokeWidth="0.9" fill="none">
                 {[[40,40],[120,20],[200,60],[70,120],[180,140],[30,190],[140,210],[220,180]].map((pt, i, arr) => (
                   <g key={i}>
-                    <circle cx={pt[0]} cy={pt[1]} r="2.4" fill="#D4A574" stroke="none" />
+                    <circle cx={pt[0]} cy={pt[1]} r="2.4" fill="#EAD2A0" stroke="none" />
                     {arr.slice(i + 1).map((q, j) => {
                       const d = Math.hypot(pt[0] - q[0], pt[1] - q[1]);
                       return d < 110 ? <line key={j} x1={pt[0]} y1={pt[1]} x2={q[0]} y2={q[1]} /> : null;
@@ -1537,10 +1537,10 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               </g>
             </svg>
             <svg aria-hidden="true" width="300" height="300" viewBox="0 0 260 260" style={{ position: "absolute", right: "-60px", top: "50%", transform: "translateY(-50%) scaleX(-1)", opacity: 0.06, pointerEvents: "none" }}>
-              <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+              <g stroke="#EAD2A0" strokeWidth="0.9" fill="none">
                 {[[40,40],[120,20],[200,60],[70,120],[180,140],[30,190],[140,210],[220,180]].map((pt, i, arr) => (
                   <g key={i}>
-                    <circle cx={pt[0]} cy={pt[1]} r="2.4" fill="#D4A574" stroke="none" />
+                    <circle cx={pt[0]} cy={pt[1]} r="2.4" fill="#EAD2A0" stroke="none" />
                     {arr.slice(i + 1).map((q, j) => {
                       const d = Math.hypot(pt[0] - q[0], pt[1] - q[1]);
                       return d < 110 ? <line key={j} x1={pt[0]} y1={pt[1]} x2={q[0]} y2={q[1]} /> : null;
@@ -1556,22 +1556,22 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }} className="rpt-summary-wrap">
 
               {/* ── Left verdict panel ── */}
-              <div style={{ borderRadius: 20, background: colors.bgWhite, border: `1px solid ${colors.border}`, borderTop: `2px solid ${colors.primary}`, padding: "22px 24px", display: "flex", flexDirection: "column", gap: 0 }} className="rpt-verdict">
+              <div style={{ padding: "4px 0", display: "flex", flexDirection: "column", gap: 0 }} className="rpt-verdict">
 
-                <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: 12 }}>
+                <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#EAD2A0", marginBottom: 12 }}>
                   12-Month Forecast · {new Date().toLocaleDateString("en-AE", { month: "long", year: "numeric" })}
                 </span>
 
-                <h1 style={{ fontSize: "clamp(23px, 2.3vw, 33px)", fontWeight: 300, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.12, letterSpacing: "-0.02em", marginBottom: 8, color: colors.textMain, textWrap: "balance" }}>
+                <h1 style={{ fontSize: "clamp(23px, 2.3vw, 33px)", fontWeight: 300, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", lineHeight: 1.12, letterSpacing: "-0.02em", marginBottom: 10, color: "#FFFFFF", textWrap: "balance" }}>
                   {strBetter ? "Short-term rental outperforms" : "Long-term rental is competitive"}
                 </h1>
 
-                <div style={{ height: 1, background: colors.border, marginBottom: 14 }} />
+                <div style={{ height: 1, background: "rgba(255,255,255,0.16)", marginBottom: 14 }} />
 
                 {/* Delta with icon */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: strBetter ? "rgba(27,94,74,0.10)" : "rgba(184,138,68,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={strBetter ? colors.primary : colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(212,165,116,0.16)", border: "1px solid rgba(212,165,116,0.30)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EAD2A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       {strBetter
                         ? <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>
                         : <><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/></>
@@ -1579,29 +1579,29 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     </svg>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 25, fontWeight: 400, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: colors.textMain, lineHeight: 1 }}>
+                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 25, fontWeight: 400, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "#FFFFFF", lineHeight: 1 }}>
                       AED {fmt(Math.abs(result.strVsLtrDelta))}
                     </p>
-                    <p style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>{strBetter ? "more per year with STR" : "difference vs LTR"}</p>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.62)", marginTop: 2 }}>{strBetter ? "more per year with STR" : "difference vs LTR"}</p>
                   </div>
                 </div>
 
                 {/* Property chips */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.16)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.88)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 20, padding: "4px 10px" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                     Floor {result.floor}
                   </span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.16)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2"/><path d="M2 9a2 2 0 0 1 2 2v2h16v-2a2 2 0 0 1 2-2"/><path d="M4 13v4h16v-4"/></svg>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.88)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 20, padding: "4px 10px" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2"/><path d="M2 9a2 2 0 0 1 2 2v2h16v-2a2 2 0 0 1 2-2"/><path d="M4 13v4h16v-4"/></svg>
                     {result.furnished}
                   </span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.16)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.88)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 20, padding: "4px 10px" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
                     {result.view}
                   </span>
                   {result.propertyCondition !== "Standard" && (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.25)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: "#EAD2A0", background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.34)", borderRadius: 20, padding: "4px 10px" }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                       {result.propertyCondition}
                     </span>
@@ -1612,14 +1612,14 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                     const sc = bInfo?.serviceChargePsf;
                     return (<>
                       {cy && (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.16)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.88)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 20, padding: "4px 10px" }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                           Built {cy} · {2026 - cy} yrs
                         </span>
                       )}
                       {sc && (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: colors.primary, background: "#fff", border: "1px solid rgba(27,94,74,0.16)", borderRadius: 20, padding: "4px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.88)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 20, padding: "4px 10px" }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                           SC AED {sc}/sqft
                         </span>
                       )}
@@ -1632,64 +1632,64 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               {/* Equal rows. Left to `auto`, the grid gave the row holding the
                   taller LTR card (it carries a provenance badge) 154px and the
                   other 130px, which reads as a mistake rather than a rhythm. */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 12 }} className="rpt-metrics-grid">
+              {/* Figures sit directly on the green, in the same bronze-label /
+                  white-value language as the recommendation card. Hairlines
+                  rather than card borders keep the panel reading as one
+                  surface instead of four boxes on a background. */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 0, borderLeft: "1px solid rgba(255,255,255,0.16)" }} className="rpt-metrics-grid">
 
                 {/* STR Net / Year */}
-                <div className="rc rc-glassy rc-accent-green">
-                  <span className="rc-bar rc-bar-green" />
-                  <p className="rc-label rc-label-green">STR Net / Year</p>
-                  <p className="rc-value rc-value-green">AED {fmt(result.annualNetToLandlord)}</p>
+                <div style={{ padding: "14px 22px", borderBottom: "1px solid rgba(255,255,255,0.10)" }}>
+                  <p style={{ fontSize: 10, color: "#EAD2A0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>STR Net / Year</p>
+                  <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "#FFFFFF", lineHeight: 1.1 }}>AED {fmt(result.annualNetToLandlord)}</p>
                 </div>
 
                 {/* LTR / Year */}
-                <div className="rc rc-glassy rc-accent-bronze">
-                  <span className="rc-bar rc-bar-bronze" />
-                  <p className="rc-label rc-label-bronze">LTR / Year</p>
-                  <p className="rc-value rc-value-bronze" style={{ marginBottom: 8 }}>AED {fmt(result.longTermRent)}</p>
+                <div style={{ padding: "14px 22px", borderBottom: "1px solid rgba(255,255,255,0.10)", borderLeft: "1px solid rgba(255,255,255,0.10)" }}>
+                  <p style={{ fontSize: 10, color: "#EAD2A0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>LTR / Year</p>
+                  <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "#FFFFFF", lineHeight: 1.1, marginBottom: 8 }}>AED {fmt(result.longTermRent)}</p>
                   {ltrSource === "dda-live" && (ltrMatch === "master" || ltrMatch === "area") ? (
                     // Pooled, not building-specific — bronze like the other
                     // non-building tiers, and labelled for what it is.
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "#EAD2A0", background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.34)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="#EAD2A0" strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       Live DLD · {ltrMatch === "master" ? "community avg" : "area avg"}
                     </span>
                   ) : ltrSource === "dda-live" ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.primary, background: "rgba(27,94,74,0.07)", border: "1px solid rgba(27,94,74,0.14)", borderRadius: 20, padding: "2px 8px" }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "#BFE3D2", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="#BFE3D2" strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       Live DLD · building
                     </span>
                   ) : result.ltrBasis === "dld-building" ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.primary, background: "rgba(27,94,74,0.07)", border: "1px solid rgba(27,94,74,0.14)", borderRadius: 20, padding: "2px 8px" }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.primary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "#BFE3D2", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="#BFE3D2" strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {result.ltrSampleSize?.toLocaleString()} DLD · building{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
                     </span>
                   ) : result.ltrBasis === "dld-master" ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "#EAD2A0", background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.34)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="#EAD2A0" strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {result.ltrSampleSize?.toLocaleString()} DLD · community avg{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
                     </span>
                   ) : result.ltrBasis === "dld-area" ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: colors.secondary, background: "rgba(184,138,68,0.07)", border: "1px solid rgba(184,138,68,0.18)", borderRadius: 20, padding: "2px 8px" }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={colors.secondary} strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "#EAD2A0", background: "rgba(184,138,68,0.18)", border: "1px solid rgba(184,138,68,0.34)", borderRadius: 20, padding: "2px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="#EAD2A0" strokeWidth="2" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {result.ltrSampleSize?.toLocaleString()} DLD · area avg{result.ltrAsOf ? ` · ${result.ltrAsOf}` : ""}
                     </span>
                   ) : (
-                    <span style={{ fontSize: 10, color: "#9A9A9A" }}>Estimated · {result.ltrSource}</span>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.55)" }}>Estimated · {result.ltrSource}</span>
                   )}
                 </div>
 
                 {/* Avg Occupancy */}
-                <div className="rc rc-glassy rc-accent-green">
-                  <span className="rc-bar rc-bar-green" />
-                  <p className="rc-label rc-label-green">Avg Occupancy</p>
-                  <p className="rc-value rc-value-green">{(result.avgOccupancy * 100).toFixed(0)}%</p>
+                <div style={{ padding: "14px 22px" }}>
+                  <p style={{ fontSize: 10, color: "#EAD2A0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Avg Occupancy</p>
+                  <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "#FFFFFF", lineHeight: 1.1 }}>{(result.avgOccupancy * 100).toFixed(0)}%</p>
                 </div>
 
                 {/* Avg Daily Rate */}
-                <div className="rc rc-glassy rc-accent-bronze">
-                  <span className="rc-bar rc-bar-bronze" />
-                  <p className="rc-label rc-label-bronze">Avg Daily Rate</p>
-                  <p className="rc-value rc-value-bronze">AED {fmt(result.avgADR)}</p>
+                <div style={{ padding: "14px 22px" }}>
+                  <p style={{ fontSize: 10, color: "#EAD2A0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Avg Daily Rate</p>
+                  <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "#FFFFFF", lineHeight: 1.1 }}>AED {fmt(result.avgADR)}</p>
                 </div>
 
               </div>
