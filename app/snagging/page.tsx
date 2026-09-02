@@ -113,7 +113,7 @@ export default function SnaggingPage() {
               Pre-Handover Snagging Inspection
             </p>
             <h1 style={{
-              fontFamily: serif, fontSize: "clamp(29px, 4vw, 47px)", fontWeight: 600, color: colors.primary,
+              fontFamily: serif, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 600, color: colors.primary,
               lineHeight: 1.2, marginBottom: 16, maxWidth: 680, margin: "0 auto 16px",
             }}>
               Don't accept handover until a specialist has checked it for you
@@ -148,7 +148,7 @@ export default function SnaggingPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
               See What You Get
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(22px, 2.6vw, 29px)", fontWeight: 600, color: colors.primary, marginBottom: 20 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 600, color: colors.primary, marginBottom: 20 }}>
               Sample snagging report
             </h2>
 
@@ -234,7 +234,7 @@ export default function SnaggingPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10, textAlign: "center" }}>
               Below Standard Market Rates
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(22px, 2.6vw, 29px)", fontWeight: 600, color: colors.primary, marginBottom: 24, textAlign: "center" }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 600, color: colors.primary, marginBottom: 24, textAlign: "center" }}>
               Choose your unit size
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
@@ -273,7 +273,7 @@ export default function SnaggingPage() {
 
           {/* ── FAQ ── */}
           <section style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(22px, 2.6vw, 29px)", fontWeight: 600, color: colors.primary, marginBottom: 20 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 600, color: colors.primary, marginBottom: 20 }}>
               Frequently asked questions
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

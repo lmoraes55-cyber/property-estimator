@@ -293,7 +293,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: "56px 24px 0" }}>
           <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
             <EyebrowLabel>STR Investment Research</EyebrowLabel>
-            <h1 style={{ fontSize: "clamp(34px, 4.5vw, 52px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "12px 0 14px", lineHeight: 1.15 }}>
+            <h1 style={{ fontSize: "clamp(30px, 4.5vw, 46px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "12px 0 14px", lineHeight: 1.15 }}>
               What Will Your Budget Buy For STR?
             </h1>
             <p style={{ fontSize: 15.5, color: colors.textMuted, lineHeight: 1.7, maxWidth: 620, margin: "0 auto 36px" }}>
@@ -364,7 +364,7 @@ export default function STRInvestmentResearchPage() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
                     <div>
                       <EyebrowLabel>YOUR RESULTS</EyebrowLabel>
-                      <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 6px" }}>
+                      <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 6px" }}>
                         Best Areas For {fmtAED(budget)}
                       </h2>
                       <p style={{ fontSize: 13.5, color: colors.textMuted, margin: 0 }}>Ranked by projected gross STR yield on this budget. Tap an area to see building options.</p>
@@ -415,7 +415,7 @@ export default function STRInvestmentResearchPage() {
                     ← Compare All Areas
                   </button>
                   <EyebrowLabel>AREA DETAIL</EyebrowLabel>
-                  <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 20px" }}>{selectedArea} At {fmtAED(budget)}</h2>
+                  <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 20px" }}>{selectedArea} At {fmtAED(budget)}</h2>
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginBottom: 8 }}>
                     {[
@@ -476,7 +476,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <EyebrowLabel>PROPERTY TYPE</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 8px" }}>Ready Or Off-Plan — Both Change The STR Calculation</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 8px" }}>Ready Or Off-Plan — Both Change The STR Calculation</h2>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 28, maxWidth: 640 }}>The numbers above are area-level. Whether the specific unit is ready or off-plan changes what you can verify before you commit.</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="sir-comparison-grid">
               {[
@@ -501,7 +501,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: pad }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <EyebrowLabel>WHY IT MATTERS</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 20px" }}>The Best Purchase Isn't Always The Highest-Grossing Unit</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 20px" }}>The Best Purchase Isn't Always The Highest-Grossing Unit</h2>
             <div style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "26px 28px", maxWidth: 760 }}>
               {[
                 "Net income matters more than headline revenue.",
@@ -524,7 +524,7 @@ export default function STRInvestmentResearchPage() {
         <section style={{ padding: pad, background: `linear-gradient(135deg, ${colors.primary} 0%, #0F3E33 100%)` }}>
           <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryOnDark, margin: "0 0 14px" }}>STR Investment Research</p>
-            <h2 style={{ fontSize: "clamp(29px, 4vw, 43px)", fontFamily: serif, fontWeight: 600, color: "#fff", margin: "0 0 14px" }}>Ready To Buy With STR In Mind?</h2>
+            <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontFamily: serif, fontWeight: 600, color: "#fff", margin: "0 0 14px" }}>Ready To Buy With STR In Mind?</h2>
             <p style={{ fontSize: 15, color: "rgba(255,255,255,0.75)", maxWidth: 480, margin: "0 auto 28px", lineHeight: 1.65 }}>Run the calculator above with your real budget, or request a detailed shortlist from AssetIntel directly.</p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <button onClick={() => { setFormOpen(true); }} style={{ padding: "14px 28px", borderRadius: 12, background: colors.secondary, color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 18px rgba(0,0,0,0.18)" }}>

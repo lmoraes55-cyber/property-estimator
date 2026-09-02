@@ -124,7 +124,7 @@ function SectionLabel({ text }: { text: string }) {
 
 function SectionTitle({ children, size = "34px" }: { children: React.ReactNode; size?: string }) {
   return (
-    <h2 style={{ fontSize: size, fontFamily: serifHeading, fontWeight: 600, marginBottom: "16px", background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+    <h2 style={{ fontSize: size, fontFamily: serifHeading, fontWeight: 600, marginBottom: "14px", background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
       {children}
     </h2>
   );
@@ -363,7 +363,7 @@ export default function STRSubleasingPage() {
               <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondaryText }}>STR Sub-Leasing Risk Estimator</span>
             </div>
 
-            <h1 style={{ fontSize: isMobile ? "clamp(31px, 9vw, 45px)" : "clamp(38px, 3.4vw, 56px)", fontFamily: serifHeading, fontWeight: 600, lineHeight: isMobile ? 1.08 : 1.05, letterSpacing: isMobile ? "-0.02em" : "-0.03em", marginBottom: "18px", background: `linear-gradient(130deg, ${colors.primary} 0%, #2A7A58 42%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: "72px" }}>
+            <h1 style={{ fontSize: isMobile ? "clamp(28px,9vw,40px)" : "clamp(34px,3.4vw,50px)", fontFamily: serifHeading, fontWeight: 600, lineHeight: isMobile ? 1.08 : 1.05, letterSpacing: isMobile ? "-0.02em" : "-0.03em", marginBottom: "16px", background: `linear-gradient(130deg, ${colors.primary} 0%, #2A7A58 42%, ${colors.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", maxWidth: "780px" }}>
               Check The Unit Before You Sign The Lease
             </h1>
 

@@ -918,7 +918,7 @@ function ResultInner() {
           {/* Hero — Avoid */}
           <div style={{ marginBottom: "32px" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "10px" }}>ASSETINTEL STR SUB-LEASING RISK REPORT</div>
-            <h1 style={{ fontFamily: serif, fontSize: "clamp(29px, 4vw, 45px)", fontWeight: 600, color: C.text, marginBottom: "18px", lineHeight: 1.15 }}>{buildingName}</h1>
+            <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 600, color: C.text, marginBottom: "16px", lineHeight: 1.15 }}>{buildingName}</h1>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "24px" }}>
               {[community, unitSize, `Floor ${floor}`, view, fq + " Furnishing", `AED ${fmt(monthlyRent)}/mo`].filter(Boolean).map(chip => (
                 <span key={chip} style={{ fontSize: "12px", fontWeight: 600, color: C.muted, background: C.surface, border: `1px solid ${C.border}`, padding: "4px 12px", borderRadius: "20px" }}>{chip}</span>
@@ -1009,7 +1009,7 @@ function ResultInner() {
         {/* ── Hero ── */}
         <div style={{ marginBottom: "36px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", color: C.bronze, marginBottom: "12px" }}>ASSETINTEL STR SUB-LEASING RISK REPORT</div>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(29px, 4vw, 45px)", fontWeight: 600, color: C.text, marginBottom: "8px", lineHeight: 1.15 }}>{r.buildingName}</h1>
+          <h1 style={{ fontFamily: serif, fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 600, color: C.text, marginBottom: "8px", lineHeight: 1.15 }}>{r.buildingName}</h1>
           {r.community && <p style={{ fontSize: "15px", color: C.muted, marginBottom: "18px" }}>{r.community}</p>}
 
           {/* Property chips */}

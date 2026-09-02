@@ -627,7 +627,7 @@ export default function AgentToolsPage() {
           <p style={{ fontSize: 12, fontWeight: 700, color: colors.secondary, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 16 }}>
             Agent Intelligence Platform
           </p>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(34px, 4.2vw, 52px)", color: colors.primary, fontWeight: 600, lineHeight: 1.15, marginBottom: 20 }}>
+          <h1 style={{ fontFamily: serif, fontSize: "clamp(30px, 4.2vw, 46px)", color: colors.primary, fontWeight: 600, lineHeight: 1.15, marginBottom: 20 }}>
             Data-Backed Property Reports For Dubai Agents
           </h1>
           <p style={{ fontSize: 17, color: colors.textMuted, lineHeight: 1.65, marginBottom: 10, maxWidth: isMobile ? "none" : 480 }}>

@@ -236,7 +236,7 @@ export default function SelfManagePage() {
             <div style={{ fontSize: "11.5px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: "16px" }}>
               Self-Manage Your STR
             </div>
-            <h1 style={{ fontSize: isMobile ? "34px" : "49px", fontFamily: serifHeading, fontWeight: 600, lineHeight: 1.18, marginBottom: "20px", color: colors.primary, maxWidth: "72px", marginLeft: "auto", marginRight: "auto" }}>
+            <h1 style={{ fontSize: isMobile ? "34px" : "49px", fontFamily: serifHeading, fontWeight: 600, lineHeight: 1.18, marginBottom: "18px", color: colors.primary, maxWidth: "820px", marginLeft: "auto", marginRight: "auto" }}>
               Everything You Need to Run Your Holiday Home Yourself
             </h1>
             <p style={{ fontSize: isMobile ? "14.5px" : "16px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "680px", margin: "0 auto 30px" }}>
@@ -503,7 +503,7 @@ export default function SelfManagePage() {
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
 
             <div style={{ textAlign: "center", marginBottom: "36px" }}>
-              <p style={{ fontSize: isMobile ? "17px" : "18px", color: colors.primary, fontFamily: serifHeading, lineHeight: 1.55, maxWidth: "72px", margin: "0 auto" }}>
+              <p style={{ fontSize: isMobile ? "17px" : "18px", color: colors.primary, fontFamily: serifHeading, lineHeight: 1.55, maxWidth: "760px", margin: "0 auto" }}>
                 Build your self-managed STR using the systems, technology and operational structure used by professional Dubai holiday-home operators — without giving away a percentage of your rental revenue.
               </p>
             </div>
@@ -737,7 +737,7 @@ function SectionHeading({ label, title, subtitle }: { label: string; title: stri
   return (
     <div style={{ marginBottom: "36px", textAlign: "center" }}>
       <div style={{ fontSize: "11px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "12px" }}>{label}</div>
-      <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serifHeading, fontWeight: 600, marginBottom: subtitle ? "12px" : 0, color: colors.primary }}>{title}</h2>
+      <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serifHeading, fontWeight: 600, marginBottom: subtitle ? "12px" : 0, color: colors.primary }}>{title}</h2>
       {subtitle && <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "600px", margin: "0 auto" }}>{subtitle}</p>}
     </div>
   );

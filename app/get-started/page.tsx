@@ -126,7 +126,7 @@ function GetStartedForm() {
       {/* Hero */}
       <div style={{ textAlign: "center", padding: "56px 20px 32px", maxWidth: 720, margin: "0 auto" }}>
         <img src="/brand/assetintel-favicon-128.png" alt="AssetIntel" width={44} height={44} style={{ margin: "0 auto 20px", borderRadius: 10 }} />
-        <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(31px, 5vw, 45px)", color: colors.textMain, lineHeight: 1.15, marginBottom: 14 }}>
+        <h1 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: "clamp(28px, 5vw, 40px)", color: colors.textMain, lineHeight: 1.15, marginBottom: 14 }}>
           What could your Dubai property really earn?
         </h1>
         <p style={{ fontSize: 16, color: colors.textMuted, lineHeight: 1.6, maxWidth: 520, margin: "0 auto" }}>

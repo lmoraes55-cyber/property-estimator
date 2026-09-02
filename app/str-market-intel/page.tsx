@@ -315,7 +315,7 @@ export default function STRMarketIntelPage() {
         <section style={{ padding: "48px 24px 0", maxWidth: 1200, margin: "0 auto" }}>
           <EyebrowLabel>DUBAI'S PROPERTY INTELLIGENCE PLATFORM</EyebrowLabel>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginTop: 10, marginBottom: 8 }}>
-            <h1 style={{ fontSize: "clamp(31px, 4vw, 47px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0, lineHeight: 1.15, maxWidth: 640 }}>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0, lineHeight: 1.15, maxWidth: 640 }}>
               Dubai STR Market Intelligence
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
@@ -379,7 +379,7 @@ export default function STRMarketIntelPage() {
         <section id="mi-areas" style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}`, borderBottom: `1px solid ${colors.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <EyebrowLabel>DUBAI AREAS</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 8px" }}>Area Performance</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 8px" }}>Area Performance</h2>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 26, maxWidth: 640 }}>
               Ranked by RevPAR by default. Open any area for its full live profile — and AssetIntel's own directional read, kept visibly separate from sourced data.
             </p>
@@ -565,7 +565,7 @@ export default function STRMarketIntelPage() {
         <section id="mi-signals" style={{ padding: pad }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <EyebrowLabel>SIGNALS TO WATCH</EyebrowLabel>
-            <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 8px" }}>Market Signals To Watch</h2>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 8px" }}>Market Signals To Watch</h2>
             <p style={{ fontSize: 14.5, color: colors.textMuted, lineHeight: 1.65, marginBottom: 28, maxWidth: 640 }}>
               STR performance is not only about location. Owners should review the signals that directly affect income, risk, and guest conversion.
             </p>
@@ -589,7 +589,7 @@ export default function STRMarketIntelPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }} className="mi-methodology-grid">
               <div>
                 <EyebrowLabel>DIRECTIONAL MODEL — NOT MEASURED DATA</EyebrowLabel>
-                <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 14px" }}>How AssetIntel Scores STR Potential</h2>
+                <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "10px 0 14px" }}>How AssetIntel Scores STR Potential</h2>
                 <p style={{ fontSize: 14, color: colors.textMuted, lineHeight: 1.75, marginBottom: 16 }}>
                   AssetIntel does not rank properties only by headline revenue. We consider whether a unit can realistically perform after management fees, running costs, furnishing quality, seasonality, and operator execution.
                 </p>

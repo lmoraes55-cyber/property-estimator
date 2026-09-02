@@ -787,7 +787,7 @@ function TemplateModal({ template, isMobile, onClose }: { template: GuestTemplat
         <div style={{ padding: isMobile ? "24px 22px 18px" : "30px 36px 22px", borderBottom: "1px solid #E2E8E5", position: "relative" }}>
           <button onClick={onClose} style={{ position: "absolute", top: "18px", right: "18px", background: "none", border: "none", cursor: "pointer", color: "#4E5D56", fontSize: "20px", lineHeight: 1, padding: "4px 8px" }}>×</button>
           <div style={{ fontSize: "10px", fontWeight: 700, color: "#B88A44", letterSpacing: "0.14em", marginBottom: "10px" }}>GUEST COMMUNICATION TEMPLATE</div>
-          <h2 style={{ fontSize: isMobile ? "21px" : "25px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 600, color: "#1B5E4A", marginBottom: "16px", paddingRight: "36px" }}>{template.title}</h2>
+          <h2 style={{ fontSize: isMobile ? "21px" : "25px", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontWeight: 600, color: "#1B5E4A", marginBottom: "14px", paddingRight: "32px" }}>{template.title}</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", background: "#F0F8F4", borderRadius: "999px", border: "1px solid #1B5E4A20" }}>
               <span style={{ fontSize: "10px", fontWeight: 700, color: "#1B5E4A", letterSpacing: "0.08em" }}>BEST USED FOR</span>
@@ -909,7 +909,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "40px" : "72px", alignItems: "flex-start", position: "relative", zIndex: 1 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "14px" }}>OWNER SELF-MANAGEMENT PLAYBOOK</div>
-            <h1 style={{ fontSize: isMobile ? "34px" : "52px", fontFamily: SF, fontWeight: 600, lineHeight: 1.15, marginBottom: "20px", background: `linear-gradient(135deg, ${C.primary} 0%, ${C.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+            <h1 style={{ fontSize: isMobile ? "34px" : "52px", fontFamily: SF, fontWeight: 600, lineHeight: 1.15, marginBottom: "18px", background: `linear-gradient(135deg, ${C.primary} 0%, ${C.secondary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               Set Up Your Short-Term Rental Like a Professional Operator
             </h1>
             <p style={{ fontSize: "16px", color: C.textMuted, lineHeight: 1.65, marginBottom: "28px", maxWidth: "520px" }}>
@@ -951,7 +951,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "44px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>OWNER SETUP OVERVIEW</div>
-            <h2 style={{ fontSize: isMobile ? "29px" : "38px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "16px", lineHeight: 1.2 }}>What You Need To Self-Manage Successfully</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "38px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>What You Need To Self-Manage Successfully</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "680px", margin: 0 }}>Self-managing a Dubai short-term rental means handling licensing, listings, software, pricing, housekeeping, maintenance, guest communication, and monthly performance tracking.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px" }}>
@@ -978,7 +978,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "16px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>SETUP PLAYBOOK</div>
-            <h2 style={{ fontSize: isMobile ? "29px" : "38px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "16px", lineHeight: 1.2 }}>The Self-Manage Setup Playbook</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "38px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>The Self-Manage Setup Playbook</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "620px", marginBottom: "24px" }}>Follow these core setup layers before listing your property as a short-term rental.</p>
             <div style={{ padding: "12px 18px", background: "#F5F1EA", borderRadius: "10px", border: "1px solid #DDD8CE", display: "flex", gap: "10px", alignItems: "flex-start" }}>
               <div style={{ marginTop: "1px", flexShrink: 0 }}><IconInfo color={C.secondary} /></div>
@@ -1151,7 +1151,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ marginBottom: "40px" }}>
             <div style={{ fontSize: "11px", color: C.secondary, fontWeight: 700, letterSpacing: "0.14em", marginBottom: "12px" }}>OPERATIONS SUPPORT</div>
-            <h2 style={{ fontSize: isMobile ? "29px" : "36px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "16px", lineHeight: 1.2 }}>Need Reliable STR Vendors?</h2>
+            <h2 style={{ fontSize: isMobile ? "29px" : "36px", fontFamily: SF, fontWeight: 600, color: C.primary, marginBottom: "14px", lineHeight: 1.2 }}>Need Reliable STR Vendors?</h2>
             <p style={{ fontSize: "15px", color: C.textMuted, lineHeight: 1.65, maxWidth: "660px", margin: 0 }}>Self-managing does not mean doing everything yourself. AssetIntel can help connect owners with experienced vendors already operating in Dubai short-term rentals.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px", marginBottom: "32px" }}>
@@ -1251,7 +1251,7 @@ export default function OwnersPage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ background: `linear-gradient(135deg, ${C.primary} 0%, #0F3E33 100%)`, borderRadius: "20px", padding: isMobile ? "40px 24px" : "56px 64px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.20)" }}>
             <div style={{ fontSize: "11px", fontWeight: 700, color: `${C.secondary}CC`, letterSpacing: "0.14em", marginBottom: "16px" }}>ASSETINTEL SUPPORT</div>
-            <h2 style={{ fontSize: isMobile ? "27px" : "36px", fontFamily: SF, fontWeight: 600, color: "#FFFFFF", marginBottom: "18px", lineHeight: 1.2 }}>Want AssetIntel To Help Handle The Setup?</h2>
+            <h2 style={{ fontSize: isMobile ? "27px" : "36px", fontFamily: SF, fontWeight: 600, color: "#FFFFFF", marginBottom: "16px", lineHeight: 1.2 }}>Want AssetIntel To Help Handle The Setup?</h2>
             <p style={{ fontSize: "15px", color: "rgba(253,251,247,0.75)", lineHeight: 1.65, maxWidth: "540px", margin: "0 auto 36px" }}>
               AssetIntel can help you understand the setup layers, coordinate the right STR vendors, and guide the practical steps needed before going live.
             </p>

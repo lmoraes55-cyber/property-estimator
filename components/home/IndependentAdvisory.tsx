@@ -20,7 +20,7 @@ export default function IndependentAdvisory({ isMobile }: { isMobile: boolean })
           <div style={{ fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.16em", color: colors.secondaryText, textTransform: "uppercase", marginBottom: "14px" }}>
             Independent Property Advisory
           </div>
-          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "38px", color: colors.primary, margin: "0 auto 16px", maxWidth: "72px" }}>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "29px" : "38px", color: colors.primary, margin: "0 auto 16px", maxWidth: "760px" }}>
             Get Unbiased Property Guidance Before You Make A Decision
           </h2>
           <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "680px", margin: "0 auto 12px" }}>

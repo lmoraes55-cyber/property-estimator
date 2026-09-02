@@ -11,9 +11,9 @@ import "./globals.css";
 const display = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
-  // 600 is loaded because Outfit is ~14% narrower than the Georgia it
-  // replaced: at the same px and weight it carries visibly less mass, so
-  // mid-size headings need a real semibold rather than a synthesised one.
+  // 600 is loaded because Outfit sets the same headline at 0.86x the width of
+  // the Georgia it replaced: at equal px and weight it carries visibly less
+  // mass, so headings need a real semibold rather than a synthesised one.
   weight: ["300", "400", "500", "600"],
   display: "swap",
 });

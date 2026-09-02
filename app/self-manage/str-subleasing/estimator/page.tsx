@@ -837,7 +837,7 @@ function SubleasingEstimatorInner() {
         {/* ─── Why This Matters section ─── */}
         <div style={{ marginTop: "52px", maxWidth: "860px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.13em", color: C.bronze, marginBottom: "12px" }}>CONTEXT</div>
-          <h2 style={{ fontFamily: serif, fontSize: "29px", fontWeight: 600, color: C.text, marginBottom: "31px" }}>Why This Matters Before Signing</h2>
+          <h2 style={{ fontFamily: serif, fontSize: "29px", fontWeight: 600, color: C.text, marginBottom: "28px" }}>Why This Matters Before Signing</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
             {[
               { title: "Fixed Rent Risk", body: "Your rent is fixed every month even when STR demand drops in summer or during slower booking periods." },

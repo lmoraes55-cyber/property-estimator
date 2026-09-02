@@ -186,7 +186,7 @@ function ComparisonCalculator() {
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 30 }}>
           <EyebrowLabel>RUN THE NUMBERS</EyebrowLabel>
-          <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>
+          <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>
             What Each Model Actually Nets You
           </h2>
           <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 620, margin: "0 auto", lineHeight: 1.65 }}>
@@ -469,7 +469,7 @@ export default function CoHostingPage() {
         <section style={{ padding: "64px 24px 0" }}>
           <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
             <EyebrowLabel>PROPERTY SOLUTIONS · CO-HOSTING</EyebrowLabel>
-            <h1 style={{ fontSize: "clamp(34px, 4.5vw, 52px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 16px", lineHeight: 1.15 }}>
+            <h1 style={{ fontSize: "clamp(30px, 4.5vw, 46px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 16px", lineHeight: 1.15 }}>
               Keep Your Permit. Hand Off The Daily Guest Work.
             </h1>
             <p style={{ fontSize: 15.5, color: colors.textMuted, lineHeight: 1.7, maxWidth: 620, margin: "0 auto 32px" }}>
@@ -483,7 +483,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <EyebrowLabel>WHERE THIS FITS</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>Three Ways To Run Your STR</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>Three Ways To Run Your STR</h2>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }} className="ch-ladder-grid">
               {LADDER.map(l => (
@@ -513,7 +513,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 1000, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <EyebrowLabel>SCOPE</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>What Co-Hosting Covers</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>What Co-Hosting Covers</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 620, margin: "0 auto", lineHeight: 1.65 }}>
                 Co-hosting covers the guest-facing work. Compliance and pricing strategy stay with you by design — that&apos;s what keeps the fee at 8–10% instead of 15–25%.
               </p>
@@ -563,7 +563,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 1000, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <EyebrowLabel>OUR STANDARD</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>What &ldquo;Vetted&rdquo; Actually Means</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>What &ldquo;Vetted&rdquo; Actually Means</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 600, margin: "0 auto", lineHeight: 1.65 }}>
                 AssetIntel earns nothing extra by steering you to any particular partner, so the bar is the only thing we&apos;re protecting. Every co-host we introduce must meet all four:
               </p>
@@ -584,7 +584,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 780, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <EyebrowLabel>YOUR PARTNER CO-HOST</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>Meet {COHOST_PARTNER.name}</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: 0 }}>Meet {COHOST_PARTNER.name}</h2>
             </div>
             <div
               style={{
@@ -620,7 +620,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 32 }}>
               <EyebrowLabel>PRICING</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>A Flat Percentage, Plus A One-Time Setup</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>A Flat Percentage, Plus A One-Time Setup</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, maxWidth: 560, margin: "0 auto", lineHeight: 1.65 }}>
                 Set by the referred partner co-host, not AssetIntel. Figures below are indicative — your partner confirms exact terms before you commit to anything.
               </p>
@@ -653,7 +653,7 @@ export default function CoHostingPage() {
           <div style={{ maxWidth: 560, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <EyebrowLabel>GET STARTED</EyebrowLabel>
-              <h2 style={{ fontSize: "clamp(25px, 3vw, 34px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>Request A Co-Host Introduction</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontFamily: serif, fontWeight: 600, color: colors.primary, margin: "0 0 10px" }}>Request A Co-Host Introduction</h2>
               <p style={{ fontSize: 14, color: colors.textMuted, lineHeight: 1.65 }}>Tell us about your property and we&apos;ll introduce you to our partner co-host.</p>
             </div>
 
@@ -701,7 +701,7 @@ export default function CoHostingPage() {
         <section style={{ padding: pad }}>
           <div style={{ maxWidth: 900, margin: "0 auto" }}>
             <div style={{ background: `linear-gradient(145deg, ${colors.primary} 0%, #0F3E33 100%)`, borderRadius: 22, padding: "48px 40px", textAlign: "center", boxShadow: "0 12px 40px rgba(27,94,74,0.24)" }}>
-              <h2 style={{ fontSize: "clamp(25px, 3.5vw, 34px)", fontFamily: serif, fontWeight: 600, color: "#fff", margin: "0 0 12px" }}>Not Sure Which Option Fits?</h2>
+              <h2 style={{ fontSize: "clamp(22px, 3.5vw, 30px)", fontFamily: serif, fontWeight: 600, color: "#fff", margin: "0 0 12px" }}>Not Sure Which Option Fits?</h2>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", maxWidth: 480, margin: "0 auto 24px", lineHeight: 1.7 }}>
                 Run your numbers first — the Sub-Leasing Risk Estimator and Self-Manage guide can help you decide before you commit to a co-host or full operator.
               </p>

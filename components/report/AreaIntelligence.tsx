@@ -146,7 +146,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
       {/* Header */}
       <div>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 6 }}>Area Intelligence</p>
-        <h2 style={{ fontSize: "clamp(21px, 2.2vw, 29px)", fontWeight: 600, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary, lineHeight: 1.2, margin: "0 0 6px" }}>
+        <h2 style={{ fontSize: "clamp(19px, 2.2vw, 26px)", fontWeight: 600, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary, lineHeight: 1.2, margin: "0 0 6px" }}>
           {area} Market Intelligence
         </h2>
         <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.6, maxWidth: 620 }}>

@@ -151,7 +151,7 @@ function FocusPanel({ project, onClear, onRequestReview }: { project: DLD2026Han
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
         Your 2026 Handover · Live DLD Data
       </p>
-      <h2 style={{ fontFamily: serif, fontSize: "clamp(27px, 3vw, 38px)", fontWeight: 600, color: colors.primary, lineHeight: 1.2, marginBottom: 6, maxWidth: 560 }}>
+      <h2 style={{ fontFamily: serif, fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 600, color: colors.primary, lineHeight: 1.2, marginBottom: 6, maxWidth: 560 }}>
         {name}
       </h2>
       <p style={{ fontSize: 13.5, color: colors.textMuted, marginBottom: 20 }}>{displaySubtitle(project)}</p>
@@ -483,7 +483,7 @@ export default function HandoversPage() {
         {/* ── HERO: the search itself is the thesis ── */}
         <div style={{ padding: "56px 0 44px", textAlign: "center" }}>
           <h1 style={{
-            fontFamily: serif, fontSize: "clamp(29px, 4vw, 47px)", fontWeight: 600, color: colors.primary,
+            fontFamily: serif, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 600, color: colors.primary,
             lineHeight: 1.2, marginBottom: 14, maxWidth: 640, margin: "0 auto 14px",
           }}>
             Your Dubai property hands over in 2026. Should you STR or LTR it?
@@ -518,7 +518,7 @@ export default function HandoversPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 10 }}>
               {selectedProject ? "Or Browse the Full Watchlist" : "Don't Know Your Project Yet?"}
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(22px, 2.6vw, 29px)", fontWeight: 600, color: colors.primary, marginBottom: 8 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 600, color: colors.primary, marginBottom: 8 }}>
               Browse tracked handover projects
             </h2>
             <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.6, maxWidth: 620 }}>
@@ -594,7 +594,7 @@ export default function HandoversPage() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 12 }}>
               Handover Strategy Advisory
             </p>
-            <h2 style={{ fontFamily: serif, fontSize: "clamp(22px, 3vw, 31px)", fontWeight: 600, color: colors.primary, marginBottom: 12 }}>
+            <h2 style={{ fontFamily: serif, fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 600, color: colors.primary, marginBottom: 12 }}>
               Need a strategy before handover?
             </h2>
             <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.65, maxWidth: 480, margin: "0 auto 26px" }}>

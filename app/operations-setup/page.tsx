@@ -100,7 +100,7 @@ export default function OperationsSetupPage() {
             <div style={{ fontSize: "11.5px", color: colors.secondary, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: "16px" }}>
               Operations Setup
             </div>
-            <h1 style={{ fontSize: isMobile ? "31px" : "45px", fontFamily: serifHeading, fontWeight: 600, lineHeight: 1.2, marginBottom: "20px", color: colors.primary }}>
+            <h1 style={{ fontSize: isMobile ? "31px" : "45px", fontFamily: serifHeading, fontWeight: 600, lineHeight: 1.2, marginBottom: "18px", color: colors.primary }}>
               Build Your Holiday Home Operations the Right Way
             </h1>
             <p style={{ fontSize: isMobile ? "14.5px" : "16px", color: colors.textMuted, lineHeight: 1.65, maxWidth: "640px", margin: "0 auto 30px" }}>
@@ -147,7 +147,7 @@ export default function OperationsSetupPage() {
               <div aria-hidden style={{ position: "absolute", top: "-60px", right: "-60px", width: "200px", height: "200px", borderRadius: "50%", background: "rgba(184,138,68,0.14)" }} />
               <div style={{ position: "relative", zIndex: 1 }}>
                 <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: "12px" }}>Built Around Your Operation</div>
-                <h2 style={{ fontSize: isMobile ? "25px" : "31px", fontFamily: serifHeading, fontWeight: 600, color: "#FFFFFF", marginBottom: "16px", maxWidth: "72px", marginLeft: "auto", marginRight: "auto" }}>
+                <h2 style={{ fontSize: isMobile ? "25px" : "31px", fontFamily: serifHeading, fontWeight: 600, color: "#FFFFFF", marginBottom: "14px", maxWidth: "680px", marginLeft: "auto", marginRight: "auto" }}>
                   Your Setup Starts With Understanding What You Actually Need
                 </h2>
                 <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.82)", lineHeight: 1.65, maxWidth: "620px", margin: "0 auto 36px" }}>
@@ -158,7 +158,7 @@ export default function OperationsSetupPage() {
                   {PROCESS_STEPS.map(s => (
                     <div key={s.title} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: "16px", padding: "22px 20px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                        <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 600, color: "#D4A574", fontFamily: serifHeading }}>
+                        <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 600, color: "#D4A574", fontFamily: serifHeading }}>
                           {s.number}
                         </div>
                         {Icons[s.icon]("#D4A574", 16)}
