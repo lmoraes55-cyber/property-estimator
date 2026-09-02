@@ -34,15 +34,6 @@ function TrendIcon() {
   );
 }
 
-function Delta({ better }: { better: boolean | null }) {
-  if (better === null) return null;
-  return (
-    <span style={{ marginLeft: 6, fontSize: 12, fontWeight: 700, color: better ? colors.primary : colors.secondary }}>
-      {better ? "▲" : "▼"}
-    </span>
-  );
-}
-
 const SEASONS: Record<string, string> = {
   Nov: "Peak", Dec: "Peak", Jan: "Peak", Feb: "Peak",
   Mar: "Shoulder", Apr: "Shoulder", Oct: "Shoulder",
@@ -89,7 +80,7 @@ function buildInsights(row: AreaStatsRow, area: string): string[] {
   if (row.adr != null && row.adr >= 500) insights.push(`Premium average daily rates of AED ${fmt(row.adr)}, reflecting strong guest willingness to pay in this area.`);
   if (row.length_of_stay_days != null && row.length_of_stay_days >= 4) insights.push(`Longer average stays (${row.length_of_stay_days.toFixed(1)} nights) reduce turnover costs and support stable occupancy.`);
   if (row.active_listings != null && row.active_listings >= 50) insights.push(`A mature, liquid STR market with ${fmt(row.active_listings)} active listings — proven, established guest demand.`);
-  if (row.estimated_str_revenue != null && row.estimated_str_revenue > 0) insights.push(`Area-wide average annual STR revenue of AED ${fmt(row.estimated_str_revenue)} supports a healthy return profile.`);
+  if (row.estimated_str_revenue != null && row.estimated_str_revenue > 0) insights.push(`Area-wide average annual STR revenue is AED ${fmt(row.estimated_str_revenue)}, across all unit sizes and operating standards.`);
   insights.push(`${area} remains one of the more actively tracked short-term rental markets in AssetIntel's Dubai coverage.`);
   return insights.slice(0, 5);
 }
@@ -138,6 +129,8 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
     .filter(l => targetBedrooms == null || l.bedrooms === targetBedrooms)
     .slice(0, 6);
 
+  const sourceLabel = row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics";
+
   const strVsLtrPct = longTermRent > 0 ? Math.round(((annualNetToLandlord - longTermRent) / longTermRent) * 100) : null;
 
   return (
@@ -145,23 +138,23 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
 
       {/* Header */}
       <div>
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondaryText, marginBottom: 6 }}>Area Intelligence</p>
-        <h2 style={{ fontSize: "clamp(19px, 2.2vw, 26px)", fontWeight: 600, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary, lineHeight: 1.2, margin: "0 0 6px" }}>
+        <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>Area Intelligence</p>
+        <h2 style={{ fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", letterSpacing: "-0.015em", color: colors.textMain, lineHeight: 1.2, margin: "0 0 6px" }}>
           {area} Market Intelligence
         </h2>
-        <p style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.6, maxWidth: 620 }}>
-          Live STR market insights for the surrounding area, powered by {row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics"} market intelligence.
+        <p style={{ fontSize: 13.5, color: colors.textMuted, lineHeight: 1.55, maxWidth: "62ch", margin: 0 }}>
+          Live short-term rental activity across {area}, from {sourceLabel} market data.
         </p>
       </div>
 
       {/* Area Market Snapshot */}
-      <div style={{ borderRadius: 24, background: "#fff", border: `1px solid ${colors.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 10px 30px rgba(27,94,74,0.06)", padding: "22px 24px", breakInside: "avoid" as const }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 16 }}>Area Market Snapshot</p>
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(snapshot.length, 3)}, 1fr)`, gap: 16 }} className="rpt-area-snapshot-grid">
+      <div style={{ borderRadius: 22, background: colors.bgSection, border: `1px solid ${colors.border}`, padding: "24px 26px", breakInside: "avoid" as const }}>
+        <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 18px" }}>Area market snapshot</p>
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(snapshot.length, 3)}, 1fr)`, gap: "22px 28px" }} className="rpt-area-snapshot-grid">
           {snapshot.map(m => (
-            <div key={m.label} style={{ padding: "14px 16px", borderRadius: 14, background: colors.bgSage, border: `1px solid ${colors.borderSage}` }}>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight, marginBottom: 6 }}>{m.label}</p>
-              <p style={{ fontSize: 20, fontWeight: 600, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{m.value}</p>
+            <div key={m.label}>
+              <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>{m.label}</p>
+              <p style={{ fontSize: 22, fontWeight: 500, color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontVariantNumeric: "tabular-nums", lineHeight: 1.1, margin: 0 }}>{m.value}</p>
             </div>
           ))}
         </div>
@@ -169,26 +162,29 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
 
       {/* Your Property vs Area Average */}
       {comparisons.length > 0 && (
-        <div style={{ borderRadius: 24, background: "#fff", border: `1px solid ${colors.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 10px 30px rgba(27,94,74,0.06)", padding: "22px 24px", breakInside: "avoid" as const }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Your Property vs Area Average</p>
-          <p style={{ fontSize: 12, color: colors.textLight, marginBottom: 16 }}>{propertyName}</p>
+        <div style={{ borderRadius: 22, background: colors.bgSection, border: `1px solid ${colors.border}`, padding: "24px 26px", breakInside: "avoid" as const }}>
+          <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>This property vs the area</p>
+          <p style={{ fontSize: 13.5, color: colors.textMuted, margin: "0 0 18px" }}>{propertyName}</p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {/* Header row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", gap: 12, padding: "0 4px" }}>
-              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight }}>Metric</span>
-              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight }}>Area Average</span>
-              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: colors.textLight }}>Your Property</span>
+          <div>
+            <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr 84px", gap: 12, paddingBottom: 8 }}>
+              {["Metric", "Area average", "This property", "Delta"].map((h, i) => (
+                <span key={h} style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, textAlign: i === 0 ? "left" : "right" }}>{h}</span>
+              ))}
             </div>
             {comparisons.map(c => {
-              const better = c.yours != null && c.area != null ? (c.higherIsBetter ? c.yours >= c.area : c.yours <= c.area) : null;
+              const areaVal = c.area as number;
+              // A bare ▲ said only "different", never by how much — and on a
+              // 7x gap that is the whole story.
+              const pct = areaVal > 0 && c.yours != null ? Math.round(((c.yours - areaVal) / areaVal) * 100) : null;
+              const up = pct != null && (c.higherIsBetter ? pct >= 0 : pct <= 0);
               return (
-                <div key={c.metric} style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", gap: 12, alignItems: "center", padding: "10px 4px", borderTop: `1px solid ${colors.border}` }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: colors.textMain }}>{c.metric}</span>
-                  <span style={{ fontSize: 13, color: colors.textMuted }}>{c.format(c.area as number)}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, display: "flex", alignItems: "center" }}>
-                    {c.format(c.yours)}
-                    <Delta better={better} />
+                <div key={c.metric} style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr 84px", gap: 12, alignItems: "baseline", padding: "12px 0", borderTop: `1px solid ${colors.border}` }}>
+                  <span style={{ fontSize: 13.5, color: colors.textMain }}>{c.metric}</span>
+                  <span style={{ fontSize: 13.5, color: colors.textMuted, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{c.format(areaVal)}</span>
+                  <span style={{ fontSize: 13.5, fontWeight: 500, color: colors.textMain, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{c.format(c.yours)}</span>
+                  <span style={{ fontSize: 12.5, textAlign: "right", fontVariantNumeric: "tabular-nums", color: pct == null ? colors.textLight : up ? colors.primary : colors.secondaryText }}>
+                    {pct == null ? "—" : `${pct >= 0 ? "+" : ""}${pct}%`}
                   </span>
                 </div>
               );
@@ -197,14 +193,14 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
         </div>
       )}
 
-      {/* Why This Area Performs Well */}
-      <div style={{ borderRadius: 24, background: colors.bgSage, border: `1px solid ${colors.borderSage}`, padding: "22px 24px", breakInside: "avoid" as const }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 14 }}>Why This Area Performs Well</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* What shapes this market */}
+      <div style={{ borderRadius: 22, background: colors.bgSage, border: `1px solid ${colors.borderSage}`, padding: "24px 26px", breakInside: "avoid" as const }}>
+        <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 16px" }}>What shapes this market</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
           {insights.map((text, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.primary, marginTop: 6, flexShrink: 0 }} />
-              <p style={{ fontSize: 13, color: colors.textMain, lineHeight: 1.55, margin: 0 }}>{text}</p>
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 11, color: colors.textLight, lineHeight: 1.7, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{String(i + 1).padStart(2, "0")}</span>
+              <p style={{ fontSize: 13.5, color: colors.textMain, lineHeight: 1.6, margin: 0 }}>{text}</p>
             </div>
           ))}
         </div>
@@ -214,7 +210,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
       {listings.length > 0 && (
         <div style={{ borderRadius: 24, background: "#fff", border: `1px solid ${colors.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 10px 30px rgba(27,94,74,0.06)", padding: "22px 24px", breakInside: "avoid" as const }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Comparable Buildings Nearby</p>
-          <p style={{ fontSize: 12, color: colors.textLight, marginBottom: 16 }}>Nearby {unitSize} STR inventory in {area}, from {row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics"} live listing data.</p>
+          <p style={{ fontSize: 12, color: colors.textLight, marginBottom: 16 }}>Nearby {unitSize} STR inventory in {area}, from {sourceLabel} live listing data.</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
             {listings.map((l, i) => {
               const stats = [
@@ -261,7 +257,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
         <div style={{ flex: 1, minWidth: 240 }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: colors.textMain, marginBottom: 4 }}>Forecast Confidence</p>
           <p style={{ fontSize: 12.5, color: colors.textMain, opacity: 0.75, lineHeight: 1.6, margin: 0 }}>
-            Forecast generated using {row.data_sources === "airroi" ? "AirROI" : row.data_sources === "airroi+airbtics" ? "AirROI and Airbtics" : "Airbtics"} market performance, comparable buildings, seasonal demand, property characteristics, and historical market behaviour.
+            Forecast generated using {sourceLabel} market performance, comparable buildings, seasonal demand, property characteristics, and historical market behaviour.
           </p>
         </div>
       </div>
