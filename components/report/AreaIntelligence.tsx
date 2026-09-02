@@ -234,7 +234,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
           {snapshot.map(m => (
             <div key={m.label}>
               <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>{m.label}</p>
-              <p style={{ fontSize: 22, fontWeight: 500, color: colors.textMain, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontVariantNumeric: "tabular-nums", lineHeight: 1.1, margin: 0 }}>{m.value}</p>
+              <p style={{ fontSize: 22, fontWeight: 500, color: colors.primary, fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontVariantNumeric: "tabular-nums", lineHeight: 1.1, margin: 0 }}>{m.value}</p>
             </div>
           ))}
         </div>
@@ -262,7 +262,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
                 <div key={c.metric} style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr 84px", gap: 12, alignItems: "baseline", padding: "12px 0", borderTop: `1px solid ${colors.border}` }}>
                   <span style={{ fontSize: 13.5, color: colors.textMain }}>{c.metric}</span>
                   <span style={{ fontSize: 13.5, color: colors.textMuted, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{c.format(areaVal)}</span>
-                  <span style={{ fontSize: 13.5, fontWeight: 500, color: colors.textMain, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{c.format(c.yours)}</span>
+                  <span style={{ fontSize: 13.5, fontWeight: 500, color: colors.primary, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{c.format(c.yours)}</span>
                   <span style={{ fontSize: 12.5, textAlign: "right", fontVariantNumeric: "tabular-nums", color: pct == null ? colors.textLight : up ? colors.primary : colors.secondaryText }}>
                     {pct == null ? "—" : `${pct >= 0 ? "+" : ""}${pct}%`}
                   </span>

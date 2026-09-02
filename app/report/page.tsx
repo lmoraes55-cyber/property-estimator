@@ -2161,7 +2161,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
 
                 <div style={{ marginLeft: "auto", display: "flex", alignItems: "baseline", gap: 10 }}>
                   <span style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight }}>Annual STR net</span>
-                  <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 20, fontWeight: 500, color: colors.textMain, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>AED {fmt(annualSTRNet)}</span>
+                  <span style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 20, fontWeight: 500, color: colors.primary, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>AED {fmt(annualSTRNet)}</span>
                   {outperf !== 0 && (
                     <span style={{ fontSize: 11, fontWeight: 500, color: outperf > 0 ? colors.primary : "#A05030", fontVariantNumeric: "tabular-nums" }}>
                       {outperf > 0 ? "+" : ""}{outperf}% vs LTR
@@ -2219,7 +2219,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
                 ].map((item, i, arr) => (
                   <div key={item.label} style={{ padding: "0 16px", borderRight: i < arr.length - 1 ? `1px solid ${colors.border}` : "none" }}>
                     <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: 10, color: colors.textLight, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>{item.label}</p>
-                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, fontWeight: 500, color: colors.textMain, lineHeight: 1.1, fontVariantNumeric: "tabular-nums", margin: "0 0 4px" }}>{item.value}</p>
+                    <p style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 19, fontWeight: 500, color: colors.primary, lineHeight: 1.1, fontVariantNumeric: "tabular-nums", margin: "0 0 4px" }}>{item.value}</p>
                     <p style={{ fontSize: 11.5, color: colors.textLight, lineHeight: 1.4, margin: 0 }}>{item.sub}</p>
                   </div>
                 ))}
