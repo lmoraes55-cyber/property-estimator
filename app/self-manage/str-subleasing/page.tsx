@@ -27,7 +27,17 @@ function Eyebrow({ children, tone = colors.textLight }: { children: React.ReactN
 
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <section style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "22px", padding: "26px 28px", ...style }}>
+    <section
+      style={{
+        position: "relative", overflow: "hidden",
+        // A 2.5% green wash over the first 180px keeps the surface from
+        // reading as flat white against the near-white page ground.
+        background: `linear-gradient(180deg, rgba(27,94,74,0.026) 0%, rgba(27,94,74,0) 180px), ${colors.bgSection}`,
+        border: `1px solid ${colors.border}`, borderRadius: "22px", padding: "26px 28px", ...style,
+      }}
+    >
+      {/* Crown: a hairline across the top edge, weighted bronze at the left. */}
+      <span aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${colors.secondary} 0%, ${colors.secondary} 64px, rgba(184,138,68,0.22) 64px, rgba(184,138,68,0) 340px)` }} />
       {children}
     </section>
   );
@@ -41,6 +51,9 @@ function Head({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: s
         {title}
       </h2>
       {sub && <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.55, margin: 0, maxWidth: "64ch" }}>{sub}</p>}
+      <div style={{ position: "relative", height: "1px", background: colors.border, marginTop: "20px" }}>
+        <span aria-hidden="true" style={{ position: "absolute", left: 0, top: "-1px", width: "40px", height: "3px", background: colors.secondary, borderRadius: "2px" }} />
+      </div>
     </div>
   );
 }
@@ -356,9 +369,11 @@ export default function STRSubleasingPage() {
         <style>{`
           .sl-pillar { display: grid; grid-template-columns: 34px 1fr auto; gap: 16px; align-items: baseline;
             width: 100%; text-align: left; background: none; border: none; cursor: pointer;
-            padding: 20px 0; border-top: 1px solid ${colors.border}; color: inherit; font: inherit; }
-          .sl-pillar:first-of-type { border-top: none; }
+            padding: 20px 2px; color: inherit; font: inherit; transition: background 0.15s; }
+          .sl-pillar:hover { background: rgba(27,94,74,0.028); }
           .sl-pillar:hover .sl-pillar-title { color: ${colors.primary}; }
+          .sl-pillar-row { position: relative; }
+          .sl-pillar-row.is-open::before { content: ""; position: absolute; left: -14px; top: 20px; bottom: 12px; width: 2px; border-radius: 2px; background: ${colors.secondary}; }
           @media (max-width: 640px) { .sl-hero { grid-template-columns: 1fr !important; } }
         `}</style>
 
@@ -430,13 +445,13 @@ export default function STRSubleasingPage() {
                   {PILLARS.map(({ num, title, body, meta }, i) => {
                     const open = openPillar === i;
                     return (
-                      <div key={num}>
+                      <div key={num} className={`sl-pillar-row${open ? " is-open" : ""}`} style={{ borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
                         <button
                           className="sl-pillar"
                           aria-expanded={open}
                           onClick={() => setOpenPillar(open ? null : i)}
                         >
-                          <span style={{ fontFamily: MONO, fontSize: "12px", color: colors.textLight, fontVariantNumeric: "tabular-nums" }}>{num}</span>
+                          <span style={{ fontFamily: MONO, fontSize: "12px", color: open ? colors.secondaryText : colors.textLight, fontVariantNumeric: "tabular-nums" }}>{num}</span>
                           <span style={{ minWidth: 0 }}>
                             <span className="sl-pillar-title" style={{ display: "block", fontFamily: DISPLAY, fontSize: "17px", fontWeight: 400, color: colors.textMain, lineHeight: 1.3, marginBottom: "4px", transition: "color 0.15s" }}>
                               {title}
