@@ -602,30 +602,53 @@ export default function STRSubleasingPage() {
               </React.Fragment>
             ))}
           </div>
+          {/* Closing card — same treatment as the report's recommendation panel. */}
+          <div style={{ position: "relative", overflow: "hidden", borderRadius: "22px", background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)`, padding: isMobile ? "40px 26px" : "58px 60px", marginTop: "44px" }}>
+            <svg aria-hidden="true" width="300" height="300" viewBox="0 0 300 300" style={{ position: "absolute", right: "-50px", top: "50%", transform: "translateY(-50%)", opacity: 0.09, pointerEvents: "none" }}>
+              <g stroke="#D4A574" strokeWidth="0.9" fill="none">
+                {[[45,40],[140,25],[250,65],[85,115],[205,135],[40,200],[160,225],[255,190]].map((p, i, arr) => (
+                  <g key={i}>
+                    <circle cx={p[0]} cy={p[1]} r="2.4" fill="#D4A574" stroke="none" />
+                    {arr.slice(i + 1).map((q, j) => {
+                      const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+                      return d < 125 ? <line key={j} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} /> : null;
+                    })}
+                  </g>
+                ))}
+              </g>
+            </svg>
 
+            <div style={{ position: "relative", zIndex: 1, maxWidth: "620px" }}>
+              <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: "10.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#EAD2A0", margin: "0 0 12px" }}>
+                Next step
+              </p>
+              <h2 className="ai-title-grad-i" style={{ fontSize: isMobile ? "28px" : "38px", fontFamily: serifHeading, fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#FFFFFF", margin: "0 0 14px" }}>
+                Ready To Evaluate Your First Unit?
+              </h2>
+              <p style={{ fontSize: "14.5px", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, margin: "0 0 30px", maxWidth: "520px" }}>
+                Run the risk estimator first. If the numbers work, AssetIntel can help you structure the setup behind it.
+              </p>
 
-        <div style={{ marginTop: "40px" }}>
-          <div style={{ background: `linear-gradient(145deg, #1B5E4A 0%, #0F3E33 100%)`, borderRadius: "22px", padding: isMobile ? "40px 26px" : "56px 60px", textAlign: "center" }}>
-            <h2 style={{ fontSize: isMobile ? "27px" : "36px", fontFamily: serifHeading, fontWeight: 600, color: "#fff", marginBottom: "12px" }}>Ready To Evaluate Your First Unit?</h2>
-            <p style={{ fontSize: "14.5px", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, marginBottom: "28px", maxWidth: "540px", margin: "0 auto 28px" }}>
-              Run the risk estimator first. If the numbers work, AssetIntel can help you structure the setup behind it.
-            </p>
-            <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginBottom: "18px" }}>
-              <button
-                onClick={() => router.push("/self-manage/str-subleasing/estimator")}
-                style={{ padding: "14px 30px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "14.5px", fontWeight: 600, cursor: "pointer", border: "none" }}
-              >
-                Open Risk Estimator →
-              </button>
-              <a href="/contact?service=subleasing-setup" style={{ padding: "14px 30px", background: "transparent", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: "10px", fontSize: "14.5px", fontWeight: 600, textDecoration: "none" }}>
-                Build My STR Setup
-              </a>
-            </div>
-            <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)" }}>
-              Independent, unbiased guidance available through AssetIntel Property Advisory.
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "26px" }}>
+                {/* Bronze on white measured 3.11:1 here — under AA. A white
+                    surface with the brand green on it reads as the more
+                    considered choice anyway, and clears at 7.65:1. */}
+                <button
+                  onClick={() => router.push("/self-manage/str-subleasing/estimator")}
+                  style={{ padding: "13px 26px", background: "#FFFFFF", color: colors.primary, borderRadius: "10px", fontSize: "14px", fontWeight: 500, cursor: "pointer", border: "none", letterSpacing: "0.01em" }}
+                >
+                  Open Risk Estimator →
+                </button>
+                <a href="/contact?service=subleasing-setup" style={{ display: "inline-flex", alignItems: "center", padding: "13px 26px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.28)", borderRadius: "10px", fontSize: "14px", fontWeight: 500, textDecoration: "none", letterSpacing: "0.01em" }}>
+                  Build My STR Setup
+                </a>
+              </div>
+
+              <div style={{ paddingTop: "22px", borderTop: "1px solid rgba(255,255,255,0.14)", fontSize: "12px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
+                Independent, unbiased guidance available through AssetIntel Property Advisory.
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </section>
       {/* ══════════════════════════════════════════════════════════════════════ */}
