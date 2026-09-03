@@ -351,22 +351,6 @@ export default function STRSubleasingPage() {
               AssetIntel helps you estimate whether a sub-leased unit can survive low season, cover fixed rent, and produce realistic profit — before you commit to the landlord.
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "26px" }}>
-              {[
-                "Break-even clarity",
-                "Monthly cash-flow forecast",
-                "Risk level",
-                "Minimum cash buffer guidance",
-                "Proceed / Negotiate / Avoid",
-              ].map(label => (
-                <div key={label} style={{ display: "flex", gap: "10px", alignItems: "center", padding: "8px 14px", background: "rgba(27,94,74,0.04)", borderRadius: "10px", border: "1px solid rgba(27,94,74,0.09)" }}>
-                  <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: colors.primary, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  </div>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: colors.textMain }}>{label}</span>
-                </div>
-              ))}
-            </div>
 
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
               <button
@@ -375,12 +359,6 @@ export default function STRSubleasingPage() {
               >
                 Open Risk Estimator →
               </button>
-              <a
-                href="#financial-snapshot"
-                style={{ display: "inline-flex", alignItems: "center", padding: "13px 22px", background: colors.bgSection, color: colors.primary, border: `1.5px solid ${colors.primary}`, borderRadius: "12px", fontSize: "14.5px", fontWeight: 600, textDecoration: "none", letterSpacing: "0.01em" }}
-              >
-                Learn How The Model Works
-              </a>
             </div>
           </div>
 
@@ -558,10 +536,15 @@ export default function STRSubleasingPage() {
             </button>
           </div>
 
-          <div style={{ textAlign: "center" }}>
-            <button onClick={() => setShowMethodology(v => !v)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "none", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: 600, color: colors.textMuted, padding: "8px 0" }}>
-              {showMethodology ? "Hide Financial Methodology" : "View Financial Methodology"} <IconChevron open={showMethodology} />
-            </button>
+          <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
+            {([
+              ["Financial methodology", showMethodology, () => setShowMethodology(v => !v)],
+              ["Common mistakes & red flags", showMistakes, () => setShowMistakes(v => !v)],
+            ] as [string, boolean, () => void][]).map(([label, open, toggle]) => (
+              <button key={label} onClick={toggle} aria-expanded={open} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "999px", cursor: "pointer", fontSize: "13px", fontWeight: 500, background: open ? "rgba(27,94,74,0.06)" : "transparent", border: `1px solid ${open ? "rgba(27,94,74,0.22)" : colors.border}`, color: open ? colors.primary : colors.textMuted }}>
+                {label} <IconChevron open={open} color={open ? colors.primary : colors.textMuted} />
+              </button>
+            ))}
           </div>
 
           {showMethodology && (
@@ -619,12 +602,6 @@ export default function STRSubleasingPage() {
             </div>
           )}
 
-          <div style={{ textAlign: "center", marginTop: "24px" }}>
-            <button onClick={() => setShowMistakes(v => !v)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "none", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: 600, color: colors.textMuted, padding: "8px 0" }}>
-              {showMistakes ? "Hide Common Mistakes & Red Flags" : "View Common Mistakes & Red Flags"} <IconChevron open={showMistakes} />
-            </button>
-          </div>
-
           {showMistakes && (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "16px" }}>
               {COMMON_MISTAKES.map(({ mistake, fix }, i) => (
@@ -640,7 +617,28 @@ export default function STRSubleasingPage() {
       </AccessGate>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 4. HOW ASSETINTEL CAN HELP                                             */}
+      {/* 4. READINESS CHECK                                                     */}
+      {/* ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}` }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "28px" }}>
+            <SectionLabel text="READINESS CHECK" />
+            <SectionTitle size="28px">Are You Ready To Run This Yourself?</SectionTitle>
+            <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "540px", margin: "0 auto" }}>
+              Tick every item that applies to you today.
+            </p>
+          </div>
+          <SubleasingReadinessScore />
+          <div style={{ textAlign: "center", marginTop: "22px" }}>
+            <a href="/contact?service=subleasing-setup" style={{ display: "inline-block", padding: "13px 28px", background: "transparent", color: colors.primary, border: `1.5px solid ${colors.primary}`, borderRadius: "10px", fontSize: "14px", fontWeight: 600, textDecoration: "none" }}>
+              Get Setup Support →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════ */}
+      {/* 5. WORK WITH ASSETINTEL — services and the closing CTA, one section  */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
       <section style={{ padding: pad, borderTop: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -673,58 +671,8 @@ export default function STRSubleasingPage() {
             ))}
           </div>
 
-          <div style={{ textAlign: "center" }}>
-            <a href="/contact?service=subleasing-setup" style={{ display: "inline-block", padding: "14px 34px", background: colors.primary, color: "#fff", borderRadius: "10px", fontSize: "15px", fontWeight: 600, textDecoration: "none" }}>
-              Build My STR Setup →
-            </a>
-          </div>
-        </div>
-      </section>
 
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 5. READINESS CHECK                                                     */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "28px" }}>
-            <SectionLabel text="READINESS CHECK" />
-            <SectionTitle size="28px">Are You Ready To Run This Yourself?</SectionTitle>
-            <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "540px", margin: "0 auto" }}>
-              Tick every item that applies to you today.
-            </p>
-          </div>
-          <SubleasingReadinessScore />
-          <div style={{ textAlign: "center", marginTop: "22px" }}>
-            <a href="/contact?service=subleasing-setup" style={{ display: "inline-block", padding: "13px 28px", background: "transparent", color: colors.primary, border: `1.5px solid ${colors.primary}`, borderRadius: "10px", fontSize: "14px", fontWeight: 600, textDecoration: "none" }}>
-              Get Setup Support →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* PLAYBOOK — secondary resource                                          */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: isMobile ? "40px 20px" : "56px 40px", borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "720px", margin: "0 auto" }}>
-          <div style={{ background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}`, padding: isMobile ? "24px 22px" : "28px 32px", display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", gap: "18px" }}>
-            <div>
-              <div style={{ fontSize: "10.5px", color: colors.textMuted, fontWeight: 600, letterSpacing: "0.1em", marginBottom: "8px" }}>STR SUB-LEASING PLAYBOOK</div>
-              <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: 0, maxWidth: "440px" }}>
-                Practical guidance covering selection, licensing, operations, systems, and financial planning.
-              </p>
-              <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.primary, marginTop: "8px" }}>Free — sign up or log in to view.</div>
-            </div>
-            <a href="#pillars" style={{ padding: "11px 22px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "13.5px", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>View Playbook →</a>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 6. FINAL CTA                                                           */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: pad, borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <div style={{ marginTop: "40px" }}>
           <div style={{ background: `linear-gradient(145deg, #1B5E4A 0%, #0F3E33 100%)`, borderRadius: "22px", padding: isMobile ? "40px 26px" : "56px 60px", textAlign: "center" }}>
             <h2 style={{ fontSize: isMobile ? "27px" : "36px", fontFamily: serifHeading, fontWeight: 600, color: "#fff", marginBottom: "12px" }}>Ready To Evaluate Your First Unit?</h2>
             <p style={{ fontSize: "14.5px", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, marginBottom: "28px", maxWidth: "540px", margin: "0 auto 28px" }}>
@@ -746,8 +694,8 @@ export default function STRSubleasingPage() {
             </div>
           </div>
         </div>
+        </div>
       </section>
-
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* LEGAL DISCLAIMER                                                       */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
