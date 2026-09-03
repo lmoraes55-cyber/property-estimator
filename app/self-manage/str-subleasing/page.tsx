@@ -9,118 +9,150 @@ import AccessGate from "@/components/AccessGate";
 import { colors } from "@/lib/colors";
 import { useIsMobile } from "@/lib/useIsMobile";
 
-const serifHeading = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
-// Bronze fails AA contrast as small/bold TEXT on light backgrounds — swap to the AA-safe variant.
-// Backgrounds, borders, and icon fills are unaffected (those only need 3:1, which bronze clears).
-const textSafe = (c: string) => (c === colors.secondary ? colors.secondaryText : c);
+const DISPLAY = "var(--font-display), ui-sans-serif, system-ui, sans-serif";
+const MONO = "var(--font-mono-ai), ui-monospace, monospace";
+const DANGER = "#B03030"; // 6.0:1 on white — AA for the red-flag labels
 
-// ─── Icons ───────────────────────────────────────────────────────────────────
-const IconCheck = ({ color = colors.primary, size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke={color} strokeWidth="1.2" opacity="0.35" /><path d="M6.5 10L9 12.5L13.5 7.5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-);
-const IconWarning = ({ color = colors.secondaryText, size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><path d="M12 3L22 20H2L12 3Z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" /><path d="M12 10V14" stroke={color} strokeWidth="1.5" strokeLinecap="round" /><circle cx="12" cy="17.5" r="0.8" fill={color} /></svg>
-);
-const IconTarget = ({ color = colors.primary, size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.5" /><circle cx="12" cy="12" r="5" stroke={color} strokeWidth="1.5" /><circle cx="12" cy="12" r="1.5" fill={color} /></svg>
-);
-const IconDocument = ({ color = colors.secondary, size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><rect x="4" y="2" width="16" height="20" rx="2" stroke={color} strokeWidth="1.5" /><path d="M8 7h8M8 11h8M8 15h5" stroke={color} strokeWidth="1.5" strokeLinecap="round" /></svg>
-);
-const IconTeam = ({ color = colors.primary, size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke={color} strokeWidth="1.5" /><circle cx="17" cy="9" r="2.2" stroke={color} strokeWidth="1.5" /><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke={color} strokeWidth="1.5" strokeLinecap="round" /><path d="M15 14c2.2 0 4 1.8 4 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" /></svg>
-);
-const IconSystem = ({ color = colors.secondary, size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2" stroke={color} strokeWidth="1.5" /><path d="M8 18v2M16 18v2M6 20h12" stroke={color} strokeWidth="1.5" strokeLinecap="round" /><path d="M7 10h4M13 10h4M7 13h2M11 13h2M15 13h2" stroke={color} strokeWidth="1.3" strokeLinecap="round" /></svg>
-);
-const IconShield = ({ color = colors.primary, size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-);
-const IconEstimator = ({ color = colors.secondary, size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke={color} strokeWidth="1.5" /><path d="M8 7h8M8 11h3M13 11h3M8 15h3M13 15h3" stroke={color} strokeWidth="1.3" strokeLinecap="round" /></svg>
-);
-const IconChevron = ({ color = colors.textMuted, open = false }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
-    <path d="M4 6L8 10L12 6" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+const ESTIMATOR = "/self-manage/str-subleasing/estimator";
+
+/* ── Primitives, matching the report's sections ─────────────────────────── */
+
+function Eyebrow({ children, tone = colors.textLight }: { children: React.ReactNode; tone?: string }) {
+  return (
+    <p style={{ fontFamily: MONO, fontSize: "10.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: tone, margin: "0 0 8px" }}>
+      {children}
+    </p>
+  );
+}
+
+function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <section style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, borderRadius: "22px", padding: "26px 28px", ...style }}>
+      {children}
+    </section>
+  );
+}
+
+function Head({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: string }) {
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h2 className="ai-title-grad" style={{ fontFamily: DISPLAY, fontSize: "clamp(19px, 2.1vw, 25px)", fontWeight: 400, letterSpacing: "-0.015em", lineHeight: 1.2, margin: "0 0 8px" }}>
+        {title}
+      </h2>
+      {sub && <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.55, margin: 0, maxWidth: "64ch" }}>{sub}</p>}
+    </div>
+  );
+}
+
+function SubHead({ children, tone = colors.textLight }: { children: React.ReactNode; tone?: string }) {
+  return (
+    <p style={{ fontFamily: MONO, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: tone, margin: "0 0 4px" }}>
+      {children}
+    </p>
+  );
+}
+
+/** A divided list — the report's ledger, used everywhere a tinted card grid was. */
+function List({ items }: { items: React.ReactNode[] }) {
+  return (
+    <div>
+      {items.map((item, i) => (
+        <div key={i} style={{ padding: "10px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}`, fontSize: "13px", color: colors.textMuted, lineHeight: 1.6 }}>
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Columns({ isMobile, cols, children }: { isMobile: boolean; cols: number; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : `repeat(${cols}, 1fr)`, gap: isMobile ? "26px" : "32px" }}>
+      {children}
+    </div>
+  );
+}
+
+const Chevron = ({ open }: { open: boolean }) => (
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>
+    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
-// ─── Shared sub-components ────────────────────────────────────────────────────
-function PillarBadge({ num, color }: { num: string; color: string }) {
-  return (
-    <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 600, flexShrink: 0, marginTop: "2px" }}>{num}</div>
-  );
-}
-
-function SectionLabel({ text }: { text: string }) {
-  return <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "12px" }}>{text}</div>;
-}
-
-function SectionTitle({ children, size = "34px" }: { children: React.ReactNode; size?: string }) {
-  return (
-    <h2 className="ai-title-grad" style={{ fontSize: size, fontFamily: serifHeading, fontWeight: 400, letterSpacing: "-0.015em", marginBottom: "14px" }}>
-      {children}
-    </h2>
-  );
-}
-
-// ─── Pillar detail panels (collapsed by default, expanded via accordion) ─────
-function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
+function FormulaRows({ rows, isMobile }: { rows: { label: string; formula: string; note: string }[]; isMobile: boolean }) {
   return (
     <div>
-      <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.7, marginBottom: "28px", maxWidth: "700px" }}>
+      {rows.map(({ label, formula, note }, i) => (
+        <div key={label} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "190px 1fr 1fr", gap: isMobile ? "6px" : "20px", padding: "14px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}`, alignItems: "start" }}>
+          <span style={{ fontSize: "13.5px", color: colors.textMain }}>{label}</span>
+          <span style={{ fontFamily: MONO, fontSize: "12px", color: colors.secondaryText, lineHeight: 1.55 }}>{formula}</span>
+          <span style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.55 }}>{note}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Pillar detail panels ───────────────────────────────────────────────── */
+
+function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
+  const groups = [
+    { title: "Location criteria", flag: false, items: ["Prime STR area: Dubai Marina, JBR, Downtown, Palm Jumeirah, or Emaar Beachfront", "Walking distance to beach, marina, or major tourist attractions", "Strong Airbnb supply density — usually a sign of proven demand", "Building already listed on Airbnb and Booking.com by other operators — proof of concept"] },
+    { title: "Property criteria", flag: false, items: ["Higher floors can support stronger pricing in some buildings, but the impact varies by building, view, and comparable performance", "Sea, marina, Burj Khalifa, or city view — standard views may generate lower ADR, so the rent must still work under conservative revenue assumptions", "Studio or 1BR — smaller units have lower rent obligations, fill faster, and are easier to operate", "Building permits holiday home operation (confirm in writing before signing)"] },
+    { title: "Financial criteria", flag: false, items: ["Rent-to-revenue gap: projected annual STR revenue should exceed annual rent with a healthy margin", "Break-even occupancy comfortably below market norms — use the Risk Estimator to check before committing", "Setup cost (furnishing) recoverable within a reasonable payback period", "Minimum 3-month cash buffer covering rent, utilities, and cleaning if bookings are slow"] },
+    { title: "Signals to investigate further", flag: true, items: ["Standard view or low/podium floor in a competitive building", "Rent that leaves little margin versus comparable STR performance in the same building", "Landlord unwilling to give written STR permission", "Building management has restricted or blocked holiday home permits", "Areas where LTR data suggests softer demand — worth deeper diligence"] },
+  ];
+  const dimensions = [
+    { dimension: "STR demand", max: 5, desc: "Prime area (Marina/JBR/Downtown/Palm): 5 pts · Strong area (Business Bay/Creek/DIFC): 3 pts · Other: 1 pt" },
+    { dimension: "View & floor", max: 5, desc: "Higher floor with premium view: 5 pts · Mid-floor or city view: 3–4 pts · Lower floor or standard view: 1 pt" },
+    { dimension: "Rent pressure", max: 5, desc: "Break-even occupancy below 50%: 5 pts · 50–65%: 3 pts · 65–80%: 1 pt · Above 80%: 0 pts — reconsider" },
+    { dimension: "Operational ease", max: 3, desc: "Smart lock permitted + cooperative building reception: 3 pts · Key safe only: 2 pts · Difficult access: 0 pts" },
+    { dimension: "Exit flexibility", max: 2, desc: "1-month break clause: 2 pts · 3-month notice: 1 pt · No break clause: 0 pts" },
+  ];
+  const bands = [
+    { range: "18–20 pts", label: "Proceed", tone: colors.primary },
+    { range: "13–17 pts", label: "Negotiate", tone: colors.secondaryText },
+    { range: "Below 13", label: "Avoid", tone: DANGER },
+  ];
+
+  return (
+    <div>
+      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, margin: "0 0 26px", maxWidth: "64ch" }}>
         The property selection decision carries the most risk in STR sub-leasing. Rent is fixed while STR revenue is seasonal — choosing the wrong unit is how operators lose money before they start.
       </p>
 
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px" }}>
-        {[
-          { title: "Location Criteria", pass: true, items: ["Prime STR area: Dubai Marina, JBR, Downtown, Palm Jumeirah, or Emaar Beachfront", "Walking distance to beach, marina, or major tourist attractions", "Strong Airbnb supply density — usually a sign of proven demand", "Building already listed on Airbnb and Booking.com by other operators — proof of concept"] },
-          { title: "Property Criteria", pass: true, items: ["Higher floors can support stronger pricing in some buildings, but the impact varies by building, view, and comparable performance", "Sea, marina, Burj Khalifa, or city view — standard views may generate lower ADR, so the rent must still work under conservative revenue assumptions", "Studio or 1BR — smaller units have lower rent obligations, fill faster, and are easier to operate", "Building permits holiday home operation (confirm in writing before signing)"] },
-          { title: "Financial Criteria", pass: true, items: ["Rent-to-revenue gap: projected annual STR revenue should exceed annual rent with a healthy margin", "Break-even occupancy comfortably below market norms — use the Risk Estimator to check before committing", "Setup cost (furnishing) recoverable within a reasonable payback period", "Minimum 3-month cash buffer covering rent, utilities, and cleaning if bookings are slow"] },
-          { title: "Signals To Investigate Further", pass: false, items: ["Standard view or low/podium floor in a competitive building", "Rent that leaves little margin versus comparable STR performance in the same building", "Landlord unwilling to give written STR permission", "Building management has restricted or blocked holiday home permits", "Areas where LTR data suggests softer demand — worth deeper diligence"] },
-        ].map(({ title, items, pass }) => (
-          <div key={title} style={{ padding: "20px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${pass ? colors.border : colors.borderStrong}` }}>
-            <div style={{ fontSize: "13px", fontWeight: 600, color: pass ? colors.primary : "#B03030", marginBottom: "12px" }}>{title}</div>
-            {items.map(item => (
-              <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "9px", alignItems: "flex-start" }}>
-                {pass ? <IconCheck color={colors.primary} size={15} /> : <IconWarning size={15} />}
-                <span style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.55 }}>{item}</span>
-              </div>
-            ))}
+      <Columns isMobile={isMobile} cols={2}>
+        {groups.map(({ title, items, flag }) => (
+          <div key={title}>
+            <SubHead tone={flag ? DANGER : colors.textLight}>{title}</SubHead>
+            <List items={items} />
           </div>
         ))}
-      </div>
+      </Columns>
 
-      <div style={{ background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}`, padding: isMobile ? "24px 20px" : "30px 34px", margin: "24px 0" }}>
-        <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 600, letterSpacing: "0.12em", marginBottom: "10px" }}>AREA & BUILDING RISK SCORING</div>
-        <h3 style={{ fontSize: "21px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "6px" }}>Score Any Unit Across 5 Dimensions</h3>
-        <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "18px" }}>Before signing any lease, score the unit. Aim for 18+ points before proceeding.</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
-          {[
-            { dimension: "STR Demand Score", max: 5, desc: "Prime area (Marina/JBR/Downtown/Palm): 5 pts · Strong area (Business Bay/Creek/DIFC): 3 pts · Other: 1 pt" },
-            { dimension: "View & Floor Score", max: 5, desc: "Higher floor with premium view: 5 pts · Mid-floor or city view: 3–4 pts · Lower floor or standard view: 1 pt" },
-            { dimension: "Rent Pressure Score", max: 5, desc: "Break-even occupancy below 50%: 5 pts · 50–65%: 3 pts · 65–80%: 1 pt · Above 80%: 0 pts — reconsider" },
-            { dimension: "Operational Ease Score", max: 3, desc: "Smart lock permitted + cooperative building reception: 3 pts · Key safe only: 2 pts · Difficult access: 0 pts" },
-            { dimension: "Exit Flexibility Score", max: 2, desc: "1-month break clause: 2 pts · 3-month notice: 1 pt · No break clause: 0 pts" },
-          ].map(({ dimension, max, desc }) => (
-            <div key={dimension} style={{ padding: "12px 16px", background: colors.bgSection, borderRadius: "10px", border: `1px solid ${colors.border}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.textMain }}>{dimension}</div>
-                <span style={{ fontSize: "11px", fontWeight: 600, color: colors.secondaryText, background: "rgba(184,138,68,0.09)", padding: "2px 9px", borderRadius: "12px" }}>max {max} pts</span>
-              </div>
-              <div style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.5 }}>{desc}</div>
+      <div style={{ marginTop: "32px", paddingTop: "26px", borderTop: `1px solid ${colors.border}` }}>
+        <SubHead>Area &amp; building risk scoring</SubHead>
+        <h3 style={{ fontFamily: DISPLAY, fontSize: "19px", fontWeight: 400, color: colors.textMain, margin: "0 0 6px" }}>Score any unit across 5 dimensions</h3>
+        <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.55, margin: "0 0 18px", maxWidth: "64ch" }}>
+          Before signing any lease, score the unit. Aim for 18+ points before proceeding.
+        </p>
+
+        <div>
+          {dimensions.map(({ dimension, max, desc }, i) => (
+            <div key={dimension} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "180px 1fr 56px", gap: "14px", padding: "12px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}`, alignItems: "baseline" }}>
+              <span style={{ fontSize: "13.5px", color: colors.textMain }}>{dimension}</span>
+              <span style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.55 }}>{desc}</span>
+              <span style={{ fontFamily: MONO, fontSize: "12px", color: colors.textLight, textAlign: isMobile ? "left" : "right", fontVariantNumeric: "tabular-nums" }}>{max} pts</span>
             </div>
           ))}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "10px" }}>
-          {[
-            { range: "18–20 pts", label: "Proceed", color: colors.primary, bg: colors.bgSage },
-            { range: "13–17 pts", label: "Negotiate", color: colors.secondaryText, bg: "rgba(184,138,68,0.09)" },
-            { range: "Below 13", label: "Avoid", color: "#B03030", bg: "rgba(176,48,48,0.07)" },
-          ].map(({ range, label, color, bg }) => (
-            <div key={range} style={{ padding: "12px", background: bg, borderRadius: "10px", textAlign: "center" }}>
-              <div style={{ fontSize: "13px", fontWeight: 600, color, fontFamily: serifHeading }}>{label}</div>
-              <div style={{ fontSize: "11px", color, marginTop: "3px", opacity: 0.8 }}>{range}</div>
+
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? "12px" : "28px", marginTop: "22px", paddingTop: "20px", borderTop: `1px solid ${colors.border}` }}>
+          {bands.map(({ range, label, tone }) => (
+            <div key={range}>
+              <p style={{ fontFamily: DISPLAY, fontSize: "17px", fontWeight: 500, color: tone, margin: "0 0 2px" }}>{label}</p>
+              <p style={{ fontFamily: MONO, fontSize: "11.5px", color: colors.textLight, margin: 0, fontVariantNumeric: "tabular-nums" }}>{range}</p>
             </div>
           ))}
         </div>
@@ -130,44 +162,43 @@ function PillarOneDetail({ isMobile }: { isMobile: boolean }) {
 }
 
 function PillarTwoDetail({ isMobile }: { isMobile: boolean }) {
+  const groups = [
+    { title: "Landlord approval", items: ["Written permission for STR / holiday home operation", "Contract clause or addendum specifying holiday home use", "Permission to apply for DET holiday home permit", "Clarity on guest access and building rules", "If a landlord declines in writing, that unit is off the table"] },
+    { title: "DET portal setup", items: ["Create or access DET holiday home portal account", "Prepare and upload all required documents", "Submit unit details and property photos", "Track approval status — budget 3–7 working days", "Display permit in the property at all times after approval"] },
+    { title: "Required documents", items: ["Tenancy contract (signed, registered)", "Landlord NOC or written approval letter", "Passport or Emirates ID of operator", "DEWA bill for the property", "Property photos to DET standard", "Company documents if operating as a business"] },
+    { title: "Ongoing compliance", items: ["Permit must be active before listing on any platform", "Collect guest ID (passport or Emirates ID) on every check-in", "Maintain a guest register — retained for 5 years", "Annual permit renewal — set reminder 45 days before expiry", "Tourism Dirham process where applicable"] },
+  ];
+  const steps = [
+    { title: "Position yourself as a professional operator", body: "Say: 'I operate a registered holiday home management business and am looking for a property to manage as a licensed DET holiday home. I will maintain the property to a premium standard, provide monthly reports, and ensure full DET compliance.'" },
+    { title: "What to ask for in the contract", body: "Written STR permission clause, a 1-month break clause (or 3-month minimum), clarity on major vs minor maintenance, permission to install a smart lock, and agreement on how damage is handled beyond the security deposit." },
+    { title: "What to offer the landlord", body: "A premium above market rent (5–15% is typical for STR permission), guaranteed rent via post-dated cheques, a 2-month security deposit, monthly property condition reports, and a 1-year minimum term with renewal option." },
+    { title: "Handle objections before they arise", body: "'What about building rules?' → Confirm building eligibility before approaching the landlord. 'Is this legal?' → Show them the DET permit process." },
+    { title: "Contract wording to include", body: "'The tenant is permitted to operate the property as a holiday home registered with the Dubai Department of Economy and Tourism (DET). The tenant will maintain a valid DET permit at all times and comply with all applicable regulations.'" },
+  ];
+
   return (
     <div>
-      <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.7, marginBottom: "24px", maxWidth: "700px" }}>
+      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, margin: "0 0 26px", maxWidth: "64ch" }}>
         Before operating, secure landlord permission in writing, complete DET registration, and have all documentation in order. Operating without either is illegal in Dubai.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
-        {[
-          { title: "Landlord Approval", color: colors.primary, items: ["Written permission for STR / holiday home operation", "Contract clause or addendum specifying holiday home use", "Permission to apply for DET holiday home permit", "Clarity on guest access and building rules", "If a landlord declines in writing, that unit is off the table"] },
-          { title: "DET Portal Setup", color: colors.secondary, items: ["Create or access DET holiday home portal account", "Prepare and upload all required documents", "Submit unit details and property photos", "Track approval status — budget 3–7 working days", "Display permit in the property at all times after approval"] },
-          { title: "Required Documents", color: colors.primary, items: ["Tenancy contract (signed, registered)", "Landlord NOC or written approval letter", "Passport or Emirates ID of operator", "DEWA bill for the property", "Property photos to DET standard", "Company documents if operating as a business"] },
-          { title: "Ongoing Compliance", color: colors.secondary, items: ["Permit must be active before listing on any platform", "Collect guest ID (passport or Emirates ID) on every check-in", "Maintain a guest register — retained for 5 years", "Annual permit renewal — set reminder 45 days before expiry", "Tourism Dirham process where applicable"] },
-        ].map(({ title, color, items }) => (
-          <div key={title} style={{ padding: "20px 22px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
-            <div style={{ fontSize: "13px", fontWeight: 600, color: textSafe(color), marginBottom: "12px" }}>{title}</div>
-            {items.map(item => (
-              <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "9px", alignItems: "flex-start" }}>
-                <div style={{ marginTop: "2px", flexShrink: 0 }}><IconCheck color={color} size={15} /></div>
-                <span style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.55 }}>{item}</span>
-              </div>
-            ))}
+
+      <Columns isMobile={isMobile} cols={2}>
+        {groups.map(({ title, items }) => (
+          <div key={title}>
+            <SubHead>{title}</SubHead>
+            <List items={items} />
           </div>
         ))}
-      </div>
+      </Columns>
 
-      <div style={{ background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}`, padding: isMobile ? "24px 20px" : "30px 34px", marginBottom: "18px" }}>
-        <div style={{ fontSize: "11px", color: colors.secondaryText, fontWeight: 600, letterSpacing: "0.12em", marginBottom: "14px" }}>LANDLORD NEGOTIATION FRAMEWORK</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {[
-            { step: "1", title: "Position yourself as a professional operator", body: "Say: 'I operate a registered holiday home management business and am looking for a property to manage as a licensed DET holiday home. I will maintain the property to a premium standard, provide monthly reports, and ensure full DET compliance.'" },
-            { step: "2", title: "What to ask for in the contract", body: "Written STR permission clause, a 1-month break clause (or 3-month minimum), clarity on major vs minor maintenance, permission to install a smart lock, and agreement on how damage is handled beyond the security deposit." },
-            { step: "3", title: "What to offer the landlord", body: "A premium above market rent (5–15% is typical for STR permission), guaranteed rent via post-dated cheques, a 2-month security deposit, monthly property condition reports, and a 1-year minimum term with renewal option." },
-            { step: "4", title: "Handle objections before they arise", body: "'What about building rules?' → Confirm building eligibility before approaching the landlord. 'Is this legal?' → Show them the DET permit process." },
-            { step: "5", title: "Contract wording to include", body: "'The tenant is permitted to operate the property as a holiday home registered with the Dubai Department of Economy and Tourism (DET). The tenant will maintain a valid DET permit at all times and comply with all applicable regulations.'" },
-          ].map(({ step, title, body }) => (
-            <div key={step} style={{ display: "flex", gap: "14px", padding: "16px", background: colors.bgSection, borderRadius: "10px", border: `1px solid ${colors.border}` }}>
-              <PillarBadge num={step} color={colors.secondary} />
+      <div style={{ marginTop: "32px", paddingTop: "26px", borderTop: `1px solid ${colors.border}` }}>
+        <SubHead>Landlord negotiation framework</SubHead>
+        <div style={{ marginTop: "14px" }}>
+          {steps.map(({ title, body }, i) => (
+            <div key={title} style={{ display: "grid", gridTemplateColumns: "28px 1fr", gap: "14px", padding: "14px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+              <span style={{ fontFamily: MONO, fontSize: "12px", color: colors.textLight, lineHeight: 1.6, fontVariantNumeric: "tabular-nums" }}>{String(i + 1).padStart(2, "0")}</span>
               <div>
-                <div style={{ fontSize: "13.5px", fontWeight: 600, color: colors.textMain, marginBottom: "5px" }}>{title}</div>
+                <p style={{ fontSize: "13.5px", color: colors.textMain, margin: "0 0 5px" }}>{title}</p>
                 <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{body}</p>
               </div>
             </div>
@@ -175,67 +206,61 @@ function PillarTwoDetail({ isMobile }: { isMobile: boolean }) {
         </div>
       </div>
 
-      <div style={{ padding: "14px 18px", background: "rgba(184,138,68,0.09)", borderRadius: "10px", border: `1px solid ${colors.border}` }}>
-        <p style={{ fontSize: "12.5px", color: colors.secondaryText, margin: 0, lineHeight: 1.6 }}>
-          This section is educational and not legal advice. Verify all licensing and approval requirements with the DET, building management, and a qualified advisor before signing any lease or operating a holiday home.
-        </p>
-      </div>
+      <p style={{ fontSize: "12.5px", color: colors.textLight, lineHeight: 1.6, margin: "24px 0 0", paddingTop: "18px", borderTop: `1px solid ${colors.border}` }}>
+        This section is educational and not legal advice. Verify all licensing and approval requirements with the DET, building management, and a qualified advisor before signing any lease or operating a holiday home.
+      </p>
     </div>
   );
 }
 
 function PillarThreeDetail({ isMobile }: { isMobile: boolean }) {
+  const groups = [
+    { title: "Maintenance team", items: ["Handyman on call (24hr response)", "AC service contact for summer", "Appliance repair — fridge, washer, dryer", "Emergency response protocol", "Damage reporting and documentation process"] },
+    { title: "Housekeeping team", items: ["Same-day turnover cleaning capability", "Linen handling and laundry coordination", "3 sets of linen per bed minimum", "Inventory checks post-turnover", "Inspection photos after every clean"] },
+    { title: "Guest relations", items: ["Sub-1 hour message response at all times", "Check-in support on arrival day", "Complaint handling and empathy protocol", "Review management and response process", "Escalation chain when issues arise"] },
+    { title: "Virtual assistants", items: ["Message templates for common scenarios", "Booking inquiries and pre-arrival communication", "Calendar and availability coordination", "Task follow-up and team coordination", "Guest support coverage across time zones"] },
+    { title: "Access & check-in", items: ["Smart lock (primary entry method)", "Backup physical key protocol", "Building access card coordination", "Parking instructions and security", "Late arrival and early departure handling"] },
+    { title: "Quality control", items: ["Post-checkout inspection checklist", "Damage reporting before next check-in", "Maintenance log with response tracking", "Monthly replacement reserve (10–15% of revenue)", "Quarterly deep-clean schedule"] },
+  ];
   return (
     <div>
-      <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.7, marginBottom: "24px", maxWidth: "700px" }}>
+      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, margin: "0 0 26px", maxWidth: "64ch" }}>
         STR sub-leasing is an active business, not passive income. These are the teams and workflows to have in place before the first guest checks in.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px" }}>
-        {[
-          { title: "Maintenance Team", color: colors.primary, items: ["Handyman on call (24hr response)", "AC service contact for summer", "Appliance repair — fridge, washer, dryer", "Emergency response protocol", "Damage reporting and documentation process"] },
-          { title: "Housekeeping Team", color: colors.secondary, items: ["Same-day turnover cleaning capability", "Linen handling and laundry coordination", "3 sets of linen per bed minimum", "Inventory checks post-turnover", "Inspection photos after every clean"] },
-          { title: "Guest Relations", color: colors.primary, items: ["Sub-1 hour message response at all times", "Check-in support on arrival day", "Complaint handling and empathy protocol", "Review management and response process", "Escalation chain when issues arise"] },
-          { title: "Virtual Assistants", color: colors.secondary, items: ["Message templates for common scenarios", "Booking inquiries and pre-arrival communication", "Calendar and availability coordination", "Task follow-up and team coordination", "Guest support coverage across time zones"] },
-          { title: "Access & Check-In", color: colors.primary, items: ["Smart lock (primary entry method)", "Backup physical key protocol", "Building access card coordination", "Parking instructions and security", "Late arrival and early departure handling"] },
-          { title: "Quality Control", color: colors.secondary, items: ["Post-checkout inspection checklist", "Damage reporting before next check-in", "Maintenance log with response tracking", "Monthly replacement reserve (10–15% of revenue)", "Quarterly deep-clean schedule"] },
-        ].map(({ title, color, items }) => (
-          <div key={title} style={{ padding: "20px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
-            <div style={{ fontSize: "13px", fontWeight: 600, color: textSafe(color), marginBottom: "12px", paddingBottom: "9px", borderBottom: `1px solid ${colors.border}` }}>{title}</div>
-            {items.map(item => (
-              <div key={item} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "flex-start" }}>
-                <div style={{ marginTop: "2px", flexShrink: 0 }}><IconCheck color={color} size={14} /></div>
-                <span style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.55 }}>{item}</span>
-              </div>
-            ))}
+      <Columns isMobile={isMobile} cols={3}>
+        {groups.map(({ title, items }) => (
+          <div key={title}>
+            <SubHead>{title}</SubHead>
+            <List items={items} />
           </div>
         ))}
-      </div>
+      </Columns>
     </div>
   );
 }
 
 function PillarFourDetail({ isMobile }: { isMobile: boolean }) {
+  const tools = [
+    { title: "PMS / channel manager", examples: "Hostaway, Guesty, Hostfully", purpose: "Sync calendars, manage bookings, avoid double bookings, centralise messages, and manage tasks across all platforms from one dashboard." },
+    { title: "Dynamic pricing", examples: "PriceLabs, Beyond, Wheelhouse", purpose: "Adjust nightly rates automatically by seasonality, demand signals, local events, and occupancy trends." },
+    { title: "Guest messaging", examples: "Hospitable, Host Tools, PMS automations", purpose: "Automate confirmations, check-in instructions, checkout reminders, and review requests." },
+    { title: "Task management", examples: "Trello, ClickUp, Notion, PMS task tools", purpose: "Coordinate cleaners, maintenance vendors, inspections, and issue follow-ups." },
+    { title: "Smart access", examples: "Yale, Nuki, TTLock", purpose: "Secure self-check-in without key handover risk. Guests receive a unique code per booking." },
+    { title: "Finance tracking", examples: "Google Sheets, Xero, Zoho Books", purpose: "Track gross revenue, rent, utilities, cleaning, platform fees, maintenance, and monthly net profit." },
+  ];
   return (
     <div>
-      <p style={{ fontSize: "14.5px", color: colors.textMuted, lineHeight: 1.7, marginBottom: "24px", maxWidth: "700px" }}>
+      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, margin: "0 0 20px", maxWidth: "64ch" }}>
         Sub-leasing cannot be managed from WhatsApp and spreadsheets once bookings start. A proper system stack controls calendars, pricing, messages, tasks, and reporting.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "16px" }}>
-        {[
-          { title: "PMS / Channel Manager", examples: "Hostaway, Guesty, Hostfully", color: colors.secondary, purpose: "Sync calendars, manage bookings, avoid double bookings, centralise messages, and manage tasks across all platforms from one dashboard." },
-          { title: "Dynamic Pricing", examples: "PriceLabs, Beyond, Wheelhouse", color: colors.primary, purpose: "Adjust nightly rates automatically by seasonality, demand signals, local events, and occupancy trends." },
-          { title: "Guest Messaging", examples: "Hospitable, Host Tools, PMS automations", color: colors.secondary, purpose: "Automate confirmations, check-in instructions, checkout reminders, and review requests." },
-          { title: "Task Management", examples: "Trello, ClickUp, Notion, PMS task tools", color: colors.primary, purpose: "Coordinate cleaners, maintenance vendors, inspections, and issue follow-ups." },
-          { title: "Smart Access", examples: "Yale, Nuki, TTLock", color: colors.secondary, purpose: "Secure self-check-in without key handover risk. Guests receive a unique code per booking." },
-          { title: "Finance Tracking", examples: "Google Sheets, Xero, Zoho Books", color: colors.primary, purpose: "Track gross revenue, rent, utilities, cleaning, platform fees, maintenance, and monthly net profit." },
-        ].map(({ title, examples, color, purpose }) => (
-          <div key={title} style={{ background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}`, padding: "20px" }}>
-            <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: `${color}12`, border: `1px solid ${color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "12px" }}>
-              <IconSystem color={color} size={18} />
+      <div>
+        {tools.map(({ title, examples, purpose }, i) => (
+          <div key={title} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "200px 1fr", gap: isMobile ? "6px" : "24px", padding: "16px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+            <div>
+              <p style={{ fontSize: "13.5px", color: colors.textMain, margin: "0 0 3px" }}>{title}</p>
+              <p style={{ fontFamily: MONO, fontSize: "11px", color: colors.secondaryText, margin: 0, lineHeight: 1.5 }}>{examples}</p>
             </div>
-            <h3 style={{ fontSize: "16px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "5px" }}>{title}</h3>
-            <div style={{ fontSize: "11px", color: textSafe(color), fontWeight: 600, background: `${color}0E`, borderRadius: "6px", padding: "3px 9px", display: "inline-block", marginBottom: "10px" }}>{examples}</div>
-            <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{purpose}</p>
+            <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{purpose}</p>
           </div>
         ))}
       </div>
@@ -244,10 +269,10 @@ function PillarFourDetail({ isMobile }: { isMobile: boolean }) {
 }
 
 const PILLARS = [
-  { num: "01", icon: IconTarget, accentColor: colors.primary, label: "PROPERTY SELECTION", title: "Property Selection", body: "Find a unit that can survive seasonality and still produce acceptable returns.", points: ["Rent pressure", "Break-even occupancy", "Building suitability", "Unit economics"], cta: "Explore Property Selection", Detail: PillarOneDetail },
-  { num: "02", icon: IconDocument, accentColor: colors.secondary, label: "LICENSING & COMPLIANCE", title: "Licensing & Compliance", body: "Understand the approvals, agreements and setup required before operating.", points: ["Landlord approval", "DET setup", "Required documentation", "Building rules"], cta: "Explore Licensing", Detail: PillarTwoDetail },
-  { num: "03", icon: IconTeam, accentColor: colors.primary, label: "OPERATIONS SETUP", title: "Operations Setup", body: "Build the team and processes required to handle guests and property operations.", points: ["Housekeeping", "Maintenance", "Guest support", "Check-in & inspections"], cta: "Explore Operations", Detail: PillarThreeDetail },
-  { num: "04", icon: IconSystem, accentColor: colors.secondary, label: "SYSTEMS & PRICING", title: "Systems & Pricing", body: "Use the right tools to manage listings, calendars, guest communication and pricing.", points: ["PMS", "Channel management", "Dynamic pricing", "Reporting"], cta: "Explore Systems", Detail: PillarFourDetail },
+  { num: "01", title: "Property Selection", body: "Find a unit that can survive seasonality and still produce acceptable returns.", meta: "Rent pressure · Break-even occupancy · Building suitability · Unit economics", Detail: PillarOneDetail },
+  { num: "02", title: "Licensing & Compliance", body: "Understand the approvals, agreements and setup required before operating.", meta: "Landlord approval · DET setup · Required documentation · Building rules", Detail: PillarTwoDetail },
+  { num: "03", title: "Operations Setup", body: "Build the team and processes required to handle guests and property operations.", meta: "Housekeeping · Maintenance · Guest support · Check-in & inspections", Detail: PillarThreeDetail },
+  { num: "04", title: "Systems & Pricing", body: "Use the right tools to manage listings, calendars, guest communication and pricing.", meta: "PMS · Channel management · Dynamic pricing · Reporting", Detail: PillarFourDetail },
 ];
 
 const COMMON_MISTAKES = [
@@ -260,7 +285,8 @@ const COMMON_MISTAKES = [
   { mistake: "Scaling too fast before proving unit one", fix: "Prove the model on unit one for a few months before signing a second lease." },
 ];
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+/* ── Page ───────────────────────────────────────────────────────────────── */
+
 export default function STRSubleasingPage() {
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -268,342 +294,269 @@ export default function STRSubleasingPage() {
   const [showMethodology, setShowMethodology] = useState(false);
   const [showMistakes, setShowMistakes] = useState(false);
 
-  const pad = isMobile ? "56px 20px" : "76px 40px";
+  const shell: React.CSSProperties = {
+    maxWidth: "1080px", margin: "0 auto",
+    padding: isMobile ? "0 20px" : "0 40px",
+    display: "flex", flexDirection: "column", gap: "20px",
+  };
+
+  const sampleInputs = [
+    ["Building", "Marina Gate 2"],
+    ["Unit size", "1 Bedroom"],
+    ["Floor", "24 (high)"],
+    ["View", "Marina"],
+    ["Asking rent", "AED 9,500 / mo"],
+  ];
+  const sampleOutputs = [
+    ["Break-even occupancy", "58%"],
+    ["Risk level", "Low"],
+    ["Est. net profit / yr", "AED 42,800"],
+    ["Cash buffer required", "AED 57,000"],
+  ];
+
+  const numbers = [
+    { title: "Projected STR revenue", body: "Your realistic annual and monthly revenue based on current STR assumptions." },
+    { title: "Annual landlord rent", body: "Your largest fixed cost and the number the business must survive every month." },
+    { title: "Break-even occupancy", body: "The occupancy level required before the unit begins generating positive cash flow." },
+    { title: "Cash buffer", body: "How much reserve capital may be needed to survive low season and unexpected costs." },
+  ];
+
+  const formulas = [
+    { label: "Monthly revenue", formula: "ADR × Occupied Nights", note: "Use the Risk Estimator for a realistic ADR projection. Avoid optimistic numbers." },
+    { label: "Break-even occupancy", formula: "Monthly Fixed Costs ÷ ADR ÷ Days in Month", note: "Break-even meaningfully above market norms should prompt a closer look." },
+    { label: "Monthly profit", formula: "Gross Revenue − Rent − Platform Fees − Utilities − Cleaning − Maintenance Reserve − Furniture Amortisation", note: "Should be positive across the full year, including summer low-season months." },
+    { label: "Minimum cash buffer", formula: "3 to 6 months of rent and operating costs", note: "Model a conservative low-occupancy month before committing." },
+  ];
+  const costs = [
+    { label: "Platform fees", formula: "~18% of gross (Airbnb + Booking.com blended)", note: "Deducted automatically by platforms before payout." },
+    { label: "Landlord rent", formula: "Monthly rent × 12 — fixed, paid regardless of occupancy", note: "Your biggest cost. Does not flex with your revenue." },
+    { label: "Utilities (DEWA, AC, internet)", formula: "AED 600–1,200/month in summer, AED 400–700 in winter", note: "You pay these — the landlord does not." },
+    { label: "Cleaning costs", formula: "AED 150–350 per turn × estimated turns per month", note: "A 1BR at strong occupancy can average 8–12 turns per month." },
+    { label: "Furniture amortisation", formula: "Setup cost (AED 30–55k for 1BR) ÷ 5 years ÷ 12", note: "Spread over 5 years. You own the furniture — recovery possible on exit." },
+  ];
+  const buffers = [
+    ["Minimum buffer", "3 months rent + utilities"],
+    ["Recommended buffer", "5 months (covers full low season)"],
+    ["Setup cost (1BR)", "AED 30,000–55,000 fully furnished"],
+    ["Break-even target", "As low as achievable at market ADR"],
+  ];
+  const services = [
+    { title: "Unit screening", body: "Review rent, building, STR potential and risk before signing." },
+    { title: "Licensing guidance", body: "Understand landlord approval, DET setup and required documents." },
+    { title: "Operations setup", body: "Connect with experienced STR housekeeping, maintenance and guest-support teams." },
+    { title: "Systems setup", body: "Guidance on PMS, channels, pricing tools and operational workflows." },
+  ];
 
   return (
     <div style={{ background: colors.bgMain, minHeight: "100vh", position: "relative" }}>
       <DecorativeBackdrop />
       <div style={{ position: "relative", zIndex: 1 }}>
+        <SiteNav active="self-manage" />
 
-      {/* ─── HEADER ─── */}
-      <SiteNav active="self-manage" />
+        <style>{`
+          .sl-pillar { display: grid; grid-template-columns: 34px 1fr auto; gap: 16px; align-items: baseline;
+            width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+            padding: 20px 0; border-top: 1px solid ${colors.border}; color: inherit; font: inherit; }
+          .sl-pillar:first-of-type { border-top: none; }
+          .sl-pillar:hover .sl-pillar-title { color: ${colors.primary}; }
+          @media (max-width: 640px) { .sl-hero { grid-template-columns: 1fr !important; } }
+        `}</style>
 
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 1. HERO + RISK ESTIMATOR                                               */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ position: "relative", overflow: "hidden", isolation: "isolate", borderBottom: `1px solid ${colors.border}`, padding: isMobile ? "40px 20px 52px" : "72px 40px 80px" }}>
+        <div style={{ ...shell, paddingTop: isMobile ? "28px" : "44px", paddingBottom: isMobile ? "48px" : "72px" }}>
 
-
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "1200px", margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "36px" : "56px", alignItems: "center" }}>
-
-          {/* ── LEFT COLUMN ── */}
-          <div style={{ flex: "0 0 58%", maxWidth: isMobile ? "100%" : "58%" }}>
-
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "6px 14px 6px 8px", background: colors.bgSection, border: "1px solid rgba(184,138,68,0.28)", borderRadius: "999px", marginBottom: "20px" }}>
-              <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(184,138,68,0.11)", border: "1px solid rgba(184,138,68,0.24)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke={colors.secondary} strokeWidth="1.3"/><circle cx="8" cy="8" r="2.5" stroke={colors.secondary} strokeWidth="1.2"/><circle cx="8" cy="8" r="0.8" fill={colors.secondary}/></svg>
-              </div>
-              <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: colors.secondaryText }}>STR Sub-Leasing Risk Estimator</span>
-            </div>
-
-            <h1 className="ai-title-grad" style={{ fontSize: isMobile ? "clamp(28px,9vw,40px)" : "clamp(34px,3.4vw,50px)", fontFamily: serifHeading, fontWeight: 300, lineHeight: isMobile ? 1.08 : 1.05, letterSpacing: isMobile ? "-0.02em" : "-0.03em", marginBottom: "16px", maxWidth: "780px" }}>
-              Check The Unit Before You Sign The Lease
-            </h1>
-
-            <p style={{ fontSize: isMobile ? "14.5px" : "15.5px", color: colors.textMuted, lineHeight: 1.68, marginBottom: "24px", maxWidth: "560px" }}>
-              AssetIntel helps you estimate whether a sub-leased unit can survive low season, cover fixed rent, and produce realistic profit — before you commit to the landlord.
-            </p>
-
-
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+          {/* ── Hero ── */}
+          <div className="sl-hero" style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.15fr 0.85fr", gap: isMobile ? "24px" : "36px", alignItems: "center", marginBottom: "8px" }}>
+            <div>
+              <Eyebrow tone={colors.secondaryText}>STR sub-leasing risk estimator</Eyebrow>
+              <h1 className="ai-title-grad" style={{ fontFamily: DISPLAY, fontSize: isMobile ? "clamp(28px,8vw,38px)" : "clamp(34px,3.4vw,48px)", fontWeight: 300, lineHeight: 1.08, letterSpacing: "-0.025em", margin: "0 0 16px" }}>
+                Check the unit before you sign the lease
+              </h1>
+              <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.65, margin: "0 0 26px", maxWidth: "54ch" }}>
+                AssetIntel helps you estimate whether a sub-leased unit can survive low season, cover fixed rent, and produce realistic profit — before you commit to the landlord.
+              </p>
               <button
-                onClick={() => router.push("/self-manage/str-subleasing/estimator")}
-                style={{ padding: "13px 26px", background: colors.secondary, color: "#fff", borderRadius: "12px", fontSize: "14.5px", fontWeight: 600, cursor: "pointer", border: "none", letterSpacing: "0.01em" }}
+                onClick={() => router.push(ESTIMATOR)}
+                style={{ padding: "13px 26px", background: colors.primary, color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: 500, cursor: "pointer", border: "none", letterSpacing: "0.01em" }}
               >
-                Open Risk Estimator →
+                Open risk estimator →
               </button>
             </div>
-          </div>
 
-          {/* ── RIGHT COLUMN — Sample card ── */}
-          <div style={{ flex: 1, width: "100%", maxWidth: isMobile ? "100%" : "370px", flexShrink: 0, position: "relative" }}>
-            <div style={{ position: "relative", zIndex: 1, background: colors.bgSection, borderRadius: "22px", border: "1.5px solid rgba(184,138,68,0.28)", overflow: "hidden" }}>
-
-              <div style={{ padding: "16px 20px 14px", background: colors.bgSage, borderBottom: "1px solid rgba(184,138,68,0.15)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "rgba(184,138,68,0.12)", border: "1px solid rgba(184,138,68,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <IconEstimator color={colors.secondary} size={15} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "9.5px", fontWeight: 600, color: colors.secondaryText, letterSpacing: "0.14em", textTransform: "uppercase" }}>Risk Estimator — Sample</div>
-                    <div style={{ fontSize: "10.5px", color: colors.textMuted, marginTop: "1px" }}>Marina Gate 2 · 1BR · Floor 24</div>
-                  </div>
-                </div>
+            {/* Sample readout — the report's ledger, not a bordered brochure card. */}
+            <Card style={{ padding: "22px 24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", marginBottom: "16px" }}>
+                <Eyebrow>Sample output</Eyebrow>
+                <span style={{ fontSize: "11.5px", color: colors.textLight }}>Marina Gate 2 · 1BR</span>
               </div>
 
-              <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid rgba(226, 232, 229,0.65)" }}>
-                <div style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: "10px" }}>Inputs</div>
-                {[
-                  { label: "Building", value: "Marina Gate 2" },
-                  { label: "Unit size", value: "1 Bedroom" },
-                  { label: "Floor", value: "Floor 24 (High)" },
-                  { label: "View", value: "Marina View" },
-                  { label: "Asking rent", value: "AED 9,500 / month" },
-                ].map(({ label, value }, i, arr) => (
-                  <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(226, 232, 229,0.55)" : "none" }}>
-                    <span style={{ fontSize: "11.5px", color: colors.textMuted }}>{label}</span>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: colors.textMain }}>{value}</span>
+              <SubHead>Inputs</SubHead>
+              <div style={{ marginBottom: "18px" }}>
+                {sampleInputs.map(([k, v], i) => (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: "12px", padding: "7px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+                    <span style={{ fontSize: "12.5px", color: colors.textLight }}>{k}</span>
+                    <span style={{ fontSize: "12.5px", color: colors.textMain, fontVariantNumeric: "tabular-nums" }}>{v}</span>
                   </div>
                 ))}
               </div>
 
-              <div style={{ padding: "14px 18px 18px" }}>
-                <div style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: colors.textLight, marginBottom: "10px" }}>Estimator Outputs</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: colors.bgSage, borderRadius: "10px", border: "1px solid rgba(27,94,74,0.12)" }}>
-                    <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Break-even occupancy</span>
-                    <span style={{ fontSize: "14px", fontWeight: 600, color: colors.primary }}>58%</span>
+              <SubHead>Outputs</SubHead>
+              <div>
+                {sampleOutputs.map(([k, v], i) => (
+                  <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", padding: "9px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+                    <span style={{ fontSize: "12.5px", color: colors.textLight }}>{k}</span>
+                    <span style={{ fontFamily: DISPLAY, fontSize: "15px", fontWeight: 500, color: colors.primary, fontVariantNumeric: "tabular-nums" }}>{v}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: colors.bgSage, borderRadius: "10px", border: "1px solid rgba(27,94,74,0.12)" }}>
-                    <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Risk level</span>
-                    <span style={{ fontSize: "11.5px", fontWeight: 600, color: colors.primary, background: colors.bgSage, padding: "3px 12px", borderRadius: "22px" }}>Low</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "rgba(184,138,68,0.09)", borderRadius: "10px", border: "1px solid rgba(184,138,68,0.18)" }}>
-                    <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Est. net profit / yr</span>
-                    <span style={{ fontSize: "14px", fontWeight: 600, color: colors.secondaryText }}>AED 42,800</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}` }}>
-                    <span style={{ fontSize: "11.5px", color: colors.textMuted }}>Cash buffer required</span>
-                    <span style={{ fontSize: "12.5px", fontWeight: 600, color: colors.textMain }}>AED 57,000</span>
-                  </div>
-                  <div style={{ padding: "10px 14px", background: colors.bgSage, borderRadius: "10px", border: "1px solid rgba(27,94,74,0.14)", display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: colors.primary, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l5.5 2.3v4.6c0 3.4-2.4 6.2-5.5 7.5C5.0 14.6 2.5 11.8 2.5 8.4V3.8L8 1.5z" stroke="#fff" strokeWidth="1.3" strokeLinejoin="round"/><path d="M5.5 8l2 2 3-3.5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: "9.5px", fontWeight: 600, color: colors.textMuted, letterSpacing: "0.08em", textTransform: "uppercase" }}>Recommendation</div>
-                      <div style={{ fontSize: "14px", fontWeight: 600, color: colors.primary }}>Proceed</div>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => router.push("/self-manage/str-subleasing/estimator")}
-                  style={{ width: "100%", marginTop: "12px", padding: "12px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "13.5px", fontWeight: 600, cursor: "pointer", border: "none", letterSpacing: "0.01em" }}
-                >
-                  Run Your Own Estimate →
-                </button>
+                ))}
               </div>
-            </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", marginTop: "16px", paddingTop: "16px", borderTop: `1px solid ${colors.borderStrong}` }}>
+                <span style={{ fontFamily: MONO, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight }}>Recommendation</span>
+                <span style={{ fontFamily: DISPLAY, fontSize: "18px", fontWeight: 500, color: colors.primary }}>Proceed</span>
+              </div>
+            </Card>
           </div>
 
-        </div>
-      </section>
+          <AccessGate source="str-subleasing" title="Unlock The Sub-Leasing Playbook" subtitle="Free — sign up or log in to see the full framework, financial methodology, and risk breakdown.">
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 2. THE 4 PILLARS                                                       */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <AccessGate source="str-subleasing" title="Unlock The Sub-Leasing Playbook" subtitle="Free — sign up or log in to see the full framework, financial methodology, and risk breakdown.">
-      <section id="pillars" style={{ padding: pad }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "44px" }}>
-            <SectionLabel text="FRAMEWORK" />
-            <SectionTitle>The 4 Pillars Of A Safe STR Sub-Leasing Setup</SectionTitle>
-            <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "560px", margin: "0 auto" }}>
-              Before taking a unit, make sure the property, licensing, operations and systems can all support the business.
-            </p>
-          </div>
-
-          <style>{`
-            .pillar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: stretch; }
-            .pillar-card { background: #FFFFFF; border: 1px solid #E2E8E5; border-radius: 22px; padding: 26px 22px; display: flex; flex-direction: column; text-align: left; transition: border-color 0.2s ease; cursor: pointer; }
-            .pillar-card:hover { border-color: #CFD9D4; }
-            .pillar-card.active { border-color: #B88A44; }
-            @media (max-width: 1000px) { .pillar-grid { grid-template-columns: repeat(2, 1fr); } }
-            @media (max-width: 560px) { .pillar-grid { grid-template-columns: 1fr; } .pillar-card { padding: 22px 20px; } }
-          `}</style>
-
-          <div className="pillar-grid">
-            {PILLARS.map(({ num, icon: Icon, accentColor, label, title, body, points, cta }, i) => (
-              <div key={num} className={`pillar-card${openPillar === i ? " active" : ""}`} onClick={() => setOpenPillar(openPillar === i ? null : i)}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-                  <div style={{ fontSize: "11px", fontWeight: 600, color: textSafe(accentColor), letterSpacing: "0.12em" }}>{num}</div>
-                  <IconChevron color={accentColor} open={openPillar === i} />
+              {/* ── The 4 pillars ── */}
+              <Card>
+                <Head
+                  eyebrow="Framework"
+                  title="The four pillars of a safe setup"
+                  sub="Before taking a unit, make sure the property, licensing, operations and systems can all support the business."
+                />
+                <div>
+                  {PILLARS.map(({ num, title, body, meta }, i) => {
+                    const open = openPillar === i;
+                    return (
+                      <div key={num}>
+                        <button
+                          className="sl-pillar"
+                          aria-expanded={open}
+                          onClick={() => setOpenPillar(open ? null : i)}
+                        >
+                          <span style={{ fontFamily: MONO, fontSize: "12px", color: colors.textLight, fontVariantNumeric: "tabular-nums" }}>{num}</span>
+                          <span style={{ minWidth: 0 }}>
+                            <span className="sl-pillar-title" style={{ display: "block", fontFamily: DISPLAY, fontSize: "17px", fontWeight: 400, color: colors.textMain, lineHeight: 1.3, marginBottom: "4px", transition: "color 0.15s" }}>
+                              {title}
+                            </span>
+                            <span style={{ display: "block", fontSize: "13px", color: colors.textMuted, lineHeight: 1.55, marginBottom: "5px" }}>{body}</span>
+                            <span style={{ display: "block", fontFamily: MONO, fontSize: "11px", color: colors.textLight, lineHeight: 1.5 }}>{meta}</span>
+                          </span>
+                          <span style={{ color: open ? colors.primary : colors.textLight, display: "flex", alignItems: "center" }}><Chevron open={open} /></span>
+                        </button>
+                        {open && (
+                          <div style={{ padding: isMobile ? "4px 0 26px" : "4px 0 30px 50px" }}>
+                            {React.createElement(PILLARS[i].Detail, { isMobile })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: colors.bgSage, border: `1.5px solid ${accentColor}30`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>
-                  <Icon color={accentColor} size={20} />
-                </div>
-                <div style={{ fontSize: "10px", fontWeight: 600, color: colors.textMuted, letterSpacing: "0.1em", marginBottom: "6px" }}>{label}</div>
-                <h3 style={{ fontFamily: serifHeading, fontSize: "18px", fontWeight: 600, color: colors.textMain, marginBottom: "8px", lineHeight: 1.3 }}>{title}</h3>
-                <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, marginBottom: "12px" }}>{body}</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
-                  {points.map(p => (
-                    <span key={p} style={{ fontSize: "10.5px", fontWeight: 600, color: textSafe(accentColor), background: `${accentColor}0E`, padding: "3px 9px", borderRadius: "22px" }}>{p}</span>
+              </Card>
+
+              {/* ── The numbers ── */}
+              <Card>
+                <Head eyebrow="The numbers that matter" title="Before you sign, check these four" />
+
+                <Columns isMobile={isMobile} cols={4}>
+                  {numbers.map(({ title, body }) => (
+                    <div key={title}>
+                      <SubHead>{title}</SubHead>
+                      <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: "6px 0 0" }}>{body}</p>
+                    </div>
                   ))}
-                </div>
-                <div style={{ marginTop: "auto", fontSize: "12.5px", fontWeight: 600, color: textSafe(accentColor) }}>
-                  {openPillar === i ? "Hide details" : cta} →
-                </div>
-              </div>
-            ))}
-          </div>
+                </Columns>
 
-          {openPillar !== null && (
-            <div style={{ marginTop: "24px", background: colors.bgSection, borderRadius: "22px", border: `1px solid ${colors.border}`, padding: isMobile ? "28px 20px" : "40px 44px" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "5px 14px", background: `${PILLARS[openPillar].accentColor}10`, borderRadius: "22px", border: `1px solid ${PILLARS[openPillar].accentColor}25`, marginBottom: "18px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 600, color: textSafe(PILLARS[openPillar].accentColor), letterSpacing: "0.1em" }}>PILLAR {PILLARS[openPillar].num}</span>
-              </div>
-              <h3 style={{ fontSize: isMobile ? "25px" : "30px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "6px" }}>{PILLARS[openPillar].title}</h3>
-              {React.createElement(PILLARS[openPillar].Detail, { isMobile })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 3. FINANCIAL SNAPSHOT                                                  */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section id="financial-snapshot" style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <SectionLabel text="THE NUMBERS THAT MATTER" />
-            <SectionTitle>Before You Sign, Check These 4 Numbers</SectionTitle>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: "16px", marginBottom: "28px" }}>
-            {[
-              { title: "Projected STR Revenue", body: "Your realistic annual and monthly revenue based on current STR assumptions." },
-              { title: "Annual Landlord Rent", body: "Your largest fixed cost and the number the business must survive every month." },
-              { title: "Break-Even Occupancy", body: "The occupancy level required before the unit begins generating positive cash flow." },
-              { title: "Cash Buffer", body: "How much reserve capital may be needed to survive low season and unexpected costs." },
-            ].map(({ title, body }) => (
-              <div key={title} style={{ padding: "20px 18px", background: colors.bgMain, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
-                <h3 style={{ fontSize: "16px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "8px" }}>{title}</h3>
-                <p style={{ fontSize: "12.5px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{body}</p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ textAlign: "center", padding: "20px 24px", background: colors.bgSage, borderRadius: "12px", border: "1px solid rgba(27,94,74,0.15)", marginBottom: "28px" }}>
-            <p style={{ fontSize: "14.5px", color: colors.primary, fontWeight: 600, fontStyle: "italic", margin: 0, lineHeight: 1.6 }}>
-              "The rule: if the property only works under optimistic ADR or occupancy assumptions, don't sign it."
-            </p>
-          </div>
-
-          <div style={{ textAlign: "center", marginBottom: "28px" }}>
-            <button
-              onClick={() => router.push("/self-manage/str-subleasing/estimator")}
-              style={{ padding: "14px 34px", background: colors.secondary, color: "#fff", borderRadius: "10px", fontSize: "15px", fontWeight: 600, cursor: "pointer", border: "none" }}
-            >
-              Check My Unit →
-            </button>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
-            {([
-              ["Financial methodology", showMethodology, () => setShowMethodology(v => !v)],
-              ["Common mistakes & red flags", showMistakes, () => setShowMistakes(v => !v)],
-            ] as [string, boolean, () => void][]).map(([label, open, toggle]) => (
-              <button key={label} onClick={toggle} aria-expanded={open} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "999px", cursor: "pointer", fontSize: "13px", fontWeight: 500, background: open ? "rgba(27,94,74,0.06)" : "transparent", border: `1px solid ${open ? "rgba(27,94,74,0.22)" : colors.border}`, color: open ? colors.primary : colors.textMuted }}>
-                {label} <IconChevron open={open} color={open ? colors.primary : colors.textMuted} />
-              </button>
-            ))}
-          </div>
-
-          {showMethodology && (
-            <div style={{ marginTop: "20px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
-                {[
-                  { label: "Monthly Revenue", formula: "ADR × Occupied Nights", note: "Use the Risk Estimator for a realistic ADR projection. Avoid optimistic numbers." },
-                  { label: "Break-Even Occupancy", formula: "Monthly Fixed Costs ÷ ADR ÷ Days in Month", note: "Break-even meaningfully above market norms should prompt a closer look." },
-                  { label: "Monthly Profit", formula: "Gross Revenue − Rent − Platform Fees − Utilities − Cleaning − Maintenance Reserve − Furniture Amortisation", note: "Should be positive across the full year, including summer low-season months." },
-                  { label: "Minimum Cash Buffer", formula: "3 to 6 months of rent and operating costs", note: "Model a conservative low-occupancy month before committing." },
-                ].map(({ label, formula, note }) => (
-                  <div key={label} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "190px 1fr 1fr", gap: "14px", padding: "16px 20px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}`, alignItems: "start" }}>
-                    <div style={{ fontSize: "13.5px", fontWeight: 600, color: colors.textMain }}>{label}</div>
-                    <div style={{ fontSize: "12.5px", color: colors.secondaryText, fontFamily: "monospace", background: "rgba(184,138,68,0.09)", padding: "5px 11px", borderRadius: "6px", lineHeight: 1.5 }}>{formula}</div>
-                    <div style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.6 }}>{note}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "24px" }}>
-                {[
-                  { label: "Platform Fees", formula: "~18% of gross (Airbnb + Booking.com blended)", note: "Deducted automatically by platforms before payout." },
-                  { label: "Landlord Rent", formula: "Monthly rent × 12 — fixed, paid regardless of occupancy", note: "Your biggest cost. Does not flex with your revenue." },
-                  { label: "Utilities (DEWA, AC, Internet)", formula: "AED 600–1,200/month in summer, AED 400–700 in winter", note: "You pay these — the landlord does not." },
-                  { label: "Cleaning Costs", formula: "AED 150–350 per turn × estimated turns per month", note: "A 1BR at strong occupancy can average 8–12 turns per month." },
-                  { label: "Furniture Amortisation", formula: "Setup cost (AED 30–55k for 1BR) ÷ 5 years ÷ 12", note: "Spread over 5 years. You own the furniture — recovery possible on exit." },
-                ].map(({ label, formula, note }) => (
-                  <div key={label} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "190px 1fr 1fr", gap: "12px", padding: "13px 18px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}`, alignItems: "start" }}>
-                    <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.textMuted }}>{label}</div>
-                    <div style={{ fontSize: "12px", color: colors.secondaryText, fontFamily: "monospace", background: "rgba(184,138,68,0.09)", padding: "4px 10px", borderRadius: "6px" }}>{formula}</div>
-                    <div style={{ fontSize: "11.5px", color: colors.textMuted, lineHeight: 1.5 }}>{note}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ padding: "24px 28px", background: colors.bgSage, borderRadius: "12px", border: "1px solid rgba(27,94,74,0.15)" }}>
-                <div style={{ fontSize: "13.5px", fontWeight: 600, color: colors.primary, marginBottom: "10px" }}>Cash Buffer Requirement</div>
-                <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.7, marginBottom: "14px" }}>
-                  A unit is not safe just because the annual forecast is positive. It must survive low-season months — June–August occupancy in Dubai typically softens, while rent stays fixed.
+                <p style={{ fontFamily: DISPLAY, fontSize: isMobile ? "17px" : "19px", fontWeight: 400, color: colors.textMain, lineHeight: 1.45, margin: "30px 0 0", paddingLeft: "18px", borderLeft: `2px solid ${colors.secondary}`, maxWidth: "56ch" }}>
+                  If the property only works under optimistic ADR or occupancy assumptions, don&apos;t sign it.
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: "10px" }}>
-                  {[
-                    { label: "Minimum buffer", value: "3 months rent + utilities" },
-                    { label: "Recommended buffer", value: "5 months (covers full low season)" },
-                    { label: "Setup cost (1BR)", value: "AED 30,000–55,000 fully furnished" },
-                    { label: "Break-even target", value: "As low as achievable at market ADR" },
-                  ].map(({ label, value }) => (
-                    <div key={label} style={{ padding: "13px", background: colors.bgSection, borderRadius: "10px", border: `1px solid ${colors.border}` }}>
-                      <div style={{ fontSize: "11px", color: colors.textMuted, marginBottom: "4px" }}>{label}</div>
-                      <div style={{ fontSize: "12.5px", fontWeight: 600, color: colors.primary }}>{value}</div>
-                    </div>
+
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", marginTop: "28px", paddingTop: "22px", borderTop: `1px solid ${colors.border}` }}>
+                  <button
+                    onClick={() => router.push(ESTIMATOR)}
+                    style={{ padding: "11px 22px", background: colors.primary, color: "#fff", borderRadius: "10px", fontSize: "13.5px", fontWeight: 500, cursor: "pointer", border: "none" }}
+                  >
+                    Check my unit →
+                  </button>
+                  {([
+                    ["Financial methodology", showMethodology, () => setShowMethodology(v => !v)],
+                    ["Common mistakes", showMistakes, () => setShowMistakes(v => !v)],
+                  ] as [string, boolean, () => void][]).map(([label, open, toggle]) => (
+                    <button key={label} onClick={toggle} aria-expanded={open} style={{ display: "inline-flex", alignItems: "center", gap: "7px", padding: "10px 16px", borderRadius: "999px", cursor: "pointer", fontSize: "13px", fontWeight: 500, background: open ? "rgba(27,94,74,0.06)" : "transparent", border: `1px solid ${open ? "rgba(27,94,74,0.22)" : colors.border}`, color: open ? colors.primary : colors.textMuted }}>
+                      {label} <Chevron open={open} />
+                    </button>
                   ))}
                 </div>
-              </div>
-            </div>
-          )}
 
-          {showMistakes && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "16px" }}>
-              {COMMON_MISTAKES.map(({ mistake, fix }, i) => (
-                <div key={i} style={{ padding: "14px 18px", background: colors.bgMain, borderRadius: "10px", border: `1px solid ${colors.border}` }}>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#B03030", marginBottom: "7px" }}>{mistake}</div>
-                  <div style={{ fontSize: "12.5px", color: colors.primary, lineHeight: 1.55, padding: "7px 11px", background: colors.bgSage, borderRadius: "8px" }}><strong>Fix:</strong> {fix}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-      </AccessGate>
+                {showMethodology && (
+                  <div style={{ marginTop: "26px", paddingTop: "22px", borderTop: `1px solid ${colors.border}` }}>
+                    <SubHead>How each number is built</SubHead>
+                    <div style={{ marginTop: "10px" }}><FormulaRows rows={formulas} isMobile={isMobile} /></div>
 
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 4. WORK WITH ASSETINTEL — services and the closing CTA, one section  */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: pad, borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <SectionLabel text="ASSETINTEL SUPPORT" />
-            <SectionTitle>Don't Want To Build All Of This Yourself?</SectionTitle>
-            <p style={{ fontSize: "15px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "580px", margin: "0 auto" }}>
-              AssetIntel can help you go from evaluating your first unit to setting up the operational structure needed to run it properly.
-            </p>
-          </div>
+                    <div style={{ marginTop: "26px", paddingTop: "22px", borderTop: `1px solid ${colors.border}` }}>
+                      <SubHead>What comes out of gross revenue</SubHead>
+                      <div style={{ marginTop: "10px" }}><FormulaRows rows={costs} isMobile={isMobile} /></div>
+                    </div>
 
-          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "stretch", gap: isMobile ? "10px" : "0", marginBottom: "32px" }}>
-            {[
-              { title: "Unit Screening", body: "Review rent, building, STR potential and risk before signing." },
-              { title: "Licensing Guidance", body: "Understand landlord approval, DET setup and required documents." },
-              { title: "Operations Setup", body: "Connect with experienced STR housekeeping, maintenance and guest-support teams." },
-              { title: "Systems Setup", body: "Guidance on PMS, channels, pricing tools and operational workflows." },
-            ].map(({ title, body }, i, arr) => (
-              <React.Fragment key={title}>
-                <div style={{ flex: 1, padding: "20px 18px", background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}`, textAlign: "center" }}>
-                  <h3 style={{ fontSize: "16px", fontFamily: serifHeading, fontWeight: 600, color: colors.textMain, marginBottom: "6px" }}>{title}</h3>
-                  <p style={{ fontSize: "12px", color: colors.textMuted, lineHeight: 1.55, margin: 0 }}>{body}</p>
-                </div>
-                {i < arr.length - 1 && (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "0" : "0 10px", transform: isMobile ? "rotate(90deg)" : "none" }}>
-                    <IconArrowRight color={colors.secondary} />
+                    <div style={{ marginTop: "26px", paddingTop: "22px", borderTop: `1px solid ${colors.border}` }}>
+                      <SubHead>Cash buffer requirement</SubHead>
+                      <p style={{ fontSize: "13.5px", color: colors.textMuted, lineHeight: 1.6, margin: "8px 0 18px", maxWidth: "64ch" }}>
+                        A unit is not safe just because the annual forecast is positive. It must survive low-season months — June–August occupancy in Dubai typically softens, while rent stays fixed.
+                      </p>
+                      <Columns isMobile={isMobile} cols={4}>
+                        {buffers.map(([label, value]) => (
+                          <div key={label}>
+                            <p style={{ fontFamily: MONO, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: colors.textLight, margin: "0 0 6px" }}>{label}</p>
+                            <p style={{ fontSize: "13px", color: colors.primary, lineHeight: 1.5, margin: 0 }}>{value}</p>
+                          </div>
+                        ))}
+                      </Columns>
+                    </div>
                   </div>
                 )}
-              </React.Fragment>
-            ))}
-          </div>
-          {/* Closing card — same treatment as the report's recommendation panel. */}
-          <div style={{ position: "relative", overflow: "hidden", borderRadius: "22px", background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)`, padding: isMobile ? "40px 26px" : "58px 60px", marginTop: "44px" }}>
+
+                {showMistakes && (
+                  <div style={{ marginTop: "26px", paddingTop: "22px", borderTop: `1px solid ${colors.border}` }}>
+                    <SubHead tone={DANGER}>Common mistakes &amp; red flags</SubHead>
+                    <div style={{ marginTop: "10px" }}>
+                      {COMMON_MISTAKES.map(({ mistake, fix }, i) => (
+                        <div key={mistake} style={{ display: "grid", gridTemplateColumns: "28px 1fr", gap: "14px", padding: "14px 0", borderTop: i === 0 ? "none" : `1px solid ${colors.border}` }}>
+                          <span style={{ fontFamily: MONO, fontSize: "12px", color: colors.textLight, lineHeight: 1.6, fontVariantNumeric: "tabular-nums" }}>{String(i + 1).padStart(2, "0")}</span>
+                          <div>
+                            <p style={{ fontSize: "13.5px", color: DANGER, margin: "0 0 5px" }}>{mistake}</p>
+                            <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: 0 }}>{fix}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </div>
+          </AccessGate>
+
+          {/* ── Work with AssetIntel ── */}
+          <Card>
+            <Head
+              eyebrow="AssetIntel support"
+              title="Don't want to build all of this yourself?"
+              sub="AssetIntel can help you go from evaluating your first unit to setting up the operational structure needed to run it properly."
+            />
+            <Columns isMobile={isMobile} cols={4}>
+              {services.map(({ title, body }) => (
+                <div key={title}>
+                  <SubHead>{title}</SubHead>
+                  <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.6, margin: "6px 0 0" }}>{body}</p>
+                </div>
+              ))}
+            </Columns>
+          </Card>
+
+          {/* ── Closing card ── */}
+          <div style={{ position: "relative", overflow: "hidden", borderRadius: "22px", background: `linear-gradient(135deg, ${colors.primary}, #0F3E33)`, padding: isMobile ? "38px 26px" : "56px 58px" }}>
             <svg aria-hidden="true" width="300" height="300" viewBox="0 0 300 300" style={{ position: "absolute", right: "-50px", top: "50%", transform: "translateY(-50%)", opacity: 0.09, pointerEvents: "none" }}>
               <g stroke="#D4A574" strokeWidth="0.9" fill="none">
                 {[[45,40],[140,25],[250,65],[85,115],[205,135],[40,200],[160,225],[255,190]].map((p, i, arr) => (
@@ -618,70 +571,48 @@ export default function STRSubleasingPage() {
               </g>
             </svg>
 
-            <div style={{ position: "relative", zIndex: 1, maxWidth: "620px" }}>
-              <p style={{ fontFamily: "var(--font-mono-ai), ui-monospace, monospace", fontSize: "10.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#EAD2A0", margin: "0 0 12px" }}>
-                Next step
-              </p>
-              <h2 className="ai-title-grad-i" style={{ fontSize: isMobile ? "28px" : "38px", fontFamily: serifHeading, fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#FFFFFF", margin: "0 0 14px" }}>
-                Ready To Evaluate Your First Unit?
+            <div style={{ position: "relative", zIndex: 1, maxWidth: "600px" }}>
+              <p style={{ fontFamily: MONO, fontSize: "10.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#EAD2A0", margin: "0 0 12px" }}>Next step</p>
+              <h2 className="ai-title-grad-i" style={{ fontFamily: DISPLAY, fontSize: isMobile ? "27px" : "36px", fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#FFFFFF", margin: "0 0 14px" }}>
+                Ready to evaluate your first unit?
               </h2>
-              <p style={{ fontSize: "14.5px", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, margin: "0 0 30px", maxWidth: "520px" }}>
+              <p style={{ fontSize: "14.5px", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, margin: "0 0 30px", maxWidth: "50ch" }}>
                 Run the risk estimator first. If the numbers work, AssetIntel can help you structure the setup behind it.
               </p>
-
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "26px" }}>
-                {/* Bronze on white measured 3.11:1 here — under AA. A white
-                    surface with the brand green on it reads as the more
-                    considered choice anyway, and clears at 7.65:1. */}
+                {/* White on bronze measured 3.11:1 — under AA. This clears at 7.65:1. */}
                 <button
-                  onClick={() => router.push("/self-manage/str-subleasing/estimator")}
-                  style={{ padding: "13px 26px", background: "#FFFFFF", color: colors.primary, borderRadius: "10px", fontSize: "14px", fontWeight: 500, cursor: "pointer", border: "none", letterSpacing: "0.01em" }}
+                  onClick={() => router.push(ESTIMATOR)}
+                  style={{ padding: "13px 26px", background: "#FFFFFF", color: colors.primary, borderRadius: "10px", fontSize: "14px", fontWeight: 500, cursor: "pointer", border: "none" }}
                 >
-                  Open Risk Estimator →
+                  Open risk estimator →
                 </button>
-                <a href="/contact?service=subleasing-setup" style={{ display: "inline-flex", alignItems: "center", padding: "13px 26px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.28)", borderRadius: "10px", fontSize: "14px", fontWeight: 500, textDecoration: "none", letterSpacing: "0.01em" }}>
-                  Build My STR Setup
+                <a href="/contact?service=subleasing-setup" style={{ display: "inline-flex", alignItems: "center", padding: "13px 26px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.28)", borderRadius: "10px", fontSize: "14px", fontWeight: 500, textDecoration: "none" }}>
+                  Build my STR setup
                 </a>
               </div>
-
-              <div style={{ paddingTop: "22px", borderTop: "1px solid rgba(255,255,255,0.14)", fontSize: "12px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
+              <p style={{ paddingTop: "22px", borderTop: "1px solid rgba(255,255,255,0.14)", fontSize: "12px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, margin: 0 }}>
                 Independent, unbiased guidance available through AssetIntel Property Advisory.
-              </div>
+              </p>
             </div>
           </div>
-        </div>
-      </section>
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* LEGAL DISCLAIMER                                                       */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: isMobile ? "32px 20px" : "40px 40px", borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", padding: "20px 24px", background: colors.bgSection, borderRadius: "12px", border: `1px solid ${colors.border}` }}>
-            <div style={{ marginTop: "2px", flexShrink: 0 }}><IconShield color={colors.textMuted} size={20} /></div>
-            <p style={{ fontSize: "13px", color: colors.textMuted, lineHeight: 1.7, margin: 0 }}>
-              STR sub-leasing involves fixed rent exposure, licensing requirements, landlord approval, and operational risk. AssetIntel provides research, frameworks, and advisory tools, but users should verify all legal and licensing requirements with the relevant authorities and qualified advisors before signing any lease or operating a holiday home.
-            </p>
-          </div>
-        </div>
-      </section>
 
-      {/* ─── FOOTER ─── */}
-      <footer style={{ background: colors.bgSection, borderTop: `1px solid ${colors.border}`, padding: "40px" }}>
-        <div style={{ maxWidth: "1400px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <AssetIntelLogo size={32} />
-            <span style={{ fontSize: "14px", color: colors.textMuted }}>AssetIntel — Dubai Property Intelligence</span>
-          </div>
-          <div style={{ fontSize: "13px", color: colors.textMuted }}>© {new Date().getFullYear()} AssetIntel. All rights reserved.</div>
+          {/* ── Disclaimer ── */}
+          <p style={{ fontSize: "12.5px", color: colors.textLight, lineHeight: 1.7, margin: "4px 0 0", maxWidth: "78ch" }}>
+            STR sub-leasing involves fixed rent exposure, licensing requirements, landlord approval, and operational risk. AssetIntel provides research, frameworks, and advisory tools, but users should verify all legal and licensing requirements with the relevant authorities and qualified advisors before signing any lease or operating a holiday home.
+          </p>
         </div>
-      </footer>
+
+        <footer style={{ background: colors.bgSection, borderTop: `1px solid ${colors.border}`, padding: isMobile ? "28px 20px" : "36px 40px" }}>
+          <div style={{ maxWidth: "1080px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <AssetIntelLogo size={30} />
+              <span style={{ fontSize: "13.5px", color: colors.textMuted }}>AssetIntel — Dubai Property Intelligence</span>
+            </div>
+            <div style={{ fontSize: "12.5px", color: colors.textLight }}>© {new Date().getFullYear()} AssetIntel. All rights reserved.</div>
+          </div>
+        </footer>
       </div>
     </div>
-  );
-}
-
-function IconArrowRight({ color = colors.textMuted }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10H16M16 10L12 6M16 10L12 14" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
   );
 }
