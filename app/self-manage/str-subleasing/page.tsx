@@ -45,53 +45,6 @@ const IconChevron = ({ color = colors.textMuted, open = false }) => (
   </svg>
 );
 
-// ─── Readiness Score ──────────────────────────────────────────────────────────
-const SUBLEASING_READINESS_ITEMS = [
-  "I have identified a prime or strong STR area to target",
-  "I understand and have modelled the break-even occupancy for my target unit",
-  "I have a minimum 5-month cash buffer to cover rent and costs",
-  "I have confirmed at least one target building permits holiday home operation",
-  "I am prepared to approach landlords professionally with a written pitch",
-  "I can commit to daily guest communication (sub-1 hour response time)",
-  "I have identified a reliable holiday home cleaning team",
-  "I understand Dubai's seasonal occupancy (winter peak / summer low)",
-  "I have reviewed the legal requirements and can obtain a DET permit",
-  "I have an exit plan (break clause or savings to absorb a loss period)",
-];
-
-function SubleasingReadinessScore() {
-  const [checked, setChecked] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setChecked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const score = checked.size;
-  const label = score >= 8 ? "Ready To Self-Manage" : score >= 5 ? "Partially Ready" : "High Setup Risk";
-  const labelColor = score >= 8 ? colors.primary : score >= 5 ? colors.secondaryText : "#B03030";
-  const labelBg = score >= 8 ? colors.bgSage : score >= 5 ? "rgba(184,138,68,0.09)" : "rgba(176,48,48,0.07)";
-  return (
-    <div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "20px" }}>
-        {SUBLEASING_READINESS_ITEMS.map((item, i) => {
-          const active = checked.has(i);
-          return (
-            <div key={i} onClick={() => toggle(i)} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", background: active ? colors.bgSage : colors.bgMain, borderRadius: "10px", border: `1.5px solid ${active ? colors.secondary : colors.border}`, cursor: "pointer", transition: "all 0.15s" }}>
-              <div style={{ width: "18px", height: "18px", borderRadius: "5px", border: `2px solid ${active ? colors.secondary : colors.border}`, background: active ? colors.secondary : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                {active && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-              </div>
-              <span style={{ fontSize: "13px", color: active ? colors.textMain : colors.textMuted, fontWeight: active ? 600 : 400 }}>{item}</span>
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ padding: "18px 22px", background: labelBg, borderRadius: "12px", border: `2px solid ${labelColor}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
-        <div>
-          <div style={{ fontSize: "12px", color: colors.textMuted, marginBottom: "2px" }}>Your readiness score</div>
-          <div style={{ fontSize: "34px", fontWeight: 600, color: labelColor, fontFamily: serifHeading, lineHeight: 1 }}>{score} / 10</div>
-        </div>
-        <div style={{ fontSize: "17px", fontWeight: 600, color: labelColor }}>{label}</div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Shared sub-components ────────────────────────────────────────────────────
 function PillarBadge({ num, color }: { num: string; color: string }) {
   return (
@@ -617,28 +570,7 @@ export default function STRSubleasingPage() {
       </AccessGate>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 4. READINESS CHECK                                                     */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: pad, background: colors.bgSection, borderTop: `1px solid ${colors.border}` }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "28px" }}>
-            <SectionLabel text="READINESS CHECK" />
-            <SectionTitle size="28px">Are You Ready To Run This Yourself?</SectionTitle>
-            <p style={{ fontSize: "14px", color: colors.textMuted, lineHeight: 1.7, maxWidth: "540px", margin: "0 auto" }}>
-              Tick every item that applies to you today.
-            </p>
-          </div>
-          <SubleasingReadinessScore />
-          <div style={{ textAlign: "center", marginTop: "22px" }}>
-            <a href="/contact?service=subleasing-setup" style={{ display: "inline-block", padding: "13px 28px", background: "transparent", color: colors.primary, border: `1.5px solid ${colors.primary}`, borderRadius: "10px", fontSize: "14px", fontWeight: 600, textDecoration: "none" }}>
-              Get Setup Support →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* 5. WORK WITH ASSETINTEL — services and the closing CTA, one section  */}
+      {/* 4. WORK WITH ASSETINTEL — services and the closing CTA, one section  */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
       <section style={{ padding: pad, borderTop: `1px solid ${colors.border}` }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
