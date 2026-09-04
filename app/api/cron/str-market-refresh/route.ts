@@ -273,10 +273,17 @@ export async function GET(request: Request) {
     // their own airbtics_* columns regardless of blending.
     const airbticsMarketId = AIRBTICS_MARKET_IDS[area];
     const hadAirroi = row.adr != null;
+    // Whether THIS run got Airbtics market figures. Never inferred from a stored
+    // column: `row` is built fresh per area and upserted, so on a failure the
+    // airbtics_* fields and data_sources are simply not assigned and the previous
+    // run's values survive in the table — which is how AirROI occupancy once
+    // shipped under a stale "airbtics-primary" label.
+    let abSummaryOk = false;
     if (airbticsMarketId) {
       try {
         const abSummary = await fetchAirbticsMarketSummary(airbticsMarketId);
         if (abSummary) {
+          abSummaryOk = true;
           row.airbtics_adr = abSummary.adr;
           row.airbtics_occupancy = abSummary.occupancy;
           row.airbtics_revpar = abSummary.revpar;
@@ -336,23 +343,43 @@ export async function GET(request: Request) {
           );
         }
 
-        row.data_sources = hadAirroi ? "airbtics-primary" : "airbtics";
       } catch (e) {
         airbticsFailures++;
         errors.push(`Airbtics/${area}: ${(e as Error).message}`);
       }
-    } else if (hadAirroi) {
-      row.data_sources = "airroi";
     }
+
+    // Assigned unconditionally, so the column can never outlive the run that set it.
+    row.data_sources = abSummaryOk
+      ? (hadAirroi ? "airbtics-primary" : "airbtics")
+      : (hadAirroi ? "airroi" : null);
 
     const salesN = (row.sales_transactions as number) ?? 0;
     const rentalsN = (row.rental_transactions as number) ?? 0;
     // AirROI measures occupancy very differently to Airbtics. Validated against a known
     // Dubai portfolio (Deluxe Holiday Homes): AirROI reported 18% where the true figure is
     // ~78% — a ~4x understatement, and the same pattern holds across every area we hold.
-    // ADR and supply counts are sound, so only the occupancy-derived fields are withheld
-    // when AirROI is the sole source, rather than publishing a number known to be wrong.
-    if (row.data_sources === "airroi") {
+    // Its supply and ADR figures are no better where the area is only reachable by
+    // geo-radius: 29 active listings for Dubai Marina against Airbtics' 4,136, and an
+    // AED 1,268 ADR for Al Furjan against Airbtics' 118.
+    //
+    // A failed call and a market we never had are different things, and must not be
+    // collapsed: Palm Jumeirah has no Airbtics market by design, and blanking it the
+    // same way would delete an area section that is working as intended.
+    if (airbticsMarketId && !abSummaryOk) {
+      // The designated primary did not answer. Publish nothing rather than fall back
+      // to figures already measured as wrong — AreaIntelligence hides a section with
+      // no adr/occupancy/revenue, which is the outcome we want. Booking window, length
+      // of stay and the comparable listings survive: not occupancy-derived, and
+      // Airbtics does not supply them anyway.
+      row.adr = null;
+      row.occupancy = null;
+      row.revpar = null;
+      row.estimated_str_revenue = null;
+      row.active_listings = null;
+    } else if (!airbticsMarketId) {
+      // AirROI is the only source by design. Withhold the occupancy-derived fields
+      // only, which is the long-standing behaviour for these areas.
       row.occupancy = null;
       row.revpar = null;
       row.estimated_str_revenue = null;
