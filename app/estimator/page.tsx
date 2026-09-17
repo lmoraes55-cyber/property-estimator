@@ -12,6 +12,7 @@ import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 import { colors } from "@/lib/colors";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import AccessGate from "@/components/AccessGate";
+import { useBrand } from "@/lib/brand";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -232,6 +233,8 @@ function TitleDeedUpload({ onExtract }: { onExtract: (data: TitleDeedExtract) =>
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 function EstimatorPage() {
+  const brand = useBrand();
+  const isDeluxe = brand.key === "deluxe";
   const router = useRouter();
   const searchParams = useSearchParams();
   const buildingRef = useRef<HTMLDivElement>(null);
@@ -399,7 +402,7 @@ function EstimatorPage() {
         params.set("lr", String(data.stat.median));
       }
     } catch { /* timeout or error — proceed without lr */ }
-    router.push(`/report?${params.toString()}`);
+    router.push(`${brand.base}/report?${params.toString()}`);
   };
 
   const handleGenerate = () => {
@@ -454,14 +457,14 @@ function EstimatorPage() {
         </div>
 
         <div className="animate-slide-up" style={{ position: "relative", zIndex: 2, maxWidth: "1152px", margin: "0 auto", padding: "56px 24px 64px" }}>
-          <button onClick={() => router.push("/")}
+          {!isDeluxe && <button onClick={() => router.push("/")}
             className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg mb-6 transition hover:opacity-80"
             style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, color: colors.primary }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <path d="M4 11l8-7 8 7M6 10v9h5v-5h2v5h5v-9" stroke={colors.primary} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Back to Home
-          </button>
+          </button>}
 
           <div className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: colors.secondary, letterSpacing: "0.15em" }}>
             Rental Strategy Analyzer
@@ -476,7 +479,7 @@ function EstimatorPage() {
           </h1>
 
           <p className="text-base mb-7" style={{ color: colors.textMuted, lineHeight: "1.7", maxWidth: "520px" }}>
-            Enter your property details once and AssetIntel will estimate your short-term rental potential, long-term rental benchmark, expected occupancy, ADR, annual net income, and recommended strategy.
+            Enter your property details once and {brand.name} will estimate your short-term rental potential, long-term rental benchmark, expected occupancy, ADR, annual net income, and recommended strategy.
           </p>
 
           <div className="flex flex-wrap gap-2.5">
@@ -569,9 +572,9 @@ function EstimatorPage() {
                     {showSuggestions && buildingSearch.length >= 2 && filteredDLD.length === 0 && filteredCurated.length === 0 && propsearchSuggestions.length === 0 && (
                       <div className="absolute z-20 w-full mt-1 rounded-2xl px-4 py-3 text-sm shadow-2xl"
                         style={{ background: colors.bgSection, border: `1px solid ${colors.border}`, color: colors.textMuted }}>
-                        Can't find your building? Email us at{" "}
+                        {isDeluxe ? "Can't find the building? Try the DLD project or community name." : <>Can't find your building? Email us at{" "}
                         <a href="mailto:hello@assetintel.ae" style={{ color: colors.primary, fontWeight: 600 }}>hello@assetintel.ae</a>
-                        {" "}and we'll send you a personalised report.
+                        {" "}and we'll send you a personalised report.</>}
                       </div>
                     )}
                     {showSuggestions && buildingSearch.length >= 2 && (filteredDLD.length > 0 || filteredCurated.length > 0 || propsearchSuggestions.length > 0) && (
@@ -1082,12 +1085,12 @@ function EstimatorPage() {
                   style={{ background: "linear-gradient(135deg, #B88A44 0%, #D4AF6A 100%)", color: "#FFF", boxShadow: "0 8px 20px rgba(184,138,68,0.3)" }}>
                   Yes — show me the STR projection anyway →
                 </button>
-                <button
+                {!isDeluxe && <button
                   onClick={() => { setLtrWarning(null); router.push(`/agents?${buildParams().toString()}&ltrRecommended=true`); }}
                   className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all hover:-translate-y-0.5"
                   style={{ background: "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 100%)", color: "#FFF", boxShadow: "0 8px 20px rgba(27,94,74,0.3)" }}>
                   Find me a long-term leasing agent
-                </button>
+                </button>}
                 <div className="flex items-center justify-center gap-3 pt-1">
                   <span className="flex-1" style={{ height: "1px", background: colors.border }} />
                   <button onClick={() => setLtrWarning(null)} className="text-xs transition-all hover:opacity-70 whitespace-nowrap" style={{ color: colors.textLight }}>
