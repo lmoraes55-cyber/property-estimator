@@ -894,7 +894,7 @@ export default function OwnersPage() {
           <>
             <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
               <img
-                src="/Locations/Marina.png"
+                src="/locations/Marina.png"
                 alt=""
                 aria-hidden="true"
                 style={{ position: "absolute", right: 0, top: 0, width: "58%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: 0.13 }}

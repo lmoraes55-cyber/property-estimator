@@ -284,7 +284,7 @@ function SubleasingEstimatorInner() {
 
         {/* Dubai skyline watermark — scoped inside hero */}
         <img
-          src="/Locations/Marina.png"
+          src="/locations/Marina.png"
           alt=""
           aria-hidden="true"
           style={{

@@ -168,7 +168,7 @@ function PremiumCTACard({
       {/* LEFT decorative watermark */}
       {isBronze ? (
         <img
-          src="/Locations/Downtown.png"
+          src="/locations/Downtown.png"
           alt=""
           aria-hidden="true"
           style={{

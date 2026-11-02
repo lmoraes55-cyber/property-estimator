@@ -199,7 +199,7 @@ export default function AboutPage() {
               position: "absolute",
               top: 0, right: 0, bottom: 0,
               width: "62%",
-              backgroundImage: "url('/Locations/Downtown.png')",
+              backgroundImage: "url('/locations/Downtown.png')",
               backgroundSize: "cover",
               backgroundPosition: "center right",
               opacity: 0.42,
