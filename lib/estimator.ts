@@ -609,6 +609,18 @@ export const BUILDING_DIRECTORY: Record<string, BuildingInfo> = {
   "Binghatti Apex":                    { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
   "Volna By Kasco":                    { community: "Al Jadaf", area: "Al Jadaf", tier: "mid", completionYear: 2026 },
   "The Cove ll":                       { community: "Dubai Creek Harbour", area: "Dubai Creek Harbour", tier: "luxury", completionYear: 2026 },
+  "Golden Wood Views 5":               { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Biltmore Sufouh":                   { community: "Al Sufouh", area: "Al Sufouh", tier: "luxury", completionYear: 2026 },
+  "MAG 330":                           { community: "Wadi Al Safa", area: "Wadi Al Safa", tier: "mid", completionYear: 2026 },
+  "PELaGOS By IGO":                    { community: "Dubai Marina", area: "Dubai Marina", tier: "mid", completionYear: 2026 },
+  "Lime Light Twin Towers":            { community: "Sports City", area: "Sports City", tier: "mid", completionYear: 2026 },
+  "Pier 8":                            { community: "Dubai Marina", area: "Dubai Marina", tier: "mid", completionYear: 2026 },
+  "Skyhills I by HRE":                 { community: "JVC", area: "Jumeirah Village Circle", tier: "mid", completionYear: 2026 },
+  "Lamaa":                             { community: "Madinat Jumeirah", area: "Madinat Jumeirah", tier: "mid", completionYear: 2026 },
+  "Residences Du Port, Dubai Marina, Autograph Collection": { community: "Dubai Marina", area: "Dubai Marina", tier: "luxury", completionYear: 2026 },
+  "City Center Residences":            { community: "Downtown Dubai", area: "Downtown Dubai", tier: "mid", completionYear: 2026 },
+  "Fern":                              { community: "Citywalk", area: "Citywalk", tier: "luxury", completionYear: 2026 },
+  "Koro One":                          { community: "Satwa", area: "Satwa", tier: "mid", completionYear: 2026 },
 };
 
 // Monthly AC (district cooling / chiller) costs by unit size
