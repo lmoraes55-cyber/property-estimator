@@ -2,6 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
+  BatteryCharging,
+  Bluetooth,
+  Car,
+  Fan,
+  Fuel,
+  Gauge as GaugeIcon,
+  KeyRound,
+  Lock,
+  Thermometer,
+  TriangleAlert,
+  Wrench,
+} from "lucide-react";
+import {
   Elm327,
   PIDS,
   bluetoothSupported,
@@ -9,7 +22,7 @@ import {
   type Reading,
 } from "@/lib/bmw/elm327";
 
-type Tab = "drive" | "car" | "faults";
+type Tab = "vehicle" | "drive" | "service" | "faults";
 type Link = "idle" | "connecting" | "live" | "demo";
 
 interface Trip {
@@ -174,7 +187,7 @@ function Stat({
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 export default function BmwApp() {
-  const [tab, setTab] = useState<Tab>("drive");
+  const [tab, setTab] = useState<Tab>("vehicle");
   const [link, setLink] = useState<Link>("idle");
   const [error, setError] = useState<string | null>(null);
   const [reading, setReading] = useState<Reading>({});
@@ -317,44 +330,146 @@ export default function BmwApp() {
   const kmToService = nextKm && odo ? nextKm - odo : null;
 
   return (
-    <div className="min-h-dvh bg-[#0b0f14] text-white">
-      <div className="mx-auto max-w-md pb-24">
-        {/* Header */}
-        <header className="px-5 pt-6 pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex gap-0.5 mb-2" aria-hidden>
-                <span className="h-1 w-6 rounded-sm bg-[#81C4FF]" />
-                <span className="h-1 w-6 rounded-sm bg-[#0166B1]" />
-                <span className="h-1 w-6 rounded-sm bg-[#E7222E]" />
-              </div>
-              <h1 className="text-xl font-semibold tracking-tight !text-white">520i M Sport</h1>
-              <p className="text-xs text-slate-400">2023 · G30 · OBD2 companion</p>
-            </div>
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                link === "live"
-                  ? "bg-emerald-500/15 text-emerald-300"
-                  : link === "demo"
-                    ? "bg-amber-500/15 text-amber-300"
-                    : "bg-white/5 text-slate-400"
-              }`}
-            >
-              {link === "live" ? "Live" : link === "demo" ? "Demo" : link === "connecting" ? "Connecting…" : "Offline"}
-            </span>
-          </div>
-        </header>
-
+    <div className="min-h-dvh bg-[#0d1015] text-white">
+      <div className="mx-auto max-w-md pb-28">
         {error && (
-          <div role="alert" className="mx-5 mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+          <div role="alert" className="mx-4 mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
             {error}
           </div>
         )}
 
+        {/* VEHICLE (home) */}
+        {tab === "vehicle" && (
+          <main className="px-4 pt-6 space-y-4">
+            <section className="overflow-hidden rounded-[28px] bg-gradient-to-b from-[#1b2230] to-[#12161d] border border-white/5">
+              <div className="flex items-start justify-between px-5 pt-5">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight !text-white">520i M Sport</h1>
+                  <p className="mt-0.5 text-sm text-slate-400">2023 · Saloon</p>
+                </div>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    link === "live"
+                      ? "bg-emerald-500/15 text-emerald-300"
+                      : link === "demo"
+                        ? "bg-amber-500/15 text-amber-300"
+                        : "bg-white/5 text-slate-400"
+                  }`}
+                >
+                  {link === "live" ? "Live" : link === "demo" ? "Demo" : link === "connecting" ? "Connecting…" : "Not connected"}
+                </span>
+              </div>
+              <CarArt />
+              <div className="grid grid-cols-3 gap-px bg-white/5 border-t border-white/5 text-center">
+                {[
+                  [Fuel, "Fuel", reading.fuel, "%"],
+                  [BatteryCharging, "Battery", reading.voltage, "V"],
+                  [Thermometer, "Coolant", reading.coolant, "°C"],
+                ].map(([Icon, label, val, unit]) => {
+                  const I = Icon as typeof Fuel;
+                  const v = val as number | undefined;
+                  return (
+                    <div key={label as string} className="bg-[#14181f] py-3">
+                      <I className="mx-auto h-4 w-4 text-[#81C4FF]" />
+                      <div className="mt-1 text-base font-semibold tabular-nums">
+                        {v === undefined ? "–" : v.toFixed(unit === "V" ? 1 : 0)}
+                        <span className="ml-0.5 text-[11px] font-normal text-slate-400">{unit as string}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500">{label as string}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Connect */}
+            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1C69D4]/15">
+                  <Bluetooth className="h-5 w-5 text-[#81C4FF]" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium">OBD2 adapter</div>
+                  <div className="text-xs text-slate-400">
+                    {connected ? (link === "demo" ? "Showing simulated data" : "Reading from your car") : "Plug in a Bluetooth LE adapter"}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-2">
+                {connected ? (
+                  <button onClick={halt} className="flex-1 rounded-full bg-white/10 py-3 text-sm font-medium">
+                    Disconnect
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={startLive}
+                      disabled={!btOk || link === "connecting"}
+                      className="flex-1 rounded-full bg-[#1C69D4] py-3 text-sm font-medium disabled:opacity-40"
+                    >
+                      {link === "connecting" ? "Connecting…" : "Connect to car"}
+                    </button>
+                    <button onClick={startDemo} className="rounded-full bg-white/10 px-5 py-3 text-sm">
+                      Demo
+                    </button>
+                  </>
+                )}
+              </div>
+              {!btOk && !connected && (
+                <p className="mt-3 text-xs text-amber-300">
+                  This browser has no Web Bluetooth. On iPhone, open this page in the Bluefy browser; on Android use Chrome.
+                </p>
+              )}
+            </section>
+
+            {/* Service summary */}
+            <button
+              onClick={() => setTab("service")}
+              className="flex w-full items-center gap-3 rounded-[24px] bg-[#171c23] border border-white/5 p-4 text-left"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5">
+                <Wrench className="h-5 w-5 text-slate-300" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-medium">Service</div>
+                <div
+                  className={`text-xs ${
+                    kmToService === null ? "text-slate-400" : kmToService < 1000 ? "text-amber-300" : "text-emerald-300"
+                  }`}
+                >
+                  {kmToService === null
+                    ? "Add your mileage and next service"
+                    : kmToService >= 0
+                      ? `${kmToService.toLocaleString()} km until next service`
+                      : `Overdue by ${Math.abs(kmToService).toLocaleString()} km`}
+                </div>
+              </div>
+              <span className="text-slate-500">›</span>
+            </button>
+
+            {/* Not available — shown honestly, not faked */}
+            <section className="rounded-[24px] bg-[#171c23]/60 border border-dashed border-white/10 p-4">
+              <div className="text-sm font-medium text-slate-300">Remote services</div>
+              <p className="mt-1 text-xs text-slate-500">
+                Lock, climate and Digital Key need BMW&rsquo;s own connection and can&rsquo;t be done through an OBD2
+                adapter. Use the My BMW app once your car&rsquo;s ConnectedDrive is active.
+              </p>
+              <div className="mt-3 flex gap-2 opacity-40" aria-hidden>
+                {[Lock, Fan, KeyRound].map((I, i) => (
+                  <div key={i} className="flex h-11 flex-1 items-center justify-center rounded-2xl bg-white/5">
+                    <I className="h-5 w-5" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          </main>
+        )}
+
         {/* DRIVE */}
         {tab === "drive" && (
-          <main className="px-5 space-y-4">
-            <div className="flex items-center justify-center gap-2 rounded-2xl bg-[#121923] border border-white/5 py-5">
+          <main className="px-4 pt-6 space-y-4">
+            <h1 className="text-2xl font-semibold tracking-tight !text-white px-1">Drive</h1>
+            <div className="flex items-center justify-center gap-2 rounded-[28px] bg-gradient-to-b from-[#1b2230] to-[#12161d] border border-white/5 py-6">
               <Gauge value={reading.speed} max={240} label="Speed" unit="km/h" />
               <Gauge value={reading.rpm} max={7000} label="Engine" unit="rpm" color="#81C4FF" redFrom={6300} size={130} />
             </div>
@@ -375,7 +490,7 @@ export default function BmwApp() {
               />
             </div>
 
-            <section className="rounded-2xl bg-[#121923] border border-white/5 p-4">
+            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium !text-white">This trip</h2>
                 <button
@@ -407,11 +522,11 @@ export default function BmwApp() {
           </main>
         )}
 
-        {/* CAR */}
-        {tab === "car" && (
-          <main className="px-5 space-y-4">
-            <section className="rounded-2xl bg-[#121923] border border-white/5 p-4 space-y-3">
-              <h2 className="text-sm font-medium !text-white">Service &amp; mileage</h2>
+        {/* SERVICE */}
+        {tab === "service" && (
+          <main className="px-4 pt-6 space-y-4">
+            <h1 className="text-2xl font-semibold tracking-tight !text-white px-1">Service</h1>
+            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4 space-y-3">
               <p className="text-xs text-slate-400">
                 A standard OBD2 adapter can&rsquo;t read BMW&rsquo;s odometer or service counters, so keep them here.
                 Saved on this phone only.
@@ -430,7 +545,7 @@ export default function BmwApp() {
                     inputMode={type === "number" ? "numeric" : undefined}
                     value={vehicle[k]}
                     onChange={(e) => saveVehicle({ ...vehicle, [k]: e.target.value })}
-                    className="mt-1 w-full rounded-lg bg-[#0b0f14] border border-white/10 px-3 py-2 text-sm text-white"
+                    className="mt-1 w-full rounded-2xl bg-[#0d1015] border border-white/10 px-4 py-3 text-sm text-white"
                   />
                 </label>
               ))}
@@ -440,7 +555,7 @@ export default function BmwApp() {
                   rows={3}
                   value={vehicle.notes}
                   onChange={(e) => saveVehicle({ ...vehicle, notes: e.target.value })}
-                  className="mt-1 w-full rounded-lg bg-[#0b0f14] border border-white/10 px-3 py-2 text-sm text-white"
+                  className="mt-1 w-full rounded-2xl bg-[#0d1015] border border-white/10 px-4 py-3 text-sm text-white"
                 />
               </label>
               {kmToService !== null && (
@@ -456,17 +571,17 @@ export default function BmwApp() {
 
         {/* FAULTS */}
         {tab === "faults" && (
-          <main className="px-5 space-y-4">
-            <section className="rounded-2xl bg-[#121923] border border-white/5 p-4">
-              <h2 className="text-sm font-medium !text-white">Stored fault codes</h2>
-              <p className="mt-1 text-xs text-slate-400">
+          <main className="px-4 pt-6 space-y-4">
+            <h1 className="text-2xl font-semibold tracking-tight !text-white px-1">Fault codes</h1>
+            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4">
+              <p className="text-xs text-slate-400">
                 Reads standard emissions-related codes only. BMW body, chassis and comfort modules need
                 BMW-specific tools. This app never clears codes.
               </p>
               <button
                 onClick={readFaults}
                 disabled={link !== "live" || dtcBusy}
-                className="mt-3 rounded-lg bg-[#1C69D4] px-4 py-2 text-sm font-medium disabled:opacity-40"
+                className="mt-3 rounded-full bg-[#1C69D4] px-5 py-3 text-sm font-medium disabled:opacity-40"
               >
                 {dtcBusy ? "Reading…" : "Read codes"}
               </button>
@@ -476,10 +591,10 @@ export default function BmwApp() {
               {dtcs && (
                 <ul className="mt-3 space-y-1 text-sm">
                   {dtcs.length === 0 ? (
-                    <li className="text-emerald-300">No stored codes 🎉</li>
+                    <li className="text-emerald-300">No stored codes</li>
                   ) : (
                     dtcs.map((c) => (
-                      <li key={c} className="rounded bg-red-500/10 px-3 py-1.5 font-mono text-red-200">
+                      <li key={c} className="rounded-xl bg-red-500/10 px-3 py-2 font-mono text-red-200">
                         {c}
                       </li>
                     ))
@@ -490,56 +605,56 @@ export default function BmwApp() {
           </main>
         )}
 
-        {/* Connect bar */}
-        <div className="fixed bottom-0 inset-x-0 border-t border-white/10 bg-[#0b0f14]/95 backdrop-blur">
-          <div className="mx-auto max-w-md px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <div className="flex gap-2 mb-3">
-              {connected ? (
-                <button onClick={halt} className="flex-1 rounded-lg bg-white/10 py-2.5 text-sm font-medium">
-                  Disconnect
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={startLive}
-                    disabled={!btOk || link === "connecting"}
-                    className="flex-1 rounded-lg bg-[#1C69D4] py-2.5 text-sm font-medium disabled:opacity-40"
-                  >
-                    {link === "connecting" ? "Connecting…" : "Connect to car"}
-                  </button>
-                  <button onClick={startDemo} className="rounded-lg bg-white/10 px-4 py-2.5 text-sm">
-                    Demo
-                  </button>
-                </>
-              )}
-            </div>
-            {!btOk && !connected && (
-              <p className="mb-2 text-[11px] text-amber-300">
-                This browser has no Web Bluetooth. Use Chrome on Android (or desktop Chrome/Edge); iPhone Safari
-                can&rsquo;t connect.
-              </p>
-            )}
-            <nav className="grid grid-cols-3 text-center text-xs">
-              {(
-                [
-                  ["drive", "Drive"],
-                  ["car", "Car"],
-                  ["faults", "Faults"],
-                ] as const
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  aria-current={tab === id}
-                  className={`py-2 ${tab === id ? "text-[#81C4FF] font-semibold" : "text-slate-400"}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
+        {/* Tab bar */}
+        <nav className="fixed bottom-0 inset-x-0 border-t border-white/10 bg-[#0d1015]/90 backdrop-blur">
+          <div className="mx-auto grid max-w-md grid-cols-4 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            {(
+              [
+                ["vehicle", "Vehicle", Car],
+                ["drive", "Drive", GaugeIcon],
+                ["service", "Service", Wrench],
+                ["faults", "Faults", TriangleAlert],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                aria-current={tab === id ? "page" : undefined}
+                className={`flex flex-col items-center gap-1 py-2 text-[11px] ${
+                  tab === id ? "text-[#81C4FF] font-semibold" : "text-slate-500"
+                }`}
+              >
+                <Icon className="h-6 w-6" />
+                {label}
+              </button>
+            ))}
           </div>
-        </div>
+        </nav>
       </div>
     </div>
+  );
+}
+
+// Original side-view saloon drawing (not BMW artwork).
+function CarArt() {
+  return (
+    <svg viewBox="0 0 320 120" className="mx-auto my-2 w-full max-w-[340px]" aria-hidden>
+      <ellipse cx="160" cy="104" rx="130" ry="7" fill="#000" opacity=".35" />
+      <path
+        d="M18 88 L24 74 Q32 64 66 60 L104 40 Q126 30 164 30 L204 30 Q238 33 258 52 L290 60 Q306 64 308 78 L308 90 Z"
+        fill="#2a3342"
+      />
+      <path d="M110 44 Q128 36 160 36 L200 36 Q226 39 242 54 L112 54 Z" fill="#0d1015" opacity=".85" />
+      <path d="M18 80 H308" stroke="#81C4FF" strokeWidth="2" opacity=".9" />
+      <path d="M18 84 H308" stroke="#0166B1" strokeWidth="2" />
+      <path d="M18 88 H308" stroke="#E7222E" strokeWidth="2" />
+      {[84, 244].map((x) => (
+        <g key={x}>
+          <circle cx={x} cy="92" r="18" fill="#0d1015" />
+          <circle cx={x} cy="92" r="11" fill="#3a4556" />
+          <circle cx={x} cy="92" r="3" fill="#0d1015" />
+        </g>
+      ))}
+    </svg>
   );
 }
