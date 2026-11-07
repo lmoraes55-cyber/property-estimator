@@ -818,10 +818,10 @@ export default function BmwApp() {
 function CarArt() {
   return (
     <Image
-      src="/bmw/car.webp"
+      src="/bmw/car-520i.webp"
       alt="Your BMW 520i M Sport"
-      width={750}
-      height={353}
+      width={768}
+      height={354}
       priority
       className="mx-auto h-auto w-full max-w-[340px] drop-shadow-[0_16px_12px_rgba(0,0,0,0.28)]"
     />
