@@ -3,15 +3,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   BatteryCharging,
-  Bluetooth,
   Car,
-  Fan,
+  ChevronRight,
+  CircleCheck,
   Fuel,
   Gauge as GaugeIcon,
-  KeyRound,
+  Lightbulb,
   Lock,
+  LockOpen,
   Thermometer,
   TriangleAlert,
+  Volume2,
   Wrench,
 } from "lucide-react";
 import {
@@ -122,7 +124,7 @@ function Gauge({
   label,
   unit,
   size = 150,
-  color = "#1C69D4",
+  color = "#111",
   redFrom,
 }: {
   value: number | undefined;
@@ -141,23 +143,23 @@ function Gauge({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg viewBox="0 0 120 120" width={size} height={size} aria-hidden>
-        <path d={arc(60, 60, 50, START, START + SWEEP)} stroke="#1f2733" strokeWidth="9" fill="none" strokeLinecap="round" />
+        <path d={arc(60, 60, 50, START, START + SWEEP)} stroke="#dcdcdc" strokeWidth="7" fill="none" strokeLinecap="butt" />
         {frac > 0 && (
           <path
             d={arc(60, 60, 50, START, end)}
             stroke={hot ? "#E7222E" : color}
-            strokeWidth="9"
+            strokeWidth="7"
             fill="none"
-            strokeLinecap="round"
+            strokeLinecap="butt"
           />
         )}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-semibold tabular-nums">
+        <span className="text-3xl font-semibold tabular-nums text-[#111]">
           {value === undefined ? "–" : Math.round(value)}
         </span>
-        <span className="text-[10px] uppercase tracking-widest text-slate-400">{unit}</span>
-        <span className="text-[10px] text-slate-500 mt-0.5">{label}</span>
+        <span className="text-[10px] uppercase tracking-widest text-neutral-500">{unit}</span>
+        <span className="text-[10px] text-neutral-400 mt-0.5">{label}</span>
       </div>
     </div>
   );
@@ -175,13 +177,19 @@ function Stat({
   warn?: boolean;
 }) {
   return (
-    <div className="rounded-xl bg-[#121923] border border-white/5 p-3">
-      <div className="text-[11px] uppercase tracking-wider text-slate-400">{label}</div>
-      <div className={`mt-1 text-xl font-semibold tabular-nums ${warn ? "text-[#ff6b73]" : ""}`}>
+    <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+      <div className="text-sm font-semibold text-[#111]">{label}</div>
+      <div className={`mt-3 text-2xl font-semibold tabular-nums ${warn ? "text-[#E7222E]" : "text-[#111]"}`}>
         {value === undefined ? "–" : value.toFixed(unit === "V" ? 1 : 0)}
-        <span className="ml-1 text-xs font-normal text-slate-400">{unit}</span>
+        <span className="ml-1 text-xs font-normal text-neutral-500">{unit}</span>
       </div>
     </div>
+  );
+}
+
+function Header({ title }: { title: string }) {
+  return (
+    <h1 className="px-5 pt-8 pb-4 text-[28px] font-bold uppercase leading-none tracking-tight text-[#111]">{title}</h1>
   );
 }
 
@@ -329,205 +337,263 @@ export default function BmwApp() {
   const nextKm = Number(vehicle.nextServiceKm) || 0;
   const kmToService = nextKm && odo ? nextKm - odo : null;
 
+  // Real warnings from the live readings drive the big headline.
+  const warnings: string[] = [];
+  if ((reading.coolant ?? 0) > 105) warnings.push("Engine hot");
+  if ((reading.oil ?? 0) > 130) warnings.push("Oil hot");
+  if ((reading.fuel ?? 100) < 12) warnings.push("Low fuel");
+  if (reading.voltage !== undefined && (reading.voltage < 11.8 || reading.voltage > 15))
+    warnings.push("Battery voltage");
+  const allGood = warnings.length === 0;
+
   return (
-    <div className="min-h-dvh bg-[#0d1015] text-white">
-      <div className="mx-auto max-w-md pb-28">
+    <div className="min-h-dvh bg-white text-[#111]">
+      <div className="mx-auto max-w-md pb-24">
         {error && (
-          <div role="alert" className="mx-4 mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <div role="alert" className="mx-5 mt-4 rounded-[4px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
             {error}
           </div>
         )}
 
-        {/* VEHICLE (home) */}
-        {tab === "vehicle" && (
-          <main className="px-4 pt-6 space-y-4">
-            <section className="overflow-hidden rounded-[28px] bg-gradient-to-b from-[#1b2230] to-[#12161d] border border-white/5">
-              <div className="flex items-start justify-between px-5 pt-5">
-                <div>
-                  <h1 className="text-2xl font-semibold tracking-tight !text-white">520i M Sport</h1>
-                  <p className="mt-0.5 text-sm text-slate-400">2023 · Saloon</p>
-                </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    link === "live"
-                      ? "bg-emerald-500/15 text-emerald-300"
-                      : link === "demo"
-                        ? "bg-amber-500/15 text-amber-300"
-                        : "bg-white/5 text-slate-400"
-                  }`}
-                >
-                  {link === "live" ? "Live" : link === "demo" ? "Demo" : link === "connecting" ? "Connecting…" : "Not connected"}
-                </span>
-              </div>
-              <CarArt />
-              <div className="grid grid-cols-3 gap-px bg-white/5 border-t border-white/5 text-center">
-                {[
-                  [Fuel, "Fuel", reading.fuel, "%"],
-                  [BatteryCharging, "Battery", reading.voltage, "V"],
-                  [Thermometer, "Coolant", reading.coolant, "°C"],
-                ].map(([Icon, label, val, unit]) => {
-                  const I = Icon as typeof Fuel;
-                  const v = val as number | undefined;
-                  return (
-                    <div key={label as string} className="bg-[#14181f] py-3">
-                      <I className="mx-auto h-4 w-4 text-[#81C4FF]" />
-                      <div className="mt-1 text-base font-semibold tabular-nums">
-                        {v === undefined ? "–" : v.toFixed(unit === "V" ? 1 : 0)}
-                        <span className="ml-0.5 text-[11px] font-normal text-slate-400">{unit as string}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-500">{label as string}</div>
-                    </div>
-                  );
-                })}
+        {/* VEHICLE — welcome (not connected) */}
+        {tab === "vehicle" && !connected && (
+          <main>
+            <section className="relative overflow-hidden bg-gradient-to-b from-[#2b3a4a] via-[#8fa3b5] to-white px-5 pt-14 pb-2">
+              <h1 className="max-w-[260px] text-[40px] font-bold uppercase !leading-[0.95] tracking-tight !text-white">
+                Welcome to your 520i
+              </h1>
+              <p className="mt-3 max-w-[300px] text-sm text-white/90">
+                Connect your OBD2 adapter to see live data, or try the demo first.
+              </p>
+              <div className="mt-10">
+                <CarArt />
               </div>
             </section>
-
-            {/* Connect */}
-            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1C69D4]/15">
-                  <Bluetooth className="h-5 w-5 text-[#81C4FF]" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium">OBD2 adapter</div>
-                  <div className="text-xs text-slate-400">
-                    {connected ? (link === "demo" ? "Showing simulated data" : "Reading from your car") : "Plug in a Bluetooth LE adapter"}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 flex gap-2">
-                {connected ? (
-                  <button onClick={halt} className="flex-1 rounded-full bg-white/10 py-3 text-sm font-medium">
-                    Disconnect
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      onClick={startLive}
-                      disabled={!btOk || link === "connecting"}
-                      className="flex-1 rounded-full bg-[#1C69D4] py-3 text-sm font-medium disabled:opacity-40"
-                    >
-                      {link === "connecting" ? "Connecting…" : "Connect to car"}
-                    </button>
-                    <button onClick={startDemo} className="rounded-full bg-white/10 px-5 py-3 text-sm">
-                      Demo
-                    </button>
-                  </>
-                )}
-              </div>
-              {!btOk && !connected && (
-                <p className="mt-3 text-xs text-amber-300">
+            <div className="space-y-3 px-5 pt-2">
+              <button
+                onClick={startLive}
+                disabled={!btOk || link === "connecting"}
+                className="w-full rounded-[4px] bg-black py-4 text-sm font-bold uppercase tracking-wide text-white disabled:opacity-40"
+              >
+                {link === "connecting" ? "Connecting…" : "Connect to car"}
+              </button>
+              <button
+                onClick={startDemo}
+                className="w-full rounded-[4px] border-2 border-black bg-white py-4 text-sm font-bold uppercase tracking-wide"
+              >
+                Experience demo
+              </button>
+              {!btOk && (
+                <p className="text-xs text-amber-700">
                   This browser has no Web Bluetooth. On iPhone, open this page in the Bluefy browser; on Android use Chrome.
                 </p>
               )}
+            </div>
+            <section className="px-5 pt-8">
+              <h2 className="text-lg font-bold uppercase tracking-tight !text-[#111]">Tools</h2>
+              <ul className="mt-2 divide-y divide-neutral-200">
+                {(
+                  [
+                    ["service", "Service tracker", Wrench],
+                    ["faults", "Fault codes", TriangleAlert],
+                    ["drive", "Live drive data", GaugeIcon],
+                  ] as const
+                ).map(([id, label, Icon]) => (
+                  <li key={id}>
+                    <button onClick={() => setTab(id)} className="flex w-full items-center gap-4 py-4 text-left">
+                      <Icon className="h-5 w-5" />
+                      <span className="flex-1 text-sm font-semibold">{label}</span>
+                      <ChevronRight className="h-4 w-4 text-neutral-400" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </main>
+        )}
+
+        {/* VEHICLE — connected / demo */}
+        {tab === "vehicle" && connected && (
+          <main>
+            <div className="flex items-center justify-between px-5 pt-5 text-sm">
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${link === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+                {link === "live" ? "Live" : "Demo"}
+              </span>
+              <span className="font-semibold">520i M Sport</span>
+              <button onClick={halt} className="text-xs font-semibold underline">
+                Disconnect
+              </button>
+            </div>
+            <section className="relative overflow-hidden bg-gradient-to-b from-[#5d6d7a] via-[#a9b5bf] to-white px-5 pt-6">
+              <h1 className="text-[76px] font-bold uppercase !leading-[0.86] tracking-tighter !text-white">
+                {allGood ? (
+                  <>
+                    All
+                    <br />
+                    good
+                  </>
+                ) : (
+                  <>
+                    Check
+                    <br />
+                    car
+                  </>
+                )}
+              </h1>
+              <div className="-mt-14">
+                <CarArt />
+              </div>
             </section>
 
-            {/* Service summary */}
-            <button
-              onClick={() => setTab("service")}
-              className="flex w-full items-center gap-3 rounded-[24px] bg-[#171c23] border border-white/5 p-4 text-left"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5">
-                <Wrench className="h-5 w-5 text-slate-300" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-medium">Service</div>
-                <div
-                  className={`text-xs ${
-                    kmToService === null ? "text-slate-400" : kmToService < 1000 ? "text-amber-300" : "text-emerald-300"
-                  }`}
-                >
-                  {kmToService === null
-                    ? "Add your mileage and next service"
-                    : kmToService >= 0
-                      ? `${kmToService.toLocaleString()} km until next service`
-                      : `Overdue by ${Math.abs(kmToService).toLocaleString()} km`}
+            <div className="space-y-3 px-5">
+              <p className="text-xs text-neutral-500">
+                {link === "demo" ? "Simulated data" : `Updated live from ${trip.samples ? "your car" : "adapter"}`}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+                  <div className="text-sm font-semibold">Status</div>
+                  <div className={`text-xs ${allGood ? "text-neutral-500" : "text-[#E7222E]"}`}>
+                    {allGood ? "All good" : warnings.join(", ")}
+                  </div>
+                  <CircleCheck className="mt-5 h-5 w-5" />
+                </div>
+                <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+                  <div className="text-sm font-semibold">Fuel level</div>
+                  <div className="text-xs text-neutral-500">Tank</div>
+                  <div className="mt-3 flex items-end justify-between">
+                    <Fuel className="h-5 w-5" />
+                    <span className="text-3xl font-bold tabular-nums">
+                      {reading.fuel === undefined ? "–" : Math.round(reading.fuel)}
+                      <span className="ml-0.5 text-sm font-semibold">%</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-              <span className="text-slate-500">›</span>
-            </button>
 
-            {/* Not available — shown honestly, not faked */}
-            <section className="rounded-[24px] bg-[#171c23]/60 border border-dashed border-white/10 p-4">
-              <div className="text-sm font-medium text-slate-300">Remote services</div>
-              <p className="mt-1 text-xs text-slate-500">
-                Lock, climate and Digital Key need BMW&rsquo;s own connection and can&rsquo;t be done through an OBD2
-                adapter. Use the My BMW app once your car&rsquo;s ConnectedDrive is active.
-              </p>
-              <div className="mt-3 flex gap-2 opacity-40" aria-hidden>
-                {[Lock, Fan, KeyRound].map((I, i) => (
-                  <div key={i} className="flex h-11 flex-1 items-center justify-center rounded-2xl bg-white/5">
+              {/* Remote buttons: shown, but disabled — they need BMW's own connection */}
+              <div className="grid grid-cols-4 gap-3" aria-label="Remote controls, unavailable">
+                {[Lock, LockOpen, Volume2, Lightbulb].map((I, i) => (
+                  <div key={i} className="flex h-12 items-center justify-center rounded-[4px] bg-[#f1f1f1] opacity-40">
                     <I className="h-5 w-5" />
                   </div>
                 ))}
               </div>
-            </section>
+              <p className="text-[11px] text-neutral-500">
+                Lock, horn and lights need BMW&rsquo;s own connection and can&rsquo;t work through an OBD2 adapter.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+                  <div className="text-sm font-semibold">Engine</div>
+                  <div className="text-xs text-neutral-500">Coolant</div>
+                  <div className="mt-3 flex items-end justify-between">
+                    <Thermometer className="h-5 w-5" />
+                    <span className="text-2xl font-bold tabular-nums">
+                      {reading.coolant === undefined ? "–" : Math.round(reading.coolant)}
+                      <span className="ml-0.5 text-sm font-semibold">°C</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+                  <div className="text-sm font-semibold">Battery</div>
+                  <div className="text-xs text-neutral-500">Voltage</div>
+                  <div className="mt-3 flex items-end justify-between">
+                    <BatteryCharging className="h-5 w-5" />
+                    <span className="text-2xl font-bold tabular-nums">
+                      {reading.voltage === undefined ? "–" : reading.voltage.toFixed(1)}
+                      <span className="ml-0.5 text-sm font-semibold">V</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setTab("service")}
+                className="relative w-full overflow-hidden rounded-[4px] bg-gradient-to-r from-[#1b3f8f] to-[#2f6fd0] p-4 text-left text-white"
+              >
+                <div className="text-sm font-semibold">Service</div>
+                <div className="mt-1 max-w-[240px] text-xs text-white/90">
+                  {kmToService === null
+                    ? "Add your mileage and next service date."
+                    : kmToService >= 0
+                      ? `${kmToService.toLocaleString()} km until your next service.`
+                      : `Service overdue by ${Math.abs(kmToService).toLocaleString()} km.`}
+                </div>
+                <div className="mt-4 text-right text-xs font-bold uppercase tracking-wide">
+                  {kmToService === null ? "Set up" : "Open"}
+                </div>
+              </button>
+            </div>
           </main>
         )}
 
         {/* DRIVE */}
         {tab === "drive" && (
-          <main className="px-4 pt-6 space-y-4">
-            <h1 className="text-2xl font-semibold tracking-tight !text-white px-1">Drive</h1>
-            <div className="flex items-center justify-center gap-2 rounded-[28px] bg-gradient-to-b from-[#1b2230] to-[#12161d] border border-white/5 py-6">
-              <Gauge value={reading.speed} max={240} label="Speed" unit="km/h" />
-              <Gauge value={reading.rpm} max={7000} label="Engine" unit="rpm" color="#81C4FF" redFrom={6300} size={130} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Stat label="Coolant" value={reading.coolant} unit="°C" warn={(reading.coolant ?? 0) > 105} />
-              <Stat label="Oil temp" value={reading.oil} unit="°C" warn={(reading.oil ?? 0) > 130} />
-              <Stat label="Intake air" value={reading.intake} unit="°C" />
-              <Stat label="Outside" value={reading.ambient} unit="°C" />
-              <Stat label="Engine load" value={reading.load} unit="%" />
-              <Stat label="Throttle" value={reading.throttle} unit="%" />
-              <Stat label="Fuel level" value={reading.fuel} unit="%" warn={(reading.fuel ?? 100) < 12} />
-              <Stat
-                label="Battery"
-                value={reading.voltage}
-                unit="V"
-                warn={reading.voltage !== undefined && (reading.voltage < 11.8 || reading.voltage > 15)}
-              />
-            </div>
-
-            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium !text-white">This trip</h2>
-                <button
-                  onClick={() => {
-                    setTrip(emptyTrip());
-                    lastTick.current = 0;
-                  }}
-                  className="text-xs text-[#81C4FF]"
-                >
-                  Reset
-                </button>
+          <main>
+            <Header title="Drive" />
+            <div className="space-y-3 px-5">
+              <div className="flex items-center justify-center gap-2 rounded-[4px] bg-[#f1f1f1] py-6">
+                <Gauge value={reading.speed} max={240} label="Speed" unit="km/h" />
+                <Gauge value={reading.rpm} max={7000} label="Engine" unit="rpm" color="#1C69D4" redFrom={6300} size={130} />
               </div>
-              <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
-                {[
-                  ["Distance", trip.distanceKm.toFixed(1), "km"],
-                  ["Avg", avg.toFixed(0), "km/h"],
-                  ["Max", String(trip.maxSpeed), "km/h"],
-                  ["Time", String(mins), "min"],
-                ].map(([k, v, u]) => (
-                  <div key={k}>
-                    <dd className="text-lg font-semibold tabular-nums">{v}</dd>
-                    <dt className="text-[10px] text-slate-400">
-                      {k} · {u}
-                    </dt>
-                  </div>
-                ))}
-              </dl>
-            </section>
+              {!connected && (
+                <p className="text-xs text-neutral-500">Not connected — go to Vehicle to connect or try the demo.</p>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <Stat label="Coolant" value={reading.coolant} unit="°C" warn={(reading.coolant ?? 0) > 105} />
+                <Stat label="Oil temp" value={reading.oil} unit="°C" warn={(reading.oil ?? 0) > 130} />
+                <Stat label="Intake air" value={reading.intake} unit="°C" />
+                <Stat label="Outside" value={reading.ambient} unit="°C" />
+                <Stat label="Engine load" value={reading.load} unit="%" />
+                <Stat label="Throttle" value={reading.throttle} unit="%" />
+                <Stat label="Fuel level" value={reading.fuel} unit="%" warn={(reading.fuel ?? 100) < 12} />
+                <Stat
+                  label="Battery"
+                  value={reading.voltage}
+                  unit="V"
+                  warn={reading.voltage !== undefined && (reading.voltage < 11.8 || reading.voltage > 15)}
+                />
+              </div>
+
+              <section className="rounded-[4px] bg-[#f1f1f1] p-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold !text-[#111]">This trip</h2>
+                  <button
+                    onClick={() => {
+                      setTrip(emptyTrip());
+                      lastTick.current = 0;
+                    }}
+                    className="text-xs font-semibold underline"
+                  >
+                    Reset
+                  </button>
+                </div>
+                <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
+                  {[
+                    ["Distance", trip.distanceKm.toFixed(1), "km"],
+                    ["Avg", avg.toFixed(0), "km/h"],
+                    ["Max", String(trip.maxSpeed), "km/h"],
+                    ["Time", String(mins), "min"],
+                  ].map(([k, v, u]) => (
+                    <div key={k}>
+                      <dd className="text-lg font-bold tabular-nums">{v}</dd>
+                      <dt className="text-[10px] text-neutral-500">
+                        {k} · {u}
+                      </dt>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            </div>
           </main>
         )}
 
         {/* SERVICE */}
         {tab === "service" && (
-          <main className="px-4 pt-6 space-y-4">
-            <h1 className="text-2xl font-semibold tracking-tight !text-white px-1">Service</h1>
-            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4 space-y-3">
-              <p className="text-xs text-slate-400">
+          <main>
+            <Header title="Service" />
+            <section className="mx-5 space-y-3 rounded-[4px] bg-[#f1f1f1] p-4">
+              <p className="text-xs text-neutral-600">
                 A standard OBD2 adapter can&rsquo;t read BMW&rsquo;s odometer or service counters, so keep them here.
                 Saved on this phone only.
               </p>
@@ -538,28 +604,28 @@ export default function BmwApp() {
                   ["nextServiceDate", "Next service date", "date"],
                 ] as const
               ).map(([k, label, type]) => (
-                <label key={k} className="block text-xs text-slate-400">
+                <label key={k} className="block text-xs font-semibold text-neutral-600">
                   {label}
                   <input
                     type={type}
                     inputMode={type === "number" ? "numeric" : undefined}
                     value={vehicle[k]}
                     onChange={(e) => saveVehicle({ ...vehicle, [k]: e.target.value })}
-                    className="mt-1 w-full rounded-2xl bg-[#0d1015] border border-white/10 px-4 py-3 text-sm text-white"
+                    className="mt-1 w-full rounded-[4px] border border-neutral-300 bg-white px-3 py-3 text-sm font-normal text-[#111]"
                   />
                 </label>
               ))}
-              <label className="block text-xs text-slate-400">
+              <label className="block text-xs font-semibold text-neutral-600">
                 Notes
                 <textarea
                   rows={3}
                   value={vehicle.notes}
                   onChange={(e) => saveVehicle({ ...vehicle, notes: e.target.value })}
-                  className="mt-1 w-full rounded-2xl bg-[#0d1015] border border-white/10 px-4 py-3 text-sm text-white"
+                  className="mt-1 w-full rounded-[4px] border border-neutral-300 bg-white px-3 py-3 text-sm font-normal text-[#111]"
                 />
               </label>
               {kmToService !== null && (
-                <p className={`text-sm ${kmToService < 1000 ? "text-amber-300" : "text-emerald-300"}`}>
+                <p className={`text-sm font-semibold ${kmToService < 1000 ? "text-amber-700" : "text-emerald-700"}`}>
                   {kmToService >= 0
                     ? `${kmToService.toLocaleString()} km until next service`
                     : `Service overdue by ${Math.abs(kmToService).toLocaleString()} km`}
@@ -571,30 +637,30 @@ export default function BmwApp() {
 
         {/* FAULTS */}
         {tab === "faults" && (
-          <main className="px-4 pt-6 space-y-4">
-            <h1 className="text-2xl font-semibold tracking-tight !text-white px-1">Fault codes</h1>
-            <section className="rounded-[24px] bg-[#171c23] border border-white/5 p-4">
-              <p className="text-xs text-slate-400">
+          <main>
+            <Header title="Fault codes" />
+            <section className="mx-5 rounded-[4px] bg-[#f1f1f1] p-4">
+              <p className="text-xs text-neutral-600">
                 Reads standard emissions-related codes only. BMW body, chassis and comfort modules need
                 BMW-specific tools. This app never clears codes.
               </p>
               <button
                 onClick={readFaults}
                 disabled={link !== "live" || dtcBusy}
-                className="mt-3 rounded-full bg-[#1C69D4] px-5 py-3 text-sm font-medium disabled:opacity-40"
+                className="mt-3 w-full rounded-[4px] bg-black py-3.5 text-sm font-bold uppercase tracking-wide text-white disabled:opacity-40"
               >
                 {dtcBusy ? "Reading…" : "Read codes"}
               </button>
               {link !== "live" && (
-                <p className="mt-2 text-xs text-slate-500">Connect to your car (live) to read codes.</p>
+                <p className="mt-2 text-xs text-neutral-500">Connect to your car (live) to read codes.</p>
               )}
               {dtcs && (
                 <ul className="mt-3 space-y-1 text-sm">
                   {dtcs.length === 0 ? (
-                    <li className="text-emerald-300">No stored codes</li>
+                    <li className="font-semibold text-emerald-700">No stored codes</li>
                   ) : (
                     dtcs.map((c) => (
-                      <li key={c} className="rounded-xl bg-red-500/10 px-3 py-2 font-mono text-red-200">
+                      <li key={c} className="rounded-[4px] bg-red-100 px-3 py-2 font-mono text-red-800">
                         {c}
                       </li>
                     ))
@@ -605,9 +671,9 @@ export default function BmwApp() {
           </main>
         )}
 
-        {/* Tab bar */}
-        <nav className="fixed bottom-0 inset-x-0 border-t border-white/10 bg-[#0d1015]/90 backdrop-blur">
-          <div className="mx-auto grid max-w-md grid-cols-4 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        {/* Tab bar — icon with underline for the active tab */}
+        <nav className="fixed bottom-0 inset-x-0 border-t border-neutral-200 bg-white">
+          <div className="mx-auto grid max-w-md grid-cols-4 pt-3 pb-[max(0.6rem,env(safe-area-inset-bottom))]">
             {(
               [
                 ["vehicle", "Vehicle", Car],
@@ -619,13 +685,12 @@ export default function BmwApp() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
+                aria-label={label}
                 aria-current={tab === id ? "page" : undefined}
-                className={`flex flex-col items-center gap-1 py-2 text-[11px] ${
-                  tab === id ? "text-[#81C4FF] font-semibold" : "text-slate-500"
-                }`}
+                className="flex flex-col items-center gap-1.5 pb-1"
               >
-                <Icon className="h-6 w-6" />
-                {label}
+                <Icon className={`h-6 w-6 ${tab === id ? "text-black" : "text-neutral-500"}`} strokeWidth={1.5} />
+                <span className={`h-[3px] w-7 ${tab === id ? "bg-black" : "bg-transparent"}`} />
               </button>
             ))}
           </div>
@@ -638,20 +703,20 @@ export default function BmwApp() {
 // Original side-view saloon drawing (not BMW artwork).
 function CarArt() {
   return (
-    <svg viewBox="0 0 320 120" className="mx-auto my-2 w-full max-w-[340px]" aria-hidden>
-      <ellipse cx="160" cy="104" rx="130" ry="7" fill="#000" opacity=".35" />
+    <svg viewBox="0 0 320 120" className="mx-auto w-full max-w-[380px]" aria-hidden>
+      <ellipse cx="160" cy="104" rx="135" ry="7" fill="#000" opacity=".18" />
       <path
         d="M18 88 L24 74 Q32 64 66 60 L104 40 Q126 30 164 30 L204 30 Q238 33 258 52 L290 60 Q306 64 308 78 L308 90 Z"
-        fill="#2a3342"
+        fill="#3b4a58"
       />
       <path d="M110 44 Q128 36 160 36 L200 36 Q226 39 242 54 L112 54 Z" fill="#0d1015" opacity=".85" />
-      <path d="M18 80 H308" stroke="#81C4FF" strokeWidth="2" opacity=".9" />
+      <path d="M18 80 H308" stroke="#81C4FF" strokeWidth="2" />
       <path d="M18 84 H308" stroke="#0166B1" strokeWidth="2" />
       <path d="M18 88 H308" stroke="#E7222E" strokeWidth="2" />
       {[84, 244].map((x) => (
         <g key={x}>
           <circle cx={x} cy="92" r="18" fill="#0d1015" />
-          <circle cx={x} cy="92" r="11" fill="#3a4556" />
+          <circle cx={x} cy="92" r="11" fill="#a8b2bc" />
           <circle cx={x} cy="92" r="3" fill="#0d1015" />
         </g>
       ))}
