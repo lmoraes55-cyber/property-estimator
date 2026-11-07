@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import {
   BatteryCharging,
   Car,
@@ -11,6 +12,7 @@ import {
   Lightbulb,
   Lock,
   LockOpen,
+  MapPin,
   Thermometer,
   TriangleAlert,
   Volume2,
@@ -24,7 +26,7 @@ import {
   type Reading,
 } from "@/lib/bmw/elm327";
 
-type Tab = "vehicle" | "drive" | "service" | "faults";
+type Tab = "vehicle" | "map" | "drive" | "service" | "faults";
 type Link = "idle" | "connecting" | "live" | "demo";
 
 interface Trip {
@@ -50,43 +52,60 @@ interface Vehicle {
 }
 const EMPTY_VEHICLE: Vehicle = { odometer: "", nextServiceKm: "", nextServiceDate: "", notes: "" };
 const VEHICLE_KEY = "bmw-520i:vehicle";
-const VEHICLE_EVENT = "bmw-520i:vehicle-changed";
+const STORE_EVENT = "bmw-520i:changed";
+
+interface Parked {
+  lat: number | null;
+  lng: number | null;
+  accuracy: number | null;
+  at: string;
+}
+const EMPTY_PARKED: Parked = { lat: null, lng: null, accuracy: null, at: "" };
+const PARKED_KEY = "bmw-520i:parked";
 
 // localStorage as an external store so SSR/hydration stay consistent.
-function subscribeVehicle(cb: () => void) {
+function subscribeStore(cb: () => void) {
   window.addEventListener("storage", cb);
-  window.addEventListener(VEHICLE_EVENT, cb);
+  window.addEventListener(STORE_EVENT, cb);
   return () => {
     window.removeEventListener("storage", cb);
-    window.removeEventListener(VEHICLE_EVENT, cb);
+    window.removeEventListener(STORE_EVENT, cb);
   };
 }
 const subscribeNever = () => () => {};
-function readVehicleRaw(): string {
-  try {
-    return localStorage.getItem(VEHICLE_KEY) ?? "";
-  } catch {
-    return "";
-  }
-}
-function useVehicle(): [Vehicle, (v: Vehicle) => void] {
-  const raw = useSyncExternalStore(subscribeVehicle, readVehicleRaw, () => "");
-  const vehicle = useMemo<Vehicle>(() => {
+
+// `empty` must be a stable module-level constant.
+function useLocal<T extends object>(key: string, empty: T): [T, (v: T) => void] {
+  const raw = useSyncExternalStore(
+    subscribeStore,
+    () => {
+      try {
+        return localStorage.getItem(key) ?? "";
+      } catch {
+        return "";
+      }
+    },
+    () => "",
+  );
+  const value = useMemo<T>(() => {
     try {
-      return raw ? { ...EMPTY_VEHICLE, ...JSON.parse(raw) } : EMPTY_VEHICLE;
+      return raw ? { ...empty, ...JSON.parse(raw) } : empty;
     } catch {
-      return EMPTY_VEHICLE;
+      return empty;
     }
-  }, [raw]);
-  const save = useCallback((v: Vehicle) => {
-    try {
-      localStorage.setItem(VEHICLE_KEY, JSON.stringify(v));
-      window.dispatchEvent(new Event(VEHICLE_EVENT));
-    } catch {
-      /* storage unavailable (private mode) — ignore */
-    }
-  }, []);
-  return [vehicle, save];
+  }, [raw, empty]);
+  const save = useCallback(
+    (v: T) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(v));
+        window.dispatchEvent(new Event(STORE_EVENT));
+      } catch {
+        /* storage unavailable (private mode) — ignore */
+      }
+    },
+    [key],
+  );
+  return [value, save];
 }
 
 // ─── Demo data ───────────────────────────────────────────────────────────────
@@ -202,8 +221,39 @@ export default function BmwApp() {
   const [trip, setTrip] = useState<Trip>(emptyTrip);
   const [dtcs, setDtcs] = useState<string[] | null>(null);
   const [dtcBusy, setDtcBusy] = useState(false);
-  const [vehicle, saveVehicle] = useVehicle();
+  const [vehicle, saveVehicle] = useLocal(VEHICLE_KEY, EMPTY_VEHICLE);
+  const [parked, saveParked] = useLocal(PARKED_KEY, EMPTY_PARKED);
+  const [locBusy, setLocBusy] = useState(false);
   const btOk = useSyncExternalStore(subscribeNever, bluetoothSupported, () => true);
+
+  const saveHere = useCallback(() => {
+    if (!navigator.geolocation) {
+      setError("This browser can't share your location.");
+      return;
+    }
+    setLocBusy(true);
+    setError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        saveParked({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: Math.round(pos.coords.accuracy),
+          at: new Date().toISOString(),
+        });
+        setLocBusy(false);
+      },
+      (err) => {
+        setLocBusy(false);
+        setError(
+          err.code === 1
+            ? "Location permission was denied. Allow it in your browser settings and try again."
+            : "Couldn't get your location. Try again outside or near a window.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  }, [saveParked]);
 
   const elm = useRef<Elm327 | null>(null);
   const stop = useRef<(() => void) | null>(null);
@@ -440,7 +490,7 @@ export default function BmwApp() {
                   </>
                 )}
               </h1>
-              <div className="-mt-14">
+              <div className="-mt-6 pb-3">
                 <CarArt />
               </div>
             </section>
@@ -588,6 +638,69 @@ export default function BmwApp() {
           </main>
         )}
 
+        {/* MAP */}
+        {tab === "map" && (
+          <main>
+            <Header title="Map" />
+            <section className="mx-5 space-y-3">
+              {parked.lat !== null && parked.lng !== null ? (
+                <>
+                  <div className="overflow-hidden rounded-[4px] bg-[#f1f1f1]">
+                    <iframe
+                      title="Where you parked"
+                      className="h-72 w-full border-0"
+                      loading="lazy"
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${parked.lng - 0.004},${parked.lat - 0.003},${parked.lng + 0.004},${parked.lat + 0.003}&layer=mapnik&marker=${parked.lat},${parked.lng}`}
+                    />
+                  </div>
+                  <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+                    <div className="text-sm font-semibold">Parked location</div>
+                    <div className="mt-1 text-xs text-neutral-600">
+                      Saved {new Date(parked.at).toLocaleString()}
+                      {parked.accuracy !== null && ` · accurate to about ${parked.accuracy} m`}
+                    </div>
+                    <div className="mt-1 font-mono text-xs text-neutral-500">
+                      {parked.lat.toFixed(5)}, {parked.lng.toFixed(5)}
+                    </div>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${parked.lat},${parked.lng}&travelmode=walking`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full rounded-[4px] bg-black py-4 text-center text-sm font-bold uppercase tracking-wide text-white"
+                  >
+                    Walk to my car
+                  </a>
+                </>
+              ) : (
+                <div className="rounded-[4px] bg-[#f1f1f1] p-4">
+                  <div className="text-sm font-semibold">No parked location yet</div>
+                  <p className="mt-1 text-xs text-neutral-600">
+                    Save where you left the car so you can find it later. Your location stays on this phone.
+                  </p>
+                </div>
+              )}
+              <button
+                onClick={saveHere}
+                disabled={locBusy}
+                className={`w-full rounded-[4px] py-4 text-sm font-bold uppercase tracking-wide disabled:opacity-40 ${
+                  parked.lat === null ? "bg-black text-white" : "border-2 border-black bg-white"
+                }`}
+              >
+                {locBusy ? "Finding you…" : parked.lat === null ? "Save parked location" : "Update to here"}
+              </button>
+              {parked.lat !== null && (
+                <button
+                  onClick={() => saveParked(EMPTY_PARKED)}
+                  className="w-full py-2 text-xs font-semibold text-neutral-500 underline"
+                >
+                  Clear saved location
+                </button>
+              )}
+            </section>
+          </main>
+        )}
+
         {/* SERVICE */}
         {tab === "service" && (
           <main>
@@ -673,10 +786,11 @@ export default function BmwApp() {
 
         {/* Tab bar — icon with underline for the active tab */}
         <nav className="fixed bottom-0 inset-x-0 border-t border-neutral-200 bg-white">
-          <div className="mx-auto grid max-w-md grid-cols-4 pt-3 pb-[max(0.6rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto grid max-w-md grid-cols-5 pt-3 pb-[max(0.6rem,env(safe-area-inset-bottom))]">
             {(
               [
                 ["vehicle", "Vehicle", Car],
+                ["map", "Map", MapPin],
                 ["drive", "Drive", GaugeIcon],
                 ["service", "Service", Wrench],
                 ["faults", "Faults", TriangleAlert],
@@ -700,26 +814,16 @@ export default function BmwApp() {
   );
 }
 
-// Original side-view saloon drawing (not BMW artwork).
+// Photo of the owner's own car, background removed.
 function CarArt() {
   return (
-    <svg viewBox="0 0 320 120" className="mx-auto w-full max-w-[380px]" aria-hidden>
-      <ellipse cx="160" cy="104" rx="135" ry="7" fill="#000" opacity=".18" />
-      <path
-        d="M18 88 L24 74 Q32 64 66 60 L104 40 Q126 30 164 30 L204 30 Q238 33 258 52 L290 60 Q306 64 308 78 L308 90 Z"
-        fill="#3b4a58"
-      />
-      <path d="M110 44 Q128 36 160 36 L200 36 Q226 39 242 54 L112 54 Z" fill="#0d1015" opacity=".85" />
-      <path d="M18 80 H308" stroke="#81C4FF" strokeWidth="2" />
-      <path d="M18 84 H308" stroke="#0166B1" strokeWidth="2" />
-      <path d="M18 88 H308" stroke="#E7222E" strokeWidth="2" />
-      {[84, 244].map((x) => (
-        <g key={x}>
-          <circle cx={x} cy="92" r="18" fill="#0d1015" />
-          <circle cx={x} cy="92" r="11" fill="#a8b2bc" />
-          <circle cx={x} cy="92" r="3" fill="#0d1015" />
-        </g>
-      ))}
-    </svg>
+    <Image
+      src="/bmw/car.webp"
+      alt="Your BMW 520i M Sport"
+      width={750}
+      height={353}
+      priority
+      className="mx-auto h-auto w-full max-w-[340px] drop-shadow-[0_16px_12px_rgba(0,0,0,0.28)]"
+    />
   );
 }
