@@ -1,0 +1,12 @@
+{
+  "name": "BMW 520i Companion",
+  "short_name": "520i",
+  "start_url": "/bmw",
+  "scope": "/bmw",
+  "display": "standalone",
+  "background_color": "#0b0f14",
+  "theme_color": "#0b0f14",
+  "icons": [
+    { "src": "/bmw/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
