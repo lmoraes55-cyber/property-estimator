@@ -819,10 +819,10 @@ function CarArt({ className = "" }: { className?: string }) {
     <div className={`relative ${className}`}>
       <div className="absolute inset-x-[4%] bottom-[-2%] z-0 h-[14%] rounded-[50%] bg-black/40 blur-md" aria-hidden />
       <Image
-        src="/bmw/car-520i.webp"
+        src="/bmw/car-520i-hd.webp"
         alt="Your BMW 520i M Sport"
-        width={768}
-        height={354}
+        width={1200}
+        height={559}
         priority
         className="relative z-10 h-auto w-full"
       />
