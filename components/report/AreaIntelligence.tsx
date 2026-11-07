@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { colors } from "@/lib/colors";
 import { fmt } from "@/lib/estimator";
 import type { AreaStatsRow } from "@/lib/str-market-data";
+import { useBrand } from "@/lib/brand";
 
 interface Props {
   area: string;
@@ -76,18 +77,19 @@ function confidenceFor(row: AreaStatsRow): number {
   return Math.min(97, (n >= 30 ? 88 : n >= 10 ? 74 : 60) + bonus);
 }
 
-function buildInsights(row: AreaStatsRow, area: string): string[] {
+function buildInsights(row: AreaStatsRow, area: string, brandName: string): string[] {
   const insights: string[] = [];
   if (row.occupancy != null && row.occupancy >= 0.7) insights.push(`Strong, consistent guest demand — average occupancy of ${Math.round(row.occupancy * 100)}% across ${area}.`);
   if (row.adr != null && row.adr >= 500) insights.push(`Premium average daily rates of AED ${fmt(row.adr)}, reflecting strong guest willingness to pay in this area.`);
   if (row.length_of_stay_days != null && row.length_of_stay_days >= 4) insights.push(`Longer average stays (${row.length_of_stay_days.toFixed(1)} nights) reduce turnover costs and support stable occupancy.`);
   if (row.active_listings != null && row.active_listings >= 50) insights.push(`A mature, liquid STR market with ${fmt(row.active_listings)} active listings — proven, established guest demand.`);
   if (row.estimated_str_revenue != null && row.estimated_str_revenue > 0) insights.push(`Area-wide average annual STR revenue is AED ${fmt(row.estimated_str_revenue)}, across all unit sizes and operating standards.`);
-  insights.push(`${area} remains one of the more actively tracked short-term rental markets in AssetIntel's Dubai coverage.`);
+  insights.push(`${area} remains one of the more actively tracked short-term rental markets in ${brandName}'s Dubai coverage.`);
   return insights.slice(0, 5);
 }
 
 export default function AreaIntelligence({ area, propertyName, unitSize, avgADR, avgOccupancy, annualRevenue, annualNetToLandlord, longTermRent, ltrRecommended, variant = "body" }: Props) {
+  const brand = useBrand();
   const [row, setRow] = useState<AreaStatsRow | null | undefined>(undefined);
 
   useEffect(() => {
@@ -123,7 +125,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
     { metric: "Annual Revenue", area: row.estimated_str_revenue, yours: annualRevenue, format: (v: number) => `AED ${fmt(v)}`, higherIsBetter: true },
   ].filter(c => c.area != null);
 
-  const insights = buildInsights(row, area);
+  const insights = buildInsights(row, area, brand.name);
   const confidence = confidenceFor(row);
   const targetBedrooms = bedroomsForUnitSize(unitSize);
   const listings = (row.sample_listings ?? [])
@@ -160,7 +162,7 @@ export default function AreaIntelligence({ area, propertyName, unitSize, avgADR,
           <div className="rpt-reco-grid" style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.5fr 1px 1fr", gap: 24, alignItems: "center" }}>
             {/* Left — recommendation */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: 10 }}>AssetIntel Recommendation</p>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#D4A574", marginBottom: 10 }}>{brand.name} Recommendation</p>
               <h3 className="ai-title-grad-i" style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 24, fontWeight: 600, color: "#FFFFFF", marginBottom: 10, lineHeight: 1.2 }}>
                 {ltrRecommended ? "Operate as a Long-Term Rental" : "Operate as a Short-Term Rental"}
               </h3>

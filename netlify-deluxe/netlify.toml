@@ -1,0 +1,58 @@
+# Deluxe Holiday Homes white-label front door.
+# Deploy THIS folder as its own Netlify site (drag-and-drop or `netlify deploy`).
+# It serves nothing itself — it proxies to the live app so the browser only ever
+# shows the *.netlify.app address. Swap the domain here if the app moves.
+
+[build]
+  publish = "."
+
+# Land on the report tool.
+[[redirects]]
+  from = "/"
+  to = "/dh"
+  status = 302
+  force = true
+
+# Only the white-label tool and what it needs is reachable through this domain.
+[[redirects]]
+  from = "/dh/*"
+  to = "https://assetintel.ae/dh/:splat"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/dh"
+  to = "https://assetintel.ae/dh"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/_next/*"
+  to = "https://assetintel.ae/_next/:splat"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/api/*"
+  to = "https://assetintel.ae/api/:splat"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/BURJ.png"
+  to = "https://assetintel.ae/BURJ.png"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/dh-logo.png"
+  to = "https://assetintel.ae/dh-logo.png"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/Locations/*"
+  to = "https://assetintel.ae/Locations/:splat"
+  status = 200
+  force = true
+
+# Anything else (the AssetIntel marketing site) bounces back to the tool.
+[[redirects]]
+  from = "/*"
+  to = "/dh"
+  status = 302
+  force = true

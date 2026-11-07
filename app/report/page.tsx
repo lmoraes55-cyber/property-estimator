@@ -15,7 +15,7 @@ import {
 import { DLD_AREA_TO_COMMUNITY } from "@/lib/dld-area-map";
 import { checkSTRViability } from "@/lib/str-viability";
 import { colors } from "@/lib/colors";
-import AssetIntelLogo from "@/components/AssetIntelLogo";
+import { useBrand, BrandLogo } from "@/lib/brand";
 import DecorativeBackdrop from "@/components/DecorativeBackdrop";
 import AreaIntelligence from "@/components/report/AreaIntelligence";
 import AccessGate from "@/components/AccessGate";
@@ -282,6 +282,8 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
   const searchParams = useSearchParams();
   const params = overrideParams ?? searchParams;
   const router = useRouter();
+  const brand = useBrand();
+  const isDeluxe = brand.key === "deluxe";
 
   const ltrRecommended = params.get("ltrRecommended") === "true";
 
@@ -528,7 +530,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         } catch { return null; }
       }
       const [logoImg, heroImg] = await Promise.all([
-        loadImg("/brand/assetintel-icon.png", 96),
+        loadImg(brand.pdfLogo, 96),
         loadImg("/BURJ.png", 720, true),
       ]);
 
@@ -599,7 +601,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         }
         // Alias keeps a single copy of the mark in the file across all pages.
         if (logoImg) doc.addImage(logoImg, "PNG", ml, tall ? 22 : 16, 22, 22, "aiLogo", "FAST");
-        txt("AssetIntel", ml + 28, tall ? 38 : 32, { size: 12, bold: true, color: GREEN, serif: true });
+        txt(brand.name, logoImg ? ml + 28 : ml, tall ? 38 : 32, { size: 12, bold: true, color: GREEN, serif: true });
         txt(dateStr, W - mr, tall ? 36 : 30, { size: 7, color: LIGHT, align: "right" });
         txt(title, ml, tall ? 72 : 54, { size: tall ? 15 : 10.5, bold: true, color: GREEN, serif: true });
         txt(propLine1, ml, tall ? 92 : 66, { size: tall ? 10 : 8, bold: true, color: TEXT });
@@ -651,7 +653,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       }
       const ltrSub = result.ltrBasis === "dld-building" ? "DLD Ejari · building level"
         : result.ltrBasis === "dld-master" ? "DLD Ejari · community level"
-        : result.ltrBasis === "dld-area" ? "DLD Ejari · area level" : "AssetIntel market estimate";
+        : result.ltrBasis === "dld-area" ? "DLD Ejari · area level" : brand.name + " market estimate";
       kpi(ml,            y, kw, "STR NET / YEAR",    money(result.annualNetToLandlord), "After all deductions", strBetter);
       kpi(ml + kw+kgap,  y, kw, "LTR / YEAR",        money(result.longTermRent),        ltrSub,                 !strBetter);
       y += kpiH + kgap;
@@ -744,14 +746,14 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         txt("Area market data unavailable", ml + 16, y + 28, { size: 11, bold: true, color: MUTED, serif: true });
         txt(areaName
           ? "No stored market record for " + areaName + " at the time this report was generated."
-          : "This property's area could not be matched to a tracked AssetIntel market.",
+          : "This property's area could not be matched to a tracked " + brand.name + " market.",
           ml + 16, y + 46, { size: 7.5, color: LIGHT });
         y += 84;
       } else {
         const refreshed = new Date(area.updated_at).toLocaleDateString("en-AE", { day: "numeric", month: "short", year: "numeric" });
         txt("Current property and STR market signals for " + area.area + ".", ml, y, { size: 9, color: MUTED });
         y += 13;
-        txt("Data refreshed: " + refreshed + "     Sources: DLD · AirROI · Airbtics · AssetIntel", ml, y, { size: 6.6, color: LIGHT });
+        txt("Data refreshed: " + refreshed + "     Sources: DLD · AirROI · Airbtics · " + brand.name, ml, y, { size: 6.6, color: LIGHT });
         y += 14;
 
         // ── Area KPI grid, 4 + 4 ────────────────────────────────────
@@ -847,7 +849,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           bits.push("This unit is modelled " + (Math.abs(d) < 0.05 ? "in line with" : d > 0 ? "above" : "below")
             + " the area ADR benchmark, so building quality, view and furnishing remain the decisive drivers of the achieved rate.");
         }
-        bits.push("STR figures are sourced from " + strSource + "; AssetIntel does not merge providers, so the origin of every market number stays traceable.");
+        bits.push("STR figures are sourced from " + strSource + "; " + brand.name + " does not merge providers, so the origin of every market number stays traceable.");
         const interp = bits.slice(0, 4).join(" ");
         if (interp) {
           eyebrow("WHAT THIS AREA DATA MEANS", ml, y);
@@ -1002,7 +1004,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         ["Dubai Land Department", "Sales & rental transactions"],
         ["AirROI", "STR market intelligence"],
         ["Airbtics", "STR market intelligence"],
-        ["AssetIntel", "Calculations & interpretation"],
+        [brand.name, "Calculations & interpretation"],
       ];
       const pW = (cw - 28) / 4;
       provs.forEach(([n, d], i) => {
@@ -1018,7 +1020,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       // ── Disclaimer ────────────────────────────────────────────────
       eyebrow("IMPORTANT INFORMATION", ml, y);
       y += 9;
-      const disc = "This report is generated by AssetIntel for indicative purposes only. Figures are projections based on available market data, third-party STR datasets, user inputs and AssetIntel modelling. Actual performance may vary depending on pricing, management quality, property condition, seasonality, booking-platform performance, market conditions and regulatory requirements. This report does not constitute financial, investment, legal or valuation advice.";
+      const disc = "This report is generated by " + brand.name + " for indicative purposes only. Figures are projections based on available market data, third-party STR datasets, user inputs and " + brand.name + " modelling. Actual performance may vary depending on pricing, management quality, property condition, seasonality, booking-platform performance, market conditions and regulatory requirements. This report does not constitute financial, investment, legal or valuation advice.";
       const dLines = doc.splitTextToSize(disc, cw - 4);
       doc.setFontSize(6.2); doc.setFont(SANS, "normal"); doc.setTextColor(155, 150, 141);
       doc.text(dLines, ml, y + 6);
@@ -1029,12 +1031,12 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         doc.setPage(p);
         doc.setFillColor(...BRONZE);
         doc.rect(ml, H - footerH - 6, cw, 0.9, "F");
-        txt("AssetIntel", ml, H - footerH + 10, { size: 8, bold: true, color: GREEN, serif: true });
-        txt("Property Intelligence. Smarter Decisions.", W / 2, H - footerH + 10, { size: 6.6, color: MUTED, align: "center" });
+        txt(brand.name, ml, H - footerH + 10, { size: 8, bold: true, color: GREEN, serif: true });
+        txt(brand.tagline, W / 2, H - footerH + 10, { size: 6.6, color: MUTED, align: "center" });
         txt("Page " + p + " of " + totalPages, W - mr, H - footerH + 10, { size: 6.6, color: LIGHT, align: "right" });
       }
 
-      const filename = "AssetIntel-Report-" +
+      const filename = brand.name.replace(/ /g, "-") + "-Report-" +
         (result.propertyName || input.buildingName || "property").replace(/[^a-z0-9]/gi, "-") + ".pdf";
       doc.save(filename);
     } catch (e) {
@@ -1319,8 +1321,8 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           boxShadow: "0 1px 2px rgba(15,29,24,.03), 0 6px 20px rgba(15,29,24,.06)",
           display: "flex", alignItems: "center", padding: "0 20px", height: 68, gap: 12,
         }}>
-          <div className="flex items-center gap-2 min-w-0" style={{ cursor: "pointer" }} onClick={() => router.push("/")}>
-            <AssetIntelLogo size={32} />
+          <div className="flex items-center gap-2 min-w-0" style={{ cursor: "pointer" }} onClick={() => router.push(brand.base || "/")}>
+            <BrandLogo size={32} />
           </div>
           <div className="hidden md:block" style={{ width: 1, height: 24, background: "#E2E8E5", flexShrink: 0 }} />
           <div className="hidden md:block min-w-0">
@@ -1331,10 +1333,10 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             <span className="hidden sm:inline" style={{ fontSize: 11, padding: "4px 12px", borderRadius: 999, fontWeight: 500, background: "rgba(184,138,68,0.10)", color: "#1B5E4A", border: "1px solid rgba(184,138,68,0.22)" }}>
               {input.unitSize} · {input.unitType}
             </span>
-            <button onClick={handleSave} disabled={saving || saved}
+            {!isDeluxe && <button onClick={handleSave} disabled={saving || saved}
               style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: saved ? "#EDF3F0" : "#fff", color: saved ? "#1B5E4A" : "#1B5E4A", border: "1.5px solid #1B5E4A", cursor: (saving || saved) ? "default" : "pointer", fontWeight: 600, transition: "all 0.2s" }}>
               {saved ? "✓ Saved" : saving ? "Saving…" : "Save to Dashboard"}
-            </button>
+            </button>}
             <button onClick={generatePDF} disabled={pdfGenerating}
               style={{ fontSize: 12, padding: "7px 16px", borderRadius: 999, background: pdfGenerating ? "#4E5D56" : "linear-gradient(135deg, #1B5E4A 0%, #2D7A5E 100%)", color: "#FFF", border: "none", cursor: pdfGenerating ? "not-allowed" : "pointer", fontWeight: 700, boxShadow: "0 4px 12px rgba(27,94,74,0.25)", transition: "background 0.2s" }}>
               {pdfGenerating ? "Generating…" : "Download PDF"}
@@ -1347,8 +1349,8 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       <div className="print-only" id="pdf-header" style={{ display: "none", padding: "0 0 28px 0", borderBottom: "2px solid #1B5E4A", marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <p style={{ fontSize: 25, fontWeight: 600, color: "#1B5E4A", letterSpacing: "-0.01em", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>AssetIntel</p>
-            <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence. Smarter Decisions.</p>
+            <p style={{ fontSize: 25, fontWeight: 600, color: "#1B5E4A", letterSpacing: "-0.01em", fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}>{brand.name}</p>
+            <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 2 }}>{brand.tagline}</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: 14, fontWeight: 700, color: "#0F1D18" }}>STR vs LTR Rental Strategy Report</p>
@@ -1405,7 +1407,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               </div>
             </div>
             {/* CTA — hidden in PDF */}
-            <button
+            {!isDeluxe && <button
               className="no-print"
               onClick={() => {
                 const p = new URLSearchParams();
@@ -1429,7 +1431,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
               }}
             >
               Explore Furnishing Packages →
-            </button>
+            </button>}
           </div>
         )}
 
@@ -1849,7 +1851,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
             const basisLabel = result.ltrBasis === "dld-building" ? "building-level DLD contracts"
               : result.ltrBasis === "dld-master" ? "community-level DLD contracts"
               : result.ltrBasis === "dld-area" ? "area-level DLD contracts"
-              : "AssetIntel's internal benchmark table";
+              : `${brand.name}'s internal benchmark table`;
 
             return (
               // Flat surface matching the Cost & Deduction Snapshot above, so
@@ -2283,7 +2285,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         )}
 
         {/* Part 2 CTA — Operator or Agent depending on recommendation */}
-        <div className="no-print" style={{ display: "flex", flexDirection: "column", gap: 28, marginTop: 4 }}>
+        {isDeluxe ? <DeluxeLeadCard input={input} result={result} params={params} /> : <div className="no-print" style={{ display: "flex", flexDirection: "column", gap: 28, marginTop: 4 }}>
         {ltrRecommended ? (
           <PremiumCTACard
             theme="bronze"
@@ -2379,13 +2381,13 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
           buttonShadow="0 8px 20px rgba(27, 94, 74, 0.3)"
           onClick={() => { const p = new URLSearchParams(window.location.search); window.location.href = `/self-manage?${p.toString()}`; }}
         />
-        </div>
+        </div>}
 
         {/* Disclaimer */}
         <div className="text-center pb-10 space-y-2">
           <div className="flex flex-col items-center gap-0.5">
-            <span className="text-sm font-bold" style={{ color: colors.textLight }}>AssetIntel</span>
-            <span className="text-xs tracking-widest" style={{ color: colors.textLight, letterSpacing: "0.14em" }}>Property Intelligence. Smarter Decisions.</span>
+            <span className="text-sm font-bold" style={{ color: colors.textLight }}>{brand.name}</span>
+            <span className="text-xs tracking-widest" style={{ color: colors.textLight, letterSpacing: "0.14em" }}>{brand.tagline}</span>
           </div>
           <p className="text-xs" style={{ color: colors.textLight }}>
             This projection is based on Dubai market data and historical performance. Figures are indicative and may vary
@@ -2397,9 +2399,9 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
         <div className="print-only" style={{ display: "none", borderTop: "1.5px solid #E2E8E5", paddingTop: 20, marginTop: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#1B5E4A" }}>AssetIntel</p>
-              <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>Property Intelligence. Smarter Decisions.</p>
-              <p style={{ fontSize: 10, color: "#66756D", marginTop: 4 }}>assetintel.ae</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#1B5E4A" }}>{brand.name}</p>
+              <p style={{ fontSize: 10, color: "#B88A44", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>{brand.tagline}</p>
+              <p style={{ fontSize: 10, color: "#66756D", marginTop: 4 }}>{brand.site}</p>
             </div>
             <p style={{ fontSize: 9, color: "#66756D", maxWidth: 360, textAlign: "right", lineHeight: 1.6 }}>
               This projection is based on Dubai market data and historical performance. Figures are indicative and may vary based on market conditions, property condition, furnishing quality, pricing, and operator performance. Always verify with current market data before making rental or investment decisions.
@@ -2410,6 +2412,63 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId }: {
       </div>
       </div>
     </div>
+  );
+}
+
+// ── Deluxe white-label only: BD logs the owner this report was run for.
+// Goes to the Deluxe leads sheet via /api/dh/lead, never the AssetIntel sheets. ──
+function DeluxeLeadCard({ input, result, params }: {
+  input: { propertyName: string; buildingName: string; unitSize: string; floor: number; view: string; furnished: string };
+  result: EstimatorOutput;
+  params: URLSearchParams;
+}) {
+  const [f, setF] = useState({ ownerName: "", ownerPhone: "", ownerEmail: "", notes: "" });
+  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const field = { width: "100%", padding: "11px 13px", borderRadius: 10, border: `1px solid ${colors.border}`, fontSize: 14, background: "#fff" };
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setState("sending");
+    const res = await fetch("/api/dh/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...f,
+        property: input.propertyName, building: input.buildingName, unitSize: input.unitSize,
+        floor: input.floor, view: input.view, furnished: input.furnished,
+        recommendation: result.strVsLtrDelta > 0 ? "STR" : "LTR",
+        strNetPerYear: Math.round(result.annualNetToLandlord),
+        ltrPerYear: Math.round(result.longTermRent),
+        occupancy: Math.round(result.avgOccupancy * 100) + "%",
+        adr: Math.round(result.avgADR),
+        reportUrl: window.location.origin + window.location.pathname + "?" + params.toString(),
+      }),
+    }).catch(() => null);
+    setState(res?.ok ? "sent" : "error");
+  }
+
+  return (
+    <form onSubmit={submit} className="no-print" style={{ borderRadius: 24, padding: 28, background: "#fff", border: `1px solid ${colors.border}`, display: "grid", gap: 12 }}>
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: colors.secondary, margin: 0 }}>Log this lead</p>
+      <h3 style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", fontSize: 22, fontWeight: 600, color: colors.primary, margin: 0 }}>Owner details</h3>
+      {state === "sent" ? (
+        <p style={{ color: colors.primary, fontWeight: 600, margin: 0 }}>✓ Lead saved to the Deluxe leads sheet.</p>
+      ) : (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+            <input required placeholder="Owner name" value={f.ownerName} onChange={e => setF({ ...f, ownerName: e.target.value })} style={field} />
+            <input placeholder="Phone" type="tel" value={f.ownerPhone} onChange={e => setF({ ...f, ownerPhone: e.target.value })} style={field} />
+            <input placeholder="Email" type="email" value={f.ownerEmail} onChange={e => setF({ ...f, ownerEmail: e.target.value })} style={field} />
+          </div>
+          <textarea placeholder="Notes" rows={3} value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} style={field} />
+          {state === "error" && <p style={{ color: "#C0392B", fontSize: 13, margin: 0 }}>Couldn&apos;t save the lead. Please try again.</p>}
+          <button type="submit" disabled={state === "sending" || (!f.ownerPhone && !f.ownerEmail)}
+            style={{ padding: 14, borderRadius: 12, border: "none", color: "#fff", fontWeight: 700, fontSize: 14.5, background: colors.primary, cursor: "pointer", opacity: (!f.ownerPhone && !f.ownerEmail) ? 0.5 : 1 }}>
+            {state === "sending" ? "Saving…" : "Save Lead →"}
+          </button>
+        </>
+      )}
+    </form>
   );
 }
 
@@ -2451,7 +2510,7 @@ function ReportLoadingScreen({
       `}</style>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <AssetIntelLogo />
+        <BrandLogo />
 
         <div
           style={{
