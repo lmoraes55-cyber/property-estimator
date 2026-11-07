@@ -408,18 +408,20 @@ export default function BmwApp() {
         {/* VEHICLE — welcome (not connected) */}
         {tab === "vehicle" && !connected && (
           <main>
-            <section className="relative overflow-hidden bg-gradient-to-b from-[#2b3a4a] via-[#8fa3b5] to-white px-5 pt-14 pb-2">
-              <h1 className="max-w-[260px] text-[40px] font-bold uppercase !leading-[0.95] tracking-tight !text-white">
-                Welcome to your 520i
-              </h1>
-              <p className="mt-3 max-w-[300px] text-sm text-white/90">
-                Connect your OBD2 adapter to see live data, or try the demo first.
-              </p>
-              <div className="mt-10">
-                <CarArt />
+            <section className="relative h-[440px] overflow-hidden bg-gradient-to-b from-[#2b3a4a] via-[#8fa3b5] via-55% to-white">
+              <div className="relative z-20 px-5 pt-14">
+                <h1 className="max-w-[260px] text-[40px] font-bold uppercase !leading-[0.95] tracking-tight !text-white">
+                  Welcome to your 520i
+                </h1>
+                <p className="mt-3 max-w-[300px] text-sm text-white/90">
+                  Connect your OBD2 adapter to see live data, or try the demo first.
+                </p>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 z-10 pb-5">
+                <CarArt className="ml-[3%] w-[94%]" />
               </div>
             </section>
-            <div className="space-y-3 px-5 pt-2">
+            <div className="space-y-3 px-5 pt-1">
               <button
                 onClick={startLive}
                 disabled={!btOk || link === "connecting"}
@@ -465,17 +467,17 @@ export default function BmwApp() {
         {/* VEHICLE — connected / demo */}
         {tab === "vehicle" && connected && (
           <main>
-            <div className="flex items-center justify-between px-5 pt-5 text-sm">
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${link === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-                {link === "live" ? "Live" : "Demo"}
-              </span>
-              <span className="font-semibold">520i M Sport</span>
-              <button onClick={halt} className="text-xs font-semibold underline">
-                Disconnect
-              </button>
-            </div>
-            <section className="relative overflow-hidden bg-gradient-to-b from-[#5d6d7a] via-[#a9b5bf] to-white px-5 pt-6">
-              <h1 className="text-[76px] font-bold uppercase !leading-[0.86] tracking-tighter !text-white">
+            <section className="relative h-[360px] overflow-hidden bg-gradient-to-b from-[#566571] via-[#a3aeb7] via-60% to-white">
+              <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 pt-5 text-sm text-white">
+                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${link === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+                  {link === "live" ? "Live" : "Demo"}
+                </span>
+                <span className="font-semibold">520i M Sport</span>
+                <button onClick={halt} className="text-xs font-semibold underline">
+                  Disconnect
+                </button>
+              </div>
+              <h1 className="absolute left-5 top-[68px] z-0 text-[74px] font-bold uppercase !leading-[0.86] tracking-tighter !text-white">
                 {allGood ? (
                   <>
                     All
@@ -490,15 +492,12 @@ export default function BmwApp() {
                   </>
                 )}
               </h1>
-              <div className="-mt-6 pb-3">
-                <CarArt />
+              <div className="absolute inset-x-0 bottom-0 z-10 pb-5">
+                <CarArt className="ml-[3%] w-[94%]" />
               </div>
             </section>
 
-            <div className="space-y-3 px-5">
-              <p className="text-xs text-neutral-500">
-                {link === "demo" ? "Simulated data" : `Updated live from ${trip.samples ? "your car" : "adapter"}`}
-              </p>
+            <div className="space-y-3 px-5 pt-1">
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-[4px] bg-[#f1f1f1] p-4">
                   <div className="text-sm font-semibold">Status</div>
@@ -814,16 +813,19 @@ export default function BmwApp() {
   );
 }
 
-// Photo of the owner's own car, background removed.
-function CarArt() {
+// Photo of the owner's own car, background removed, with a soft ground shadow.
+function CarArt({ className = "" }: { className?: string }) {
   return (
-    <Image
-      src="/bmw/car-520i.webp"
-      alt="Your BMW 520i M Sport"
-      width={768}
-      height={354}
-      priority
-      className="mx-auto h-auto w-full max-w-[340px] drop-shadow-[0_16px_12px_rgba(0,0,0,0.28)]"
-    />
+    <div className={`relative ${className}`}>
+      <div className="absolute inset-x-[4%] bottom-[-2%] z-0 h-[14%] rounded-[50%] bg-black/40 blur-md" aria-hidden />
+      <Image
+        src="/bmw/car-520i.webp"
+        alt="Your BMW 520i M Sport"
+        width={768}
+        height={354}
+        priority
+        className="relative z-10 h-auto w-full"
+      />
+    </div>
   );
 }
