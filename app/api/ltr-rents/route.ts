@@ -27,6 +27,7 @@ import {
 import type { UnitSize } from "@/lib/estimator";
 import { readCache, writeCache } from "@/lib/ltr-rent-cache";
 import { BUILDINGS_DATABASE } from "@/lib/buildings-data";
+import { requireUser } from "@/lib/require-user";
 
 export const dynamic = "force-dynamic";
 export const preferredRegion = "dxb1";
@@ -54,7 +55,7 @@ interface CacheEntry {
   ts: number;
 }
 const cache = new Map<string, CacheEntry>();
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 1 week — matches the DLD weekly sync cadence, so a building only pays the live-DDA cold path once per week instead of every hour
 
 function cacheKey(project: string, bedrooms: string, sizeSqft: number) {
   return `${normalizeName(project)}|${bedrooms}|${sizeSqft || ""}`;
@@ -121,6 +122,13 @@ function toRecentContracts(contracts: DLDRentContract[]): RecentContract[] {
 
 // ── Handler ───────────────────────────────────────────────────────────────
 export async function GET(request: Request) {
+  // The pages calling this (estimator, report, ltr-estimator, sub-leasing
+  // estimator) all gate it behind sign-up (AccessGate), so the route must
+  // enforce that too — otherwise anyone can pull live rent comps with a
+  // bare curl, bypassing the account requirement entirely.
+  if (!(await requireUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const project  = (searchParams.get("project")  ?? "").trim();
   const bedrooms = (searchParams.get("bedrooms") ?? "").trim();

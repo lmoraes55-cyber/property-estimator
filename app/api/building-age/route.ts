@@ -11,6 +11,7 @@
 
 import { NextResponse } from "next/server";
 import { fetchBuildingAge, resolveDLDName, type BuildingAgeResult } from "@/lib/dda-client";
+import { requireUser } from "@/lib/require-user";
 
 export const dynamic = "force-dynamic";
 export const preferredRegion = "dxb1";
@@ -38,6 +39,11 @@ function wordOverlap(query: string, candidate: string): number {
 }
 
 export async function GET(request: Request) {
+  // The caller page (ltr-estimator) gates this behind sign-up (AccessGate),
+  // so the route must enforce that too.
+  if (!(await requireUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const building = (searchParams.get("building") ?? "").trim();
   const dldKey   = (searchParams.get("dldKey")   ?? "").trim();

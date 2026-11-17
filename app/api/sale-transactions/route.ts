@@ -17,6 +17,7 @@ import {
   type SaleStat,
   type DLDSaleTransaction,
 } from "@/lib/dda-client";
+import { requireUser } from "@/lib/require-user";
 
 export const dynamic = "force-dynamic";
 export const preferredRegion = "dxb1";
@@ -75,6 +76,11 @@ function toRecentSales(transactions: DLDSaleTransaction[]): RecentSale[] {
 }
 
 export async function GET(request: Request) {
+  // The caller page (2026 Handover Intelligence) gates this behind sign-up
+  // (AccessGate), so the route must enforce that too.
+  if (!(await requireUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const project  = (searchParams.get("project")  ?? "").trim();
   const bedrooms = (searchParams.get("bedrooms") ?? "").trim();

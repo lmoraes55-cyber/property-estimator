@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { getLatestAreaStats, getAreaHistory } from "@/lib/str-market-data";
+import { requireUser } from "@/lib/require-user";
 
-// Public, read-only endpoint for the STR Market Intel page.
-// Reads ONLY from our database (str_market_area_stats) — never calls AirROI or Airbtics.
-// This is what keeps API costs low: both are only ever called by the weekly cron job.
+// Read-only endpoint for the STR Market Intel page — but that page gates
+// this data behind sign-up (AccessGate), so the route must enforce that too.
+// Reads ONLY from our database (str_market_area_stats) — never calls AirROI
+// or Airbtics. Those are only ever called by the weekly cron job.
 
 export async function GET(request: Request) {
+  if (!(await requireUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const area = searchParams.get("area");
 
