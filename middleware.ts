@@ -30,6 +30,16 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Deluxe white-label tool: only accounts created via /api/dh/signup
+  // (app_metadata.org, not user-editable) get past the login screen.
+  if (pathname.startsWith("/dh")) {
+    const isDeluxe = user?.app_metadata?.org === "deluxe";
+    if (pathname === "/dh/login") {
+      return isDeluxe ? NextResponse.redirect(new URL("/dh", request.url)) : supabaseResponse;
+    }
+    return isDeluxe ? supabaseResponse : NextResponse.redirect(new URL("/dh/login", request.url));
+  }
+
   if (pathname.startsWith("/dashboard") && !user) {
     return NextResponse.redirect(
       new URL("/login?next=" + pathname, request.url)
@@ -44,5 +54,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/signup"],
+  matcher: ["/dashboard/:path*", "/login", "/signup", "/dh", "/dh/:path*"],
 };
