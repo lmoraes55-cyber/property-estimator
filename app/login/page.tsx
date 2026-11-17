@@ -19,7 +19,12 @@ const C = {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
+  // On a tenant subdomain, the white-label app has no AssetIntel homepage —
+  // default post-login destination is the estimator, not "/".
+  const host = typeof window !== "undefined" ? window.location.hostname : "";
+  const isTenantSubdomain =
+    host.endsWith(".assetintel.ae") && host !== "www.assetintel.ae";
+  const next = searchParams.get("next") || (isTenantSubdomain ? "/estimator" : "/");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
