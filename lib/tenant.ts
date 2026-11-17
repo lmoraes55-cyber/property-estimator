@@ -44,3 +44,24 @@ export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
     active: data.active,
   };
 }
+
+export async function getTenantById(id: string): Promise<Tenant | null> {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("tenants")
+    .select("id, slug, display_name, logo_url, default_management_fee, default_costs, active")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    displayName: data.display_name,
+    logoUrl: data.logo_url,
+    defaultManagementFee: data.default_management_fee,
+    defaultCosts: (data.default_costs ?? {}) as Record<string, number>,
+    active: data.active,
+  };
+}
