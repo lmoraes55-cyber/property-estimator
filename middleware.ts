@@ -27,10 +27,22 @@ export async function middleware(request: NextRequest) {
     try {
       tenant = await getTenantBySlug(tenantSlug);
     } catch (e) {
-      // Transient DB error resolving the tenant — fail safe: don't treat
-      // this as "unknown tenant", just let the request through unbranded
-      // rather than destroying anyone's session over a blip.
+      // Transient DB error resolving the tenant — fail safe on BRANDING
+      // (serve unbranded rather than guessing/redirecting to an error page
+      // over a blip), but NOT on auth: /estimator and /report still require
+      // a session even when we can't tell which tenant this is.
       console.error("getTenantBySlug failed", e);
+      if (pathname.startsWith("/estimator") || pathname.startsWith("/report")) {
+        const authClient = createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { cookies: { getAll: () => request.cookies.getAll(), setAll: () => {} } }
+        );
+        const { data: { user } } = await authClient.auth.getUser();
+        if (!user) {
+          return NextResponse.redirect(new URL("/login?next=" + pathname, request.url));
+        }
+      }
       return NextResponse.next({ request });
     }
 
