@@ -32,7 +32,10 @@ export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
     .eq("slug", slug)
     .maybeSingle();
 
-  if (error || !data) return null;
+  // A genuine query error (e.g. transient DB outage) must not look like
+  // "no such tenant" — throw so callers can tell the two apart.
+  if (error) throw error;
+  if (!data) return null;
 
   return {
     id: data.id,
@@ -53,7 +56,10 @@ export async function getTenantById(id: string): Promise<Tenant | null> {
     .eq("id", id)
     .maybeSingle();
 
-  if (error || !data) return null;
+  // A genuine query error (e.g. transient DB outage) must not look like
+  // "no such tenant" — throw so callers can tell the two apart.
+  if (error) throw error;
+  if (!data) return null;
 
   return {
     id: data.id,
