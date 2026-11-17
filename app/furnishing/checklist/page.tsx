@@ -183,30 +183,30 @@ function ChecklistContent() {
                     <tr style={{ borderBottom: `1px solid ${C.border}` }}>
                       {["Item", "DET Specification", "Qty", "Unit Price", "Total"].map((h, i) => (
                         <th key={h} style={{
-                          padding: "9px 14px", textAlign: i >= 2 ? "center" : "left",
+                          padding: "9px 14px", textAlign: i >= 2 ? "right" : "left",
                           fontSize: 11, fontWeight: 700, color: C.muted,
                           textTransform: "uppercase", letterSpacing: "0.06em",
-                          background: "#F8F6F2",
+                          background: C.bg,
                         }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {catItems.map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: `1px solid #F0EDE8` }}>
+                      <tr key={idx} style={{ borderBottom: `1px solid ${C.border}` }}>
                         <td style={{ padding: "11px 14px", fontSize: 13, fontWeight: 600, color: C.text, width: "28%" }}>
                           {row.item}
                         </td>
                         <td style={{ padding: "11px 14px", fontSize: 12, color: C.muted, width: "38%" }}>
                           {row.spec}
                         </td>
-                        <td style={{ padding: "11px 14px", fontSize: 13, color: C.text, textAlign: "center", width: "8%" }}>
+                        <td style={{ padding: "11px 14px", fontSize: 13, color: C.text, textAlign: "right", fontVariantNumeric: "tabular-nums", width: "8%" }}>
                           {row.qty}
                         </td>
-                        <td style={{ padding: "11px 14px", fontSize: 13, color: C.text, textAlign: "center", width: "13%" }}>
+                        <td style={{ padding: "11px 14px", fontSize: 13, color: C.text, textAlign: "right", fontVariantNumeric: "tabular-nums", width: "13%" }}>
                           AED {row.unitPrice.toLocaleString()}
                         </td>
-                        <td style={{ padding: "11px 14px", fontSize: 13, fontWeight: 600, color: C.green, textAlign: "center", width: "13%" }}>
+                        <td style={{ padding: "11px 14px", fontSize: 13, fontWeight: 600, color: C.green, textAlign: "right", fontVariantNumeric: "tabular-nums", width: "13%" }}>
                           AED {(row.qty * row.unitPrice).toLocaleString()}
                         </td>
                       </tr>

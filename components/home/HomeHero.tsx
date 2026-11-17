@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { colors, serif } from "./theme";
 
 const TRUST_ITEMS = [
@@ -6,7 +9,28 @@ const TRUST_ITEMS = [
   { title: "Thousands Of Market Data Points" },
 ];
 
+// Chips float over the hero image to make it feel live without a video
+// asset — each ties to something the product actually does.
+const LIVE_CHIPS = [
+  { label: "DLD data synced", top: "20%", left: "58%" },
+  { label: "STR comps refreshing", top: "70%", left: "63%" },
+];
+
 export default function HomeHero({ isMobile, onAnalyze, onExploreIntel }: { isMobile: boolean; onAnalyze: () => void; onExploreIntel: () => void }) {
+  const imageRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (isMobile) return;
+    function handleMove(e: MouseEvent) {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      setTilt({ x, y });
+    }
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, [isMobile]);
+
   return (
     <section
       style={{
@@ -36,16 +60,62 @@ export default function HomeHero({ isMobile, onAnalyze, onExploreIntel }: { isMo
           }}
         >
           <div
+            ref={imageRef}
             style={{
               position: "absolute",
-              inset: 0,
+              inset: "-16px",
               backgroundImage: "url(/images/hero-desk-scene.png)",
               backgroundSize: "cover",
               backgroundPosition: "85% 62%",
               maskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.35) 14%, black 34%, black 88%, rgba(0,0,0,0.72) 100%)",
               WebkitMaskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.35) 14%, black 34%, black 88%, rgba(0,0,0,0.72) 100%)",
+              transform: `translate3d(${tilt.x * -8}px, ${tilt.y * -6}px, 0) scale(1.03)`,
+              transition: "transform 0.3s ease-out",
             }}
           />
+          {LIVE_CHIPS.map((chip) => (
+            <div
+              key={chip.label}
+              style={{
+                position: "absolute",
+                top: chip.top,
+                left: chip.left,
+                transform: `translate3d(${tilt.x * 10}px, ${tilt.y * 8}px, 0)`,
+                transition: "transform 0.3s ease-out",
+                display: "flex",
+                alignItems: "center",
+                gap: "7px",
+                padding: "7px 13px",
+                borderRadius: "20px",
+                background: "rgba(255,255,255,0.92)",
+                boxShadow: colors.shadowMd,
+                fontSize: "11.5px",
+                fontWeight: 600,
+                color: colors.textMain,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: "7px",
+                  height: "7px",
+                  borderRadius: "50%",
+                  background: colors.primary,
+                  boxShadow: `0 0 0 0 ${colors.primary}`,
+                  animation: "heroLivePulse 2s ease-out infinite",
+                }}
+              />
+              {chip.label}
+            </div>
+          ))}
+          <style>{`
+            @keyframes heroLivePulse {
+              0% { box-shadow: 0 0 0 0 rgba(27,94,74,0.45); }
+              70% { box-shadow: 0 0 0 7px rgba(27,94,74,0); }
+              100% { box-shadow: 0 0 0 0 rgba(27,94,74,0); }
+            }
+          `}</style>
         </div>
       ) : (
         <div

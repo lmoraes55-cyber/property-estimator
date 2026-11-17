@@ -1428,11 +1428,11 @@ function ResultInner() {
                 {r.months.map((m, i) => (
                   <tr key={m.month} style={{ borderTop: `1px solid ${C.border}`, background: i % 2 === 0 ? C.surface : C.bg }}>
                     <td style={{ padding: "11px 18px", fontWeight: 600, color: C.text }}>{m.month}</td>
-                    <td style={{ padding: "11px 18px", textAlign: "right", color: C.primary }}>AED {fmt(m.revenue)}</td>
-                    <td style={{ padding: "11px 18px", textAlign: "right", color: C.risk.high }}>− AED {fmt(m.landlordRent)}</td>
-                    <td style={{ padding: "11px 18px", textAlign: "right", color: C.text }}>{pct(m.occupancy)}</td>
-                    <td style={{ padding: "11px 18px", textAlign: "right", color: C.text }}>AED {fmt(m.adr)}</td>
-                    <td style={{ padding: "11px 18px", textAlign: "right", fontWeight: 700, color: m.netProfit >= 0 ? C.risk.low : C.risk.vhigh }}>
+                    <td style={{ padding: "11px 18px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: C.primary }}>AED {fmt(m.revenue)}</td>
+                    <td style={{ padding: "11px 18px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: C.risk.high }}>− AED {fmt(m.landlordRent)}</td>
+                    <td style={{ padding: "11px 18px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: C.text }}>{pct(m.occupancy)}</td>
+                    <td style={{ padding: "11px 18px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: C.text }}>AED {fmt(m.adr)}</td>
+                    <td style={{ padding: "11px 18px", textAlign: "right", fontVariantNumeric: "tabular-nums", fontWeight: 700, color: m.netProfit >= 0 ? C.risk.low : C.risk.vhigh }}>
                       {m.netProfit >= 0 ? "+" : ""}AED {fmt(m.netProfit)}
                     </td>
                   </tr>

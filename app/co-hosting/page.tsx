@@ -317,7 +317,7 @@ function ComparisonCalculator() {
                       {MODELS.map(m => {
                         const v = row.get(m);
                         return (
-                          <td key={m.key} style={{ padding: "12px", fontSize: 13.5, color: colors.textMain, background: m.highlight ? "rgba(184,138,68,0.07)" : "transparent" }}>
+                          <td key={m.key} style={{ padding: "12px", fontSize: 13.5, fontVariantNumeric: "tabular-nums", color: colors.textMain, background: m.highlight ? "rgba(184,138,68,0.07)" : "transparent" }}>
                             {v === 0 ? "—" : (v < 0 ? `− ${aed(Math.abs(v))}` : aed(v))}
                           </td>
                         );

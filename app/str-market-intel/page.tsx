@@ -431,7 +431,7 @@ export default function STRMarketIntelPage() {
                       <tr>
                         <th style={{ textAlign: "left", padding: "6px 10px 6px 0", color: colors.textLight, fontWeight: 700, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.05em" }}>Metric</th>
                         {compareAreas.map(a => (
-                          <th key={a} style={{ textAlign: "left", padding: "6px 10px", color: colors.textMain, fontFamily: serif, fontWeight: 600, fontSize: 13.5 }}>{a}</th>
+                          <th key={a} style={{ textAlign: "right", padding: "6px 10px", color: colors.textMain, fontFamily: serif, fontWeight: 600, fontSize: 13.5 }}>{a}</th>
                         ))}
                       </tr>
                     </thead>
@@ -448,7 +448,7 @@ export default function STRMarketIntelPage() {
                           <td style={{ padding: "8px 10px 8px 0", color: colors.textLight, fontWeight: 600 }}>{label}</td>
                           {compareAreas.map(a => {
                             const r = areaStats.find(x => x.area === a);
-                            return <td key={a} style={{ padding: "8px 10px", color: colors.textMain, fontWeight: 700 }}>{r ? fn(r) : "—"}</td>;
+                            return <td key={a} style={{ padding: "8px 10px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: colors.textMain, fontWeight: 700 }}>{r ? fn(r) : "—"}</td>;
                           })}
                         </tr>
                       ))}

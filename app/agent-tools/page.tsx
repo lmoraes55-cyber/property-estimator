@@ -827,14 +827,21 @@ export default function AgentToolsPage() {
                       Median price AED {Math.round(saleStat.medianPrice).toLocaleString()} · {saleStat.medianAedPerSqft} AED/sqft · sample size {saleStat.n} · as of {saleStat.asOf}
                     </p>
                     <table style={{ width: "100%", fontSize: 12.5, borderCollapse: "collapse" }}>
-                      <thead><tr style={{ color: colors.textMuted, textAlign: "left" }}><th>Date</th><th>Price</th><th>Sqft</th><th>AED/sqft</th></tr></thead>
+                      <thead>
+                        <tr>
+                          <th style={{ textAlign: "left", padding: "0 10px 8px 0", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: colors.textLight }}>Date</th>
+                          <th style={{ textAlign: "right", padding: "0 10px 8px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: colors.textLight }}>Price</th>
+                          <th style={{ textAlign: "right", padding: "0 10px 8px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: colors.textLight }}>Sqft</th>
+                          <th style={{ textAlign: "right", padding: "0 0 8px 10px", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: colors.textLight }}>AED/sqft</th>
+                        </tr>
+                      </thead>
                       <tbody>
                         {recentSales.map((t, i) => (
                           <tr key={i} style={{ borderTop: `1px solid ${colors.border}` }}>
-                            <td style={{ padding: "6px 0" }}>{t.date}</td>
-                            <td>AED {t.price.toLocaleString()}</td>
-                            <td>{t.areaSqft}</td>
-                            <td>{t.aedPerSqft}</td>
+                            <td style={{ padding: "9px 10px 9px 0", color: colors.textMain }}>{t.date}</td>
+                            <td style={{ padding: "9px 10px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: colors.textMain }}>AED {t.price.toLocaleString()}</td>
+                            <td style={{ padding: "9px 10px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: colors.textMuted }}>{t.areaSqft}</td>
+                            <td style={{ padding: "9px 0 9px 10px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: colors.textMuted }}>{t.aedPerSqft}</td>
                           </tr>
                         ))}
                       </tbody>
