@@ -477,7 +477,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
           </h1>
 
           <p className="text-base mb-7" style={{ color: colors.textMuted, lineHeight: "1.7", maxWidth: "520px" }}>
-            Enter your property details once and AssetIntel will estimate your short-term rental potential, long-term rental benchmark, expected occupancy, ADR, annual net income, and recommended strategy.
+            Enter your property details once and {tenant?.displayName ?? "AssetIntel"} will estimate your short-term rental potential, long-term rental benchmark, expected occupancy, ADR, annual net income, and recommended strategy.
           </p>
 
           <div className="flex flex-wrap gap-2.5">
