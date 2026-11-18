@@ -991,7 +991,12 @@ export function runEstimator(input: EstimatorInput): EstimatorOutput {
   // Target annual STR revenue. In SUBLEASE_RISK mode a furnishing multiplier scales this
   // down so Basic/Standard furnishing naturally reduces ADR and increases break-even occupancy.
   const furnishingMult = input.furnishingRevenueMult ?? 1;
-  const targetRevenue = ((baseLTR * (1 + effectivePremium)) / (1 - managementFee)) * furnishingMult;
+  // Small market-improvement uplift (Nov 2026): the 2026 UAE STR market is trending up,
+  // so the owner-estimator's "Expected" case gets a modest +3% nudge. Not applied in
+  // SUBLEASE_RISK mode — that calculation assesses downside risk and should stay
+  // unbiased rather than optimistic.
+  const MARKET_UPLIFT = input.mode === "SUBLEASE_RISK" ? 1 : 1.03;
+  const targetRevenue = ((baseLTR * (1 + effectivePremium)) / (1 - managementFee)) * furnishingMult * MARKET_UPLIFT;
 
   const months: MonthlyRow[] = MONTHS.map((month, i) => {
     const revenue = targetRevenue * dist[i];
