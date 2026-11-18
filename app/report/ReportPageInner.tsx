@@ -1818,18 +1818,18 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId, tenant }: {
         <div>
           {/* KPI summary cards with premium container */}
           {(() => {
-            const us = result.unitSize as string;
-            const isVilla = us.includes("VILLA");
-            const beds = us === "STU" ? 0 : isVilla ? 4 : Math.min(4, parseInt(us, 10) || 4);
-
-            const moneyBase = us === "STU" ? 2000 : beds === 1 ? 3000 : beds === 2 ? 4000 : 5000;
-            const occBase = us === "STU" ? 2 : beds <= 2 ? 3 : 4;
-            const adrBase = us === "STU" ? 15 : beds === 1 ? 25 : beds === 2 ? 35 : 50;
-
+            // Offsets scale with the actual value (a % spread), not a small
+            // flat amount — a flat +/-AED 2-5k read as noise next to a
+            // six-figure annual number. The % itself still comes from
+            // confFactor/ltrBasis, so a building-level DLD match still
+            // narrows the range relative to a table fallback; it just
+            // narrows a visibly meaningful spread instead of an invisible one.
             const confFactor = result.ltrBasis === "dld-building" ? 0.75
               : result.ltrBasis === "dld-master" ? 0.9
               : result.ltrBasis === "dld-area" ? 1.0 : 1.25;
-            const moneyOffset = Math.min(5000, Math.round(moneyBase * confFactor));
+            const moneyPct = 0.10 * confFactor;   // 7.5% (building) to 12.5% (fallback)
+            const occPctPts = 10 * confFactor;    // percentage-point swing in occupancy
+            const adrPct = 0.12 * confFactor;     // 9% (building) to 15% (fallback)
 
             const roundTo = (v: number, step: number) => Math.round(v / step) * step;
 
@@ -1839,11 +1839,12 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId, tenant }: {
             // building-level DLD match narrows every range on this section,
             // a table fallback widens it. That was invisible when these were
             // four pre-formatted strings.
+            const occPct = result.avgOccupancy * 100;
             const rows = [
-              { label: "Net to Landlord", centre: result.annualNetToLandlord, lo: roundTo(result.annualNetToLandlord - moneyOffset, 1000), hi: roundTo(result.annualNetToLandlord + moneyOffset, 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "After all deductions", accent: colors.primary },
-              { label: "Annual Revenue", centre: result.annualRevenue, lo: roundTo(result.annualRevenue - moneyOffset, 1000), hi: roundTo(result.annualRevenue + moneyOffset, 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Gross projected revenue", accent: colors.primary },
-              { label: "Average Occupancy", centre: result.avgOccupancy * 100, lo: Math.max(0, Math.round(result.avgOccupancy * 100 - occBase)), hi: Math.min(100, Math.round(result.avgOccupancy * 100 + occBase)), fmtV: (v: number) => `${Math.round(v)}%`, helper: "Averaged across the 12 months", accent: colors.primary },
-              { label: "Average ADR", centre: result.avgADR, lo: roundTo(result.avgADR - adrBase, 5), hi: roundTo(result.avgADR + adrBase, 5), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Average daily rate", accent: colors.primary },
+              { label: "Net to Landlord", centre: result.annualNetToLandlord, lo: roundTo(result.annualNetToLandlord * (1 - moneyPct), 1000), hi: roundTo(result.annualNetToLandlord * (1 + moneyPct), 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "After all deductions", accent: colors.primary },
+              { label: "Annual Revenue", centre: result.annualRevenue, lo: roundTo(result.annualRevenue * (1 - moneyPct), 1000), hi: roundTo(result.annualRevenue * (1 + moneyPct), 1000), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Gross projected revenue", accent: colors.primary },
+              { label: "Average Occupancy", centre: occPct, lo: Math.max(0, Math.round(occPct - occPctPts)), hi: Math.min(100, Math.round(occPct + occPctPts)), fmtV: (v: number) => `${Math.round(v)}%`, helper: "Averaged across the 12 months", accent: colors.primary },
+              { label: "Average ADR", centre: result.avgADR, lo: roundTo(result.avgADR * (1 - adrPct), 5), hi: roundTo(result.avgADR * (1 + adrPct), 5), fmtV: (v: number) => `AED ${fmt(v)}`, helper: "Average daily rate", accent: colors.primary },
             ];
 
             const basisLabel = result.ltrBasis === "dld-building" ? "building-level DLD contracts"
