@@ -1763,7 +1763,7 @@ function ReportContent({ overrideParams, snapshotResult, snapshotId, tenant }: {
                 <div style={{ maxWidth: 560 }}>
                   {[
                     { k: "Gross revenue", note: "Total STR gross income", v: gross, sign: "" },
-                    { k: "Management fees", note: "20% of gross revenue", v: mgmt, sign: "\u2212" },
+                    { k: "Management fees", note: `${Math.round(input.managementFee * 100)}% of gross revenue`, v: mgmt, sign: "\u2212" },
                     { k: "Running costs", note: "DEWA, upkeep, furniture", v: running, sign: "\u2212" },
                   ].map(row => (
                     <div key={row.k} style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 20, padding: "9px 0" }}>

@@ -950,7 +950,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                 <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif", color: colors.primary }}>What We Assume In Your Report</h3>
                 <div className="space-y-2.5">
                   {[
-                    { label: "Management Fee", value: "20% incl. VAT" },
+                    { label: "Management Fee", value: `${form.managementFee || "20"}% incl. VAT` },
                     { label: "Platform Fees",  value: "Included" },
                     { label: "Data Source",    value: "Market + DLD" },
                     { label: "Currency",       value: "AED" },
