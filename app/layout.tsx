@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID } from "@/lib/gtag";
 import WelcomeToast from "@/components/WelcomeToast";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
 // Display: geometric, used at light weights. This is what carries the
@@ -79,6 +80,7 @@ export default function RootLayout({
         )}
         {children}
         <WelcomeToast />
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>
