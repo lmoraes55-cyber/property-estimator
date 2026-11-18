@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { extractTenantSlug, getTenantBySlug } from "@/lib/tenant";
 
-const TENANT_ALLOWED_PATHS = ["/estimator", "/report", "/login", "/signup", "/portal-unavailable"];
+const TENANT_ALLOWED_PATHS = ["/estimator", "/report", "/dashboard", "/login", "/signup", "/portal-unavailable"];
 
 function isTenantAllowedPath(pathname: string): boolean {
   return TENANT_ALLOWED_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
       // over a blip), but NOT on auth: /estimator and /report still require
       // a session even when we can't tell which tenant this is.
       console.error("getTenantBySlug failed", e);
-      if (pathname.startsWith("/estimator") || pathname.startsWith("/report")) {
+      if (pathname.startsWith("/estimator") || pathname.startsWith("/report") || pathname.startsWith("/dashboard")) {
         const authClient = createServerClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -121,7 +121,7 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    if ((pathname.startsWith("/estimator") || pathname.startsWith("/report")) && !user) {
+    if ((pathname.startsWith("/estimator") || pathname.startsWith("/report") || pathname.startsWith("/dashboard")) && !user) {
       return NextResponse.redirect(new URL("/login?next=" + pathname, request.url));
     }
 
