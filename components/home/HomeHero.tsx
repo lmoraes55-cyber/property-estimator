@@ -118,20 +118,38 @@ export default function HomeHero({ isMobile, onAnalyze, onExploreIntel }: { isMo
           `}</style>
         </div>
       ) : (
+        // Previously opacity:0.16 plus an 0.86-opaque wash on top of that —
+        // net visibility was low single digits, reading as plain white on a
+        // real phone screen. First attempt at a fix (opacity 0.55, fading
+        // in toward the bottom) overcorrected: the photo fought with the
+        // body copy and trust-stat badges for contrast. This version shows
+        // the photo clearly only in the empty space above the headline
+        // (behind the nav/eyebrow), fading to fully transparent before the
+        // headline text starts, so it never sits behind readable text.
         <div
           aria-hidden
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: "url(/images/hero-desk-scene.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "70% center",
-            opacity: 0.16,
+            overflow: "hidden",
+            maskImage: "linear-gradient(180deg, black 0%, black 12%, transparent 24%)",
+            WebkitMaskImage: "linear-gradient(180deg, black 0%, black 12%, transparent 24%)",
           }}
-        />
-      )}
-      {isMobile && (
-        <div aria-hidden style={{ position: "absolute", inset: 0, background: colors.bgMain, opacity: 0.86 }} />
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url(/images/hero-desk-scene.png)",
+              backgroundSize: "cover",
+              // Upper-right slice (building render / sky), well away from the
+              // laptop screen's own content — that area is busy/glare-y and
+              // reads as noise rather than texture at this size.
+              backgroundPosition: "85% 8%",
+              opacity: 0.4,
+            }}
+          />
+        </div>
       )}
 
       <div style={{ position: "relative", zIndex: 2, maxWidth: 1520, margin: "0 auto", padding: isMobile ? "0 20px" : "0 48px", width: "100%" }}>
