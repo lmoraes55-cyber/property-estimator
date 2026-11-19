@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
@@ -47,6 +47,10 @@ export const metadata: Metadata = {
     ],
     apple: { url: "/brand/assetintel-favicon-256.png", sizes: "256x256", type: "image/png" },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1B5E4A",
 };
 
 export default function RootLayout({
