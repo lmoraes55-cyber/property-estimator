@@ -515,6 +515,33 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
 
       {/* ── FORM SECTION ── */}
       <section style={{ position: "relative", zIndex: 3 }}>
+        <style>{`
+          /* "Magnetic Glow" interaction feel — validated live in a browser
+             brainstorming session against a tactile-press and a
+             checkmark-confirm alternative. Hover shows intent, press widens
+             the glow briefly, selected (pills only) flips to a solid fill —
+             the boldest of the three states, so "selected" is unambiguous. */
+          .ai-glow-opt, .ai-glow-input, .ai-glow-submit {
+            transition: all 0.2s cubic-bezier(.2,.8,.2,1);
+          }
+          .ai-glow-opt:hover:not(.ai-glow-selected), .ai-glow-input:hover, .ai-glow-submit:hover:not(:disabled) {
+            box-shadow: 0 0 0 4px rgba(184,137,63,0.12);
+            border-color: rgba(184,137,63,0.45);
+          }
+          .ai-glow-opt:active:not(.ai-glow-selected), .ai-glow-input:active, .ai-glow-submit:active:not(:disabled) {
+            box-shadow: 0 0 0 6px rgba(184,137,63,0.18);
+          }
+          .ai-glow-input:focus {
+            box-shadow: 0 0 0 4px rgba(184,137,63,0.12);
+            border-color: rgba(184,137,63,0.45);
+          }
+          .ai-glow-opt.ai-glow-selected {
+            background: #1B5E4A !important;
+            border-color: #1B5E4A !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 14px rgba(27,94,74,0.35);
+          }
+        `}</style>
         <div style={{ maxWidth: "1152px", margin: "0 auto", padding: "32px 24px 80px" }}>
         <AccessGate source="estimator" title="Unlock the Rental Analyzer" subtitle="Free — sign up or log in to generate your STR vs LTR report.">
           <div className="w-full flex flex-col lg:flex-row gap-6 items-start">
@@ -546,7 +573,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                   <div ref={buildingRef} className="relative" style={{ marginBottom: "24px" }}>
                     <FieldLabel required>BUILDING NAME</FieldLabel>
                     <input
-                      className="w-full outline-none transition-all"
+                      className="w-full outline-none transition-all ai-glow-input"
                       style={inputStyle(!!form.buildingName)}
                       placeholder="Search by building name — e.g. Marina Gate, Forte, Burj Khalifa…"
                       value={buildingSearch || form.buildingName}
@@ -640,6 +667,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                       <FieldLabel required>NUMBER OF BEDROOMS</FieldLabel>
                       <div style={{ position: "relative" }}>
                         <select
+                          className="ai-glow-input"
                           value={form.unitSize}
                           onChange={e => {
                             const val = e.target.value as UnitSize | "";
@@ -692,7 +720,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                       </FieldLabel>
                       <input
                         type="number" min={1} max={maxFloors ?? 200}
-                        className="w-full outline-none transition"
+                        className="w-full outline-none transition ai-glow-input"
                         style={inputStyle(!!form.floor && !floorExceeds && !floorSuspect)}
                         placeholder={form.unitType === "Villa" ? "e.g. 1" : "e.g. 22"}
                         value={form.floor}
@@ -711,7 +739,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                         const sel = form.view === v;
                         return (
                           <button key={v} onClick={() => set("view", v)}
-                            className="px-4 py-3 rounded-[14px] transition-all text-left text-sm"
+                            className={`px-4 py-3 rounded-[14px] transition-all text-left text-sm ai-glow-opt${sel ? " ai-glow-selected" : ""}`}
                             style={{ ...(sel ? OPT_SELECTED : OPT_UNSELECTED), fontWeight: sel ? 700 : 500, color: sel ? "#153F32" : colors.textMain, transform: sel ? "translateY(-1px)" : "none" }}>
                             {v}
                           </button>
@@ -731,7 +759,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                         const sel = form.furnished === f;
                         return (
                           <button key={f} onClick={() => set("furnished", f)}
-                            className="py-3.5 rounded-[14px] transition-all text-left px-4"
+                            className={`py-3.5 rounded-[14px] transition-all text-left px-4 ai-glow-opt${sel ? " ai-glow-selected" : ""}`}
                             style={{ ...(sel ? OPT_SELECTED : OPT_UNSELECTED), transform: sel ? "translateY(-1px)" : "none" }}>
                             <p className="text-sm font-bold" style={{ color: sel ? "#153F32" : colors.textMain }}>{f}</p>
                             <p className="text-xs mt-0.5" style={{ color: sel ? "#6B8C7A" : colors.textLight }}>
@@ -761,7 +789,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                         const sel = form.propertyCondition === c;
                         return (
                           <button key={c} onClick={() => set("propertyCondition", c)}
-                            className="py-3 rounded-[14px] transition-all text-left px-4"
+                            className={`py-3 rounded-[14px] transition-all text-left px-4 ai-glow-opt${sel ? " ai-glow-selected" : ""}`}
                             style={{ ...(sel ? OPT_SELECTED : OPT_UNSELECTED), transform: sel ? "translateY(-1px)" : "none" }}>
                             <p className="text-sm font-bold" style={{ color: sel ? "#153F32" : colors.textMain }}>{c}</p>
                             <p className="text-xs mt-0.5" style={{ color: sel ? "#6B8C7A" : colors.textLight }}>{desc[c]}</p>
@@ -795,7 +823,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                       <input
                         type="number" inputMode="numeric"
                         min={form.sizeUnit === "sqft" ? 100 : 10} max={form.sizeUnit === "sqft" ? 20000 : 2000}
-                        className="w-full outline-none transition"
+                        className="w-full outline-none transition ai-glow-input"
                         style={inputStyle(!!form.sizeSqm)}
                         placeholder={form.sizeUnit === "sqft" ? "e.g. 750" : "e.g. 70"}
                         value={form.sizeSqm}
@@ -812,7 +840,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold" style={{ color: colors.primary }}>AED</span>
                         <input
                           type="text" inputMode="numeric"
-                          className="w-full outline-none transition"
+                          className="w-full outline-none transition ai-glow-input"
                           style={{ ...inputStyle(!!form.propertyValue), paddingLeft: "56px" }}
                           placeholder="2,500,000"
                           value={form.propertyValueDisplay}
@@ -831,7 +859,7 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                   <button
                     onClick={handleGenerate}
                     disabled={!canGenerate || calculating}
-                    className="w-full py-4 rounded-2xl text-base font-bold transition-all disabled:opacity-30"
+                    className="w-full py-4 rounded-2xl text-base font-bold transition-all disabled:opacity-30 ai-glow-submit"
                     style={{
                       background: canGenerate
                         ? "linear-gradient(135deg, #1B5E4A 0%, #2F7D63 50%, #B88A44 100%)"
