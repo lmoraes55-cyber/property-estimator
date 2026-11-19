@@ -47,6 +47,19 @@ export const metadata: Metadata = {
     ],
     apple: { url: "/brand/assetintel-favicon-256.png", sizes: "256x256", type: "image/png" },
   },
+  // iOS doesn't read the web manifest's `display`/`theme_color` the way
+  // Android does — these are the Safari-specific equivalents that make
+  // "Add to Home Screen" open full-screen (no Safari chrome) with a
+  // correctly colored status bar, instead of just bookmarking the page.
+  appleWebApp: {
+    capable: true,
+    // "default" pushes page content below the status bar automatically —
+    // "black-translucent" overlays it instead, which would need safe-area
+    // padding added to every page's top nav/header to avoid the clock and
+    // battery icons sitting on top of our own content.
+    statusBarStyle: "default",
+    title: "AssetIntel",
+  },
 };
 
 export const viewport: Viewport = {
