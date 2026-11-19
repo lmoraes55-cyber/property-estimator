@@ -541,6 +541,20 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
             color: #FFFFFF !important;
             box-shadow: 0 4px 14px rgba(27,94,74,0.35);
           }
+          /* Furnishing Status / Property Condition pills carry a title +
+             subtitle as separate <p> children, each with its own inline
+             color tuned for the old light-tinted selected background. An
+             element's own inline color always wins over an ancestor's
+             CSS color, even !important — so the rule above never reached
+             them, leaving dark-on-dark, barely-legible text once selected
+             flipped to a solid dark-green fill. Target the children
+             directly instead. */
+          .ai-glow-opt.ai-glow-selected .ai-glow-opt-title {
+            color: #FFFFFF !important;
+          }
+          .ai-glow-opt.ai-glow-selected .ai-glow-opt-subtitle {
+            color: rgba(255,255,255,0.75) !important;
+          }
         `}</style>
         <div style={{ maxWidth: "1152px", margin: "0 auto", padding: "32px 24px 80px" }}>
         <AccessGate source="estimator" title="Unlock the Rental Analyzer" subtitle="Free — sign up or log in to generate your STR vs LTR report.">
@@ -761,8 +775,8 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                           <button key={f} onClick={() => set("furnished", f)}
                             className={`py-3.5 rounded-[14px] transition-all text-left px-4 ai-glow-opt${sel ? " ai-glow-selected" : ""}`}
                             style={{ ...(sel ? OPT_SELECTED : OPT_UNSELECTED), transform: sel ? "translateY(-1px)" : "none" }}>
-                            <p className="text-sm font-bold" style={{ color: sel ? "#153F32" : colors.textMain }}>{f}</p>
-                            <p className="text-xs mt-0.5" style={{ color: sel ? "#6B8C7A" : colors.textLight }}>
+                            <p className="text-sm font-bold ai-glow-opt-title" style={{ color: sel ? "#153F32" : colors.textMain }}>{f}</p>
+                            <p className="text-xs mt-0.5 ai-glow-opt-subtitle" style={{ color: sel ? "#6B8C7A" : colors.textLight }}>
                               {f === "Furnished" ? "Ready for short-term rental" : "Furnishing package required"}
                             </p>
                           </button>
@@ -791,8 +805,8 @@ function EstimatorPageInner({ tenant }: { tenant: Tenant | null }) {
                           <button key={c} onClick={() => set("propertyCondition", c)}
                             className={`py-3 rounded-[14px] transition-all text-left px-4 ai-glow-opt${sel ? " ai-glow-selected" : ""}`}
                             style={{ ...(sel ? OPT_SELECTED : OPT_UNSELECTED), transform: sel ? "translateY(-1px)" : "none" }}>
-                            <p className="text-sm font-bold" style={{ color: sel ? "#153F32" : colors.textMain }}>{c}</p>
-                            <p className="text-xs mt-0.5" style={{ color: sel ? "#6B8C7A" : colors.textLight }}>{desc[c]}</p>
+                            <p className="text-sm font-bold ai-glow-opt-title" style={{ color: sel ? "#153F32" : colors.textMain }}>{c}</p>
+                            <p className="text-xs mt-0.5 ai-glow-opt-subtitle" style={{ color: sel ? "#6B8C7A" : colors.textLight }}>{desc[c]}</p>
                           </button>
                         );
                       })}
