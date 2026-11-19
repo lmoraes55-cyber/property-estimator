@@ -56,3 +56,4 @@ scratch/
 
 # Supabase CLI version cache
 supabase/.temp/
+.superpowers/
