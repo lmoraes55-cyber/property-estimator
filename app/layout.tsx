@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       { url: "/brand/assetintel-favicon-64.png", sizes: "64x64", type: "image/png" },
       { url: "/brand/assetintel-favicon-128.png", sizes: "128x128", type: "image/png" },
     ],
-    apple: { url: "/brand/assetintel-favicon-256.png", sizes: "256x256", type: "image/png" },
+    apple: { url: "/brand/assetintel-app-icon-256.png", sizes: "256x256", type: "image/png" },
   },
   // iOS doesn't read the web manifest's `display`/`theme_color` the way
   // Android does — these are the Safari-specific equivalents that make
